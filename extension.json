@@ -1,0 +1,193 @@
+{
+	"name": "Achievements",
+	"version": "2.0",
+	"author": [
+		"Alexia E. Smith"
+	],
+	"descriptionmsg": "achievements_description",
+	"type": "parserhook",
+	"GroupPermissions": {
+		"sysop": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true
+		},
+		"hydra_staff": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true
+		},
+		"hydra_admin": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true,
+			"mega_achievement_admin": true,
+			"edit_mega_achievements": true
+		}
+	},
+	"AvailableRights": [
+		"achievement_admin",
+		"mega_achievement_admin",
+		"edit_achievements",
+		"edit_meta_achievements",
+		"edit_mega_achievements",
+		"edit_achievement_triggers",
+		"delete_achievements",
+		"restore_achievements",
+		"award_achievements"
+	],
+	"SpecialPages": {
+		"Achievements": "SpecialAchievements",
+		"AwardAchievement": "SpecialAwardAchievement",
+		"MegaAchievements": "SpecialMegaAchievements"
+	},
+	"APIModules": {
+		"achievements": "AchievementsAPI"
+	},
+	"MessagesDirs": {
+		"Achievements": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"SpecialAchievements": "Achievements.alias.php"
+	},
+	"AutoloadClasses": {
+		"CheevosHooks": "Achievements.hooks.php",
+		"AchievementsAPI": "Achievements.api.php",
+		"SpecialAchievements": "specials/SpecialAchievements.php",
+		"SpecialAwardAchievement": "specials/SpecialAwardAchievement.php",
+		"SpecialMegaAchievements": "specials/SpecialMegaAchievements.php",
+		"Cheevos\\Achievement": "classes/Achievement.php",
+		"Cheevos\\Category": "classes/Category.php",
+		"Cheevos\\FakeAchievement": "classes/Achievement.php",
+		"Cheevos\\Progress": "classes/Progress.php",
+		"Cheevos\\MegaAchievement": "classes/MegaAchievement.php",
+		"Cheevos\\MegaProgress": "classes/MegaProgress.php",
+		"Cheevos\\MegaService": "classes/MegaService.php",
+		"Cheevos\\SiteMegaUpdate": "classes/SiteMegaUpdate.php",
+		"TemplateAchievements": "templates/TemplateAchievements.php",
+		"TemplateAwardAchievement": "templates/TemplateAwardAchievement.php",
+		"TemplateMegaAchievements": "templates/TemplateMegaAchievements.php"
+	},
+	"ResourceModules": {
+		"ext.achievements.resumable.js": {
+			"scripts": [
+				"js/achievements.resumable.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.achievements.styles": {
+			"styles": [
+				"css/achievements.css"
+			],
+			"dependencies": [
+				"ext.hydraCore.button",
+				"ext.hydraCore.pagination"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.achievements.js": {
+			"scripts": [
+				"js/achievements.js"
+			],
+			"dependencies": [
+				"ext.achievements.resumable.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.achievements.triggerBuilder.js": {
+			"scripts": [
+				"js/achievements.triggerBuilder.js"
+			],
+			"dependencies": [
+				"ext.achievements.resumable.js"
+			],
+			"messages": [
+				"add_condition",
+				"add_trigger",
+				"cancel_trigger",
+				"delete_condition",
+				"delete_trigger",
+				"save_trigger",
+				"trigger_builder",
+				"error_connecting_to_site",
+				"bad_site_key",
+				"choose_existing_hook"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.achievements.notice.js": {
+			"scripts": [
+				"js/achievements.notice.js"
+			],
+			"dependencies": [
+				"jquery.effects.core",
+				"jquery.effects.pulsate"
+			],
+			"targets": [
+				"desktop"
+			],
+			"position": "top"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "Achievements"
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": [
+			"CheevosHooks::onLoadExtensionSchemaUpdates"
+		],
+		"SkinAfterBottomScripts": [
+			"CheevosHooks::onSkinAfterBottomScripts"
+		],
+		"PersonalUrls": [
+			"CheevosHooks::onPersonalUrls"
+		],
+		"WikiSitesMenuOptions": [
+			"CheevosHooks::onWikiSitesMenuOptions"
+		],
+		"AchievementAwarded": [
+			"CheevosHooks::onAchievementAwarded"
+		],
+		"AchievementUnawarded": [
+			"CheevosHooks::onAchievementUnawarded"
+		],
+		"ParserAfterTidy": [
+			"CheevosHooks::onParserAfterTidy"
+		],
+		"WikiPointsSave": [
+			"CheevosHooks::onWikiPointsSave"
+		]
+	},
+	"manifest_version": 1
+}

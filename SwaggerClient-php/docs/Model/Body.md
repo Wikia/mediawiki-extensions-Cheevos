@@ -1,0 +1,12 @@
+# Body
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**user_id** | **int** |  | [optional] 
+**site_id** | **int** |  | [optional] 
+**deltas** | [**\Swagger\Client\Model\StatDelta[]**](StatDelta.md) |  | [optional] 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+
