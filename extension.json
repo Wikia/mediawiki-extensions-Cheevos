@@ -1,8 +1,8 @@
 {
-	"name": "Achievements",
-	"version": "2.0",
+	"name": "Cheevos",
+	"version": "1.0",
 	"author": [
-		"Alexia E. Smith"
+		"Wiki Platform Team"
 	],
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
@@ -54,7 +54,7 @@
 		"MegaAchievements": "SpecialMegaAchievements"
 	},
 	"APIModules": {
-		"achievements": "AchievementsAPI"
+		"achievements": "CheevosAPI"
 	},
 	"MessagesDirs": {
 		"Achievements": [
@@ -62,11 +62,11 @@
 		]
 	},
 	"ExtensionMessagesFiles": {
-		"SpecialAchievements": "Achievements.alias.php"
+		"SpecialAchievements": "Cheevos.alias.php"
 	},
 	"AutoloadClasses": {
-		"CheevosHooks": "Achievements.hooks.php",
-		"AchievementsAPI": "Achievements.api.php",
+		"CheevosHooks": "Cheevos.hooks.php",
+		"AchievementsAPI": "Cheevos.api.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
 		"SpecialAwardAchievement": "specials/SpecialAwardAchievement.php",
 		"SpecialMegaAchievements": "specials/SpecialMegaAchievements.php",
@@ -189,5 +189,6 @@
 			"CheevosHooks::onWikiPointsSave"
 		]
 	},
+	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1
 }

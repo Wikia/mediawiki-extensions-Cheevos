@@ -202,6 +202,8 @@ class CheevosHooks {
 		}
 	}
 
+
+
 	/**
 	 * Registers Achievement Hooks
 	 *
@@ -340,6 +342,11 @@ class CheevosHooks {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			return false;
 		}
+	}
+
+	static public function onRegistration() {
+		// load the Cheevo's Client code.
+		require_once(__DIR__.'/cheevos-client/autoload.php');
 	}
 
 	/**
