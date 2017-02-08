@@ -250,7 +250,7 @@ $(document).ready(function() {
 
 		megaWikiSelector.registerOnChange(function(wikiSelector) {
 			var siteKey = wikiSelector.getSingleWikiKey();
-			var siteAchievementsURL = mw.config.get('wgScriptPath')+'/Special:MegaAchievements/siteAchievements?siteKey='+siteKey;
+			var siteAchievementsURL = mw.config.get('wgScriptPath')+'/Special:CheevosMegaAchievements/siteAchievements?siteKey='+siteKey;
 			if (typeof siteKey !== 'string' || siteKey.length !== 32) {
 				return;
 			}

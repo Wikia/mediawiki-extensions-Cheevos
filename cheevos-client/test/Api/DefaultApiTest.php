@@ -77,12 +77,100 @@ class DefaultApiTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test case for achievementCategoriesAllGet
+     *
+     * .
+     *
+     */
+    public function testAchievementCategoriesAllGet()
+    {
+
+    }
+
+    /**
+     * Test case for achievementCategoryIdDelete
+     *
+     * .
+     *
+     */
+    public function testAchievementCategoryIdDelete()
+    {
+
+    }
+
+    /**
+     * Test case for achievementCategoryIdGet
+     *
+     * .
+     *
+     */
+    public function testAchievementCategoryIdGet()
+    {
+
+    }
+
+    /**
+     * Test case for achievementCategoryIdPut
+     *
+     * .
+     *
+     */
+    public function testAchievementCategoryIdPut()
+    {
+
+    }
+
+    /**
+     * Test case for achievementCategoryPut
+     *
+     * .
+     *
+     */
+    public function testAchievementCategoryPut()
+    {
+
+    }
+
+    /**
+     * Test case for achievementIdDelete
+     *
+     * .
+     *
+     */
+    public function testAchievementIdDelete()
+    {
+
+    }
+
+    /**
      * Test case for achievementIdGet
      *
      * .
      *
      */
     public function testAchievementIdGet()
+    {
+
+    }
+
+    /**
+     * Test case for achievementIdPut
+     *
+     * .
+     *
+     */
+    public function testAchievementIdPut()
+    {
+
+    }
+
+    /**
+     * Test case for achievementPut
+     *
+     * .
+     *
+     */
+    public function testAchievementPut()
     {
 
     }
@@ -105,6 +193,17 @@ class DefaultApiTest extends \PHPUnit_Framework_TestCase
      *
      */
     public function testIncrementPost()
+    {
+
+    }
+
+    /**
+     * Test case for statsGet
+     *
+     * .
+     *
+     */
+    public function testStatsGet()
     {
 
     }

@@ -82,12 +82,4 @@ class LocalizedStringTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    /**
-     * Test attribute "_a_z2__a_z2"
-     */
-    public function testPropertyAZ2AZ2()
-    {
-
-    }
-
 }

@@ -35,7 +35,7 @@ class TemplateAwardAchievement {
 	public function __construct() {
 		global $wgScriptPath, $wgUser;
 
-		$awardPage		= Title::newFromText('Special:AwardAchievement');
+		$awardPage		= Title::newFromText('Special:CheevosAwardAchievement');
 		$this->awardURL	= $awardPage->getFullURL();
 
 		$this->urlPrefix = wfExpandUrl($wgScriptPath);

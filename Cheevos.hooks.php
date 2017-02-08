@@ -746,7 +746,7 @@ class CheevosHooks {
 		global $wgUser;
 
 		if ($wgUser->isAllowed('edit_mega_achievements')) {
-			$megaAchievementsPage = Title::newFromText('Special:MegaAchievements');
+			$megaAchievementsPage = Title::newFromText('Special:CheevosMegaAchievements');
 			$extraMenuOptions[] = "<a href='{$megaAchievementsPage->getFullURL()}/updateSiteMega?siteKey={$wiki->getSiteKey()}' title='".wfMessage('update_site_mega')->escaped()."'>".HydraCore::awesomeIcon('medium').wfMessage('update_site_mega')->escaped()."</a>";
 		}
 

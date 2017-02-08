@@ -88,13 +88,604 @@ class DefaultApi
     }
 
     /**
+     * Operation achievementCategoriesAllGet
+     *
+     * 
+     *
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\InlineResponse2002
+     */
+    public function achievementCategoriesAllGet($limit = null, $offset = null)
+    {
+        list($response) = $this->achievementCategoriesAllGetWithHttpInfo($limit, $offset);
+        return $response;
+    }
+
+    /**
+     * Operation achievementCategoriesAllGetWithHttpInfo
+     *
+     * 
+     *
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\InlineResponse2002, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementCategoriesAllGetWithHttpInfo($limit = null, $offset = null)
+    {
+        if (!is_null($limit) && ($limit > 200)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementCategoriesAllGet, must be smaller than or equal to 200.');
+        }
+        if (!is_null($limit) && ($limit < 1)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementCategoriesAllGet, must be bigger than or equal to 1.');
+        }
+
+        if (!is_null($offset) && ($offset < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$offset" when calling DefaultApi.achievementCategoriesAllGet, must be bigger than or equal to 0.');
+        }
+
+        // parse inputs
+        $resourcePath = "/achievement_categories/all";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // query params
+        if ($limit !== null) {
+            $queryParams['limit'] = $this->apiClient->getSerializer()->toQueryValue($limit);
+        }
+        // query params
+        if ($offset !== null) {
+            $queryParams['offset'] = $this->apiClient->getSerializer()->toQueryValue($offset);
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\InlineResponse2002',
+                '/achievement_categories/all'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\InlineResponse2002', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2002', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementCategoryIdDelete
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @param int $author_id User id who caused the delete request (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementCategoryIdDelete($id, $author_id)
+    {
+        list($response) = $this->achievementCategoryIdDeleteWithHttpInfo($id, $author_id);
+        return $response;
+    }
+
+    /**
+     * Operation achievementCategoryIdDeleteWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @param int $author_id User id who caused the delete request (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementCategoryIdDeleteWithHttpInfo($id, $author_id)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementCategoryIdDelete');
+        }
+        // verify the required parameter 'author_id' is set
+        if ($author_id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $author_id when calling achievementCategoryIdDelete');
+        }
+        // parse inputs
+        $resourcePath = "/achievement_category/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // query params
+        if ($author_id !== null) {
+            $queryParams['author_id'] = $this->apiClient->getSerializer()->toQueryValue($author_id);
+        }
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'DELETE',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement_category/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementCategoryIdGet
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\AchievementCategory
+     */
+    public function achievementCategoryIdGet($id)
+    {
+        list($response) = $this->achievementCategoryIdGetWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation achievementCategoryIdGetWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\AchievementCategory, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementCategoryIdGetWithHttpInfo($id)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementCategoryIdGet');
+        }
+        // parse inputs
+        $resourcePath = "/achievement_category/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\AchievementCategory',
+                '/achievement_category/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\AchievementCategory', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\AchievementCategory', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementCategoryIdPut
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @param \Swagger\Client\Model\AchievementCategory $body Achievement category (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementCategoryIdPut($id, $body)
+    {
+        list($response) = $this->achievementCategoryIdPutWithHttpInfo($id, $body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementCategoryIdPutWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement category id (required)
+     * @param \Swagger\Client\Model\AchievementCategory $body Achievement category (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementCategoryIdPutWithHttpInfo($id, $body)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementCategoryIdPut');
+        }
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementCategoryIdPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievement_category/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement_category/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementCategoryPut
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\AchievementCategory $body  (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementCategoryPut($body)
+    {
+        list($response) = $this->achievementCategoryPutWithHttpInfo($body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementCategoryPutWithHttpInfo
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\AchievementCategory $body  (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementCategoryPutWithHttpInfo($body)
+    {
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementCategoryPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievement_category";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement_category'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementIdDelete
+     *
+     * 
+     *
+     * @param int $id Achievement id (required)
+     * @param int $author_id User id who caused the delete request (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementIdDelete($id, $author_id)
+    {
+        list($response) = $this->achievementIdDeleteWithHttpInfo($id, $author_id);
+        return $response;
+    }
+
+    /**
+     * Operation achievementIdDeleteWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement id (required)
+     * @param int $author_id User id who caused the delete request (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementIdDeleteWithHttpInfo($id, $author_id)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementIdDelete');
+        }
+        // verify the required parameter 'author_id' is set
+        if ($author_id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $author_id when calling achievementIdDelete');
+        }
+        // parse inputs
+        $resourcePath = "/achievement/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // query params
+        if ($author_id !== null) {
+            $queryParams['author_id'] = $this->apiClient->getSerializer()->toQueryValue($author_id);
+        }
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'DELETE',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
      * Operation achievementIdGet
      *
      * 
      *
      * @param int $id Achievement id (required)
      * @throws \Swagger\Client\ApiException on non-2xx response
-     * @return \Swagger\Client\Model\ErrorResponse
+     * @return \Swagger\Client\Model\Achievement
      */
     public function achievementIdGet($id)
     {
@@ -109,7 +700,7 @@ class DefaultApi
      *
      * @param int $id Achievement id (required)
      * @throws \Swagger\Client\ApiException on non-2xx response
-     * @return array of \Swagger\Client\Model\ErrorResponse, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Swagger\Client\Model\Achievement, HTTP status code, HTTP response headers (array of strings)
      */
     public function achievementIdGetWithHttpInfo($id)
     {
@@ -155,13 +746,213 @@ class DefaultApi
                 $queryParams,
                 $httpBody,
                 $headerParams,
-                '\Swagger\Client\Model\ErrorResponse',
+                '\Swagger\Client\Model\Achievement',
                 '/achievement/{id}'
             );
 
-            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\ErrorResponse', $httpHeader), $statusCode, $httpHeader];
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\Achievement', $httpHeader), $statusCode, $httpHeader];
         } catch (ApiException $e) {
             switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\Achievement', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementIdPut
+     *
+     * 
+     *
+     * @param int $id Achievement id (required)
+     * @param \Swagger\Client\Model\Achievement $body achievement (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementIdPut($id, $body)
+    {
+        list($response) = $this->achievementIdPutWithHttpInfo($id, $body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementIdPutWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement id (required)
+     * @param \Swagger\Client\Model\Achievement $body achievement (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementIdPutWithHttpInfo($id, $body)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementIdPut');
+        }
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementIdPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievement/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementPut
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\Achievement $body  (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementPut($body)
+    {
+        list($response) = $this->achievementPutWithHttpInfo($body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementPutWithHttpInfo
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\Achievement $body  (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementPutWithHttpInfo($body)
+    {
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievement";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievement'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
                 default:
                     $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
                     $e->setResponseObject($data);
@@ -177,9 +968,9 @@ class DefaultApi
      *
      * 
      *
-     * @param int $site_id The site id to use for locally overridden achievements. (optional)
-     * @param int $limit Maximum number of items in the result.  Defaults to 25. Maximum is 200. (optional)
-     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional)
+     * @param int $site_id The site id to use for locally overridden achievements. (optional, default to 0)
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return \Swagger\Client\Model\InlineResponse2001
      */
@@ -194,14 +985,29 @@ class DefaultApi
      *
      * 
      *
-     * @param int $site_id The site id to use for locally overridden achievements. (optional)
-     * @param int $limit Maximum number of items in the result.  Defaults to 25. Maximum is 200. (optional)
-     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional)
+     * @param int $site_id The site id to use for locally overridden achievements. (optional, default to 0)
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return array of \Swagger\Client\Model\InlineResponse2001, HTTP status code, HTTP response headers (array of strings)
      */
     public function achievementsAllGetWithHttpInfo($site_id = null, $limit = null, $offset = null)
     {
+        if (!is_null($site_id) && ($site_id < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$site_id" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 0.');
+        }
+
+        if (!is_null($limit) && ($limit > 200)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsAllGet, must be smaller than or equal to 200.');
+        }
+        if (!is_null($limit) && ($limit < 1)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 1.');
+        }
+
+        if (!is_null($offset) && ($offset < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$offset" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 0.');
+        }
+
         // parse inputs
         $resourcePath = "/achievements/all";
         $httpBody = '';
@@ -322,6 +1128,11 @@ class DefaultApi
         } elseif (count($formParams) > 0) {
             $httpBody = $formParams; // for HTTP post (form)
         }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
         // make the API Call
         try {
             list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
@@ -339,6 +1150,128 @@ class DefaultApi
             switch ($e->getCode()) {
                 case 200:
                     $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse200', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation statsGet
+     *
+     * 
+     *
+     * @param int $user_id Filter stats by user id (optional)
+     * @param int $site_id Filter stats by site id (optional)
+     * @param bool $global If true, stats will be aggregated across all sites, and site_id will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
+     * @param string $stat Filter by stat name (optional)
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\InlineResponse2003
+     */
+    public function statsGet($user_id = null, $site_id = null, $global = null, $stat = null, $limit = null, $offset = null)
+    {
+        list($response) = $this->statsGetWithHttpInfo($user_id, $site_id, $global, $stat, $limit, $offset);
+        return $response;
+    }
+
+    /**
+     * Operation statsGetWithHttpInfo
+     *
+     * 
+     *
+     * @param int $user_id Filter stats by user id (optional)
+     * @param int $site_id Filter stats by site id (optional)
+     * @param bool $global If true, stats will be aggregated across all sites, and site_id will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
+     * @param string $stat Filter by stat name (optional)
+     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\InlineResponse2003, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function statsGetWithHttpInfo($user_id = null, $site_id = null, $global = null, $stat = null, $limit = null, $offset = null)
+    {
+        if (!is_null($limit) && ($limit > 200)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.statsGet, must be smaller than or equal to 200.');
+        }
+        if (!is_null($limit) && ($limit < 1)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.statsGet, must be bigger than or equal to 1.');
+        }
+
+        if (!is_null($offset) && ($offset < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$offset" when calling DefaultApi.statsGet, must be bigger than or equal to 0.');
+        }
+
+        // parse inputs
+        $resourcePath = "/stats";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // query params
+        if ($user_id !== null) {
+            $queryParams['user_id'] = $this->apiClient->getSerializer()->toQueryValue($user_id);
+        }
+        // query params
+        if ($site_id !== null) {
+            $queryParams['site_id'] = $this->apiClient->getSerializer()->toQueryValue($site_id);
+        }
+        // query params
+        if ($global !== null) {
+            $queryParams['global'] = $this->apiClient->getSerializer()->toQueryValue($global);
+        }
+        // query params
+        if ($stat !== null) {
+            $queryParams['stat'] = $this->apiClient->getSerializer()->toQueryValue($stat);
+        }
+        // query params
+        if ($limit !== null) {
+            $queryParams['limit'] = $this->apiClient->getSerializer()->toQueryValue($limit);
+        }
+        // query params
+        if ($offset !== null) {
+            $queryParams['offset'] = $this->apiClient->getSerializer()->toQueryValue($offset);
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\InlineResponse2003',
+                '/stats'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\InlineResponse2003', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2003', $e->getResponseHeaders());
                     $e->setResponseObject($data);
                     break;
                 default:

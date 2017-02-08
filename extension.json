@@ -49,12 +49,9 @@
 		"award_achievements"
 	],
 	"SpecialPages": {
-		"Achievements": "SpecialAchievements",
-		"AwardAchievement": "SpecialAwardAchievement",
-		"MegaAchievements": "SpecialMegaAchievements"
-	},
-	"APIModules": {
-		"achievements": "CheevosAPI"
+		"CheevosAchievements": "SpecialCheevosAchievements",
+		"CheevosAwardAchievement": "SpecialCheevosAwardAchievement",
+		"CheevosMegaAchievements": "SpecialCheevosMegaAchievements"
 	},
 	"MessagesDirs": {
 		"Achievements": [
@@ -62,22 +59,13 @@
 		]
 	},
 	"ExtensionMessagesFiles": {
-		"SpecialAchievements": "Cheevos.alias.php"
+		"SpecialCheevosAchievements": "Cheevos.alias.php"
 	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
-		"AchievementsAPI": "Cheevos.api.php",
-		"SpecialAchievements": "specials/SpecialAchievements.php",
+		"SpecialCheevosAchievements": "specials/SpecialAchievements.php",
 		"SpecialAwardAchievement": "specials/SpecialAwardAchievement.php",
-		"SpecialMegaAchievements": "specials/SpecialMegaAchievements.php",
-		"Cheevos\\Achievement": "classes/Achievement.php",
-		"Cheevos\\Category": "classes/Category.php",
-		"Cheevos\\FakeAchievement": "classes/Achievement.php",
-		"Cheevos\\Progress": "classes/Progress.php",
-		"Cheevos\\MegaAchievement": "classes/MegaAchievement.php",
-		"Cheevos\\MegaProgress": "classes/MegaProgress.php",
-		"Cheevos\\MegaService": "classes/MegaService.php",
-		"Cheevos\\SiteMegaUpdate": "classes/SiteMegaUpdate.php",
+		"SpecialMegaCheevosAchievements": "specials/SpecialMegaAchievements.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
 		"TemplateAwardAchievement": "templates/TemplateAwardAchievement.php",
 		"TemplateMegaAchievements": "templates/TemplateMegaAchievements.php"

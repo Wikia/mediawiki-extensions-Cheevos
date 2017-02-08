@@ -64,6 +64,11 @@ class Achievement implements ArrayAccess
         'category' => '\Swagger\Client\Model\AchievementCategory',
         'points' => 'int',
         'global' => 'bool',
+        'protected' => 'bool',
+        'created_at' => 'int',
+        'updated_at' => 'int',
+        'created_by' => 'int',
+        'updated_by' => 'int',
         'criteria' => '\Swagger\Client\Model\AchievementCriteria'
     ];
 
@@ -86,6 +91,11 @@ class Achievement implements ArrayAccess
         'category' => 'category',
         'points' => 'points',
         'global' => 'global',
+        'protected' => 'protected',
+        'created_at' => 'created_at',
+        'updated_at' => 'updated_at',
+        'created_by' => 'created_by',
+        'updated_by' => 'updated_by',
         'criteria' => 'criteria'
     ];
 
@@ -104,6 +114,11 @@ class Achievement implements ArrayAccess
         'category' => 'setCategory',
         'points' => 'setPoints',
         'global' => 'setGlobal',
+        'protected' => 'setProtected',
+        'created_at' => 'setCreatedAt',
+        'updated_at' => 'setUpdatedAt',
+        'created_by' => 'setCreatedBy',
+        'updated_by' => 'setUpdatedBy',
         'criteria' => 'setCriteria'
     ];
 
@@ -122,6 +137,11 @@ class Achievement implements ArrayAccess
         'category' => 'getCategory',
         'points' => 'getPoints',
         'global' => 'getGlobal',
+        'protected' => 'getProtected',
+        'created_at' => 'getCreatedAt',
+        'updated_at' => 'getUpdatedAt',
+        'created_by' => 'getCreatedBy',
+        'updated_by' => 'getUpdatedBy',
         'criteria' => 'getCriteria'
     ];
 
@@ -165,6 +185,11 @@ class Achievement implements ArrayAccess
         $this->container['category'] = isset($data['category']) ? $data['category'] : null;
         $this->container['points'] = isset($data['points']) ? $data['points'] : null;
         $this->container['global'] = isset($data['global']) ? $data['global'] : null;
+        $this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
+        $this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : null;
+        $this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : null;
+        $this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
+        $this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
         $this->container['criteria'] = isset($data['criteria']) ? $data['criteria'] : null;
     }
 
@@ -376,6 +401,111 @@ class Achievement implements ArrayAccess
     public function setGlobal($global)
     {
         $this->container['global'] = $global;
+
+        return $this;
+    }
+
+    /**
+     * Gets protected
+     * @return bool
+     */
+    public function getProtected()
+    {
+        return $this->container['protected'];
+    }
+
+    /**
+     * Sets protected
+     * @param bool $protected When true, this achievement is protected from modifications.
+     * @return $this
+     */
+    public function setProtected($protected)
+    {
+        $this->container['protected'] = $protected;
+
+        return $this;
+    }
+
+    /**
+     * Gets created_at
+     * @return int
+     */
+    public function getCreatedAt()
+    {
+        return $this->container['created_at'];
+    }
+
+    /**
+     * Sets created_at
+     * @param int $created_at Unix time in seconds when this achievement was created.
+     * @return $this
+     */
+    public function setCreatedAt($created_at)
+    {
+        $this->container['created_at'] = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets updated_at
+     * @return int
+     */
+    public function getUpdatedAt()
+    {
+        return $this->container['updated_at'];
+    }
+
+    /**
+     * Sets updated_at
+     * @param int $updated_at Unix time in seconds when this achievement was last updated.
+     * @return $this
+     */
+    public function setUpdatedAt($updated_at)
+    {
+        $this->container['updated_at'] = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets created_by
+     * @return int
+     */
+    public function getCreatedBy()
+    {
+        return $this->container['created_by'];
+    }
+
+    /**
+     * Sets created_by
+     * @param int $created_by User id of the original author of this achievement.
+     * @return $this
+     */
+    public function setCreatedBy($created_by)
+    {
+        $this->container['created_by'] = $created_by;
+
+        return $this;
+    }
+
+    /**
+     * Gets updated_by
+     * @return int
+     */
+    public function getUpdatedBy()
+    {
+        return $this->container['updated_by'];
+    }
+
+    /**
+     * Sets updated_by
+     * @param int $updated_by User id of the most recent author of this achievement.
+     * @return $this
+     */
+    public function setUpdatedBy($updated_by)
+    {
+        $this->container['updated_by'] = $updated_by;
 
         return $this;
     }

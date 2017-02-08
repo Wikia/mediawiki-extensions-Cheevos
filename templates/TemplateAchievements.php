@@ -26,7 +26,7 @@ class TemplateAchievements {
 	public function achievementsList($achievements, $categories, $progress, $hide, $searchTerm) {
 		global $wgOut, $wgRequest, $wgUser;
 
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:CheevosAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = '';
@@ -116,7 +116,7 @@ class TemplateAchievements {
 	public function achievementBlockPopUp($achievement) {
 		global $achPointAbbreviation, $wgSitename, $dsSiteKey;
 
-		$achievementsPage		= Title::newFromText('Special:'.($achievement->isMega() ? 'Mega' : '').'Achievements');
+		$achievementsPage		= Title::newFromText('Special:Cheevos'.($achievement->isMega() ? 'Mega' : '').'Achievements');
 
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
@@ -147,7 +147,7 @@ class TemplateAchievements {
 	public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
 		global $wgUser, $achPointAbbreviation;
 
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:CheevosAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = "
@@ -239,7 +239,7 @@ class TemplateAchievements {
 	public function achievementsForm($achievement, $categories, $knownHooks, $allAchievements, $errors) {
 		global $wgUser, $wgScriptPath;
 
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:CheevosAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = $this->achievementBlockRow($achievement, false);
@@ -339,7 +339,7 @@ class TemplateAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function achievementsDelete($achievement) {
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:CheevosAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		if ($achievement->isDeleted()) {

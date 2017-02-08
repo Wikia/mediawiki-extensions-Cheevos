@@ -56,7 +56,7 @@ class LocalizedString implements ArrayAccess
       * @var string[]
       */
     protected static $swaggerTypes = [
-        '_a_z2__a_z2' => 'string'
+        
     ];
 
     public static function swaggerTypes()
@@ -69,7 +69,7 @@ class LocalizedString implements ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        '_a_z2__a_z2' => '^[a-z]{2}-[a-z]{2}$'
+        
     ];
 
 
@@ -78,7 +78,7 @@ class LocalizedString implements ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        '_a_z2__a_z2' => 'setAZ2AZ2'
+        
     ];
 
 
@@ -87,7 +87,7 @@ class LocalizedString implements ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        '_a_z2__a_z2' => 'getAZ2AZ2'
+        
     ];
 
     public static function attributeMap()
@@ -121,7 +121,6 @@ class LocalizedString implements ArrayAccess
      */
     public function __construct(array $data = null)
     {
-        $this->container['_a_z2__a_z2'] = isset($data['_a_z2__a_z2']) ? $data['_a_z2__a_z2'] : null;
     }
 
     /**
@@ -146,27 +145,6 @@ class LocalizedString implements ArrayAccess
         return true;
     }
 
-
-    /**
-     * Gets _a_z2__a_z2
-     * @return string
-     */
-    public function getAZ2AZ2()
-    {
-        return $this->container['_a_z2__a_z2'];
-    }
-
-    /**
-     * Sets _a_z2__a_z2
-     * @param string $_a_z2__a_z2
-     * @return $this
-     */
-    public function setAZ2AZ2($_a_z2__a_z2)
-    {
-        $this->container['_a_z2__a_z2'] = $_a_z2__a_z2;
-
-        return $this;
-    }
     /**
      * Returns true if offset exists. False otherwise.
      * @param  integer $offset Offset

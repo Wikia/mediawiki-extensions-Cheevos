@@ -12,6 +12,11 @@ Name | Type | Description | Notes
 **category** | [**\Swagger\Client\Model\AchievementCategory**](AchievementCategory.md) |  | [optional] 
 **points** | **int** |  | [optional] 
 **global** | **bool** | When true, this achievement is awarded based on progress across all sites. | [optional] 
+**protected** | **bool** | When true, this achievement is protected from modifications. | [optional] 
+**created_at** | **int** | Unix time in seconds when this achievement was created. | [optional] 
+**updated_at** | **int** | Unix time in seconds when this achievement was last updated. | [optional] 
+**created_by** | **int** | User id of the original author of this achievement. | [optional] 
+**updated_by** | **int** | User id of the most recent author of this achievement. | [optional] 
 **criteria** | [**\Swagger\Client\Model\AchievementCriteria**](AchievementCriteria.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

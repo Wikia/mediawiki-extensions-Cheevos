@@ -38,7 +38,7 @@ class TemplateMegaAchievements {
 	public function megaAchievementsList($achievements, $progress, $hide, $searchTerm, $pagination) {
 		global $wgOut, $wgRequest, $wgUser;
 
-		$megaAchievementsPage	= Title::newFromText('Special:MegaAchievements');
+		$megaAchievementsPage	= Title::newFromText('Special:CheevosMegaAchievements');
 		$megaAchievementsURL	= $megaAchievementsPage->getFullURL();
 
 		$HTML = "
@@ -96,7 +96,7 @@ class TemplateMegaAchievements {
 	public function megaAchievementBlockRow($achievement, $showControls = true, $progress = []) {
 		global $wgUser, $achPointAbbreviation;
 
-		$megaAchievementsPage	= Title::newFromText('Special:MegaAchievements');
+		$megaAchievementsPage	= Title::newFromText('Special:CheevosMegaAchievements');
 		$megaAchievementsURL	= $megaAchievementsPage->getFullURL();
 
 		$HTML = "
@@ -174,7 +174,7 @@ class TemplateMegaAchievements {
 	public function megaAchievementsForm($megaAchievement, $knownHooks, $achievements, $site, $errors) {
 		global $wgScriptPath;
 
-		$megaAchievementsPage	= Title::newFromText('Special:MegaAchievements');
+		$megaAchievementsPage	= Title::newFromText('Special:CheevosMegaAchievements');
 		$megaAchievementsURL	= $megaAchievementsPage->getFullURL();
 
 		$HTML = $this->megaAchievementBlockRow($megaAchievement, false, ['date' => 1]);
@@ -242,7 +242,7 @@ class TemplateMegaAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function megaAchievementsDelete($megaAchievement, $error = false) {
-		$megaAchievementsPage	= Title::newFromText('Special:MegaAchievements');
+		$megaAchievementsPage	= Title::newFromText('Special:CheevosMegaAchievements');
 		$megaAchievementsURL	= $megaAchievementsPage->getFullURL();
 
 		if (!empty($error)) {
@@ -275,7 +275,7 @@ class TemplateMegaAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function updateSiteMegaForm($wiki) {
-		$megaAchievementsPage	= Title::newFromText('Special:MegaAchievements');
+		$megaAchievementsPage	= Title::newFromText('Special:CheevosMegaAchievements');
 		$megaAchievementsURL	= $megaAchievementsPage->getFullURL();
 
 		$HTML .= "

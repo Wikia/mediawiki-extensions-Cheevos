@@ -11,7 +11,7 @@
  *
  **/
 
-class SpecialAwardAchievement extends SpecialPage {
+class SpecialCheevosAwardAchievement extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
@@ -26,7 +26,7 @@ class SpecialAwardAchievement extends SpecialPage {
 	 * @return	void
 	 */
 	public function __construct() {
-		parent::__construct('AwardAchievement', 'award_achievements', $this->getUser()->isAllowed('award_achievements'));
+		parent::__construct('CheevosAwardAchievement', 'award_achievements', $this->getUser()->isAllowed('award_achievements'));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->output		= $this->getOutput();

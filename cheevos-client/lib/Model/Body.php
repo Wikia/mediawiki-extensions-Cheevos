@@ -141,6 +141,15 @@ class Body implements ArrayAccess
     public function listInvalidProperties()
     {
         $invalid_properties = [];
+        if ($this->container['user_id'] === null) {
+            $invalid_properties[] = "'user_id' can't be null";
+        }
+        if ($this->container['site_id'] === null) {
+            $invalid_properties[] = "'site_id' can't be null";
+        }
+        if ($this->container['deltas'] === null) {
+            $invalid_properties[] = "'deltas' can't be null";
+        }
         return $invalid_properties;
     }
 
@@ -152,6 +161,15 @@ class Body implements ArrayAccess
      */
     public function valid()
     {
+        if ($this->container['user_id'] === null) {
+            return false;
+        }
+        if ($this->container['site_id'] === null) {
+            return false;
+        }
+        if ($this->container['deltas'] === null) {
+            return false;
+        }
         return true;
     }
 

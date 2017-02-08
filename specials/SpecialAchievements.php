@@ -11,7 +11,7 @@
  *
  **/
 
-class SpecialAchievements extends SpecialPage {
+class SpecialCheevosAchievements extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
@@ -26,7 +26,7 @@ class SpecialAchievements extends SpecialPage {
 	 * @return	void
 	 */
 	public function __construct() {
-		parent::__construct('Achievements');
+		parent::__construct('CheevosAchievements');
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -79,6 +79,8 @@ class SpecialAchievements extends SpecialPage {
 		$hide['deleted'] = true;
 		$hide['secret'] = true;
 		$achievements = \Cheevos\Achievement::getAll(true);
+
+		
 
 		$searchTerm = '';
 		if ($this->wgUser->isAllowed('achievement_admin')) {
@@ -260,7 +262,7 @@ class SpecialAchievements extends SpecialPage {
 					CheevosHooks::invalidateCache();
 				}
 
-				$page = Title::newFromText('Special:Achievements');
+				$page = Title::newFromText('Special:CheevosAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}
@@ -307,7 +309,7 @@ class SpecialAchievements extends SpecialPage {
 
 				CheevosHooks::invalidateCache();
 
-				$page = Title::newFromText('Special:Achievements');
+				$page = Title::newFromText('Special:CheevosAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}

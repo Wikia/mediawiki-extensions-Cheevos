@@ -11,7 +11,7 @@
  *
  **/
 
-class SpecialMegaAchievements extends SpecialPage {
+class SpecialCheevosMegaAchievements extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
@@ -28,7 +28,7 @@ class SpecialMegaAchievements extends SpecialPage {
 	public function __construct() {
 		$this->wgUser		= $this->getUser();
 
-		parent::__construct('MegaAchievements', 'mega_achievement_admin', $this->wgUser->isAllowed('mega_achievement_admin'));
+		parent::__construct('CheevosMegaAchievements', 'mega_achievement_admin', $this->wgUser->isAllowed('mega_achievement_admin'));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->output		= $this->getOutput();
@@ -305,7 +305,7 @@ class SpecialMegaAchievements extends SpecialPage {
 				} else {
 					CheevosHooks::invalidateCache();
 
-					$page = Title::newFromText('Special:MegaAchievements');
+					$page = Title::newFromText('Special:CheevosMegaAchievements');
 					$this->output->redirect($page->getFullURL());
 				}
 			}
@@ -361,7 +361,7 @@ class SpecialMegaAchievements extends SpecialPage {
 			} else {
 				CheevosHooks::invalidateCache();
 
-				$page = Title::newFromText('Special:MegaAchievements');
+				$page = Title::newFromText('Special:CheevosMegaAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}
@@ -392,7 +392,7 @@ class SpecialMegaAchievements extends SpecialPage {
 		if ($wiki !== false) {
 			if ($this->wgRequest->getCheck('confirm')) {
 				\Cheevos\SiteMegaUpdate::queue(['site_key' => $wiki->getSiteKey()]);
-				$page = Title::newFromText('Special:WikiSites');
+				$page = Title::newFromText('Special:CheevosWikiSites');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}

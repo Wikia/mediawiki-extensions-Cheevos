@@ -57,13 +57,14 @@ Please follow the [installation procedure](#installation--usage) and then run th
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\DefaultApi();
-$id = 56; // int | Achievement id
+$limit = 25; // int | Maximum number of items in the result.
+$offset = 0; // int | Number of items to skip in the result.  Defaults to 0.
 
 try {
-    $result = $api_instance->achievementIdGet($id);
+    $result = $api_instance->achievementCategoriesAllGet($limit, $offset);
     print_r($result);
 } catch (Exception $e) {
-    echo 'Exception when calling DefaultApi->achievementIdGet: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling DefaultApi->achievementCategoriesAllGet: ', $e->getMessage(), PHP_EOL;
 }
 
 ?>
@@ -75,9 +76,18 @@ All URIs are relative to *https://cheevos.cursetech.com/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**achievementCategoriesAllGet**](docs/Api/DefaultApi.md#achievementcategoriesallget) | **GET** /achievement_categories/all | 
+*DefaultApi* | [**achievementCategoryIdDelete**](docs/Api/DefaultApi.md#achievementcategoryiddelete) | **DELETE** /achievement_category/{id} | 
+*DefaultApi* | [**achievementCategoryIdGet**](docs/Api/DefaultApi.md#achievementcategoryidget) | **GET** /achievement_category/{id} | 
+*DefaultApi* | [**achievementCategoryIdPut**](docs/Api/DefaultApi.md#achievementcategoryidput) | **PUT** /achievement_category/{id} | 
+*DefaultApi* | [**achievementCategoryPut**](docs/Api/DefaultApi.md#achievementcategoryput) | **PUT** /achievement_category | 
+*DefaultApi* | [**achievementIdDelete**](docs/Api/DefaultApi.md#achievementiddelete) | **DELETE** /achievement/{id} | 
 *DefaultApi* | [**achievementIdGet**](docs/Api/DefaultApi.md#achievementidget) | **GET** /achievement/{id} | 
+*DefaultApi* | [**achievementIdPut**](docs/Api/DefaultApi.md#achievementidput) | **PUT** /achievement/{id} | 
+*DefaultApi* | [**achievementPut**](docs/Api/DefaultApi.md#achievementput) | **PUT** /achievement | 
 *DefaultApi* | [**achievementsAllGet**](docs/Api/DefaultApi.md#achievementsallget) | **GET** /achievements/all | 
 *DefaultApi* | [**incrementPost**](docs/Api/DefaultApi.md#incrementpost) | **POST** /increment | 
+*DefaultApi* | [**statsGet**](docs/Api/DefaultApi.md#statsget) | **GET** /stats | 
 
 
 ## Documentation For Models
@@ -89,14 +99,24 @@ Class | Method | HTTP request | Description
  - [ErrorResponse](docs/Model/ErrorResponse.md)
  - [InlineResponse200](docs/Model/InlineResponse200.md)
  - [InlineResponse2001](docs/Model/InlineResponse2001.md)
+ - [InlineResponse2002](docs/Model/InlineResponse2002.md)
+ - [InlineResponse2003](docs/Model/InlineResponse2003.md)
  - [LocalizedString](docs/Model/LocalizedString.md)
  - [Stat](docs/Model/Stat.md)
  - [StatDelta](docs/Model/StatDelta.md)
+ - [StatProgress](docs/Model/StatProgress.md)
+ - [StreakType](docs/Model/StreakType.md)
+ - [SuccessResponse](docs/Model/SuccessResponse.md)
 
 
 ## Documentation For Authorization
 
- All endpoints do not require authorization.
+
+## client_id
+
+- **Type**: API key
+- **API key parameter name**: Client-ID
+- **Location**: HTTP header
 
 
 ## Author

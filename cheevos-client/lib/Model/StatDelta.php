@@ -136,6 +136,12 @@ class StatDelta implements ArrayAccess
     public function listInvalidProperties()
     {
         $invalid_properties = [];
+        if ($this->container['stat'] === null) {
+            $invalid_properties[] = "'stat' can't be null";
+        }
+        if ($this->container['delta'] === null) {
+            $invalid_properties[] = "'delta' can't be null";
+        }
         return $invalid_properties;
     }
 
@@ -147,6 +153,12 @@ class StatDelta implements ArrayAccess
      */
     public function valid()
     {
+        if ($this->container['stat'] === null) {
+            return false;
+        }
+        if ($this->container['delta'] === null) {
+            return false;
+        }
         return true;
     }
 
