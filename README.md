@@ -17,7 +17,7 @@ For Mediawiki 1.25 and higher installations use the wfLoadExtensions() function 
 
 	wfLoadExtensions(['Achievements']);
 
-Done! Navigate to "Special:CheevosVersion" on the wiki to verify that the extension is successfully installed.
+Done! Navigate to "Special:Version" on the wiki to verify that the extension is successfully installed.
 
 
 #Configuration

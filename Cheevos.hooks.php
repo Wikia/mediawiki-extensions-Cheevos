@@ -746,7 +746,7 @@ class CheevosHooks {
 		global $wgUser;
 
 		if ($wgUser->isAllowed('edit_mega_achievements')) {
-			$megaAchievementsPage = Title::newFromText('Special:CheevosMegaAchievements');
+			$megaAchievementsPage = Title::newFromText('Special:MegaAchievements');
 			$extraMenuOptions[] = "<a href='{$megaAchievementsPage->getFullURL()}/updateSiteMega?siteKey={$wiki->getSiteKey()}' title='".wfMessage('update_site_mega')->escaped()."'>".HydraCore::awesomeIcon('medium').wfMessage('update_site_mega')->escaped()."</a>";
 		}
 
@@ -859,52 +859,4 @@ class CheevosHooks {
 		return false;
 	}
 
-	/**
-	 * Setups and Modifies Database Information
-	 *
-	 * @access	public
-	 * @param	object	[Optional] DatabaseUpdater Object
-	 * @return	boolean	true
-	 */
-	static public function onLoadExtensionSchemaUpdates($updater = null) {
-		$extDir = __DIR__;
-
-		$updater->addExtensionUpdate(['addTable', 'achievement', "{$extDir}/install/sql/achievements_table_achievement.sql", true]);
-		$updater->addExtensionUpdate(['addTable', 'achievement_category', "{$extDir}/install/sql/achievements_table_achievement_category.sql", true]);
-		$updater->addExtensionUpdate(['addTable', 'achievement_earned', "{$extDir}/install/sql/achievements_table_achievement_earned.sql", true]);
-		$updater->addExtensionUpdate(['addTable', 'achievement_hook', "{$extDir}/install/sql/achievements_table_achievement_hook.sql", true]);
-		$updater->addExtensionUpdate(['addTable', 'achievement_link', "{$extDir}/install/sql/achievements_table_achievement_link.sql", true]);
-		if (defined('ACHIEVEMENTS_MASTER') && ACHIEVEMENTS_MASTER === true) {
-			$updater->addExtensionUpdate(['addTable', 'achievement_site_mega', "{$extDir}/install/sql/achievements_table_achievement_site_mega.sql", true]);
-			$updater->addExtensionUpdate(['modifyField', 'achievement_site_mega', 'site_key', "{$extDir}/upgrade/sql/fix_mega_site_key.sql", true]);
-		}
-
-		$doInserts = false;
-		$db = $updater->getDB();
-		if ($db->tableExists('achievement')) {
-			$results = $db->select(
-				['achievement'],
-				['count(*) as total'],
-				null,
-				__METHOD__
-			);
-
-			if (!empty($results)) {
-				$total = $results->fetchRow();
-				if (!isset($total['total']) || $total['total'] == 0) {
-					$doInserts = true;
-				}
-			}
-		} else {
-			$doInserts = true;
-		}
-		if ($doInserts) {
-			//This is a hacky way to force the new default load out.
-			if ($updater->addExtensionUpdate(['modifyField', 'achievement', 'unique_hash', "{$extDir}/install/sql/achievements_table_inserts_achievement.sql", true])) {
-				self::invalidateCache();
-			}
-		}
-
-		return true;
-	}
 }

@@ -89,7 +89,7 @@ class Configuration
      * @var string
      */
     //protected $host = 'https://cheevos.cursetech.com/v1';
-	protected $host = 'https://localhost:8085/v1';
+	protected $host = 'https://cheevos.cursetech.local:8085/v1';
 
     /**
      * Timeout (second) of the HTTP request, by default set to 0, no timeout

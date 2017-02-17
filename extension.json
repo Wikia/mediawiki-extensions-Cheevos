@@ -49,9 +49,7 @@
 		"award_achievements"
 	],
 	"SpecialPages": {
-		"CheevosAchievements": "SpecialCheevosAchievements",
-		"CheevosAwardAchievement": "SpecialCheevosAwardAchievement",
-		"CheevosMegaAchievements": "SpecialCheevosMegaAchievements"
+		"ManageAchievements" : "SpecialManageAchievements"
 	},
 	"MessagesDirs": {
 		"Achievements": [
@@ -59,16 +57,12 @@
 		]
 	},
 	"ExtensionMessagesFiles": {
-		"SpecialCheevosAchievements": "Cheevos.alias.php"
+		"SpecialAchievements": "Cheevos.alias.php"
 	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
-		"SpecialCheevosAchievements": "specials/SpecialAchievements.php",
-		"SpecialAwardAchievement": "specials/SpecialAwardAchievement.php",
-		"SpecialMegaCheevosAchievements": "specials/SpecialMegaAchievements.php",
-		"TemplateAchievements": "templates/TemplateAchievements.php",
-		"TemplateAwardAchievement": "templates/TemplateAwardAchievement.php",
-		"TemplateMegaAchievements": "templates/TemplateMegaAchievements.php"
+		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
+		"TemplateManageAchievements": "templates/TemplateManageAchievements.php"
 	},
 	"ResourceModules": {
 		"ext.achievements.resumable.js": {
@@ -152,9 +146,6 @@
 		"remoteExtPath": "Achievements"
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": [
-			"CheevosHooks::onLoadExtensionSchemaUpdates"
-		],
 		"SkinAfterBottomScripts": [
 			"CheevosHooks::onSkinAfterBottomScripts"
 		],
