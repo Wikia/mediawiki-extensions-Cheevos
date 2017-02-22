@@ -61,6 +61,7 @@
 	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
+		"Cheevos\\Cheevos" : "classes/Cheevos.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php"
 	},
@@ -146,27 +147,7 @@
 		"remoteExtPath": "Achievements"
 	},
 	"Hooks": {
-		"SkinAfterBottomScripts": [
-			"CheevosHooks::onSkinAfterBottomScripts"
-		],
-		"PersonalUrls": [
-			"CheevosHooks::onPersonalUrls"
-		],
-		"WikiSitesMenuOptions": [
-			"CheevosHooks::onWikiSitesMenuOptions"
-		],
-		"AchievementAwarded": [
-			"CheevosHooks::onAchievementAwarded"
-		],
-		"AchievementUnawarded": [
-			"CheevosHooks::onAchievementUnawarded"
-		],
-		"ParserAfterTidy": [
-			"CheevosHooks::onParserAfterTidy"
-		],
-		"WikiPointsSave": [
-			"CheevosHooks::onWikiPointsSave"
-		]
+
 	},
 	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1
