@@ -31,7 +31,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
-		$this->api 			= new Swagger\Client\Api\DefaultApi();
+		$this->api			= new Cheevos\Cheevos();
 	}
 
 	/**
@@ -43,15 +43,9 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function execute($subpage) {
 		$this->templates = new TemplateManageAchievements;
-
 		$this->output->addModules(['ext.achievements.styles', 'ext.achievements.js']);
-
 		$this->setHeaders();
 
-		if (CheevosHooks::inMaintenance()) {
-			$this->output->showErrorPage('achievements_error', 'error_maintenance_mode');
-			return;
-		}
 
 		switch ($subpage) {
 			default:
@@ -86,13 +80,11 @@ class SpecialManageAchievements extends SpecialPage {
 		$offset = 0; // int | Number of items to skip in the result.  Defaults to 0.
 
 
-		$getAchievements = $this->api->achievementsAllGet($site_id);
-		$achivements = isset($getAchievements->achievements) ? $getAchievements->achievements : [];
+		$achievements = $this->api->getAchievements();
+		var_dump($achievements);
+		//$categories = $this->api->getCategories();
 
-		$getCategories = $this->api->achievementCategoriesAllGet();
-		$categories = isset($getCategories->categories) ? $getCategories->categories : [];
-
-
+		die();
 		$this->output->setPageTitle(wfMessage('achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories, $progress, $hide, $searchTerm);
 	}
@@ -102,7 +94,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$api_instance = new Swagger\Client\Api\DefaultApi();
 		$body = new \Swagger\Client\Model\Achievement(); // \Swagger\Client\Model\Achievement |
 
-		
+
 		    $result = $api_instance->achievementPut($body);
 		    print_r($result);
 

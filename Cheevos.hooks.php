@@ -13,10 +13,10 @@
 
 class CheevosHooks {
 
-	
+
 	static public function onRegistration() {
 		// load the Cheevo's Client code.
-		require_once(__DIR__.'/cheevos-client/autoload.php');
+		require_once(__DIR__.'/SwaggerClient-php/autoload.php');
 	}
 
 }

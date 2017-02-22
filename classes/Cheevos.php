@@ -21,6 +21,7 @@ class Cheevos {
 		global $wgCheevosHost;
 
 		\Swagger\Client\Configuration::getDefaultConfiguration()->setHost($wgCheevosHost);
+		\Swagger\Client\Configuration::getDefaultConfiguration()->setSSLVerification(false);
 		$this->api = new \Swagger\Client\Api\DefaultApi();
 	}
 
