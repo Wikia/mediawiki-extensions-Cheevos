@@ -83,9 +83,9 @@ class InlineResponse2003Test extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "stats"
+     * Test attribute "progress"
      */
-    public function testPropertyStats()
+    public function testPropertyProgress()
     {
 
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * StatProgressTest
+ * AchievementProgressTest
  *
  * PHP version 5
  *
@@ -30,16 +30,16 @@
 namespace Swagger\Client;
 
 /**
- * StatProgressTest Class Doc Comment
+ * AchievementProgressTest Class Doc Comment
  *
  * @category    Class */
-// * @description Represents a statistic for a user on a specific site; or, if site_key is empty, a statistic for a user across all sites.  When streak_type is not none, this stat is used for streak achievements.  Not all stats will have streak progress, and not all streak periods will be available--streak progress is only tracked when a corresponding streak achievement exists.
+// * @description Respresents a user&#39;s progress toward an achievement.  Can be manually awarded, which will cause the achievement progress to ignore automatic mechanisms of awarding through stats.
 /**
  * @package     Swagger\Client
  * @author      Swagger Codegen team
  * @link        https://github.com/swagger-api/swagger-codegen
  */
-class StatProgressTest extends \PHPUnit_Framework_TestCase
+class AchievementProgressTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -75,25 +75,25 @@ class StatProgressTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test "StatProgress"
+     * Test "AchievementProgress"
      */
-    public function testStatProgress()
+    public function testAchievementProgress()
     {
 
     }
 
     /**
-     * Test attribute "stat"
+     * Test attribute "id"
      */
-    public function testPropertyStat()
+    public function testPropertyId()
     {
 
     }
 
     /**
-     * Test attribute "stat_id"
+     * Test attribute "achievement_id"
      */
-    public function testPropertyStatId()
+    public function testPropertyAchievementId()
     {
 
     }
@@ -123,25 +123,33 @@ class StatProgressTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "streak_achievement_id"
+     * Test attribute "earned"
      */
-    public function testPropertyStreakAchievementId()
+    public function testPropertyEarned()
     {
 
     }
 
     /**
-     * Test attribute "count"
+     * Test attribute "manual_award"
      */
-    public function testPropertyCount()
+    public function testPropertyManualAward()
     {
 
     }
 
     /**
-     * Test attribute "last_incremented"
+     * Test attribute "awarded_at"
      */
-    public function testPropertyLastIncremented()
+    public function testPropertyAwardedAt()
+    {
+
+    }
+
+    /**
+     * Test attribute "notified"
+     */
+    public function testPropertyNotified()
     {
 
     }

@@ -81,10 +81,11 @@ class SpecialManageAchievements extends SpecialPage {
 
 
 		$achievements = $this->api->getAchievements();
-		var_dump($achievements);
-		//$categories = $this->api->getCategories();
 
-		die();
+		//$categories = $this->api->getCategories();
+		//var_dump($categories);
+
+
 		$this->output->setPageTitle(wfMessage('achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories, $progress, $hide, $searchTerm);
 	}

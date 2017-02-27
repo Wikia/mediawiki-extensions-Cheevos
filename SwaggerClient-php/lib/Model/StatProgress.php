@@ -35,7 +35,7 @@ use \ArrayAccess;
  * StatProgress Class Doc Comment
  *
  * @category    Class */
- // @description Represents a statistic for a user on a specific site; or, if site_id is 0, a statistic for a user across all sites.  When streak_type is not none, this stat is used for streak achievements.  Not all stats will have streak progress, and not all streak periods will be available--streak progress is only tracked when a corresponding streak achievement exists.
+ // @description Represents a statistic for a user on a specific site; or, if site_key is empty, a statistic for a user across all sites.  When streak_type is not none, this stat is used for streak achievements.  Not all stats will have streak progress, and not all streak periods will be available--streak progress is only tracked when a corresponding streak achievement exists.
 /**
  * @package     Swagger\Client
  * @author      Swagger Codegen team
@@ -57,9 +57,11 @@ class StatProgress implements ArrayAccess
       */
     protected static $swaggerTypes = [
         'stat' => '\Swagger\Client\Model\Stat',
+        'stat_id' => 'int',
         'user_id' => 'int',
         'site_id' => 'int',
-        'streak_type' => '\Swagger\Client\Model\StreakType',
+        'site_key' => 'string',
+        'streak_achievement_id' => 'int',
         'count' => 'int',
         'last_incremented' => 'int'
     ];
@@ -75,9 +77,11 @@ class StatProgress implements ArrayAccess
      */
     protected static $attributeMap = [
         'stat' => 'stat',
+        'stat_id' => 'stat_id',
         'user_id' => 'user_id',
         'site_id' => 'site_id',
-        'streak_type' => 'streak_type',
+        'site_key' => 'site_key',
+        'streak_achievement_id' => 'streak_achievement_id',
         'count' => 'count',
         'last_incremented' => 'last_incremented'
     ];
@@ -89,9 +93,11 @@ class StatProgress implements ArrayAccess
      */
     protected static $setters = [
         'stat' => 'setStat',
+        'stat_id' => 'setStatId',
         'user_id' => 'setUserId',
         'site_id' => 'setSiteId',
-        'streak_type' => 'setStreakType',
+        'site_key' => 'setSiteKey',
+        'streak_achievement_id' => 'setStreakAchievementId',
         'count' => 'setCount',
         'last_incremented' => 'setLastIncremented'
     ];
@@ -103,9 +109,11 @@ class StatProgress implements ArrayAccess
      */
     protected static $getters = [
         'stat' => 'getStat',
+        'stat_id' => 'getStatId',
         'user_id' => 'getUserId',
         'site_id' => 'getSiteId',
-        'streak_type' => 'getStreakType',
+        'site_key' => 'getSiteKey',
+        'streak_achievement_id' => 'getStreakAchievementId',
         'count' => 'getCount',
         'last_incremented' => 'getLastIncremented'
     ];
@@ -142,9 +150,11 @@ class StatProgress implements ArrayAccess
     public function __construct(array $data = null)
     {
         $this->container['stat'] = isset($data['stat']) ? $data['stat'] : null;
+        $this->container['stat_id'] = isset($data['stat_id']) ? $data['stat_id'] : null;
         $this->container['user_id'] = isset($data['user_id']) ? $data['user_id'] : null;
         $this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
-        $this->container['streak_type'] = isset($data['streak_type']) ? $data['streak_type'] : null;
+        $this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
+        $this->container['streak_achievement_id'] = isset($data['streak_achievement_id']) ? $data['streak_achievement_id'] : null;
         $this->container['count'] = isset($data['count']) ? $data['count'] : null;
         $this->container['last_incremented'] = isset($data['last_incremented']) ? $data['last_incremented'] : null;
     }
@@ -194,6 +204,27 @@ class StatProgress implements ArrayAccess
     }
 
     /**
+     * Gets stat_id
+     * @return int
+     */
+    public function getStatId()
+    {
+        return $this->container['stat_id'];
+    }
+
+    /**
+     * Sets stat_id
+     * @param int $stat_id The index of stat in the stat names enum, starting from 1
+     * @return $this
+     */
+    public function setStatId($stat_id)
+    {
+        $this->container['stat_id'] = $stat_id;
+
+        return $this;
+    }
+
+    /**
      * Gets user_id
      * @return int
      */
@@ -236,22 +267,43 @@ class StatProgress implements ArrayAccess
     }
 
     /**
-     * Gets streak_type
-     * @return \Swagger\Client\Model\StreakType
+     * Gets site_key
+     * @return string
      */
-    public function getStreakType()
+    public function getSiteKey()
     {
-        return $this->container['streak_type'];
+        return $this->container['site_key'];
     }
 
     /**
-     * Sets streak_type
-     * @param \Swagger\Client\Model\StreakType $streak_type
+     * Sets site_key
+     * @param string $site_key
      * @return $this
      */
-    public function setStreakType($streak_type)
+    public function setSiteKey($site_key)
     {
-        $this->container['streak_type'] = $streak_type;
+        $this->container['site_key'] = $site_key;
+
+        return $this;
+    }
+
+    /**
+     * Gets streak_achievement_id
+     * @return int
+     */
+    public function getStreakAchievementId()
+    {
+        return $this->container['streak_achievement_id'];
+    }
+
+    /**
+     * Sets streak_achievement_id
+     * @param int $streak_achievement_id Achievement ID of the streak achievement this value is associated with.
+     * @return $this
+     */
+    public function setStreakAchievementId($streak_achievement_id)
+    {
+        $this->container['streak_achievement_id'] = $streak_achievement_id;
 
         return $this;
     }

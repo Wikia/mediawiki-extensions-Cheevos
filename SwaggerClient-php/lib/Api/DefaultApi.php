@@ -92,7 +92,7 @@ class DefaultApi
      *
      * 
      *
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return \Swagger\Client\Model\InlineResponse2002
@@ -108,7 +108,7 @@ class DefaultApi
      *
      * 
      *
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return array of \Swagger\Client\Model\InlineResponse2002, HTTP status code, HTTP response headers (array of strings)
@@ -118,8 +118,8 @@ class DefaultApi
         if (!is_null($limit) && ($limit > 200)) {
             throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementCategoriesAllGet, must be smaller than or equal to 200.');
         }
-        if (!is_null($limit) && ($limit < 1)) {
-            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementCategoriesAllGet, must be bigger than or equal to 1.');
+        if (!is_null($limit) && ($limit < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementCategoriesAllGet, must be bigger than or equal to 0.');
         }
 
         if (!is_null($offset) && ($offset < 0)) {
@@ -968,15 +968,15 @@ class DefaultApi
      *
      * 
      *
-     * @param int $site_id The site id to use for locally overridden achievements. (optional, default to 0)
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param string $site_key The site key to use for locally overridden achievements. (optional)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return \Swagger\Client\Model\InlineResponse2001
      */
-    public function achievementsAllGet($site_id = null, $limit = null, $offset = null)
+    public function achievementsAllGet($site_key = null, $limit = null, $offset = null)
     {
-        list($response) = $this->achievementsAllGetWithHttpInfo($site_id, $limit, $offset);
+        list($response) = $this->achievementsAllGetWithHttpInfo($site_key, $limit, $offset);
         return $response;
     }
 
@@ -985,23 +985,19 @@ class DefaultApi
      *
      * 
      *
-     * @param int $site_id The site id to use for locally overridden achievements. (optional, default to 0)
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param string $site_key The site key to use for locally overridden achievements. (optional)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return array of \Swagger\Client\Model\InlineResponse2001, HTTP status code, HTTP response headers (array of strings)
      */
-    public function achievementsAllGetWithHttpInfo($site_id = null, $limit = null, $offset = null)
+    public function achievementsAllGetWithHttpInfo($site_key = null, $limit = null, $offset = null)
     {
-        if (!is_null($site_id) && ($site_id < 0)) {
-            throw new \InvalidArgumentException('invalid value for "$site_id" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 0.');
-        }
-
         if (!is_null($limit) && ($limit > 200)) {
             throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsAllGet, must be smaller than or equal to 200.');
         }
-        if (!is_null($limit) && ($limit < 1)) {
-            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 1.');
+        if (!is_null($limit) && ($limit < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsAllGet, must be bigger than or equal to 0.');
         }
 
         if (!is_null($offset) && ($offset < 0)) {
@@ -1021,8 +1017,8 @@ class DefaultApi
         $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
 
         // query params
-        if ($site_id !== null) {
-            $queryParams['site_id'] = $this->apiClient->getSerializer()->toQueryValue($site_id);
+        if ($site_key !== null) {
+            $queryParams['site_key'] = $this->apiClient->getSerializer()->toQueryValue($site_key);
         }
         // query params
         if ($limit !== null) {
@@ -1059,6 +1055,515 @@ class DefaultApi
             switch ($e->getCode()) {
                 case 200:
                     $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2001', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementsProgressGet
+     *
+     * 
+     *
+     * @param int $user_id The user to retrieve progress for. (required)
+     * @param string $site_key The site key to use for local achievement progress.  If empty, only global achievement progress will be returned. (optional)
+     * @param int $category_id Filter achievements by achievement category ID. (optional)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\InlineResponse2003
+     */
+    public function achievementsProgressGet($user_id, $site_key = null, $category_id = null, $limit = null, $offset = null)
+    {
+        list($response) = $this->achievementsProgressGetWithHttpInfo($user_id, $site_key, $category_id, $limit, $offset);
+        return $response;
+    }
+
+    /**
+     * Operation achievementsProgressGetWithHttpInfo
+     *
+     * 
+     *
+     * @param int $user_id The user to retrieve progress for. (required)
+     * @param string $site_key The site key to use for local achievement progress.  If empty, only global achievement progress will be returned. (optional)
+     * @param int $category_id Filter achievements by achievement category ID. (optional)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
+     * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\InlineResponse2003, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementsProgressGetWithHttpInfo($user_id, $site_key = null, $category_id = null, $limit = null, $offset = null)
+    {
+        // verify the required parameter 'user_id' is set
+        if ($user_id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $user_id when calling achievementsProgressGet');
+        }
+        if (!is_null($limit) && ($limit > 200)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsProgressGet, must be smaller than or equal to 200.');
+        }
+        if (!is_null($limit) && ($limit < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.achievementsProgressGet, must be bigger than or equal to 0.');
+        }
+
+        if (!is_null($offset) && ($offset < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$offset" when calling DefaultApi.achievementsProgressGet, must be bigger than or equal to 0.');
+        }
+
+        // parse inputs
+        $resourcePath = "/achievements/progress";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // query params
+        if ($site_key !== null) {
+            $queryParams['site_key'] = $this->apiClient->getSerializer()->toQueryValue($site_key);
+        }
+        // query params
+        if ($user_id !== null) {
+            $queryParams['user_id'] = $this->apiClient->getSerializer()->toQueryValue($user_id);
+        }
+        // query params
+        if ($category_id !== null) {
+            $queryParams['category_id'] = $this->apiClient->getSerializer()->toQueryValue($category_id);
+        }
+        // query params
+        if ($limit !== null) {
+            $queryParams['limit'] = $this->apiClient->getSerializer()->toQueryValue($limit);
+        }
+        // query params
+        if ($offset !== null) {
+            $queryParams['offset'] = $this->apiClient->getSerializer()->toQueryValue($offset);
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\InlineResponse2003',
+                '/achievements/progress'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\InlineResponse2003', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2003', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementsProgressIdDelete
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementsProgressIdDelete($id)
+    {
+        list($response) = $this->achievementsProgressIdDeleteWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation achievementsProgressIdDeleteWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementsProgressIdDeleteWithHttpInfo($id)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementsProgressIdDelete');
+        }
+        // parse inputs
+        $resourcePath = "/achievements/progress/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'DELETE',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievements/progress/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementsProgressIdGet
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\AchievementProgress
+     */
+    public function achievementsProgressIdGet($id)
+    {
+        list($response) = $this->achievementsProgressIdGetWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation achievementsProgressIdGetWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\AchievementProgress, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementsProgressIdGetWithHttpInfo($id)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementsProgressIdGet');
+        }
+        // parse inputs
+        $resourcePath = "/achievements/progress/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'GET',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\AchievementProgress',
+                '/achievements/progress/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\AchievementProgress', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\AchievementProgress', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementsProgressIdPut
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @param \Swagger\Client\Model\AchievementProgress $body Achievement progress (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementsProgressIdPut($id, $body)
+    {
+        list($response) = $this->achievementsProgressIdPutWithHttpInfo($id, $body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementsProgressIdPutWithHttpInfo
+     *
+     * 
+     *
+     * @param int $id Achievement progress id (required)
+     * @param \Swagger\Client\Model\AchievementProgress $body Achievement progress (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementsProgressIdPutWithHttpInfo($id, $body)
+    {
+        // verify the required parameter 'id' is set
+        if ($id === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $id when calling achievementsProgressIdPut');
+        }
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementsProgressIdPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievements/progress/{id}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                "{" . "id" . "}",
+                $this->apiClient->getSerializer()->toPathValue($id),
+                $resourcePath
+            );
+        }
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievements/progress/{id}'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+                default:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\ErrorResponse', $e->getResponseHeaders());
+                    $e->setResponseObject($data);
+                    break;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation achievementsProgressPut
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\AchievementProgress $body Achievement progress (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return \Swagger\Client\Model\SuccessResponse
+     */
+    public function achievementsProgressPut($body)
+    {
+        list($response) = $this->achievementsProgressPutWithHttpInfo($body);
+        return $response;
+    }
+
+    /**
+     * Operation achievementsProgressPutWithHttpInfo
+     *
+     * 
+     *
+     * @param \Swagger\Client\Model\AchievementProgress $body Achievement progress (required)
+     * @throws \Swagger\Client\ApiException on non-2xx response
+     * @return array of \Swagger\Client\Model\SuccessResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function achievementsProgressPutWithHttpInfo($body)
+    {
+        // verify the required parameter 'body' is set
+        if ($body === null) {
+            throw new \InvalidArgumentException('Missing the required parameter $body when calling achievementsProgressPut');
+        }
+        // parse inputs
+        $resourcePath = "/achievements/progress";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept(['application/json']);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType(['application/json']);
+
+        // default format to json
+        $resourcePath = str_replace("{format}", "json", $resourcePath);
+
+        // body params
+        $_tempBody = null;
+        if (isset($body)) {
+            $_tempBody = $body;
+        }
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->apiClient->getApiKeyWithPrefix('Client-ID');
+        if (strlen($apiKey) !== 0) {
+            $headerParams['Client-ID'] = $apiKey;
+        }
+        // make the API Call
+        try {
+            list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                $resourcePath,
+                'PUT',
+                $queryParams,
+                $httpBody,
+                $headerParams,
+                '\Swagger\Client\Model\SuccessResponse',
+                '/achievements/progress'
+            );
+
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\SuccessResponse', $httpHeader), $statusCode, $httpHeader];
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\SuccessResponse', $e->getResponseHeaders());
                     $e->setResponseObject($data);
                     break;
                 default:
@@ -1168,17 +1673,17 @@ class DefaultApi
      * 
      *
      * @param int $user_id Filter stats by user id (optional)
-     * @param int $site_id Filter stats by site id (optional)
-     * @param bool $global If true, stats will be aggregated across all sites, and site_id will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
+     * @param string $site_key Filter stats by site key (optional)
+     * @param bool $global If true, stats will be aggregated across all sites, and site_key will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
      * @param string $stat Filter by stat name (optional)
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
-     * @return \Swagger\Client\Model\InlineResponse2003
+     * @return \Swagger\Client\Model\InlineResponse2004
      */
-    public function statsGet($user_id = null, $site_id = null, $global = null, $stat = null, $limit = null, $offset = null)
+    public function statsGet($user_id = null, $site_key = null, $global = null, $stat = null, $limit = null, $offset = null)
     {
-        list($response) = $this->statsGetWithHttpInfo($user_id, $site_id, $global, $stat, $limit, $offset);
+        list($response) = $this->statsGetWithHttpInfo($user_id, $site_key, $global, $stat, $limit, $offset);
         return $response;
     }
 
@@ -1188,21 +1693,21 @@ class DefaultApi
      * 
      *
      * @param int $user_id Filter stats by user id (optional)
-     * @param int $site_id Filter stats by site id (optional)
-     * @param bool $global If true, stats will be aggregated across all sites, and site_id will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
+     * @param string $site_key Filter stats by site key (optional)
+     * @param bool $global If true, stats will be aggregated across all sites, and site_key will be ignored.  Note that this is a potentially expensive operation if the result set is large (i.e. when not filtered by user id).  The results will not include per-site progress or streak progress. (optional, default to false)
      * @param string $stat Filter by stat name (optional)
-     * @param int $limit Maximum number of items in the result. (optional, default to 25)
+     * @param int $limit Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!). (optional, default to 25)
      * @param int $offset Number of items to skip in the result.  Defaults to 0. (optional, default to 0)
      * @throws \Swagger\Client\ApiException on non-2xx response
-     * @return array of \Swagger\Client\Model\InlineResponse2003, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Swagger\Client\Model\InlineResponse2004, HTTP status code, HTTP response headers (array of strings)
      */
-    public function statsGetWithHttpInfo($user_id = null, $site_id = null, $global = null, $stat = null, $limit = null, $offset = null)
+    public function statsGetWithHttpInfo($user_id = null, $site_key = null, $global = null, $stat = null, $limit = null, $offset = null)
     {
         if (!is_null($limit) && ($limit > 200)) {
             throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.statsGet, must be smaller than or equal to 200.');
         }
-        if (!is_null($limit) && ($limit < 1)) {
-            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.statsGet, must be bigger than or equal to 1.');
+        if (!is_null($limit) && ($limit < 0)) {
+            throw new \InvalidArgumentException('invalid value for "$limit" when calling DefaultApi.statsGet, must be bigger than or equal to 0.');
         }
 
         if (!is_null($offset) && ($offset < 0)) {
@@ -1226,8 +1731,8 @@ class DefaultApi
             $queryParams['user_id'] = $this->apiClient->getSerializer()->toQueryValue($user_id);
         }
         // query params
-        if ($site_id !== null) {
-            $queryParams['site_id'] = $this->apiClient->getSerializer()->toQueryValue($site_id);
+        if ($site_key !== null) {
+            $queryParams['site_key'] = $this->apiClient->getSerializer()->toQueryValue($site_key);
         }
         // query params
         if ($global !== null) {
@@ -1263,15 +1768,15 @@ class DefaultApi
                 $queryParams,
                 $httpBody,
                 $headerParams,
-                '\Swagger\Client\Model\InlineResponse2003',
+                '\Swagger\Client\Model\InlineResponse2004',
                 '/stats'
             );
 
-            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\InlineResponse2003', $httpHeader), $statusCode, $httpHeader];
+            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\InlineResponse2004', $httpHeader), $statusCode, $httpHeader];
         } catch (ApiException $e) {
             switch ($e->getCode()) {
                 case 200:
-                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2003', $e->getResponseHeaders());
+                    $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '\Swagger\Client\Model\InlineResponse2004', $e->getResponseHeaders());
                     $e->setResponseObject($data);
                     break;
                 default:

@@ -1,6 +1,6 @@
 <?php
 /**
- * BodyTest
+ * InlineResponse2004Test
  *
  * PHP version 5
  *
@@ -30,16 +30,16 @@
 namespace Swagger\Client;
 
 /**
- * BodyTest Class Doc Comment
+ * InlineResponse2004Test Class Doc Comment
  *
  * @category    Class */
-// * @description Body
+// * @description InlineResponse2004
 /**
  * @package     Swagger\Client
  * @author      Swagger Codegen team
  * @link        https://github.com/swagger-api/swagger-codegen
  */
-class BodyTest extends \PHPUnit_Framework_TestCase
+class InlineResponse2004Test extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -75,33 +75,17 @@ class BodyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test "Body"
+     * Test "InlineResponse2004"
      */
-    public function testBody()
+    public function testInlineResponse2004()
     {
 
     }
 
     /**
-     * Test attribute "user_id"
+     * Test attribute "stats"
      */
-    public function testPropertyUserId()
-    {
-
-    }
-
-    /**
-     * Test attribute "site_key"
-     */
-    public function testPropertySiteKey()
-    {
-
-    }
-
-    /**
-     * Test attribute "deltas"
-     */
-    public function testPropertyDeltas()
+    public function testPropertyStats()
     {
 
     }

@@ -1,9 +1,9 @@
-# InlineResponse2003
+# InlineResponse2004
 
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**progress** | [**\Swagger\Client\Model\AchievementProgress[]**](AchievementProgress.md) |  | [optional] 
+**stats** | [**\Swagger\Client\Model\StatProgress[]**](StatProgress.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

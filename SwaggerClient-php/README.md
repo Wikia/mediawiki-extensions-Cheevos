@@ -57,7 +57,7 @@ Please follow the [installation procedure](#installation--usage) and then run th
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\DefaultApi();
-$limit = 25; // int | Maximum number of items in the result.
+$limit = 25; // int | Maximum number of items in the result.  Set to 0 to retrieve all items (use this functionality at your own peril!).
 $offset = 0; // int | Number of items to skip in the result.  Defaults to 0.
 
 try {
@@ -86,6 +86,11 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**achievementIdPut**](docs/Api/DefaultApi.md#achievementidput) | **PUT** /achievement/{id} | 
 *DefaultApi* | [**achievementPut**](docs/Api/DefaultApi.md#achievementput) | **PUT** /achievement | 
 *DefaultApi* | [**achievementsAllGet**](docs/Api/DefaultApi.md#achievementsallget) | **GET** /achievements/all | 
+*DefaultApi* | [**achievementsProgressGet**](docs/Api/DefaultApi.md#achievementsprogressget) | **GET** /achievements/progress | 
+*DefaultApi* | [**achievementsProgressIdDelete**](docs/Api/DefaultApi.md#achievementsprogressiddelete) | **DELETE** /achievements/progress/{id} | 
+*DefaultApi* | [**achievementsProgressIdGet**](docs/Api/DefaultApi.md#achievementsprogressidget) | **GET** /achievements/progress/{id} | 
+*DefaultApi* | [**achievementsProgressIdPut**](docs/Api/DefaultApi.md#achievementsprogressidput) | **PUT** /achievements/progress/{id} | 
+*DefaultApi* | [**achievementsProgressPut**](docs/Api/DefaultApi.md#achievementsprogressput) | **PUT** /achievements/progress | 
 *DefaultApi* | [**incrementPost**](docs/Api/DefaultApi.md#incrementpost) | **POST** /increment | 
 *DefaultApi* | [**statsGet**](docs/Api/DefaultApi.md#statsget) | **GET** /stats | 
 
@@ -95,12 +100,14 @@ Class | Method | HTTP request | Description
  - [Achievement](docs/Model/Achievement.md)
  - [AchievementCategory](docs/Model/AchievementCategory.md)
  - [AchievementCriteria](docs/Model/AchievementCriteria.md)
+ - [AchievementProgress](docs/Model/AchievementProgress.md)
  - [Body](docs/Model/Body.md)
  - [ErrorResponse](docs/Model/ErrorResponse.md)
  - [InlineResponse200](docs/Model/InlineResponse200.md)
  - [InlineResponse2001](docs/Model/InlineResponse2001.md)
  - [InlineResponse2002](docs/Model/InlineResponse2002.md)
  - [InlineResponse2003](docs/Model/InlineResponse2003.md)
+ - [InlineResponse2004](docs/Model/InlineResponse2004.md)
  - [LocalizedString](docs/Model/LocalizedString.md)
  - [Stat](docs/Model/Stat.md)
  - [StatDelta](docs/Model/StatDelta.md)

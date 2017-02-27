@@ -55,7 +55,7 @@ class InlineResponse2003 implements ArrayAccess
       * @var string[]
       */
     protected static $swaggerTypes = [
-        'stats' => '\Swagger\Client\Model\StatProgress[]'
+        'progress' => '\Swagger\Client\Model\AchievementProgress[]'
     ];
 
     public static function swaggerTypes()
@@ -68,7 +68,7 @@ class InlineResponse2003 implements ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        'stats' => 'stats'
+        'progress' => 'progress'
     ];
 
 
@@ -77,7 +77,7 @@ class InlineResponse2003 implements ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        'stats' => 'setStats'
+        'progress' => 'setProgress'
     ];
 
 
@@ -86,7 +86,7 @@ class InlineResponse2003 implements ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        'stats' => 'getStats'
+        'progress' => 'getProgress'
     ];
 
     public static function attributeMap()
@@ -120,7 +120,7 @@ class InlineResponse2003 implements ArrayAccess
      */
     public function __construct(array $data = null)
     {
-        $this->container['stats'] = isset($data['stats']) ? $data['stats'] : null;
+        $this->container['progress'] = isset($data['progress']) ? $data['progress'] : null;
     }
 
     /**
@@ -147,22 +147,22 @@ class InlineResponse2003 implements ArrayAccess
 
 
     /**
-     * Gets stats
-     * @return \Swagger\Client\Model\StatProgress[]
+     * Gets progress
+     * @return \Swagger\Client\Model\AchievementProgress[]
      */
-    public function getStats()
+    public function getProgress()
     {
-        return $this->container['stats'];
+        return $this->container['progress'];
     }
 
     /**
-     * Sets stats
-     * @param \Swagger\Client\Model\StatProgress[] $stats
+     * Sets progress
+     * @param \Swagger\Client\Model\AchievementProgress[] $progress
      * @return $this
      */
-    public function setStats($stats)
+    public function setProgress($progress)
     {
-        $this->container['stats'] = $stats;
+        $this->container['progress'] = $progress;
 
         return $this;
     }

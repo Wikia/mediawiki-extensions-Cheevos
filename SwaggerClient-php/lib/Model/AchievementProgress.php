@@ -1,6 +1,6 @@
 <?php
 /**
- * Body
+ * AchievementProgress
  *
  * PHP version 5
  *
@@ -32,15 +32,16 @@ namespace Swagger\Client\Model;
 use \ArrayAccess;
 
 /**
- * Body Class Doc Comment
+ * AchievementProgress Class Doc Comment
  *
  * @category    Class */
+ // @description Respresents a user&#39;s progress toward an achievement.  Can be manually awarded, which will cause the achievement progress to ignore automatic mechanisms of awarding through stats.
 /**
  * @package     Swagger\Client
  * @author      Swagger Codegen team
  * @link        https://github.com/swagger-api/swagger-codegen
  */
-class Body implements ArrayAccess
+class AchievementProgress implements ArrayAccess
 {
     const DISCRIMINATOR = null;
 
@@ -48,16 +49,22 @@ class Body implements ArrayAccess
       * The original name of the model.
       * @var string
       */
-    protected static $swaggerModelName = 'body';
+    protected static $swaggerModelName = 'AchievementProgress';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
       * @var string[]
       */
     protected static $swaggerTypes = [
+        'id' => 'int',
+        'achievement_id' => 'int',
         'user_id' => 'int',
+        'site_id' => 'int',
         'site_key' => 'string',
-        'deltas' => '\Swagger\Client\Model\StatDelta[]'
+        'earned' => 'bool',
+        'manual_award' => 'bool',
+        'awarded_at' => 'int',
+        'notified' => 'bool'
     ];
 
     public static function swaggerTypes()
@@ -70,9 +77,15 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
+        'id' => 'id',
+        'achievement_id' => 'achievement_id',
         'user_id' => 'user_id',
+        'site_id' => 'site_id',
         'site_key' => 'site_key',
-        'deltas' => 'deltas'
+        'earned' => 'earned',
+        'manual_award' => 'manual_award',
+        'awarded_at' => 'awarded_at',
+        'notified' => 'notified'
     ];
 
 
@@ -81,9 +94,15 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $setters = [
+        'id' => 'setId',
+        'achievement_id' => 'setAchievementId',
         'user_id' => 'setUserId',
+        'site_id' => 'setSiteId',
         'site_key' => 'setSiteKey',
-        'deltas' => 'setDeltas'
+        'earned' => 'setEarned',
+        'manual_award' => 'setManualAward',
+        'awarded_at' => 'setAwardedAt',
+        'notified' => 'setNotified'
     ];
 
 
@@ -92,9 +111,15 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $getters = [
+        'id' => 'getId',
+        'achievement_id' => 'getAchievementId',
         'user_id' => 'getUserId',
+        'site_id' => 'getSiteId',
         'site_key' => 'getSiteKey',
-        'deltas' => 'getDeltas'
+        'earned' => 'getEarned',
+        'manual_award' => 'getManualAward',
+        'awarded_at' => 'getAwardedAt',
+        'notified' => 'getNotified'
     ];
 
     public static function attributeMap()
@@ -128,9 +153,15 @@ class Body implements ArrayAccess
      */
     public function __construct(array $data = null)
     {
+        $this->container['id'] = isset($data['id']) ? $data['id'] : null;
+        $this->container['achievement_id'] = isset($data['achievement_id']) ? $data['achievement_id'] : null;
         $this->container['user_id'] = isset($data['user_id']) ? $data['user_id'] : null;
+        $this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
         $this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
-        $this->container['deltas'] = isset($data['deltas']) ? $data['deltas'] : null;
+        $this->container['earned'] = isset($data['earned']) ? $data['earned'] : null;
+        $this->container['manual_award'] = isset($data['manual_award']) ? $data['manual_award'] : null;
+        $this->container['awarded_at'] = isset($data['awarded_at']) ? $data['awarded_at'] : null;
+        $this->container['notified'] = isset($data['notified']) ? $data['notified'] : null;
     }
 
     /**
@@ -141,15 +172,6 @@ class Body implements ArrayAccess
     public function listInvalidProperties()
     {
         $invalid_properties = [];
-        if ($this->container['user_id'] === null) {
-            $invalid_properties[] = "'user_id' can't be null";
-        }
-        if ($this->container['site_key'] === null) {
-            $invalid_properties[] = "'site_key' can't be null";
-        }
-        if ($this->container['deltas'] === null) {
-            $invalid_properties[] = "'deltas' can't be null";
-        }
         return $invalid_properties;
     }
 
@@ -161,18 +183,51 @@ class Body implements ArrayAccess
      */
     public function valid()
     {
-        if ($this->container['user_id'] === null) {
-            return false;
-        }
-        if ($this->container['site_key'] === null) {
-            return false;
-        }
-        if ($this->container['deltas'] === null) {
-            return false;
-        }
         return true;
     }
 
+
+    /**
+     * Gets id
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->container['id'];
+    }
+
+    /**
+     * Sets id
+     * @param int $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->container['id'] = $id;
+
+        return $this;
+    }
+
+    /**
+     * Gets achievement_id
+     * @return int
+     */
+    public function getAchievementId()
+    {
+        return $this->container['achievement_id'];
+    }
+
+    /**
+     * Sets achievement_id
+     * @param int $achievement_id
+     * @return $this
+     */
+    public function setAchievementId($achievement_id)
+    {
+        $this->container['achievement_id'] = $achievement_id;
+
+        return $this;
+    }
 
     /**
      * Gets user_id
@@ -191,6 +246,27 @@ class Body implements ArrayAccess
     public function setUserId($user_id)
     {
         $this->container['user_id'] = $user_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets site_id
+     * @return int
+     */
+    public function getSiteId()
+    {
+        return $this->container['site_id'];
+    }
+
+    /**
+     * Sets site_id
+     * @param int $site_id
+     * @return $this
+     */
+    public function setSiteId($site_id)
+    {
+        $this->container['site_id'] = $site_id;
 
         return $this;
     }
@@ -217,22 +293,85 @@ class Body implements ArrayAccess
     }
 
     /**
-     * Gets deltas
-     * @return \Swagger\Client\Model\StatDelta[]
+     * Gets earned
+     * @return bool
      */
-    public function getDeltas()
+    public function getEarned()
     {
-        return $this->container['deltas'];
+        return $this->container['earned'];
     }
 
     /**
-     * Sets deltas
-     * @param \Swagger\Client\Model\StatDelta[] $deltas
+     * Sets earned
+     * @param bool $earned
      * @return $this
      */
-    public function setDeltas($deltas)
+    public function setEarned($earned)
     {
-        $this->container['deltas'] = $deltas;
+        $this->container['earned'] = $earned;
+
+        return $this;
+    }
+
+    /**
+     * Gets manual_award
+     * @return bool
+     */
+    public function getManualAward()
+    {
+        return $this->container['manual_award'];
+    }
+
+    /**
+     * Sets manual_award
+     * @param bool $manual_award
+     * @return $this
+     */
+    public function setManualAward($manual_award)
+    {
+        $this->container['manual_award'] = $manual_award;
+
+        return $this;
+    }
+
+    /**
+     * Gets awarded_at
+     * @return int
+     */
+    public function getAwardedAt()
+    {
+        return $this->container['awarded_at'];
+    }
+
+    /**
+     * Sets awarded_at
+     * @param int $awarded_at Unix time in seconds when this progress was awarded, if earned is true.
+     * @return $this
+     */
+    public function setAwardedAt($awarded_at)
+    {
+        $this->container['awarded_at'] = $awarded_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets notified
+     * @return bool
+     */
+    public function getNotified()
+    {
+        return $this->container['notified'];
+    }
+
+    /**
+     * Sets notified
+     * @param bool $notified
+     * @return $this
+     */
+    public function setNotified($notified)
+    {
+        $this->container['notified'] = $notified;
 
         return $this;
     }

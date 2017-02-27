@@ -1,6 +1,6 @@
 <?php
 /**
- * Body
+ * InlineResponse2004
  *
  * PHP version 5
  *
@@ -32,7 +32,7 @@ namespace Swagger\Client\Model;
 use \ArrayAccess;
 
 /**
- * Body Class Doc Comment
+ * InlineResponse2004 Class Doc Comment
  *
  * @category    Class */
 /**
@@ -40,7 +40,7 @@ use \ArrayAccess;
  * @author      Swagger Codegen team
  * @link        https://github.com/swagger-api/swagger-codegen
  */
-class Body implements ArrayAccess
+class InlineResponse2004 implements ArrayAccess
 {
     const DISCRIMINATOR = null;
 
@@ -48,16 +48,14 @@ class Body implements ArrayAccess
       * The original name of the model.
       * @var string
       */
-    protected static $swaggerModelName = 'body';
+    protected static $swaggerModelName = 'inline_response_200_4';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
       * @var string[]
       */
     protected static $swaggerTypes = [
-        'user_id' => 'int',
-        'site_key' => 'string',
-        'deltas' => '\Swagger\Client\Model\StatDelta[]'
+        'stats' => '\Swagger\Client\Model\StatProgress[]'
     ];
 
     public static function swaggerTypes()
@@ -70,9 +68,7 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        'user_id' => 'user_id',
-        'site_key' => 'site_key',
-        'deltas' => 'deltas'
+        'stats' => 'stats'
     ];
 
 
@@ -81,9 +77,7 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        'user_id' => 'setUserId',
-        'site_key' => 'setSiteKey',
-        'deltas' => 'setDeltas'
+        'stats' => 'setStats'
     ];
 
 
@@ -92,9 +86,7 @@ class Body implements ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        'user_id' => 'getUserId',
-        'site_key' => 'getSiteKey',
-        'deltas' => 'getDeltas'
+        'stats' => 'getStats'
     ];
 
     public static function attributeMap()
@@ -128,9 +120,7 @@ class Body implements ArrayAccess
      */
     public function __construct(array $data = null)
     {
-        $this->container['user_id'] = isset($data['user_id']) ? $data['user_id'] : null;
-        $this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
-        $this->container['deltas'] = isset($data['deltas']) ? $data['deltas'] : null;
+        $this->container['stats'] = isset($data['stats']) ? $data['stats'] : null;
     }
 
     /**
@@ -141,15 +131,6 @@ class Body implements ArrayAccess
     public function listInvalidProperties()
     {
         $invalid_properties = [];
-        if ($this->container['user_id'] === null) {
-            $invalid_properties[] = "'user_id' can't be null";
-        }
-        if ($this->container['site_key'] === null) {
-            $invalid_properties[] = "'site_key' can't be null";
-        }
-        if ($this->container['deltas'] === null) {
-            $invalid_properties[] = "'deltas' can't be null";
-        }
         return $invalid_properties;
     }
 
@@ -161,78 +142,27 @@ class Body implements ArrayAccess
      */
     public function valid()
     {
-        if ($this->container['user_id'] === null) {
-            return false;
-        }
-        if ($this->container['site_key'] === null) {
-            return false;
-        }
-        if ($this->container['deltas'] === null) {
-            return false;
-        }
         return true;
     }
 
 
     /**
-     * Gets user_id
-     * @return int
+     * Gets stats
+     * @return \Swagger\Client\Model\StatProgress[]
      */
-    public function getUserId()
+    public function getStats()
     {
-        return $this->container['user_id'];
+        return $this->container['stats'];
     }
 
     /**
-     * Sets user_id
-     * @param int $user_id
+     * Sets stats
+     * @param \Swagger\Client\Model\StatProgress[] $stats
      * @return $this
      */
-    public function setUserId($user_id)
+    public function setStats($stats)
     {
-        $this->container['user_id'] = $user_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets site_key
-     * @return string
-     */
-    public function getSiteKey()
-    {
-        return $this->container['site_key'];
-    }
-
-    /**
-     * Sets site_key
-     * @param string $site_key
-     * @return $this
-     */
-    public function setSiteKey($site_key)
-    {
-        $this->container['site_key'] = $site_key;
-
-        return $this;
-    }
-
-    /**
-     * Gets deltas
-     * @return \Swagger\Client\Model\StatDelta[]
-     */
-    public function getDeltas()
-    {
-        return $this->container['deltas'];
-    }
-
-    /**
-     * Sets deltas
-     * @param \Swagger\Client\Model\StatDelta[] $deltas
-     * @return $this
-     */
-    public function setDeltas($deltas)
-    {
-        $this->container['deltas'] = $deltas;
+        $this->container['stats'] = $stats;
 
         return $this;
     }

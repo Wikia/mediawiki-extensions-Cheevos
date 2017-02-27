@@ -20,6 +20,7 @@ class Cheevos {
 	public function __construct() {
 		global $wgCheevosHost;
 
+		$this->host = $wgCheevosHost;
 		\Swagger\Client\Configuration::getDefaultConfiguration()->setHost($wgCheevosHost);
 		\Swagger\Client\Configuration::getDefaultConfiguration()->setSSLVerification(false);
 		$this->api = new \Swagger\Client\Api\DefaultApi();
@@ -30,12 +31,41 @@ class Cheevos {
 	 * @param  [type] $id [description]
 	 * @return [type]     [description]
 	 */
-	public function getAchievement($id=null) {
+	public function getAchievement($id=null,$page=0) {
 		$siteId = 0; // Integer | The site id to use for locally overridden achievements.
+
+		$offset = $page * 200;
+
+		/*
+		$url = $this->host."/achievements/all?siteId={$siteId}&limit=200&offset={$offset}";
+
+		$ch = curl_init();
+		curl_setopt_array($ch, array(
+		    CURLOPT_RETURNTRANSFER => 1,
+		    CURLOPT_URL => $url,
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLOPT_SSL_VERIFYPEER => false
+		));
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		$result = json_decode($result);
+
+		//echo "<pre>";
+		//var_dump($result);
+		//die('kek ');
+
+		if (!is_null($result->achievements)) {
+			foreach ($result->achievements as $_achievement) {
+				$achievements[$_achievement->id] = $_achievement;
+			}
+		}*/
+
+
 
 		$achievements = [];
 		try {
-		    $result = is_numeric($id) ? $this->api->achievementIdGet($id) : $this->api->achievementsAllGet($siteId);
+		    $result = is_numeric($id) ? $this->api->achievementIdGet($id) : $this->api->achievementsAllGet($siteId,200,$offset);
 			if (!is_null($result->achievements)) {
 				foreach ($result->achievements as $_achievement) {
 					$achievements[$_achievement->getId()] = $_achievement;
@@ -52,8 +82,8 @@ class Cheevos {
 	 * [getAchievements description]
 	 * @return [type] [description]
 	 */
-	public function getAchievements() {
-		return self::getAchievement();
+	public function getAchievements($page=0) {
+		return self::getAchievement(null,$page);
 	}
 
 	/**
@@ -123,9 +153,9 @@ class Cheevos {
 	public function getCategory($id=null) {
 		$categorys = [];
 		try {
-			$result = is_numeric($id) ? $this->api->categoryIdGet($id) : $this->api->categorysAllGet();
-			if (!is_null($result->categorys)) {
-				foreach ($result->categorys as $_category) {
+			$result = is_numeric($id) ? $this->api->achievementCategoryIdGet($id) : $this->api->achievementCategoriesAllGet();
+			if (!is_null($result->achievementCategorys)) {
+				foreach ($result->achievementCategorys as $_category) {
 					$categorys[$_category->getId()] = $_category;
 				}
 			}
@@ -153,7 +183,7 @@ class Cheevos {
 	public function deleteCategory($id, $userId=0) {
 		$result = false;
 		try {
-			$result = $this->api->categoryIdDelete($id, $userId);
+			$result = $this->api->achievementCategoryIdDelete($id, $userId);
 		} catch (Exception $e) {
 			wfErrorLog('Exception deleteCategory: '. $e->getMessage(). PHP_EOL);
 		}
@@ -177,7 +207,7 @@ class Cheevos {
 
 		$result = false;
 		try {
-			$result = is_numeric($id) ? $this->api->categoryPut($id, $body) : $this->api->categorysPut($body);
+			$result = is_numeric($id) ? $this->api->achievementCategoryPut($id, $body) : $this->api->achievementCategorysPut($body);
 		} catch (Exception $e) {
 			wfErrorLog('Exception in putCategory: '. $e->getMessage(). PHP_EOL);
 		}
