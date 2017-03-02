@@ -31,7 +31,6 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
-		$this->api			= new Cheevos\Cheevos();
 	}
 
 	/**
@@ -76,15 +75,19 @@ class SpecialManageAchievements extends SpecialPage {
 	public function achievementsList() {
 
 		$site_id = 0; // int | The site id to use for locally overridden achievements.
-		$limit = 25; // int | Maximum number of items in the result.
-		$offset = 0; // int | Number of items to skip in the result.  Defaults to 0.
 
+		$achievements = Cheevos\Cheevos::getAchievements($site_id);
+		$categories = Cheevos\Cheevos::getCategories();
 
-		$achievements = $this->api->getAchievements();
+		// @TODO: Figure out what this stuff does.
+		$hide['deleted'] = true;
+		$hide['secret'] = true;
 
-		//$categories = $this->api->getCategories();
-		//var_dump($categories);
+		$lookup = CentralIdLookup::factory();
+		$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+		$progress = \Achievements\Progress::newFromGlobalId($globalId);
 
+		$searchTerm = '';
 
 		$this->output->setPageTitle(wfMessage('achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories, $progress, $hide, $searchTerm);

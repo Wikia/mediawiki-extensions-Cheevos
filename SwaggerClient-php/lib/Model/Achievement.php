@@ -58,7 +58,6 @@ class Achievement implements ArrayAccess
         'id' => 'int',
         'parent_id' => 'int',
         'site_id' => 'int',
-        'site_key' => 'string',
         'name' => '\Swagger\Client\Model\LocalizedString',
         'description' => '\Swagger\Client\Model\LocalizedString',
         'image' => 'string',
@@ -66,7 +65,6 @@ class Achievement implements ArrayAccess
         'points' => 'int',
         'global' => 'bool',
         'protected' => 'bool',
-        'secret' => 'bool',
         'created_at' => 'int',
         'updated_at' => 'int',
         'created_by' => 'int',
@@ -87,7 +85,6 @@ class Achievement implements ArrayAccess
         'id' => 'id',
         'parent_id' => 'parent_id',
         'site_id' => 'site_id',
-        'site_key' => 'site_key',
         'name' => 'name',
         'description' => 'description',
         'image' => 'image',
@@ -95,7 +92,6 @@ class Achievement implements ArrayAccess
         'points' => 'points',
         'global' => 'global',
         'protected' => 'protected',
-        'secret' => 'secret',
         'created_at' => 'created_at',
         'updated_at' => 'updated_at',
         'created_by' => 'created_by',
@@ -112,7 +108,6 @@ class Achievement implements ArrayAccess
         'id' => 'setId',
         'parent_id' => 'setParentId',
         'site_id' => 'setSiteId',
-        'site_key' => 'setSiteKey',
         'name' => 'setName',
         'description' => 'setDescription',
         'image' => 'setImage',
@@ -120,7 +115,6 @@ class Achievement implements ArrayAccess
         'points' => 'setPoints',
         'global' => 'setGlobal',
         'protected' => 'setProtected',
-        'secret' => 'setSecret',
         'created_at' => 'setCreatedAt',
         'updated_at' => 'setUpdatedAt',
         'created_by' => 'setCreatedBy',
@@ -137,7 +131,6 @@ class Achievement implements ArrayAccess
         'id' => 'getId',
         'parent_id' => 'getParentId',
         'site_id' => 'getSiteId',
-        'site_key' => 'getSiteKey',
         'name' => 'getName',
         'description' => 'getDescription',
         'image' => 'getImage',
@@ -145,7 +138,6 @@ class Achievement implements ArrayAccess
         'points' => 'getPoints',
         'global' => 'getGlobal',
         'protected' => 'getProtected',
-        'secret' => 'getSecret',
         'created_at' => 'getCreatedAt',
         'updated_at' => 'getUpdatedAt',
         'created_by' => 'getCreatedBy',
@@ -187,7 +179,6 @@ class Achievement implements ArrayAccess
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
         $this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : null;
         $this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
-        $this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
         $this->container['name'] = isset($data['name']) ? $data['name'] : null;
         $this->container['description'] = isset($data['description']) ? $data['description'] : null;
         $this->container['image'] = isset($data['image']) ? $data['image'] : null;
@@ -195,7 +186,6 @@ class Achievement implements ArrayAccess
         $this->container['points'] = isset($data['points']) ? $data['points'] : null;
         $this->container['global'] = isset($data['global']) ? $data['global'] : null;
         $this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
-        $this->container['secret'] = isset($data['secret']) ? $data['secret'] : null;
         $this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : null;
         $this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : null;
         $this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
@@ -279,33 +269,12 @@ class Achievement implements ArrayAccess
 
     /**
      * Sets site_id
-     * @param int $site_id Internal ID assigned from site_key; this field is ignored in data from the client.
+     * @param int $site_id If this achievement is specific to a site, this is the site id; otherwise 0.
      * @return $this
      */
     public function setSiteId($site_id)
     {
         $this->container['site_id'] = $site_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets site_key
-     * @return string
-     */
-    public function getSiteKey()
-    {
-        return $this->container['site_key'];
-    }
-
-    /**
-     * Sets site_key
-     * @param string $site_key If this achievement is specific to a site, this is the site key; otherwise empty.
-     * @return $this
-     */
-    public function setSiteKey($site_key)
-    {
-        $this->container['site_key'] = $site_key;
 
         return $this;
     }
@@ -453,27 +422,6 @@ class Achievement implements ArrayAccess
     public function setProtected($protected)
     {
         $this->container['protected'] = $protected;
-
-        return $this;
-    }
-
-    /**
-     * Gets secret
-     * @return bool
-     */
-    public function getSecret()
-    {
-        return $this->container['secret'];
-    }
-
-    /**
-     * Sets secret
-     * @param bool $secret When true, this achievement is not shown for the user until the user has earned it.
-     * @return $this
-     */
-    public function setSecret($secret)
-    {
-        $this->container['secret'] = $secret;
 
         return $this;
     }

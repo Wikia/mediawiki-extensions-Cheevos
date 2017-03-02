@@ -4,11 +4,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **stat** | [**\Swagger\Client\Model\Stat**](Stat.md) |  | [optional] 
-**stat_id** | **int** | The index of stat in the stat names enum, starting from 1 | [optional] 
 **user_id** | **int** |  | [optional] 
 **site_id** | **int** |  | [optional] 
-**site_key** | **string** |  | [optional] 
-**streak_achievement_id** | **int** | Achievement ID of the streak achievement this value is associated with. | [optional] 
+**streak_type** | [**\Swagger\Client\Model\StreakType**](StreakType.md) |  | [optional] 
 **count** | **int** |  | [optional] 
 **last_incremented** | **int** | Unix time in seconds when this progress was last updated | [optional] 
 

@@ -91,9 +91,9 @@ class BodyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "site_key"
+     * Test attribute "site_id"
      */
-    public function testPropertySiteKey()
+    public function testPropertySiteId()
     {
 
     }

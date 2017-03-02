@@ -62,6 +62,9 @@
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
 		"Cheevos\\Cheevos" : "classes/Cheevos.php",
+		"Cheevos\\Model" : "classes/CheevosModel.php",
+		"Cheevos\\Achievement" : "classes/CheevosAchievement.php",
+		"Cheevos\\AchievementCategory" : "classes/CheevosAchievementCategory.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php"
 	},

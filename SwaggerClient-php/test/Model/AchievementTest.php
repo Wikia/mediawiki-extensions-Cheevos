@@ -107,14 +107,6 @@ class AchievementTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "site_key"
-     */
-    public function testPropertySiteKey()
-    {
-
-    }
-
-    /**
      * Test attribute "name"
      */
     public function testPropertyName()
@@ -166,14 +158,6 @@ class AchievementTest extends \PHPUnit_Framework_TestCase
      * Test attribute "protected"
      */
     public function testPropertyProtected()
-    {
-
-    }
-
-    /**
-     * Test attribute "secret"
-     */
-    public function testPropertySecret()
     {
 
     }

@@ -33,7 +33,7 @@ namespace Swagger\Client;
  * StatProgressTest Class Doc Comment
  *
  * @category    Class */
-// * @description Represents a statistic for a user on a specific site; or, if site_key is empty, a statistic for a user across all sites.  When streak_type is not none, this stat is used for streak achievements.  Not all stats will have streak progress, and not all streak periods will be available--streak progress is only tracked when a corresponding streak achievement exists.
+// * @description Represents a statistic for a user on a specific site; or, if site_id is 0, a statistic for a user across all sites.  When streak_type is not none, this stat is used for streak achievements.  Not all stats will have streak progress, and not all streak periods will be available--streak progress is only tracked when a corresponding streak achievement exists.
 /**
  * @package     Swagger\Client
  * @author      Swagger Codegen team
@@ -91,14 +91,6 @@ class StatProgressTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "stat_id"
-     */
-    public function testPropertyStatId()
-    {
-
-    }
-
-    /**
      * Test attribute "user_id"
      */
     public function testPropertyUserId()
@@ -115,17 +107,9 @@ class StatProgressTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test attribute "site_key"
+     * Test attribute "streak_type"
      */
-    public function testPropertySiteKey()
-    {
-
-    }
-
-    /**
-     * Test attribute "streak_achievement_id"
-     */
-    public function testPropertyStreakAchievementId()
+    public function testPropertyStreakType()
     {
 
     }

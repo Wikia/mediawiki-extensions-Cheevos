@@ -14,101 +14,102 @@
 namespace Cheevos;
 
 class Cheevos {
-	/**
-	 * Constructor sets up the Swagger API Client for Cheevos
-	 */
-	public function __construct() {
+
+	const DEFAULT_LIMIT = 200;
+
+	private static function request($type, $path, $data = []) {
 		global $wgCheevosHost;
 
-		$this->host = $wgCheevosHost;
-		\Swagger\Client\Configuration::getDefaultConfiguration()->setHost($wgCheevosHost);
-		\Swagger\Client\Configuration::getDefaultConfiguration()->setSSLVerification(false);
-		$this->api = new \Swagger\Client\Api\DefaultApi();
-	}
+		$host = $wgCheevosHost;
+		$type = strtoupper($type);
 
-	/**
-	 * [getAchievement description]
-	 * @param  [type] $id [description]
-	 * @return [type]     [description]
-	 */
-	public function getAchievement($id=null,$page=0) {
-		$siteId = 0; // Integer | The site id to use for locally overridden achievements.
-
-		$offset = $page * 200;
-
-		/*
-		$url = $this->host."/achievements/all?siteId={$siteId}&limit=200&offset={$offset}";
+		$url = "{$host}/{$path}";
 
 		$ch = curl_init();
 		curl_setopt_array($ch, array(
-		    CURLOPT_RETURNTRANSFER => 1,
-		    CURLOPT_URL => $url,
-			CURLOPT_SSL_VERIFYHOST => false,
-			CURLOPT_SSL_VERIFYPEER => false
+		    CURLOPT_RETURNTRANSFER		=> 1,
+		    CURLOPT_URL					=> $url,
+			CURLOPT_SSL_VERIFYHOST		=> false,
+			CURLOPT_SSL_VERIFYPEER		=> false,
+			CURLOPT_CUSTOMREQUEST		=> $type,
+			CURLOPT_HTTPHEADER			=> [
+				'Accept: application/json',
+				'Content-Type: application/json'
+			]
 		));
+		if (in_array($type,['DELETE','GET']) && !empty($data)) {
+			$url = $url . "/?" . http_build_query($data);
+		} else {
+			$postData = json_encode($data);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+		}
+
+		curl_setopt($ch, CURLOPT_URL, $url);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
-		$result = json_decode($result);
-
-		//echo "<pre>";
-		//var_dump($result);
-		//die('kek ');
-
-		if (!is_null($result->achievements)) {
-			foreach ($result->achievements as $_achievement) {
-				$achievements[$_achievement->id] = $_achievement;
-			}
-		}*/
-
-
-
-		$achievements = [];
-		try {
-		    $result = is_numeric($id) ? $this->api->achievementIdGet($id) : $this->api->achievementsAllGet($siteId,200,$offset);
-			if (!is_null($result->achievements)) {
-				foreach ($result->achievements as $_achievement) {
-					$achievements[$_achievement->getId()] = $_achievement;
-				}
-			}
-		} catch (Exception $e) {
-		    wfErrorLog('Exception in getAchievement: '. $e->getMessage(). PHP_EOL);
-		}
-
-		return $achievements;
-	}
-
-	/**
-	 * [getAchievements description]
-	 * @return [type] [description]
-	 */
-	public function getAchievements($page=0) {
-		return self::getAchievement(null,$page);
-	}
-
-	/**
-	 * [deleteAchievement description]
-	 * @param  [type]  $id     [description]
-	 * @param  integer $userId [description]
-	 * @return [type]          [description]
-	 */
-	public function deleteAchievement($id, $userId=0) {
-		$result = false;
-		try {
-		    $result = $this->api->achievementIdDelete($id, $userId);
-		} catch (Exception $e) {
-			wfErrorLog('Exception deleteAchievement: '. $e->getMessage(). PHP_EOL);
-		}
+		$result = json_decode($result, 1);
 		return $result;
 	}
 
-	/**
-	 * [putAchievement description]
-	 * @param  [type] $body [description]
-	 * @param  [type] $id   [description]
-	 * @return [type]       [description]
-	 */
-	public function putAchievement($body,$id=null) {
+	private static function get($path, $data = []) {
+		return self::request('GET',$path,$data);
+	}
+
+	private static function put($path, $data = []) {
+		return self::request('PUT',$path,$data);
+	}
+
+	private static function delete($path, $data = []) {
+		return self::request('DELETE',$path,$data);
+	}
+
+
+	private static function return($return,$expected=null,$class=null) {
+		if (isset($return['code']) && $return['code'] !== 200) {
+			throw new CheevosException($return['message'], $return['code']);
+		}
+
+		if ($expected && isset($return[$expected])) {
+			$return = $return[$expected];
+		}
+
+		if ($class && class_exists($class)) {
+			$holder = [];
+			foreach ($return as $classme) {
+				$holder[] = new $class($classme);
+			}
+			$return = $holder;
+		}
+
+		return $return;
+	}
+
+
+	public static function getAchievements($siteId=0) {
+		$return = self::get('achievements/all',[
+			'siteId' => $siteId,
+			'limit'	=> 0
+		]);
+
+		return self::return($return, 'achievements', 'Cheevos\Achievement');
+	}
+
+
+	public static function getAchievement($id) {
+		$return = self::get("achievement/{$id}");
+		return self::return($return, 'achievements', 'Cheevos\Achievement');
+	}
+
+
+	public static function deleteAchievement($id, $userId=0) {
+		$return = self::delete("achievement/{$id}",[
+			"authorId" => $userId
+		]);
+		return self::return($return);;
+	}
+
+	private static function putAchievement($body,$id=null) {
 		if (!is_array($body)) {
 			// Valid JSON strings probably acceptable as well, right?
 			$achievement = json_decode($body,1);
@@ -117,128 +118,73 @@ class Cheevos {
 			}
 		}
 
-		$result = false;
-		try {
-		    $result = is_numeric($id) ? $this->api->achievementPut($id, $body) : $this->api->achievementsPut($body);
-		} catch (Exception $e) {
-		    wfErrorLog('Exception in putAchievement: '. $e->getMessage(). PHP_EOL);
-		}
-		return $result;
+		$path = ($id) ? "achievement/{$id}" : "achievement";
+		$return = self::put($path,$body);
+		return self::return($return);;
 	}
 
-	/**
-	 * [updateAchievement description]
-	 * @param  [type] $id   [description]
-	 * @param  [type] $body [description]
-	 * @return [type]       [description]
-	 */
-	public function updateAchievement($id,$body) {
-		return $this->putAchievement($body, $id);
+
+	public static function updateAchievement($id,$body) {
+		return self::putAchievement($body, $id);
 	}
 
-	/**
-	 * [createAchievement description]
-	 * @param  [type] $body [description]
-	 * @return [type]       [description]
-	 */
-	public function createAchievement($body) {
-		return $this->putAchievement($body);
+
+	public static function createAchievement($body) {
+		return self::putAchievement($body);
 	}
 
-	/**
-	 * [getCategory description]
-	 * @param  [type] $id [description]
-	 * @return [type]     [description]
-	 */
-	public function getCategory($id=null) {
-		$categorys = [];
-		try {
-			$result = is_numeric($id) ? $this->api->achievementCategoryIdGet($id) : $this->api->achievementCategoriesAllGet();
-			if (!is_null($result->achievementCategorys)) {
-				foreach ($result->achievementCategorys as $_category) {
-					$categorys[$_category->getId()] = $_category;
-				}
-			}
-		} catch (Exception $e) {
-			wfErrorLog('Exception in getCategory: '. $e->getMessage(). PHP_EOL);
-		}
 
-		return $categorys;
+	public static function getCategories() {
+		$return = self::get('achievement_categories/all',[
+			'limit'	=> 0
+		]);
+
+		return self::return($return, 'categories', 'Cheevos\AchievementCategory');
 	}
 
-	/**
-	 * [getCategories description]
-	 * @return [type] [description]
-	 */
-	public function getCategories() {
-		return self::getCategory();
+
+	public static function getCategory($id) {
+		$return = self::get("achievement_category/{$id}");
+		return self::return($return, 'categories', 'Cheevos\AchievementCategory');
 	}
 
-	/**
-	 * [deleteCategory description]
-	 * @param  [type]  $id     [description]
-	 * @param  integer $userId [description]
-	 * @return [type]          [description]
-	 */
-	public function deleteCategory($id, $userId=0) {
-		$result = false;
-		try {
-			$result = $this->api->achievementCategoryIdDelete($id, $userId);
-		} catch (Exception $e) {
-			wfErrorLog('Exception deleteCategory: '. $e->getMessage(). PHP_EOL);
-		}
-		return $result;
+
+	public static function deleteCategory($id, $userId=0) {
+		$return = self::delete("achievement_category/{$id}",[
+			"authorId" => $userId
+		]);
+		return self::return($return);;
 	}
 
-	/**
-	 * [putCategory description]
-	 * @param  [type] $body [description]
-	 * @param  [type] $id   [description]
-	 * @return [type]       [description]
-	 */
-	public function putCategory($body,$id=null) {
+	private static function putCategory($body,$id=null) {
 		if (!is_array($body)) {
 			// Valid JSON strings probably acceptable as well, right?
-			$category = json_decode($body,1);
+			$achievement_category = json_decode($body,1);
 			if (is_null($body)) {
-				return false; // cant decode, no valid category passed.
+				return false; // cant decode, no valid achievement_category passed.
 			}
 		}
 
-		$result = false;
-		try {
-			$result = is_numeric($id) ? $this->api->achievementCategoryPut($id, $body) : $this->api->achievementCategorysPut($body);
-		} catch (Exception $e) {
-			wfErrorLog('Exception in putCategory: '. $e->getMessage(). PHP_EOL);
-		}
-		return $result;
+		$path = ($id) ? "achievement_category/{$id}" : "achievement_category";
+		$return = self::put($path,$body);
+		return self::return($return);;
 	}
 
-	/**
-	 * [updateCategory description]
-	 * @param  [type] $id   [description]
-	 * @param  [type] $body [description]
-	 * @return [type]       [description]
-	 */
-	public function updateCategory($id,$body) {
-		return $this->putCategory($body, $id);
+
+	public static function updateCategory($id,$body) {
+		return self::putCategory($body, $id);
 	}
 
-	/**
-	 * [createCategory description]
-	 * @param  [type] $body [description]
-	 * @return [type]       [description]
-	 */
-	public function createCategory($body) {
-		return $this->putCategory($body);
+
+	public static function createCategory($body) {
+		return self::putCategory($body);
 	}
 
-	/**
-	 * [increment description]
-	 * @param  [type] $body [description]
-	 * @return [type]       [description]
-	 */
-	public function increment($body) {
+
+	/*
+
+
+	public static function increment($body) {
 		if (!is_array($body)) {
 			// Valid JSON strings probably acceptable as well, right?
 			$achievement = json_decode($body,1);
@@ -256,17 +202,7 @@ class Cheevos {
 		return $result;
 	}
 
-	/**
-	 * [stats description]
-	 * @param  [type] $userId [description]
-	 * @param  [type] $siteId [description]
-	 * @param  [type] $global [description]
-	 * @param  [type] $stat   [description]
-	 * @param  [type] $limit  [description]
-	 * @param  [type] $offset [description]
-	 * @return [type]         [description]
-	 */
-	public function stats($userId, $siteId, $global, $stat, $limit=null, $offset=null) {
+	public static function stats($userId, $siteId, $global, $stat, $limit=null, $offset=null) {
 		$result = false;
 		try {
 		    $result = $this->api->statsGet($userId, $siteId, $global, $stat, $limit, $offset);
@@ -276,4 +212,16 @@ class Cheevos {
 		return $result;
 	}
 
+	*/
+
+}
+
+class CheevosException extends \Exception {
+    public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function __toString() {
+        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    }
 }

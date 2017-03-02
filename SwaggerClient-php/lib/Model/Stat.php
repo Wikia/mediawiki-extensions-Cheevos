@@ -57,14 +57,6 @@ class Stat {
     const SEND_EMAIL = 'send_email';
     const FILE_UPLOAD = 'file_upload';
     const WIKI_POINTS = 'wiki_points';
-    const CURSE_PROFILE_EDIT_FAV_WIKI = 'curse_profile_edit_fav_wiki';
-    const CURSE_PROFILE_COMMENT_REPLY = 'curse_profile_comment_reply';
-    const CURSE_PROFILE_EDIT_LINK_XBL = 'curse_profile_edit_link_xbl';
-    const CURSE_PROFILE_EDIT_LINK_PSN = 'curse_profile_edit_link_psn';
-    const CURSE_PROFILE_EDIT_LINK_STEAM = 'curse_profile_edit_link_steam';
-    const CURSE_PROFILE_EDIT_LINK_FACEBOOK = 'curse_profile_edit_link_facebook';
-    const CURSE_PROFILE_EDIT_LINK_TWITTER = 'curse_profile_edit_link_twitter';
-    const CURSE_PROFILE_EDIT_LINK_REDDIT = 'curse_profile_edit_link_reddit';
     
 
     

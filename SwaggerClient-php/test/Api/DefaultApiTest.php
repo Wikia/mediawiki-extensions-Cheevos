@@ -187,61 +187,6 @@ class DefaultApiTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test case for achievementsProgressGet
-     *
-     * .
-     *
-     */
-    public function testAchievementsProgressGet()
-    {
-
-    }
-
-    /**
-     * Test case for achievementsProgressIdDelete
-     *
-     * .
-     *
-     */
-    public function testAchievementsProgressIdDelete()
-    {
-
-    }
-
-    /**
-     * Test case for achievementsProgressIdGet
-     *
-     * .
-     *
-     */
-    public function testAchievementsProgressIdGet()
-    {
-
-    }
-
-    /**
-     * Test case for achievementsProgressIdPut
-     *
-     * .
-     *
-     */
-    public function testAchievementsProgressIdPut()
-    {
-
-    }
-
-    /**
-     * Test case for achievementsProgressPut
-     *
-     * .
-     *
-     */
-    public function testAchievementsProgressPut()
-    {
-
-    }
-
-    /**
      * Test case for incrementPost
      *
      * .

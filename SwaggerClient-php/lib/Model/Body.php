@@ -56,7 +56,7 @@ class Body implements ArrayAccess
       */
     protected static $swaggerTypes = [
         'user_id' => 'int',
-        'site_key' => 'string',
+        'site_id' => 'int',
         'deltas' => '\Swagger\Client\Model\StatDelta[]'
     ];
 
@@ -71,7 +71,7 @@ class Body implements ArrayAccess
      */
     protected static $attributeMap = [
         'user_id' => 'user_id',
-        'site_key' => 'site_key',
+        'site_id' => 'site_id',
         'deltas' => 'deltas'
     ];
 
@@ -82,7 +82,7 @@ class Body implements ArrayAccess
      */
     protected static $setters = [
         'user_id' => 'setUserId',
-        'site_key' => 'setSiteKey',
+        'site_id' => 'setSiteId',
         'deltas' => 'setDeltas'
     ];
 
@@ -93,7 +93,7 @@ class Body implements ArrayAccess
      */
     protected static $getters = [
         'user_id' => 'getUserId',
-        'site_key' => 'getSiteKey',
+        'site_id' => 'getSiteId',
         'deltas' => 'getDeltas'
     ];
 
@@ -129,7 +129,7 @@ class Body implements ArrayAccess
     public function __construct(array $data = null)
     {
         $this->container['user_id'] = isset($data['user_id']) ? $data['user_id'] : null;
-        $this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
+        $this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
         $this->container['deltas'] = isset($data['deltas']) ? $data['deltas'] : null;
     }
 
@@ -144,8 +144,8 @@ class Body implements ArrayAccess
         if ($this->container['user_id'] === null) {
             $invalid_properties[] = "'user_id' can't be null";
         }
-        if ($this->container['site_key'] === null) {
-            $invalid_properties[] = "'site_key' can't be null";
+        if ($this->container['site_id'] === null) {
+            $invalid_properties[] = "'site_id' can't be null";
         }
         if ($this->container['deltas'] === null) {
             $invalid_properties[] = "'deltas' can't be null";
@@ -164,7 +164,7 @@ class Body implements ArrayAccess
         if ($this->container['user_id'] === null) {
             return false;
         }
-        if ($this->container['site_key'] === null) {
+        if ($this->container['site_id'] === null) {
             return false;
         }
         if ($this->container['deltas'] === null) {
@@ -196,22 +196,22 @@ class Body implements ArrayAccess
     }
 
     /**
-     * Gets site_key
-     * @return string
+     * Gets site_id
+     * @return int
      */
-    public function getSiteKey()
+    public function getSiteId()
     {
-        return $this->container['site_key'];
+        return $this->container['site_id'];
     }
 
     /**
-     * Sets site_key
-     * @param string $site_key
+     * Sets site_id
+     * @param int $site_id
      * @return $this
      */
-    public function setSiteKey($site_key)
+    public function setSiteId($site_id)
     {
-        $this->container['site_key'] = $site_key;
+        $this->container['site_id'] = $site_id;
 
         return $this;
     }
