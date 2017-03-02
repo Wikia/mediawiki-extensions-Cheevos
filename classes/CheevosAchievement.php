@@ -2,7 +2,7 @@
 
 namespace Cheevos;
 
-class Achievement extends Model
+class CheevosAchievement extends CheevosModel
 {
 
 	/**
@@ -10,7 +10,6 @@ class Achievement extends Model
 	 * @param mixed[] $data Associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
-
 		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
 		$this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : null;
 		$this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
@@ -28,6 +27,29 @@ class Achievement extends Model
 		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
 		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
 		$this->container['criteria'] = isset($data['criteria']) ? $data['criteria'] : null;
+	}
+
+	public function getName() {
+		$code = CheevosHelper::getUserLanguage();
+		if (array_key_exists($code, $this->container['name']) && isset($this->container['name'][$code])) {
+			return $this->container['name'][$code];
+		} else {
+			return reset($this->container['name']);
+		}
+	}
+
+	public function getDescription() {
+		$code = CheevosHelper::getUserLanguage();
+		if (array_key_exists($code, $this->container['description']) && isset($this->container['description'][$code])) {
+			return $this->container['description'][$code];
+		} else {
+			return reset($this->container['description']);
+		}
+	}
+
+	public function getImageUrl(){
+		// @TODO: Make this actually return the url;
+		return $this->container['image'];
 	}
 
 	// quick fix for legacy code calls for now.

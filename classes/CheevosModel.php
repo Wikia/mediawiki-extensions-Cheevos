@@ -3,7 +3,7 @@
 namespace Cheevos;
 use \ArrayAccess;
 
-class Model implements ArrayAccess
+class CheevosModel implements ArrayAccess
 {
 
 /**
@@ -18,7 +18,7 @@ class Model implements ArrayAccess
 			$getProp = substr($name, 3);
 			$prop = strtolower($getProp);
 			$act = substr($name, 0, 3);
-			if (isset($this->container[$prop])) {
+			if (array_key_exists($prop, $this->container)) {
 				if ($act == "get") {
 					return $this->container[$prop];
 				} else {
@@ -27,12 +27,12 @@ class Model implements ArrayAccess
 					return;
 				}
 			} else {
-				throw new CheevosException("[{$act}{$getProp}()] The property {$prop} is not a valid property for this class.");
+				throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The property {$prop} is not a valid property for this class.");
 			}
 		} elseif (substr($name,0,2) == "is") {
 			$getProp = substr($name, 2);
 			$prop = strtolower($getProp);
-			if (isset($this->container[$prop])) {
+			if (array_key_exists($prop, $this->container)) {
 				$evaluate = $this->container[$prop];
 				// @TODO: this should be smarter. May not behave as expected in cases checking other stuff.
 				if ($evaluate) {
@@ -41,7 +41,7 @@ class Model implements ArrayAccess
 					return false;
 				}
 			} else {
-				throw new CheevosException("[is{$getProp}()] The property {$prop} is not a valid property for this class.");
+				throw new CheevosException("[".get_class($this)."->is{$getProp}()] The property {$prop} is not a valid property for this class.");
 			}
 		} else {
 			throw new CheevosException("No idea what method you thought you wanted, but {$name} isn't a valid one.");

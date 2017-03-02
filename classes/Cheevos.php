@@ -91,14 +91,13 @@ class Cheevos {
 			'siteId' => $siteId,
 			'limit'	=> 0
 		]);
-
-		return self::return($return, 'achievements', 'Cheevos\Achievement');
+		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
 	}
 
 
 	public static function getAchievement($id) {
 		$return = self::get("achievement/{$id}");
-		return self::return($return, 'achievements', 'Cheevos\Achievement');
+		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
 	}
 
 
@@ -139,13 +138,13 @@ class Cheevos {
 			'limit'	=> 0
 		]);
 
-		return self::return($return, 'categories', 'Cheevos\AchievementCategory');
+		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
 	}
 
 
 	public static function getCategory($id) {
 		$return = self::get("achievement_category/{$id}");
-		return self::return($return, 'categories', 'Cheevos\AchievementCategory');
+		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
 	}
 
 
@@ -214,6 +213,19 @@ class Cheevos {
 
 	*/
 
+}
+
+class CheevosHelper {
+	public static function getUserLanguage() {
+		global $wgLang;
+
+		try {
+			$code = $wgLang->getCode();
+		} catch (Exception $e) {
+			$code = "us-en";
+		}
+		return $code;
+	}
 }
 
 class CheevosException extends \Exception {

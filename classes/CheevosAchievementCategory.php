@@ -3,7 +3,7 @@
 namespace Cheevos;
 
 
-class AchievementCategory extends Model
+class CheevosAchievementCategory extends CheevosModel
 {
     /**
      * Constructor
@@ -18,4 +18,18 @@ class AchievementCategory extends Model
         $this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
         $this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
     }
+
+	public function getName() {
+		$code = CheevosHelper::getUserLanguage();
+		if (array_key_exists($code, $this->container['name']) && isset($this->container['name'][$code])) {
+			return $this->container['name'][$code];
+		} else {
+			return reset($this->container['name']);
+		}
+	}
+
+	// Legacy Naming 
+	public function getTitle() {
+		return $this->getName();
+	}
 }

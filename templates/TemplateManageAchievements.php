@@ -66,7 +66,7 @@ class TemplateManageAchievements {
 					$categoryHTML[$categoryId] .= $this->achievementBlockRow($achievement, true);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
-					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getTitleSlug()}'>{$category->getTitle()}</li>";
+					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
 					$firstCategory = false;
 				}
 			}
@@ -75,7 +75,7 @@ class TemplateManageAchievements {
 			foreach ($categories as $categoryId => $category) {
 				if ($categoryHTML[$categoryId]) {
 					$HTML .= "
-			<div class='achievement_category' data-slug='{$category->getTitleSlug()}'>
+			<div class='achievement_category' data-slug='{$category->getSlug()}'>
 				{$categoryHTML[$categoryId]}
 			</div>";
 				}
@@ -144,7 +144,7 @@ class TemplateManageAchievements {
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
-		if (count($achievement->getRequiredBy())) {
+		/*if (count($achievement->getRequiredBy())) {
 			$HTML .= "
 						<div class='p-achievement-required_by'>
 						".wfMessage('required_by')->escaped();
@@ -167,7 +167,7 @@ class TemplateManageAchievements {
 			}
 			$HTML .= "
 						</div>";
-		}
+		}*/
 		$HTML .= "
 					</div>";
 		if ($showControls) {
@@ -186,7 +186,7 @@ class TemplateManageAchievements {
 					</div>";
 			}
 		}
-		if ($achievement->getIncrement() > 0 && isset($progress['date']) && $progress['date'] <= 0) {
+		/*if ($achievement->getIncrement() > 0 && isset($progress['date']) && $progress['date'] <= 0) {
 			$width = (intval($progress['increment']) / $achievement->getIncrement()) * 100;
 			if ($width > 100) {
 				$width = 100;
@@ -201,7 +201,7 @@ class TemplateManageAchievements {
 					<div class='p-achievement-earned'>
 						".(isset($progress['earned_date']) ? $progress['earned_date'] : '')."
 					</div>";
-		}
+		}*/
 		$HTML .= "
 				</div>
 				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$achPointAbbreviation}</span>
