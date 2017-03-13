@@ -45,7 +45,6 @@ class TemplateManageAchievements {
 			</form>
 		</div>
 		<div class='buttons'>
-			<a href='?hide_deleted=".($hide['deleted'] ? 'false' : 'true')."' class='button'><span class='legend_deleted'></span>".wfMessage(($hide['deleted'] ? 'show' : 'hide').'_deleted_achievements')."</a>
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
 		</div>
 			";
@@ -56,13 +55,13 @@ class TemplateManageAchievements {
 			$HTML .= "
 			<ul id='achievement_categories'>";
 			$firstCategory = true;
-			foreach ($categories as $categoryId => $category) {
+			foreach ($categories as $categoryIndex => $category) {
+				$categoryId = $category->getId();
 				$categoryHTML[$categoryId] = '';
 				foreach ($achievements as $achievementId => $achievement) {
-
-					/*if (($achievement->isDeleted() == 1 && $hide['deleted'] === true) || $achievement->getCategoryId() != $categoryId) {
+					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
-					}*/
+					}
 					$categoryHTML[$categoryId] .= $this->achievementBlockRow($achievement, true);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
@@ -72,7 +71,8 @@ class TemplateManageAchievements {
 			}
 			$HTML .= "
 			</ul>";
-			foreach ($categories as $categoryId => $category) {
+			foreach ($categories as $categoryIndex => $category) {
+				$categoryId = $category->getId();
 				if ($categoryHTML[$categoryId]) {
 					$HTML .= "
 			<div class='achievement_category' data-slug='{$category->getSlug()}'>
@@ -107,7 +107,7 @@ class TemplateManageAchievements {
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
 				<div class='p-achievement-source'>".($achievement->global ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
 				<div class='p-achievement-icon'>
-					<img src='{$achievement->getImageUrl()}'/>
+					<img src=\"{$achievement->getImageUrl()}\"/>
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
@@ -132,7 +132,7 @@ class TemplateManageAchievements {
 	public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
 		global $wgUser, $achPointAbbreviation;
 
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = "
@@ -144,64 +144,21 @@ class TemplateManageAchievements {
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
-		/*if (count($achievement->getRequiredBy())) {
-			$HTML .= "
-						<div class='p-achievement-required_by'>
-						".wfMessage('required_by')->escaped();
-			foreach ($achievement->getRequiredBy() as $requiredByAId) {
-				$_temp = \Achievements\Achievement::newFromId($requiredByAId);
-				$HTML .= "
-							<span>".($_temp !== false ? $_temp->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
-			}
-			$HTML .= "
-						</div>";
-		}
-		if (count($achievement->getRequires())) {
-			$HTML .= "
-						<div class='p-achievement-requires'>
-						".wfMessage('requires')->escaped();
-			foreach ($achievement->getRequires() as $requiresAId) {
-				$_temp = \Achievements\Achievement::newFromId($requiresAId);
-				$HTML .= "
-							<span>".($_temp !== false ? $_temp->getName() : "FATAL ERROR LOADING REQUIRED ACHIEVEMENTS - PLEASE FIX THIS")."</span>";
-			}
-			$HTML .= "
-						</div>";
-		}*/
 		$HTML .= "
 					</div>";
 		if ($showControls) {
 			if ($wgUser->isAllowed('achievement_admin')) {
 				$HTML .= "
 					<div class='p-achievement-admin'>";
-				if ($achievement->isDeleted()) {
-					$HTML .= "
-						<span class='p-achievement-restore'><a href='{$achievementsURL}/restore?aid={$achievement->getId()}' class='button'>".wfMessage('restore_achievement')->escaped()."</a></span>";
-				} else {
+				
 					$HTML .= "
 						<span class='p-achievement-delete'><a href='{$achievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>";
-				}
+				
 				$HTML .= "
-						<span class='p-achievement-edit'><a href='{$achievementsURL}/admin?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
+						<span class='p-achievement-edit'><a href='{$achievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
 			}
 		}
-		/*if ($achievement->getIncrement() > 0 && isset($progress['date']) && $progress['date'] <= 0) {
-			$width = (intval($progress['increment']) / $achievement->getIncrement()) * 100;
-			if ($width > 100) {
-				$width = 100;
-			}
-			$HTML .= "
-					<div class='p-achievement-progress'>
-						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>".intval($progress['increment'])."/{$achievement->getIncrement()}</span>
-					</div>";
-		}
-		if (isset($progress['date']) && $progress['date'] > 0) {
-			$HTML .= "
-					<div class='p-achievement-earned'>
-						".(isset($progress['earned_date']) ? $progress['earned_date'] : '')."
-					</div>";
-		}*/
 		$HTML .= "
 				</div>
 				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$achPointAbbreviation}</span>
@@ -224,26 +181,38 @@ class TemplateManageAchievements {
 	public function achievementsForm($achievement, $categories, $knownHooks, $allAchievements, $errors) {
 		global $wgUser, $wgScriptPath;
 
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = $this->achievementBlockRow($achievement, false);
+
+		$HTML .= "<h2>".wfMessage('general_achievement_section')->escaped()."</h2>";
+
+		
 		$HTML .= "
-			<form id='achievement_form' method='post' action='{$achievementsURL}/admin?do=save'>
+			<form id='achievement_form' class=\"pure-form pure-form-stacked\" method='post' action='{$achievementsURL}/admin?do=save'>
 				<fieldset>
-					<h2>".wfMessage('general_achievement_section')->escaped()."</h2>
+
+				
+
 					".($errors['name'] ? '<span class="error">'.$errors['name'].'</span>' : '')."
 					<label for='name' class='label_above'>".wfMessage('achievement_name')->escaped()."</label>
 					<input id='name' name='name' type='text' maxlength='50' placeholder='".wfMessage('achievement_name_helper')->escaped()."' value='".htmlentities($achievement->getName(), ENT_QUOTES)."' />
+					
+			
 
 					".($errors['description'] ? '<span class="error">'.$errors['description'].'</span>' : '')."
 					<label for='description' class='label_above'>".wfMessage('achievement_description')->escaped()."</label>
 					<input id='description' name='description' type='text' maxlength='150' placeholder='".wfMessage('achievement_description_helper')->escaped()."' value='".htmlentities($achievement->getDescription(), ENT_QUOTES)."' />
 
+		
+
 					".($errors['category'] ? '<span class="error">'.$errors['category'].'</span>' : '')."
 					<label for='category' class='label_above'>".wfMessage('achievement_category')->escaped()."</label>
 					<input id='category_id' name='category_id' type='hidden' value='".$achievement->getCategoryId()."'/>
 					<input id='category' name='category' type='text' maxlength='30' placeholder='".wfMessage('achievement_category_helper')->escaped()."' value='".($achievement->getCategoryId() > 0 ? htmlentities($categories[$achievement->getCategoryId()]->getTitle(), ENT_QUOTES) : null)."'/>";
+		
+		
 		if (is_array($categories) && count($categories)) {
 			$HTML .= "
 					<select id='achievement_category_select'>
@@ -254,9 +223,15 @@ class TemplateManageAchievements {
 			}
 			$HTML .= "
 					</select>";
+					
 		}
 
-		$HTML .= 	($errors['image_url'] ? '<span class="error">'.$errors['image_url'].'</span>' : '')."
+		
+
+
+		$HTML .= 	"
+			
+					".($errors['image_url'] ? '<span class="error">'.$errors['image_url'].'</span>' : '')."
 					<div id='image_upload'>
 						<img id='image_loading' src='".wfExpandUrl($wgScriptPath."/extensions/Achievements/images/loading.gif")."'/>
 						<p class='image_hint'>".wfMessage('image_hint')->escaped()."</p>
@@ -264,34 +239,96 @@ class TemplateManageAchievements {
 					<label for='image_url' class='label_above'>".wfMessage('achievement_image_url')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
 					<input id='image_url' name='image_url' type='text' value='".htmlentities($achievement->getImageUrl(), ENT_QUOTES)."' />
 
+				
+
 					".($errors['points'] ? '<span class="error">'.$errors['points'].'</span>' : '')."
 					<label for='points' class='label_above'>".wfMessage('achievement_points')->escaped()."<div class='helper_mark'><span>".wfMessage('points_help')."</span></div></label>
 					<input id='points' name='points' type='text' value='".htmlentities($achievement->getPoints(), ENT_QUOTES)."' /><br/>
 
+					
+
 					<input id='secret' name='secret' type='checkbox' value='1'".($achievement->isSecret() ? " checked='checked'" : null)."/><label for='secret'>".wfMessage('secret_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('secret_help')->escaped()."</span></div></label><br/>
-					<input id='manual_award' name='manual_award' type='checkbox' value='1'".($achievement->isManuallyAwarded() ? " checked='checked'" : null)."/><label for='manual_award'>".wfMessage('manual_award_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('manual_award_help')->parse()."</span></div></label><br/>
-					<input id='part_of_default_mega' name='part_of_default_mega' type='checkbox' value='1'".($achievement->isPartOfDefaultMega() ? " checked='checked'" : null)."/><label for='part_of_default_mega'>".wfMessage('part_of_default_mega_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('part_of_default_mega_help')->escaped()."</span></div></label>";
+				
+					";
+
 
 		if ($wgUser->isAllowed('edit_meta_achievements')) {
-			$HTML .= "
-					<h2>".wfMessage('meta_section')->escaped()."</h2>
-					<label class='label_above'>".wfMessage('required_achievements')->escaped()."<div class='helper_mark'><span>".wfMessage('required_achievements_help')."</span></div></label>
-					<div id='achievements_container'>";
-			if (count($allAchievements)) {
-				foreach ($allAchievements as $aid => $info) {
-					if ($aid == $achievement->getId()) {
-						continue;
-					}
-					$HTML .= "
-						<label><input type='checkbox' name='required_achievements[]' value='{$aid}'".(in_array($aid, $achievement->getRequires()) ? " checked='checked'" : null)."/>{$info->getName()}</label>
-						";
-				}
-			}
-			$HTML .= "
-					</div>";
-			}
 
+					$criteria = $achievement->getCriteria();
+					$stats = ( isset($criteria['stats']) && is_array($criteria['stats']) ) ? $criteria['stats'] : [];
+
+
+					$statsList = [
+						'visit', 'article_edit', 'article_watch', 'article_create', 'article_delete', 'article_move', 
+						'article_merge', 'article_protect', 'admin_block_ip', 'admin_patrol', 'curse_profile_comment', 
+						'curse_profile_add_friend', 'curse_profile_edit', 'send_email', 'file_upload', 'wiki_points', 
+						'curse_profile_edit_fav_wiki', 'curse_profile_comment_reply', 'curse_profile_edit_link_xbl', 
+						'curse_profile_edit_link_psn', 'curse_profile_edit_link_steam', 'curse_profile_edit_link_facebook', 
+						'curse_profile_edit_link_twitter', 'curse_profile_edit_link_reddit'
+					];
+
+					$streakEnum = ['none','hourly', 'daily', 'weekly', 'monthly', 'yearly'];
+
+
+					$HTML .= "<h2>Criteria</h2>";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_stats')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>";
+					$HTML .= "<div class='criteria_container'>";
+					foreach($statsList as $stat) {
+						$HTML .= "<label><input type='checkbox' name='criteria_stats[]' value='{$stat}'".(in_array($stat, $stats) ? " checked='checked'" : null)."/>{$stat}</label>";
+					}
+					$HTML .= "</div>";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_value')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_value_help')."</span></div></label>";
+					$HTML .= "<input name='criteria_value' type='text' value='".(isset($criteria['value']) ? $criteria['value'] : '')."' />";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_streak')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>";
+					$HTML .= "<select name='criteria_streak'>";
+					foreach($streakEnum as $streak) {
+						$HTML .= "<option value='{$streak}' ".((isset($criteria['streak']) && $criteria['streak'] == $streak) ? 'selected' : '').">".ucfirst($streak)."</option>";
+					}
+					$HTML .= "</select>";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_streak_progress_required')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_streak_progress_required_help')."</span></div></label>";
+					$HTML .= "<input name='criteria_streak_progress_required' type='text' value='".(isset($criteria['streak_progress_required']) ? $criteria['streak_progress_required'] : '')."' />";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_streak_reset_to_zero')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_streak_reset_to_zero_help')."</span></div></label>";
+					$HTML .= "<select name='criteria_streak_reset_to_zero'>";
+						$HTML .= "<option value='0' ".(isset($criteria['streak_reset_to_zero']) && !$criteria['streak_reset_to_zero'] ? "selected" : '').">False</option>";
+						$HTML .= "<option value='1' ".(isset($criteria['streak_reset_to_zero']) && $criteria['streak_reset_to_zero'] ? "selected" : '').">True</option>";
+					$HTML .= "</select>";
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_per_site_progress_maximum')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_per_site_progress_maximum_help')."</span></div></label>";
+					$HTML .= "<input name='criteria_per_site_progress_maximum' type='text' value='".(isset($criteria['per_site_progress_maximumd']) ? $criteria['per_site_progress_maximum'] : '')."' />";
+
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_category_id')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_category_id_help')."</span></div></label>";
+					$HTML .= "<select name='criteria_category_id'>";
+					$HTML .= "<option value='0'>(0) None</option>";
+					foreach ($categories as $category) {
+						$acid = $category->getId();
+						$HTML .= "<option value='{$acid}'".(( isset($criteria['category_id']) && $criteria['category_id'] == $acid ) ? " selected='selected'" : null ).">({$acid}) ".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
+					}
+					$HTML .= "</select>";
+
+
+
+					$HTML .= "<label class='label_above'>".wfMessage('criteria_achievement_ids')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_achievement_ids_help')."</span></div></label>";
+					$HTML .= "<div class='criteria_container'>";
+					if (count($allAchievements)) {
+						foreach ($allAchievements as $aid => $info) {
+							if ($aid == $achievement->getId()) { continue; }
+							$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$aid}'".(in_array($aid, $achievement->getRequires()) ? " checked='checked'" : null)."/>{$info->getName()}</label>";
+						}
+					}
+					$HTML .= "</div>";
+		   }
+
+
+
+			/*
 		if ($wgUser->isAllowed('edit_achievement_triggers')) {
+			
 			$HTML .= "
 					<h2>".wfMessage('trigger_section')->escaped()."</h2>
 					".($errors['increment'] ? '<span class="error">'.$errors['increment'].'</span>' : '')."
@@ -303,7 +340,8 @@ class TemplateManageAchievements {
 						<input name='triggers' type='hidden' value='".(count($achievement->getTriggers()) ? json_encode($achievement->getTriggers(), JSON_UNESCAPED_SLASHES) : '{}')."'/>
 						<input id='hooks' type='hidden' value='".(is_array($knownHooks) && count($knownHooks) ? json_encode($knownHooks, JSON_UNESCAPED_SLASHES) : '{}')."'/>
 					</div>";
-		}
+					
+		}*/
 
 		$HTML .= "
 				</fieldset>
@@ -312,7 +350,7 @@ class TemplateManageAchievements {
 					<input id='wiki_submit' name='wiki_submit' type='submit' value='Save'/>
 				</fieldset>
 			</form>";
-
+	
 	return $HTML;
 	}
 
@@ -324,7 +362,7 @@ class TemplateManageAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function achievementsDelete($achievement) {
-		$achievementsPage	= Title::newFromText('Special:Achievements');
+		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		if ($achievement->isDeleted()) {

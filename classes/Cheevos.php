@@ -51,7 +51,7 @@ class Cheevos {
 		$result = json_decode($result, 1);
 		return $result;
 	}
-
+	
 	private static function get($path, $data = []) {
 		return self::request('GET',$path,$data);
 	}
@@ -65,23 +65,32 @@ class Cheevos {
 	}
 
 
-	private static function return($return,$expected=null,$class=null) {
+	private static function return($return,$expected=null,$class=null,$single=false) {
+		// Throw Errors if we have API errors.
 		if (isset($return['code']) && $return['code'] !== 200) {
 			throw new CheevosException($return['message'], $return['code']);
 		}
 
+		// Handles getting only the data we want
 		if ($expected && isset($return[$expected])) {
 			$return = $return[$expected];
 		}
 
+		// Return data as classes instead of arrays.
 		if ($class && class_exists($class)) {
 			$holder = [];
 			foreach ($return as $classme) {
-				$holder[] = new $class($classme);
+				if (is_array($classme)) { 
+					$holder[] = new $class($classme);
+				}
 			}
 			$return = $holder;
-		}
 
+			// If we classify things, single will only return the first.	
+			if ($single) {
+				$return = $return[0];
+			}
+		}
 		return $return;
 	}
 
@@ -96,8 +105,8 @@ class Cheevos {
 
 
 	public static function getAchievement($id) {
-		$return = self::get("achievement/{$id}");
-		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
+		$return = [ self::get("achievement/{$id}") ]; // return expect array of results. fake it.
+		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement',true);
 	}
 
 
@@ -143,8 +152,8 @@ class Cheevos {
 
 
 	public static function getCategory($id) {
-		$return = self::get("achievement_category/{$id}");
-		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
+		$return = [ self::get("achievement_category/{$id}") ]; // return expect array of results. fake it.
+		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory', true);
 	}
 
 
@@ -213,27 +222,8 @@ class Cheevos {
 
 	*/
 
-}
-
-class CheevosHelper {
-	public static function getUserLanguage() {
-		global $wgLang;
-
-		try {
-			$code = $wgLang->getCode();
-		} catch (Exception $e) {
-			$code = "us-en";
-		}
-		return $code;
+	public static function getKnownHooks() {
+		return [];
 	}
-}
 
-class CheevosException extends \Exception {
-    public function __construct($message, $code = 0, Exception $previous = null) {
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function __toString() {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
-    }
 }
