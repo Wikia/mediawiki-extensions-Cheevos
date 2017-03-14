@@ -83,6 +83,10 @@ class CheevosModel implements ArrayAccess
 		return isset($this->container[$offset]) ? $this->container[$offset] : null;
 	}
 
+	public function toArray() {
+		return $this->container;
+	}
+
 	public function __toString() {
 		return json_encode($this->container);
 	}

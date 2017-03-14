@@ -19,6 +19,29 @@ class CheevosAchievementCategory extends CheevosModel
         $this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
     }
 
+    public function save() {
+		if ($this->getId() !== NULL) {
+			Cheevos::updateCategory($this->getId(),$this->container);
+		} else {
+			Cheevos::createCategory($this->container);
+		}
+	}
+
+    public function exists() {
+		if ($this->getId() !== NULL) {
+			$return = true;
+			try {
+				// Throws an error if it doesn't exist.
+				$test = Cheevos::getCategory($this->getId());
+			} catch (CheevosException $e) {
+				$return = false;
+			}
+			return $return;
+		} else {
+			return false; // no ID on this. Can't exist?
+		}
+	}
+
 	public function getName() {
 		$code = CheevosHelper::getUserLanguage();
 		if (array_key_exists($code, $this->container['name']) && isset($this->container['name'][$code])) {

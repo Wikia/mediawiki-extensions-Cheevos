@@ -55,6 +55,7 @@ class SpecialManageAchievements extends SpecialPage {
 				break;
 			case 'add':
 			case 'edit':
+			case 'admin':
 				$this->achievementsForm();
 				break;
 			case 'delete':
@@ -122,7 +123,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement = new Cheevos\CheevosAchievement();
 		}
 
-		//$return = $this->acheivementsSave();
+		$return = $this->acheivementsSave();
 
 		if ($this->achievement->exists()) {
 			$this->output->setPageTitle(wfMessage('edit_achievement')->escaped().' - '.wfMessage('achievements')->escaped().' - '.$this->achievement->getName());
@@ -143,6 +144,20 @@ class SpecialManageAchievements extends SpecialPage {
 		global $achImageDomainWhiteList;
 
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
+
+			$criteria = [];
+			$criteria['stats'] = $this->wgRequest->getArray("criteria_stats", []);
+			$criteria['value'] = $this->wgRequest->getInt("criteria_value");
+			$criteria['streak'] = $this->wgRequest->getText("criteria_streak");
+			$criteria['streak_progress_required'] = $this->wgRequest->getInt("criteria_streak_progress_required");
+			$criteria['streak_reset_to_zero'] = $this->wgRequest->getBool("criteria_streak_reset_to_zero");
+			$criteria['per_site_progress_maximum'] = $this->wgRequest->getInt("criteria_per_site_progress_maximum");
+			$criteria['category_id'] = $this->wgRequest->getInt("criteria_category_id");
+			$criteria['achievement_ids'] = $this->wgRequest->getIntArray("criteria_achievement_ids",[]);
+			
+
+			$this->achievement->setCriteria($criteria);
+			
 			$name = $this->wgRequest->getText('name');
 			if (!$name || strlen($name) > 50) {
 				$errors['name'] = wfMessage('error_invalid_achievement_name')->escaped();
@@ -157,6 +172,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievement->setDescription($description);
 			}
 
+			/*
 			$imageUrl = $this->wgRequest->getText('image_url');
 			if (!$imageUrl || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
 				$errors['image_url'] = wfMessage('error_invalid_achievement_image_url')->escaped();
@@ -177,27 +193,29 @@ class SpecialManageAchievements extends SpecialPage {
 				} else {
 					$this->achievement->setImageUrl($imageUrl);
 				}
-			}
+			}*/
 
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
-			$category = \Achievements\Category::newFromText($this->wgRequest->getText('category'));
+			$category = Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
+
 			if ($category === false) {
 				$errors['category'] = wfMessage('error_invalid_achievement_category')->escaped();
 			} else {
 				if (!$category->exists()) {
 					$category->save();
 				}
-				$this->achievement->setCategoryId($category->getId());
+				$this->achievement->setCategory($category->toArray());
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
+			$this->achievement->setGlobal($this->wgRequest->getBool('global'));
+			$this->achievement->setProtected($this->wgRequest->getBool('protected'));
 
-			$this->achievement->setPartOfDefaultMega($this->wgRequest->getBool('part_of_default_mega'));
+			//$this->achievement->setPartOfDefaultMega($this->wgRequest->getBool('part_of_default_mega'));
+			//$this->achievement->setManuallyAwarded($this->wgRequest->getBool('manual_award'));
 
-			$this->achievement->setManuallyAwarded($this->wgRequest->getBool('manual_award'));
-
-			if ($this->wgUser->isAllowed('edit_achievement_triggers')) {
+			/*if ($this->wgUser->isAllowed('edit_achievement_triggers')) {
 				$rules = null;
 				$triggers = @json_decode($this->wgRequest->getText('triggers'), true);
 				if (!is_array($triggers)) {
@@ -206,9 +224,9 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievement->setTriggers($triggers);
 
 				$this->achievement->setIncrement($this->wgRequest->getInt('increment'));
-			}
+			}*/
 
-			if ($this->wgUser->isAllowed('edit_meta_achievements')) {
+			/*if ($this->wgUser->isAllowed('edit_meta_achievements')) {
 				$requiredAchievements = $this->wgRequest->getArray('required_achievements');
 
 				if (is_array($requiredAchievements)) {
@@ -222,16 +240,16 @@ class SpecialManageAchievements extends SpecialPage {
 					$requiredAchievements = [];
 				}
 				$this->achievement->setRequires($requiredAchievements);
-			}
+			}*/
 
 			if (!count($errors)) {
 				$success = $this->achievement->save();
 
-				if ($success) {
+				if ($success['code'] == 200) {
 					AchievementsHooks::invalidateCache();
-				}
+				} 
 
-				$page = Title::newFromText('Special:Achievements');
+				$page = Title::newFromText('Special:ManageAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}

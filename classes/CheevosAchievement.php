@@ -11,9 +11,9 @@ class CheevosAchievement extends CheevosModel
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
-		$this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : null;
-		$this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : null;
-		$this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : null;
+		$this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : 0;
+		$this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : 0;
+		$this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : "";
 		$this->container['name'] = isset($data['name']) ? $data['name'] : null;
 		$this->container['description'] = isset($data['description']) ? $data['description'] : null;
 		$this->container['image'] = isset($data['image']) ? $data['image'] : null;
@@ -27,6 +27,15 @@ class CheevosAchievement extends CheevosModel
 		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
 		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
 		$this->container['criteria'] = isset($data['criteria']) ? $data['criteria'] : NULL;
+	}
+
+	public function save() {
+		if ($this->getId() !== NULL) {
+			$result = Cheevos::updateAchievement($this->getId(),$this->container);
+		} else {
+			$result = Cheevos::createAchievement($this->container);	
+		}
+		return $result;
 	}
 
 	public function exists() {
@@ -74,6 +83,16 @@ class CheevosAchievement extends CheevosModel
 		}
 	}
 
+	public function setName($name) {
+		$code = CheevosHelper::getUserLanguage();
+		if (!is_array($this->container['name'])) {
+			$this->container['name'] = [$code => $name];
+		} else {
+			$this->container['name'][$code] = $name;
+		}
+	}
+
+
 	public function getHash() {
 		// @TODO Decide if this is a bad idea. 
 		return md5($this->container['id']);
@@ -92,6 +111,15 @@ class CheevosAchievement extends CheevosModel
 			return $this->container['description'][$code];
 		} else {
 			return reset($this->container['description']);
+		}
+	}
+
+	public function setDescription($desc) {
+		$code = CheevosHelper::getUserLanguage();
+		if (!is_array($this->container['description'])) {
+			$this->container['description'] = [$code => $desc];
+		} else {
+			$this->container['description'][$code] = $desc;
 		}
 	}
 

@@ -248,7 +248,10 @@ class TemplateManageAchievements {
 					
 
 					<input id='secret' name='secret' type='checkbox' value='1'".($achievement->isSecret() ? " checked='checked'" : null)."/><label for='secret'>".wfMessage('secret_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('secret_help')->escaped()."</span></div></label><br/>
+					<input id='global' name='global' type='checkbox' value='1'".($achievement->isGlobal() ? " checked='checked'" : null)."/><label for='global'>".wfMessage('global_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('global_help')->escaped()."</span></div></label><br/>
+					<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>
 				
+
 					";
 
 
@@ -310,8 +313,6 @@ class TemplateManageAchievements {
 						$HTML .= "<option value='{$acid}'".(( isset($criteria['category_id']) && $criteria['category_id'] == $acid ) ? " selected='selected'" : null ).">({$acid}) ".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
 					}
 					$HTML .= "</select>";
-
-
 
 					$HTML .= "<label class='label_above'>".wfMessage('criteria_achievement_ids')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_achievement_ids_help')."</span></div></label>";
 					$HTML .= "<div class='criteria_container'>";

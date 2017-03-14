@@ -24,6 +24,11 @@ class Cheevos {
 		$type = strtoupper($type);
 
 		$url = "{$host}/{$path}";
+		$headers = [
+			'Accept: application/json',
+			'Content-Type: application/json',
+			'Client-ID: ***REMOVED***'
+		];
 
 		$ch = curl_init();
 		curl_setopt_array($ch, array(
@@ -32,19 +37,16 @@ class Cheevos {
 			CURLOPT_SSL_VERIFYHOST		=> false,
 			CURLOPT_SSL_VERIFYPEER		=> false,
 			CURLOPT_CUSTOMREQUEST		=> $type,
-			CURLOPT_HTTPHEADER			=> [
-				'Accept: application/json',
-				'Content-Type: application/json'
-			]
 		));
 		if (in_array($type,['DELETE','GET']) && !empty($data)) {
 			$url = $url . "/?" . http_build_query($data);
 		} else {
 			$postData = json_encode($data);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+			$headers[] = 'Content-Length: ' . strlen($postData);
 		}
-
 		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
