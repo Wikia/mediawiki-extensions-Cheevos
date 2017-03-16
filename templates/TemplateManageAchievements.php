@@ -184,6 +184,10 @@ class TemplateManageAchievements {
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
+
+		$category = $achievement->getCategory();
+
+
 		$HTML = $this->achievementBlockRow($achievement, false);
 
 		$HTML .= "<h2>".wfMessage('general_achievement_section')->escaped()."</h2>";
@@ -207,24 +211,23 @@ class TemplateManageAchievements {
 
 		
 
+
 					".($errors['category'] ? '<span class="error">'.$errors['category'].'</span>' : '')."
 					<label for='category' class='label_above'>".wfMessage('achievement_category')->escaped()."</label>
-					<input id='category_id' name='category_id' type='hidden' value='".$achievement->getCategoryId()."'/>
-					<input id='category' name='category' type='text' maxlength='30' placeholder='".wfMessage('achievement_category_helper')->escaped()."' value='".($achievement->getCategoryId() > 0 ? htmlentities($categories[$achievement->getCategoryId()]->getTitle(), ENT_QUOTES) : null)."'/>";
+					<input id='category_id' name='category_id' type='hidden' value='".$category->getId()."'/>
+					<input id='category' name='category' type='text' maxlength='30' placeholder='".wfMessage('achievement_category_helper')->escaped()."' value='".$category->getName()."'/>";
 		
 		
-		if (is_array($categories) && count($categories)) {
-			$HTML .= "
-					<select id='achievement_category_select'>
-						<option value='0'>&nbsp;</option>\n";
-			foreach ($categories as $acid => $category) {
-				$HTML .= "
-						<option value='{$acid}'".($achievement->getCategoryId() == $acid ? " selected='selected'" : null).">".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
-			}
-			$HTML .= "
-					</select>";
-					
-		}
+					if (is_array($categories) && count($categories)) {
+						$HTML .= "<select id='achievement_category_select'>
+									<option value='0'>&nbsp;</option>\n";
+						foreach ($categories as $gid => $category) {
+							$acid = $category->getId();
+							$HTML .= "<option value='{$acid}'".($achievement->getCategoryId() == $acid ? " selected='selected'" : null).">".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
+						}
+						$HTML .= "</select>";
+								
+					}
 
 		
 
@@ -236,8 +239,8 @@ class TemplateManageAchievements {
 						<img id='image_loading' src='".wfExpandUrl($wgScriptPath."/extensions/Achievements/images/loading.gif")."'/>
 						<p class='image_hint'>".wfMessage('image_hint')->escaped()."</p>
 					</div>
-					<label for='image_url' class='label_above'>".wfMessage('achievement_image_url')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
-					<input id='image_url' name='image_url' type='text' value='".htmlentities($achievement->getImageUrl(), ENT_QUOTES)."' />
+					<label for='image' class='label_above'>".wfMessage('achievement_image_url')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
+					<input id='image' name='image' type='text' value='".htmlentities($achievement->getImage(), ENT_QUOTES)."' />
 
 				
 

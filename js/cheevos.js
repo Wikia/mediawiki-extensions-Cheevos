@@ -32,10 +32,10 @@ $(document).ready(function() {
     $('#achievement_category_select').change(function() {
         var newVal = $('#achievement_category_select option:selected').val();
         var newText = $('#achievement_category_select option:selected').text();
-        if (newVal !== '' && newVal !== '0') {
+        if (newVal !== '' && newVal !== '-1') {
             $('#category_id').val(newVal);
             $('#category').val(newText);
-            $('#achievement_category_select').val('0');
+            $('#achievement_category_select').val('-1');
         }
     }).change();
 
@@ -110,37 +110,6 @@ $(document).ready(function() {
                 editToken = result.tokens.edittoken;
                 if (editToken !== null) {
 
-                    /*
-                    var dz = $("#image_upload2").dropzone({
-                        url: apiURL,
-                        maxFiles: 1,
-                        autoProcessQueue: true
-                    });
-
-
-
-                    dz.init(function() {
-                        console.log('DropZone Init');
-                        dz.on('addedfile', function(file) {
-                            console.log('file added');
-                            console.log(file);
-              
-                        
-                        });
-
-                        dz.on("sending", function(file, xhr, formData) {
-                            formData.append("action", 'upload');
-                            formData.append("token", editToken);
-                            formData.append("format", 'json');
-                            formData.append("stash", 1);
-                            formData.append("ignorewarnings", 1);
-                        });
-
-
-                    });*/
-
-
-
                     var r = new Resumable({
                         target: apiURL,
                         query: { action: 'upload', token: editToken, format: 'json', stash: 1, ignorewarnings: 1 },
@@ -186,15 +155,21 @@ $(document).ready(function() {
                             if ("upload" in result && "result" in result.upload && result.upload.result == 'Success') {
                                 $.get(apiURL, { action: 'query', titles: 'Image:' + result.upload.filename, prop: 'imageinfo', iiprop: 'url', format: 'json' }, function(result) {
                                     $.each(result.query.pages, function(pageID, pageInfo) {
-                                        $("input[name='image_url']").val(pageInfo.imageinfo[0].url);
-                                        $("input[name='image_url']").keyup();
+
+                                        // $("input[name='image_url']").val(pageInfo.imageinfo[0].url);
+                                        // $("input[name='image_url']").keyup();
+
+                                        $("input[name='image']").val(pageInfo.title);
+                                        $("input[name='image']").keyup();
+
+
                                         return;
                                     });
                                 });
                                 var wikiText = '[[File:' + result.upload.filename + '|100px|link=]]';
                                 $.get(apiURL, { action: 'parse', text: wikiText, format: 'json' }, function(result) {
                                     $('#image_upload #image_loading').fadeOut();
-                                    console.log(result);
+
                                     $('#image_upload').append(result.parse.text['*']);
                                 });
                             }

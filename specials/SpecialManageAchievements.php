@@ -195,6 +195,8 @@ class SpecialManageAchievements extends SpecialPage {
 				}
 			}*/
 
+			$this->achievement->setImage($this->wgRequest->getVal('image'));
+
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
 			$category = Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
@@ -278,7 +280,8 @@ class SpecialManageAchievements extends SpecialPage {
 			if ($this->wgRequest->getInt('aid')) {
 				$achievementId = $this->wgRequest->getInt('aid');
 
-				$achievement = \Achievements\Achievement::newFromId($achievementId);
+				//$achievement = \Achievements\Achievement::newFromId($achievementId);
+				$achievement = Cheevos\Cheevos::getAchievement($achievementId);
 
 				if ($achievement === false || $achievementId != $achievement->getId()) {
 					$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
@@ -287,25 +290,16 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			if ($this->wgRequest->getVal('confirm') == 'true') {
-				if ($action == 'restore') {
-					$achievement->setDeleted(false);
-				} else {
-					$achievement->setDeleted(true);
-				}
-				$achievement->save();
-
+				
+				Cheevos\Cheevos::deleteAchievement($achievementId);
 				AchievementsHooks::invalidateCache();
 
-				$page = Title::newFromText('Special:Achievements');
+				$page = Title::newFromText('Special:ManageAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}
 
-			if ($achievement->isDeleted()) {
-				$this->output->setPageTitle(wfMessage('restore_achievement_title')->escaped().' - '.$achievement->getName());
-			} else {
-				$this->output->setPageTitle(wfMessage('delete_achievement_title')->escaped().' - '.$achievement->getName());
-			}
+			$this->output->setPageTitle(wfMessage('delete_achievement_title')->escaped().' - '.$achievement->getName());
 			$this->content = $this->templates->achievementsDelete($achievement);
 		}
 	}

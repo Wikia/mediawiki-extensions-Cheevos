@@ -15,8 +15,6 @@ namespace Cheevos;
 
 class Cheevos {
 
-	const DEFAULT_LIMIT = 200;
-
 	private static function request($type, $path, $data = []) {
 		global $wgCheevosHost;
 
@@ -62,6 +60,10 @@ class Cheevos {
 		return self::request('PUT',$path,$data);
 	}
 
+	private static function post($path, $data = []) {
+		return self::request('POST',$path,$data);
+	}
+
 	private static function delete($path, $data = []) {
 		return self::request('DELETE',$path,$data);
 	}
@@ -96,6 +98,19 @@ class Cheevos {
 		return $return;
 	}
 
+	private static function validateBody($body) {
+		if (!is_array($body)) {
+			$body = json_decode($body,1);
+			if (is_null($body)) {
+				return false; // cant decode, no valid achievement_category passed.
+			} else {
+				return $body;
+			}
+		} else {
+			return $body;
+		}
+	}
+
 
 	public static function getAchievements($siteId=0) {
 		$return = self::get('achievements/all',[
@@ -112,25 +127,24 @@ class Cheevos {
 	}
 
 
-	public static function deleteAchievement($id, $userId=0) {
+	public static function deleteAchievement($id, $userId=null) {
+		if (!$userId) {
+			global $wgUser;
+			$userId = $wgUser->getId();
+		}
 		$return = self::delete("achievement/{$id}",[
-			"authorId" => $userId
+			"author_id" => $userId
 		]);
 		return self::return($return);;
 	}
 
 	private static function putAchievement($body,$id=null) {
-		if (!is_array($body)) {
-			// Valid JSON strings probably acceptable as well, right?
-			$achievement = json_decode($body,1);
-			if (is_null($body)) {
-				return false; // cant decode, no valid achievement passed.
-			}
-		}
+		$body = self::validateBody($body);
+		if (!$body) return false;
 
 		$path = ($id) ? "achievement/{$id}" : "achievement";
 		$return = self::put($path,$body);
-		return self::return($return);;
+		return self::return($return);
 	}
 
 
@@ -161,69 +175,43 @@ class Cheevos {
 
 	public static function deleteCategory($id, $userId=0) {
 		$return = self::delete("achievement_category/{$id}",[
-			"authorId" => $userId
+			"author_id" => $userId
 		]);
 		return self::return($return);;
 	}
 
 	private static function putCategory($body,$id=null) {
-		if (!is_array($body)) {
-			// Valid JSON strings probably acceptable as well, right?
-			$achievement_category = json_decode($body,1);
-			if (is_null($body)) {
-				return false; // cant decode, no valid achievement_category passed.
-			}
-		}
+		$body = self::validateBody($body);
+		if (!$body) return false;
 
 		$path = ($id) ? "achievement_category/{$id}" : "achievement_category";
 		$return = self::put($path,$body);
 		return self::return($return);;
 	}
 
-
 	public static function updateCategory($id,$body) {
 		return self::putCategory($body, $id);
 	}
-
 
 	public static function createCategory($body) {
 		return self::putCategory($body);
 	}
 
-
-	/*
-
-
 	public static function increment($body) {
-		if (!is_array($body)) {
-			// Valid JSON strings probably acceptable as well, right?
-			$achievement = json_decode($body,1);
-			if (is_null($body)) {
-				return false; // cant decode, no valid achievement passed.
-			}
-		}
+		$body = self::validateBody($body);
+		if (!$body) return false;
 
-		$result = false;
-		try {
-			$result = $this->api->incrementPost($body);
-		} catch (Exception $e) {
-			wfErrorLog('Exception in increment: '. $e->getMessage(). PHP_EOL);
-		}
-		return $result;
+		$return = self::post('increment',$body);		
+		return self::return($result);
 	}
 
-	public static function stats($userId, $siteId, $global, $stat, $limit=null, $offset=null) {
-		$result = false;
-		try {
-		    $result = $this->api->statsGet($userId, $siteId, $global, $stat, $limit, $offset);
-		} catch (Exception $e) {
-		    echo 'Exception when stats: ', $e->getMessage(), PHP_EOL;
-		}
-		return $result;
+	public static function stats($data = []) {
+		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
+		$return = self::get('stats',$data);
+		return self::return($return,'stats');
 	}
 
-	*/
-
+	// WUT IN TARNATION
 	public static function getKnownHooks() {
 		return [];
 	}

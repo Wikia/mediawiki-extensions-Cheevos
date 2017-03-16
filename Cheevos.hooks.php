@@ -15,6 +15,10 @@ class CheevosHooks {
 
 
 	static public function onRegistration() {
+
+
+		Cheevos\dataMiner::getUserGlobalStats([20,30,40,50]);
+
 		// load the Cheevo's Client code.
 		//require_once(__DIR__.'/SwaggerClient-php/autoload.php');
 	}

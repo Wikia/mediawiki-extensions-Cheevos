@@ -102,6 +102,11 @@ class CheevosAchievement extends CheevosModel
 		return $this->container['category']['id'];
 	}
 
+	public function getCategory() {
+		$category = new CheevosAchievementCategory($this->container['category']);
+		return $category;
+	}
+
 	public function getDescription() {
 		if ($this->container['description'] == NULL || !count($this->container['description'])) {
 			return "";
@@ -123,14 +128,24 @@ class CheevosAchievement extends CheevosModel
 		}
 	}
 
-	public function getImageUrl(){
+	public function getImage(){
 		// @TODO: Get the image the "MediaWiki" way.
 		$image = $this->container['image'];
-		if (filter_var($url, FILTER_VALIDATE_URL) === FALSE) {
+		if (empty($image)) {
 			// drop the placeholder.
-			$image = "https://hydra-media.cursecdn.com/commons.gamepedia.com/c/c4/Placeholder-Achievement.png";
+			$image = "Media:Placeholder-Achievement.png";
 		}
 		return $image;
+	}
+
+	public function getImageUrl(){
+		$title = \Title::newFromText( $this->getImage() );
+		$file = wfFindFile($title);
+		if ($file) {
+		return $file->getCanonicalUrl();
+		} else {
+			return "";
+		}
 	}
 
 	// quick fix for legacy code calls for now.
