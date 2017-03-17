@@ -39,7 +39,7 @@ class CheevosHooks {
 
 	private static function increment($stat, $delta, $user = null) {
 		$site_key = self::getSiteKey();
-		if ($site_key == null) return;
+		if ($site_key === false) return;
 
 		if (!$user) {
 			global $wgUser;
@@ -53,13 +53,14 @@ class CheevosHooks {
 			$user_id = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 		}
 
-		return Cheevos\Cheevos::increment([
+		$data = [
 			'user_id' => $user_id,
 			'site_key' => $site_key,
 			'deltas'   => [
 				['stat' => $stat,'delta' => $delta]
 			]
-		]);
+		];
+		return Cheevos\Cheevos::increment($data);
 	}
 
 	/**
