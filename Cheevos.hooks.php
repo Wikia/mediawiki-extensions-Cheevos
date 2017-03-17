@@ -34,15 +34,15 @@ class CheevosHooks {
 		if (!$dsSiteKey || empty($dsSiteKey)) {
 			return false;
 		}
-		if ($dsSiteKey == "master") {
-			return null;
-		}
+
 		return $dsSiteKey;
 	}
 
 	private static function increment($stat, $delta, $user = null) {
 		$site_key = self::getSiteKey();
-		if ($site_key === false) return;
+		if ($site_key === false) {
+			return;
+		}
 
 		if (!$user) {
 			global $wgUser;

@@ -34,10 +34,6 @@ class SpecialAchievements extends SpecialPage {
 		$this->output		= $this->getOutput();
 		$this->site_key 	= $dsSiteKey;
 
-		if ($this->site_key == "master") {
-			$this->site_key = null;
-		}
-
 		$lookup = CentralIdLookup::factory();
 		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
 	}
@@ -68,14 +64,13 @@ class SpecialAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsList() {
-
-		$user = $this->wgRequest->getVal('userid');
-		if ($user == NULL || empty($user)) {
-			$user = $this->globalId;
+		$globalId = $this->wgRequest->getVal('globalid');
+		if ($globalId == null || empty($globalId)) {
+			$globalId = $this->globalId;
 			$username = $this->wgUser->getName();
 		} else {
 			$lookup = CentralIdLookup::factory();
-			$userlookup = $lookup->localUserFromCentralId($user);
+			$userlookup = $lookup->localUserFromCentralId($globalId);
 			if ($userlookup) {
 				$username = $userlookup->getName();
 			} else {
@@ -83,7 +78,9 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		$awarded = Cheevos\Cheevos::getUserProgress($user);
+		Cheevos\Cheevos::forceStatRecalculate($globalId, $this->site_key); //Just a helper to fix cases of missed achievements.
+
+		$awarded = Cheevos\Cheevos::getUserProgress($globalId);
 		$achievements = [];
 
 		foreach($awarded as $aa) {

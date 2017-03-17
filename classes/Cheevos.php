@@ -212,6 +212,19 @@ class Cheevos {
 		return self::return($return);
 	}
 
+	static public function forceStatRecalculate($globalId, $siteKey) {
+		if (empty($globalId) || empty($siteKey)) {
+			return;
+		}
+
+		$data = [
+			'user_id' => intval($globalId),
+			'site_key' => $siteKey,
+			'deltas'   => []
+		];
+		return Cheevos\Cheevos::increment($data);
+	}
+
 	public static function stats($data = []) {
 		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
 		$return = self::get('stats', $data);
