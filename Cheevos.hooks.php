@@ -22,6 +22,9 @@ class CheevosHooks {
 		//\Cheevos\DataMiner::getUserGlobalStats([20,30,40,50]);
 	}
 
+	static public function invalidateCache() {
+		// this is here for future functionality.
+	}
 	/**
 	 * Get site key and handle master key.
 	 */

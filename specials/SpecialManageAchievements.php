@@ -209,7 +209,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$success = $this->achievement->save();
 
 				if ($success['code'] == 200) {
-					AchievementsHooks::invalidateCache();
+					CheevosHooks::invalidateCache();
 				} 
 
 				$page = Title::newFromText('Special:ManageAchievements');
@@ -253,7 +253,7 @@ class SpecialManageAchievements extends SpecialPage {
 			if ($this->wgRequest->getVal('confirm') == 'true') {
 				
 				Cheevos\Cheevos::deleteAchievement($achievementId);
-				AchievementsHooks::invalidateCache();
+				CheevosHooks::invalidateCache();
 
 				$page = Title::newFromText('Special:ManageAchievements');
 				$this->output->redirect($page->getFullURL());

@@ -106,6 +106,9 @@ class CheevosAchievement extends CheevosModel
 	}
 
 	public function getCategory() {
+		if ($this->container['category'] instanceof CheevosAchievementCategory) {
+			return $this->container['category'];
+		} 
 		$category = new CheevosAchievementCategory($this->container['category']);
 		return $category;
 	}
@@ -145,8 +148,10 @@ class CheevosAchievement extends CheevosModel
 		$title = \Title::newFromText( $this->getImage() );
 		$file = wfFindFile($title);
 		if ($file) {
-			return $file->getCanonicalUrl();
+			$url = $file->getCanonicalUrl();
+			return $url; 
 		} else {
+			// @TODO: Possibly retun the "placeholder images" url here.
 			return "";
 		}
 	}
