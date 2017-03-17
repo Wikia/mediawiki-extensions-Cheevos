@@ -20,8 +20,46 @@ class CheevosHooks {
 	 */
 	static public function onRegistration() {
 		//	Cheevos\dataMiner::getUserGlobalStats([20,30,40,50]);
-		// load the Cheevo's Client code.
-		//require_once(__DIR__.'/SwaggerClient-php/autoload.php');
+	}
+
+	/**
+	 * Get site key and handle master key.
+	 */
+
+	private static function getSiteKey() {
+		global $dsSiteKey;
+		if (!$dsSiteKey || empty($dsSiteKey)) {
+			return false;
+		}
+		if ($dsSiteKey == "master") {
+			return null;
+		}
+		return $dsSiteKey;
+	}
+
+	private static function increment($stat, $delta, $user = null) {
+		$site_key = self::getSiteKey();
+		if ($site_key == null) return;
+
+		if (!$user) {
+			global $wgUser;
+			$user = $wgUser;
+		}
+
+		if (is_int($user)) {
+			$user_id = $user;
+		} else {
+			$lookup = CentralIdLookup::factory();
+			$user_id = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+		}
+
+		return Cheevos\Cheevos::increment([
+			'user_id' => $user_id,
+			'site_key' => $site_key,
+			'deltas'   => [
+				['stat' => $stat,'delta' => $delta]
+			]
+		]);
 	}
 
 	/**
@@ -37,6 +75,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onArticleDeleteComplete(WikiPage &$article, User &$user, $reason, $id, Content $content = null, LogEntry $logEntry) {
+		self::increment('article_delete',1,$user);
 		return true;
 	}
 
@@ -56,6 +95,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onPageContentInsertComplete(WikiPage $wikiPage, User $user, $content, $summary, $isMinor, $isWatch, $section, $flags, Revision $revision) {
+		self::increment('article_create',1,$user);
 		return true;
 	}
 
@@ -81,7 +121,7 @@ class CheevosHooks {
 		if ($revision === null || is_null($status->getValue()['revision'])) {
 			return true;
 		}
-
+		self::increment('article_edit',1,$user);
 		return true;
 	}
 
@@ -94,6 +134,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onArticleMergeComplete(Article $targetTitle, Article $destTitle) {
+		self::increment('article_merge',1);
 		return true;
 	}
 
@@ -109,6 +150,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onArticleProtectComplete(&$article, &$user, $protect, $reason, $moveonly) {
+		self::increment('article_protect',1,$user);
 		return true;
 	}
 
@@ -121,6 +163,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onBlockIpComplete(Block $block, User $user) {
+		self::increment('admin_block_ip',1,$user);
 		return true;
 	}
 
@@ -135,6 +178,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onCurseProfileAddComment($fromUser, $userId, $inReplyTo, $commentText) {
+		self::increment('curse_profile_comment',1,$fromUser);
 		return true;
 	}
 
@@ -147,6 +191,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onCurseProfileAddFriend($fromGlobalId, $toGlobalId) {
+		self::increment('curse_profile_add_friend',1,$fromGlobalId);
 		return true;
 	}
 
@@ -161,6 +206,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onCurseProfileEdited($fromUser, $userId, $inReplyTo, $commentText) {
+		self::increment('curse_profile_edit',1,$fromUser);
 		return true;
 	}
 
@@ -175,6 +221,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onEmailUserComplete(&$address, &$from, &$subject, &$text) {
+		self::increment('send_email',1);
 		return true;
 	}
 
@@ -188,6 +235,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onMarkPatrolledComplete($rcid, $user, $automatic) {
+		self::increment('admin_patrol',1,$user);
 		return true;
 	}
 
@@ -199,6 +247,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onUploadComplete(&$image) {
+		self::increment('file_upload',1);
 		return true;
 	}
 
@@ -211,6 +260,7 @@ class CheevosHooks {
 	 * @return	True
 	 */
 	static public function onWatchArticleComplete($user, $article) {
+		self::increment('article_watch',1,$user);
 		return true;
 	}
 }
