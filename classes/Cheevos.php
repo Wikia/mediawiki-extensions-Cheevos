@@ -76,7 +76,6 @@ class Cheevos {
 		return self::request('DELETE', $path, $data);
 	}
 
-
 	private static function return($return, $expected = null, $class = null, $single = false) {
 		// Throw Errors if we have API errors.
 		if ($return === null) {
