@@ -56,6 +56,7 @@ class Cheevos {
 		curl_close($ch);
 
 		$result = json_decode($result, true);
+
 		return $result;
 	}
 	
@@ -208,7 +209,7 @@ class Cheevos {
 		if (!$body) return false;
 
 		$return = self::post('increment',$body);	
-		return self::return($result);
+		return self::return($return);
 	}
 
 	public static function stats($data = []) {
