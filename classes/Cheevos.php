@@ -208,6 +208,14 @@ class Cheevos {
 		if (!$body) return false;
 
 		$return = self::post('increment', $body);
+
+		/* DOING THIS HERE BECAUSE REASONS */
+		if (isset($return['earned'])) {
+			foreach($return['earned'] as $achievement) {
+				\CheevosHooks::displayAchievement($achievement);
+			}
+		}
+
 		return self::return($return);
 	}
 

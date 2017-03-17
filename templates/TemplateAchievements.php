@@ -136,4 +136,20 @@ class TemplateAchievements {
 		return $HTML;
 	}
 
+	/**
+	 * Generates block of achievements to display.
+	 *
+	 * @access	public
+	 * @param	string	HTML blocks of achievements.
+	 * @return	string	Built HTML
+	 */
+	public function achievementDisplay($blocks) {
+		$HTML = "
+		<div id='p-achievement-notices' class='p-achievement'>
+			{$blocks}
+		</div>";
+
+		return $HTML;
+	}
+
 }

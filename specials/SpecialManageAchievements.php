@@ -358,6 +358,7 @@ class SpecialManageAchievements extends SpecialPage {
 								'awarded_at'		=> time(),
 								'notified'			=> false
 							]);
+							\CheevosHooks::displayAchievement($achievement);
 						} else {
 							// nothing was there anyway?
 							$awarded = true;
@@ -375,6 +376,7 @@ class SpecialManageAchievements extends SpecialPage {
 								'awarded_at'		=> time(),
 								'notified'			=> false
 							],$current_progress_id);
+							\CheevosHooks::displayAchievement($achievement);
 
 						} elseif ($do == 'unaward') {
 							// unaward it.

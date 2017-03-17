@@ -70,6 +70,9 @@ class CheevosAchievement extends CheevosModel
 		return [];
 	}
 
+	public function isMega() {
+		return false; // no.
+	}
 
 	public function getName() {
 		if ($this->container['name'] == NULL || !count($this->container['name'])) {

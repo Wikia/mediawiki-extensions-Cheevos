@@ -267,4 +267,85 @@ class CheevosHooks {
 		self::increment('article_watch',1,$user);
 		return true;
 	}
+
+
+	/**
+	 * Adds achievement display HTML to page output.
+	 *
+	 * @access	public
+	 * @param	object	Achievement
+	 * @param	object	User
+	 * @return	void
+	 */
+	static public function displayAchievement($achievement, $user = null) {
+		global $dsSiteKey, $wgUser;
+		if (!$user) {
+			$user = $wgUser;
+		}
+
+
+		$templates = new TemplateAchievements;
+		$redis = RedisCache::getClient('cache');
+
+		$lookup = CentralIdLookup::factory();
+		$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+
+		if ($redis === false || !$globalId) {
+			return;
+		}
+
+		$HTML = $templates->achievementBlockPopUp($achievement);
+
+		try {
+			//Using a global key.
+			$redisKey = 'achievement:display:'.$globalId;
+			$redis->hSet($redisKey, $dsSiteKey."-".$achievement->getHash(), $HTML);
+			$redis->expire($redisKey, 3600);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Used to shoved displayed achievements into the page for Javascript to handle.
+	 *
+	 * @access	public
+	 * @param	object	Skin Object
+	 * @param	string	Text to change as a reference
+	 * @return	boolean True
+	 */
+	static public function onSkinAfterBottomScripts($skin, &$text) {
+		global $wgUser;
+
+		$templates = new TemplateAchievements;
+		$redis = RedisCache::getClient('cache');
+
+		$lookup = CentralIdLookup::factory();
+		$globalId = $lookup->centralIdFromLocalUser($wgUser, CentralIdLookup::AUDIENCE_RAW);
+
+		if (!$globalId) {
+			return true;
+		}
+
+		try {
+			//Using a global key.
+			$redisKey = 'achievement:display:'.$globalId;
+			$displays = $redis->hGetAll($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			return true;
+		}
+
+		if (is_array($displays) && count($displays)) {
+			$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
+			$skin->getOutput()->enableClientCache(false);
+			$text .= $templates->achievementDisplay(implode("\n", $displays));
+		}
+
+		return true;
+	}
+
+
+
 }
