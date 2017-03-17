@@ -89,7 +89,10 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
+<<<<<<< Updated upstream
 		//$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
+=======
+>>>>>>> Stashed changes
 		$categories = Cheevos\Cheevos::getCategories();
 
 		$title = wfMessage('achievements')->escaped();

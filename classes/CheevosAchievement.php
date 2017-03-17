@@ -29,9 +29,6 @@ class CheevosAchievement extends CheevosModel
 		$this->container['criteria'] = isset($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria();
 	}
 
-
-
-
 	public function save() {
 		if ($this->getId() !== NULL) {
 			$result = Cheevos::updateAchievement($this->getId(),$this->container);
