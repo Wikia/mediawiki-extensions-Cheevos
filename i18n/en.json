@@ -4,7 +4,7 @@
     },
     "achievements": "Achievements",
     "achievements_description": "Awards achievements to editors for varying levels of accomplishments.",
-    "no_achievements_found": "No achievements were found in the local database.",
+    "no_achievements_found": "No achievements were found.",
     "no_achievements_found_help": "To create achievements click the 'Add Achievement' button in the upper right.  If this message has been reached in error please contact an administrator for assistance.",
     "no_mega_achievements_found": "No mega achievements were pulled from the service.",
     "no_mega_achievements_found_help": "To create achievements click the 'Add Achievement' button in the upper right.  If this message has been reached in error please contact an administrator for assistance.",
