@@ -16,7 +16,16 @@ namespace Cheevos;
 class Cheevos {
 
 	private static function request($type, $path, $data = []) {
-		global $wgCheevosHost;
+		global $wgCheevosHost, $wgCheevosClientId;
+
+		if (empty($wgCheevosHost)) {
+			throw new CheevosException('$wgCheevosHost is not configured.');
+			return null;
+		}
+		if (empty($wgCheevosClientId)) {
+			throw new CheevosException('$wgCheevosClientId is not configured.');
+			return null;
+		}
 
 		$host = $wgCheevosHost;
 		$type = strtoupper($type);
@@ -25,7 +34,7 @@ class Cheevos {
 		$headers = [
 			'Accept: application/json',
 			'Content-Type: application/json',
-			'Client-ID: ***REMOVED***'
+			'Client-ID: '.$wgCheevosClientId
 		];
 
 		$ch = curl_init();
