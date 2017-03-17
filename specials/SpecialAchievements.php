@@ -69,7 +69,21 @@ class SpecialAchievements extends SpecialPage {
 	 */
 	public function achievementsList() {
 
-		$awarded = Cheevos\Cheevos::getUserProgress($this->globalId);
+		$user = $this->wgRequest->getVal('userid');
+		if ($user == NULL || empty($user)) {
+			$user = $this->globalId;
+			$username = $this->wgUser->getName();
+		} else {
+			$lookup = CentralIdLookup::factory();
+			$userlookup = $lookup->localUserFromCentralId($user);
+			if ($userlookup) {
+				$username = $userlookup->getName();
+			} else {
+				$username = false;
+			}
+		}
+
+		$awarded = Cheevos\Cheevos::getUserProgress($user);
 		$achievements = [];
 
 		foreach($awarded as $aa) {
@@ -78,11 +92,15 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-	
 		//$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
 		$categories = Cheevos\Cheevos::getCategories();
 
-		$this->output->setPageTitle(wfMessage('achievements')->escaped());
+		$title = wfMessage('achievements')->escaped();
+		if ($username) {
+			$title .= " for {$username}";
+		}
+
+		$this->output->setPageTitle($title);
 		$this->content = $this->templates->achievementsList($achievements, $categories);
 	}
 
