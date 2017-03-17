@@ -223,7 +223,7 @@ class Cheevos {
 			'recalculate' => true,
 			'deltas' => []
 		];
-		return Cheevos\Cheevos::increment($data);
+		return self::increment($data);
 	}
 
 	public static function stats($data = []) {
@@ -232,12 +232,12 @@ class Cheevos {
 		return self::return($return, 'stats');
 	}
 
-	public static function getUserProgress($user_id, $category_id = null, $site_key = null) {
+	public static function getUserProgress($globalId, $categoryId = null, $siteKey = null) {
 		$return = self::get('achievements/progress', [
 			'limit'	=> 0,
-			'user_id' => $user_id,
-			'category_id' => $category_id,
-			'site_key' => $site_key
+			'user_id' => $globalId,
+			'category_id' => $categoryId,
+			'site_key' => $siteKey
 		]);
 
 		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress');
@@ -249,9 +249,9 @@ class Cheevos {
 	}
 
 
-	public static function deleteProgress($id, $userId = 0) {
+	public static function deleteProgress($id, $globalId = 0) {
 		$return = self::delete("achievements/progress/{$id}", [
-			"author_id" => $userId
+			"author_id" => $globalId
 		]);
 		return self::return($return);;
 	}

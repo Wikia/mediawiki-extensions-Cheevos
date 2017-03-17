@@ -3,10 +3,8 @@
 namespace Cheevos;
 use \ArrayAccess;
 
-class CheevosModel implements ArrayAccess
-{
-
-/**
+class CheevosModel implements ArrayAccess {
+	/**
 	 * Associative array for storing property values
 	 * @var mixed[]
 	 */

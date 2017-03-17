@@ -32,7 +32,7 @@ class SpecialAchievements extends SpecialPage {
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
-		$this->site_key 	= $dsSiteKey;
+		$this->siteKey		= $dsSiteKey;
 
 		$lookup = CentralIdLookup::factory();
 		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
@@ -78,18 +78,18 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		Cheevos\Cheevos::forceStatRecalculate($globalId, $this->site_key); //Just a helper to fix cases of missed achievements.
+		Cheevos\Cheevos::forceStatRecalculate($globalId, $this->siteKey); //Just a helper to fix cases of missed achievements.
 
-		$awarded = Cheevos\Cheevos::getUserProgress($globalId);
+		$awarded = Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
 		$achievements = [];
 
-		foreach($awarded as $aa) {
+		foreach ($awarded as $aa) {
 			if ($aa->getEarned()) {
 				$achievements[] = Cheevos\Cheevos::getAchievement($aa->getAchievement_Id());
 			}
 		}
 
-		//$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
+		//$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
 		$categories = Cheevos\Cheevos::getCategories();
 
 		$title = wfMessage('achievements')->escaped();

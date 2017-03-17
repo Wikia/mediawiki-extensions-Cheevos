@@ -2,9 +2,7 @@
 
 namespace Cheevos;
 
-class CheevosAchievementProgress extends CheevosModel
-{
-
+class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Constructor
 	 * @param mixed[] $data Associated array of property values initializing the model
