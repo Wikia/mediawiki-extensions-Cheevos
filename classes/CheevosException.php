@@ -13,7 +13,7 @@
 
 namespace Cheevos;
 
-class CheevosException extends \Exception {
+class CheevosException extends \MWException {
     public function __construct($message, $code = 0, Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }

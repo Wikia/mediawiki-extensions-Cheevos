@@ -48,7 +48,7 @@ class Cheevos {
 		$result = curl_exec($ch);
 		curl_close($ch);
 
-		$result = json_decode($result, 1);
+		$result = json_decode($result, true);
 		return $result;
 	}
 	
@@ -69,8 +69,11 @@ class Cheevos {
 	}
 
 
-	private static function return($return,$expected=null,$class=null,$single=false) {
+	private static function return($return, $expected = null, $class = null, $single = false) {
 		// Throw Errors if we have API errors.
+		if ($return === null) {
+			throw new CheevosException('Cheevos Service Unavailable', 503);
+		}
 		if (isset($return['code']) && $return['code'] !== 200) {
 			throw new CheevosException($return['message'], $return['code']);
 		}
@@ -112,7 +115,7 @@ class Cheevos {
 	}
 
 
-	public static function getAchievements($site_key=null) {
+	public static function getAchievements($site_key = null) {
 		$return = self::get('achievements/all',[
 			'site_key' => $site_key,
 			'limit'	=> 0
@@ -127,7 +130,7 @@ class Cheevos {
 	}
 
 
-	public static function deleteAchievement($id, $userId=null) {
+	public static function deleteAchievement($id, $userId = null) {
 		if (!$userId) {
 			global $wgUser;
 			$userId = $wgUser->getId();
@@ -138,7 +141,7 @@ class Cheevos {
 		return self::return($return);;
 	}
 
-	private static function putAchievement($body,$id=null) {
+	private static function putAchievement($body ,$id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
 
@@ -147,11 +150,9 @@ class Cheevos {
 		return self::return($return);
 	}
 
-
-	public static function updateAchievement($id,$body) {
+	public static function updateAchievement($id, $body) {
 		return self::putAchievement($body, $id);
 	}
-
 
 	public static function createAchievement($body) {
 		return self::putAchievement($body);
@@ -166,21 +167,19 @@ class Cheevos {
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
 	}
 
-
 	public static function getCategory($id) {
 		$return = [ self::get("achievement_category/{$id}") ]; // return expect array of results. fake it.
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory', true);
 	}
 
-
-	public static function deleteCategory($id, $userId=0) {
+	public static function deleteCategory($id, $userId = 0) {
 		$return = self::delete("achievement_category/{$id}",[
 			"author_id" => $userId
 		]);
 		return self::return($return);;
 	}
 
-	private static function putCategory($body,$id=null) {
+	private static function putCategory($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
 
@@ -189,7 +188,7 @@ class Cheevos {
 		return self::return($return);
 	}
 
-	public static function updateCategory($id,$body) {
+	public static function updateCategory($id, $body) {
 		return self::putCategory($body, $id);
 	}
 
@@ -228,14 +227,14 @@ class Cheevos {
 	}
 
 
-	public static function deleteProgress($id, $userId=0) {
+	public static function deleteProgress($id, $userId = 0) {
 		$return = self::delete("achievements/progress/{$id}",[
 			"author_id" => $userId
 		]);
 		return self::return($return);;
 	}
 
-	public static function putProgress($body,$id=null) {
+	public static function putProgress($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
 
@@ -244,7 +243,7 @@ class Cheevos {
 		return self::return($return);
 	}
 
-	public static function updateProgress($id,$body) {
+	public static function updateProgress($id, $body) {
 		return self::putProgress($body, $id);
 	}
 
@@ -256,5 +255,4 @@ class Cheevos {
 	public static function getKnownHooks() {
 		return [];
 	}
-
 }
