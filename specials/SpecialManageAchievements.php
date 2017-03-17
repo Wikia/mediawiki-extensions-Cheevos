@@ -100,18 +100,10 @@ class SpecialManageAchievements extends SpecialPage {
 		$filter = $this->wgRequest->getVal('filter');
 
 		if ($filter !== NULL && !empty($filter)) {
-
-			echo "<pre>";
-			var_dump($filter);
-			var_dump($categories); 
-			die();
-
+			// @TODO: Make Search Work
+			// @IDEA: Make a single "category" called "Search Results" and pass that.$_COOKIE
+			// Make it easy on the display logic side?	
 		}
-
-		
-
-
-
 
 		$this->output->setPageTitle(wfMessage('achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories);

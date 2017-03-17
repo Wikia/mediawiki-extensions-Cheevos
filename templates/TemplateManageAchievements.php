@@ -33,7 +33,7 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-		<div class='search_bar'> 
+		<!--<div class='search_bar'> 
 			<form method='get' action='{$achievementsURL}'>
 				<fieldset>
 					<input type='text' name='filter' id='search_field' value='' class='search_field' />
@@ -41,9 +41,11 @@ class TemplateManageAchievements {
 					<a href='{$achievementsURL}' class='button'>".wfMessage('list_reset')."</a>
 				</fieldset>
 			</form>
-		</div>
+		</div>-->
 		<div class='buttons'>
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
+			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='button'>".wfMessage('award_achievement')."</a>" : null)."
+		
 		</div>
 			";
 		}
@@ -398,7 +400,7 @@ class TemplateManageAchievements {
 		$wasAwarded = $wgRequest->getVal('do') == wfMessage('award')->escaped();
 		if ($form['success']['message'] == "success") {
 			$HTML = "<div class='successbox'>".wfMessage('achievement_awarded', ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div>";
-		} else {
+		} elseif ($form['success'] !== NULL) {
 			$HTML = "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
 			<br />".$form['success']['message']."
 			</div>";
