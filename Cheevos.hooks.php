@@ -19,7 +19,7 @@ class CheevosHooks {
 	 * @return	void
 	 */
 	static public function onRegistration() {
-		//	Cheevos\dataMiner::getUserGlobalStats([20,30,40,50]);
+		//\Cheevos\DataMiner::getUserGlobalStats([20,30,40,50]);
 	}
 
 	/**
