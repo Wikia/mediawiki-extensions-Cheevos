@@ -23,7 +23,7 @@ class TemplateManageAchievements {
 	 * @param	string	Search Term
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories, $progress, $hide, $searchTerm) {
+	public function achievementsList($achievements, $categories) {
 		global $wgOut, $wgRequest, $wgUser;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
@@ -33,14 +33,12 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-		<div class='search_bar'>
+		<div class='search_bar'> 
 			<form method='get' action='{$achievementsURL}'>
 				<fieldset>
-					<input type='hidden' name='section' value='list' />
-					<input type='hidden' name='do' value='search' />
-					<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' />
+					<input type='text' name='filter' id='search_field' value='' class='search_field' />
 					<input type='submit' value='".wfMessage('list_search')."' class='button' />
-					<a href='{$achievementsURL}?do=resetSearch' class='button'>".wfMessage('list_reset')."</a>
+					<a href='{$achievementsURL}' class='button'>".wfMessage('list_reset')."</a>
 				</fieldset>
 			</form>
 		</div>
@@ -398,10 +396,12 @@ class TemplateManageAchievements {
 		$HTML = '';
 
 		$wasAwarded = $wgRequest->getVal('do') == wfMessage('award')->escaped();
-		if ($form['success'] === true) {
+		if ($form['success']['message'] == "success") {
 			$HTML = "<div class='successbox'>".wfMessage('achievement_awarded', ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div>";
-		} elseif ($form['success'] === false) {
-			$HTML = "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."</div>";
+		} else {
+			$HTML = "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
+			<br />".$form['success']['message']."
+			</div>";
 		}
 		$HTML .= "
 		<form action='{$this->awardURL}' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>

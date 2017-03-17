@@ -5,6 +5,7 @@ $(document).ready(function() {
         }
     });
 
+
     function updateTabs() {
         var lastElement = false;
         var isEnd = false;

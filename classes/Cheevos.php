@@ -213,15 +213,18 @@ class Cheevos {
 
 	public static function getUserProgress($user_id, $category_id = null, $site_key = null) {
 		$return = self::get('achievements/progress',[
-			'limit'	=> 0
+			'limit'	=> 0,
+			'user_id' => $user_id,
+			'category_id' => $category_id,
+			'site_key' => $site_key
 		]);
 
-		return self::return($return, 'progress', 'Cheevos\CheevosStatProgress');
+		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress');
 	}
 
 	public static function getProgress($id) {
 		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.
-		return self::return($return, 'progress', 'Cheevos\CheevosStatProgress', true);
+		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress', true);
 	}
 
 
@@ -232,7 +235,7 @@ class Cheevos {
 		return self::return($return);;
 	}
 
-	private static function putProgress($body,$id=null) {
+	public static function putProgress($body,$id=null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
 

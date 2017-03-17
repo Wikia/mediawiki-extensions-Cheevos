@@ -97,17 +97,24 @@ class SpecialManageAchievements extends SpecialPage {
 		$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
 		$categories = Cheevos\Cheevos::getCategories();
 
-		// @TODO: Figure out what this stuff does.
-		$hide['deleted'] = true;
-		$hide['secret'] = true;
+		$filter = $this->wgRequest->getVal('filter');
 
-		// @TODO: FIX THIS TO NEW CHEEVOS STUFF.
-		$progress = \Achievements\Progress::newFromGlobalId($this->globalId);
+		if ($filter !== NULL && !empty($filter)) {
 
-		$searchTerm = '';
+			echo "<pre>";
+			var_dump($filter);
+			var_dump($categories); 
+			die();
+
+		}
+
+		
+
+
+
 
 		$this->output->setPageTitle(wfMessage('achievements')->escaped());
-		$this->content = $this->templates->achievementsList($achievements, $categories, $progress, $hide, $searchTerm);
+		$this->content = $this->templates->achievementsList($achievements, $categories);
 	}
 
 	/**
@@ -317,27 +324,71 @@ class SpecialManageAchievements extends SpecialPage {
 				$errors['achievement_id'] = wfMessage('error_award_bad_achievement')->escaped();
 			}
 			
-	
-			$check = Cheevos\Cheevos::getUserProgress($this->globalId);
-
-			var_dump($check);
-
-			die();
-
-			$award = Cheevos\Cheevos::putProgress([
-				'achievement_id'	=> $achievement->getId(),
-				'site_key'			=> $this->site_key,
-				'earned'			=> true,
-				'manually_award' 	=> true,
-				'awarded_at'		=> time(),
-				'notified'			=> false
-			]);
-
 			if (!count($errors)) {
-				if ($do == 'award') {
-					$awarded = $achievement->award($user, $achievement->getIncrement());
-				} elseif ($do == 'unaward') {
-					$awarded = $achievement->unaward($user, true);
+				$check = Cheevos\Cheevos::getUserProgress($this->globalId);
+				if (!count($check)) {
+					// no progress for anything. heh.
+					if ($do == 'award') {
+						// award it.
+						$awarded = Cheevos\Cheevos::putProgress([
+							'achievement_id'	=> $achievement->getId(),
+							'site_key'			=> $this->site_key,
+							'user_id'			=> $this->globalId,
+							'earned'			=> true,
+							'manually_award' 	=> true,
+							'awarded_at'		=> time(),
+							'notified'			=> false
+						]);
+					} else {
+						// nothing was there anyway?
+						$awarded = true;
+					}
+				} else {
+					// The users has progress on achievements (this is almost always the case)
+					// so lets see if they have progress on *this* achievement.
+					$current_progress_id = false;
+					foreach ($check as $ca) {
+						if ($ca->getAchievement_Id() == $achievement->getId()) {
+							$current_progress_id = $ca->getId();
+						}
+					}
+
+					if (!$current_progress_id) {
+						// They dont have any current progress for this specific achievement. Same as if they had no progress at all.
+						if ($do == 'award') {
+							// award it.
+							$awarded = Cheevos\Cheevos::putProgress([
+								'achievement_id'	=> $achievement->getId(),
+								'site_key'			=> $this->site_key,
+								'user_id'			=> $this->globalId,
+								'earned'			=> true,
+								'manually_award' 	=> true,
+								'awarded_at'		=> time(),
+								'notified'			=> false
+							]);
+						} else {
+							// nothing was there anyway?
+							$awarded = true;
+						}
+					} else {
+
+						if ($do == 'award') {
+							// award it.
+							$awarded = Cheevos\Cheevos::putProgress([
+								'achievement_id'	=> $achievement->getId(),
+								'site_key'			=> $this->site_key,
+								'user_id'			=> $this->globalId,
+								'earned'			=> true,
+								'manually_award' 	=> true,
+								'awarded_at'		=> time(),
+								'notified'			=> false
+							],$current_progress_id);
+
+						} elseif ($do == 'unaward') {
+							// unaward it.
+							$awarded = Cheevos\Cheevos::deleteProgress($current_progress_id, $this->globalId);
+						}
+					}
 				}
 			}
 		}

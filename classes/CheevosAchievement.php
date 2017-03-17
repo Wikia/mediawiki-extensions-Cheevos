@@ -145,7 +145,7 @@ class CheevosAchievement extends CheevosModel
 		$title = \Title::newFromText( $this->getImage() );
 		$file = wfFindFile($title);
 		if ($file) {
-		return $file->getCanonicalUrl();
+			return $file->getCanonicalUrl();
 		} else {
 			return "";
 		}
