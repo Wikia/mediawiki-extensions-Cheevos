@@ -49,7 +49,8 @@
         "award_achievements"
     ],
     "SpecialPages": {
-        "ManageAchievements": "SpecialManageAchievements"
+        "ManageAchievements": "SpecialManageAchievements",
+        "Achievements": "SpecialAchievements"
     },
     "MessagesDirs": {
         "Cheevos": [
@@ -69,10 +70,13 @@
         "Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
         "Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
         "Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
+        "Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
         "Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
         "Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
         "SpecialManageAchievements": "specials/SpecialManageAchievements.php",
-        "TemplateManageAchievements": "templates/TemplateManageAchievements.php"
+        "TemplateManageAchievements": "templates/TemplateManageAchievements.php",
+        "SpecialAchievements": "specials/SpecialAchievements.php",
+        "TemplateAchievements": "templates/TemplateAchievements.php"
     },
     "ResourceModules": {
         "ext.cheevos.resumable.js": {
