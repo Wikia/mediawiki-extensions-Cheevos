@@ -20,11 +20,9 @@ class Cheevos {
 
 		if (empty($wgCheevosHost)) {
 			throw new CheevosException('$wgCheevosHost is not configured.');
-			return null;
 		}
 		if (empty($wgCheevosClientId)) {
 			throw new CheevosException('$wgCheevosClientId is not configured.');
-			return null;
 		}
 
 		$host = $wgCheevosHost;
