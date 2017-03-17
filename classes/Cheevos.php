@@ -212,7 +212,7 @@ class Cheevos {
 		return self::return($return);
 	}
 
-	static public function forceStatRecalculate($globalId, $siteKey) {
+	static public function checkUnnotified($globalId, $siteKey, $forceRecalculate = false) {
 		if (empty($globalId) || empty($siteKey)) {
 			return;
 		}
@@ -220,7 +220,7 @@ class Cheevos {
 		$data = [
 			'user_id' => intval($globalId),
 			'site_key' => $siteKey,
-			'recalculate' => true,
+			'recalculate' => $forceRecalculate,
 			'deltas' => []
 		];
 		return self::increment($data);

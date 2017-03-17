@@ -78,7 +78,7 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		Cheevos\Cheevos::forceStatRecalculate($globalId, $this->siteKey); //Just a helper to fix cases of missed achievements.
+		Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
 
 		$awarded = Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
 		$achievements = [];
