@@ -17,7 +17,7 @@ class CheevosAchievement extends CheevosModel
 		$this->container['name'] = isset($data['name']) ? $data['name'] : null;
 		$this->container['description'] = isset($data['description']) ? $data['description'] : null;
 		$this->container['image'] = isset($data['image']) ? $data['image'] : null;
-		$this->container['category'] = isset($data['category']) ? $data['category'] : null;
+		$this->container['category'] = isset($data['category']) ?  new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory();
 		$this->container['points'] = isset($data['points']) ? $data['points'] : null;
 		$this->container['global'] = isset($data['global']) ? $data['global'] : null;
 		$this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
@@ -26,8 +26,11 @@ class CheevosAchievement extends CheevosModel
 		$this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : null;
 		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
 		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
-		$this->container['criteria'] = isset($data['criteria']) ? $data['criteria'] : NULL;
+		$this->container['criteria'] = isset($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria();
 	}
+
+
+
 
 	public function save() {
 		if ($this->getId() !== NULL) {

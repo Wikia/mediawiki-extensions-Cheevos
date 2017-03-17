@@ -68,6 +68,9 @@
         "Cheevos\\CheevosModel": "classes/CheevosModel.php",
         "Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
         "Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
+        "Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
+        "Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
+        "Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
         "SpecialManageAchievements": "specials/SpecialManageAchievements.php",
         "TemplateManageAchievements": "templates/TemplateManageAchievements.php"
     },

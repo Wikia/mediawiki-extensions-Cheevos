@@ -26,11 +26,26 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void
 	 */
 	public function __construct() {
+		global $dsSiteKey;
 		parent::__construct('ManageAchievements');
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
+		$this->site_key 	= $dsSiteKey;
+
+		if (!$dsSiteKey || empty($dsSiteKey)) {
+			throw new MWException( 'Could not determin the site key for use with Achievements.' );
+			return;
+		}
+
+		if ($this->site_key == "master") {
+			$this->site_key = null;
+		}
+
+		$lookup = CentralIdLookup::factory();
+		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+
 	}
 
 	/**
@@ -62,6 +77,10 @@ class SpecialManageAchievements extends SpecialPage {
 			case 'restore':
 				$this->achievementsDelete($subpage);
 				break;
+			case 'award':
+				//$this->getUser()->isAllowed('award_achievements') <-- check this here.
+				$this->awardForm();
+				break;
 		}
 
 		$this->output->addHTML($this->content);
@@ -75,18 +94,15 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function achievementsList() {
 
-		$site_id = 0; // int | The site id to use for locally overridden achievements.
-
-		$achievements = Cheevos\Cheevos::getAchievements($site_id);
+		$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
 		$categories = Cheevos\Cheevos::getCategories();
 
 		// @TODO: Figure out what this stuff does.
 		$hide['deleted'] = true;
 		$hide['secret'] = true;
 
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
-		$progress = \Achievements\Progress::newFromGlobalId($globalId);
+		// @TODO: FIX THIS TO NEW CHEEVOS STUFF.
+		$progress = \Achievements\Progress::newFromGlobalId($this->globalId);
 
 		$searchTerm = '';
 
@@ -131,7 +147,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('achievements')->escaped());
 		}
 		$this->content = $this->templates->achievementsForm($this->achievement, Cheevos\Cheevos::getCategories(), Cheevos\Cheevos::getKnownHooks(), 
-		Cheevos\Cheevos::getAchievements($site_id), $return['errors']);
+		Cheevos\Cheevos::getAchievements($this->site_key), $return['errors']);
 	}
 
 	/**
@@ -172,31 +188,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievement->setDescription($description);
 			}
 
-			/*
-			$imageUrl = $this->wgRequest->getText('image_url');
-			if (!$imageUrl || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-				$errors['image_url'] = wfMessage('error_invalid_achievement_image_url')->escaped();
-			} else {
-				if (is_array($achImageDomainWhiteList) && count($achImageDomainWhiteList)) {
-					$host = parse_url($imageUrl, PHP_URL_HOST);
-					$approvedImageDomain = false;
-					foreach ($achImageDomainWhiteList as $domain) {
-						if (strpos($host, $domain) !== false) {
-							$approvedImageDomain = true;
-						}
-					}
-					if (!$approvedImageDomain) {
-						$errors['image_url'] = wfMessage('error_invalid_achievement_url_domain')->escaped();
-					} else {
-						$this->achievement->setImageUrl($imageUrl);
-					}
-				} else {
-					$this->achievement->setImageUrl($imageUrl);
-				}
-			}*/
-
 			$this->achievement->setImage($this->wgRequest->getVal('image'));
-
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
 			$category = Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
@@ -213,36 +205,6 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
 			$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 			$this->achievement->setProtected($this->wgRequest->getBool('protected'));
-
-			//$this->achievement->setPartOfDefaultMega($this->wgRequest->getBool('part_of_default_mega'));
-			//$this->achievement->setManuallyAwarded($this->wgRequest->getBool('manual_award'));
-
-			/*if ($this->wgUser->isAllowed('edit_achievement_triggers')) {
-				$rules = null;
-				$triggers = @json_decode($this->wgRequest->getText('triggers'), true);
-				if (!is_array($triggers)) {
-					$triggers = [];
-				}
-				$this->achievement->setTriggers($triggers);
-
-				$this->achievement->setIncrement($this->wgRequest->getInt('increment'));
-			}*/
-
-			/*if ($this->wgUser->isAllowed('edit_meta_achievements')) {
-				$requiredAchievements = $this->wgRequest->getArray('required_achievements');
-
-				if (is_array($requiredAchievements)) {
-					foreach ($requiredAchievements as $key => $achievementId) {
-						$achievements = \Achievements\Achievement::newFromId($achievementId);
-						if ($achievements === false || !$achievements->exists()) {
-							unset($requiredAchievements[$key]);
-						}
-					}
-				} else {
-					$requiredAchievements = [];
-				}
-				$this->achievement->setRequires($requiredAchievements);
-			}*/
 
 			if (!count($errors)) {
 				$success = $this->achievement->save();
@@ -304,6 +266,87 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 	}
 
+	/**
+	 * Award Form
+	 *
+	 * @access	public
+	 * @return	void	[Outputs to screen]
+	 */
+	public function awardForm() {
+		$this->checkPermissions();
+
+		$return = $this->awardSave();
+
+		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
+		$this->content = $this->templates->awardForm($return, Cheevos\Cheevos::getAchievements($this->site_key));
+	}
+
+	/**
+	 * Saves submitted award forms.
+	 *
+	 * @access	private
+	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
+	 */
+	private function awardSave() {
+
+
+		$do = strtolower($this->wgRequest->getVal('do'));
+		$save = [];
+		$errors = [];
+		$awarded = null;
+		if (($do == 'award' || $do == 'unaward') && $this->wgRequest->wasPosted()) {
+			$awarded = false;
+			$save['username'] = $this->wgRequest->getVal('username');
+			if (empty($save['username'])) {
+				$errors['username'] = wfMessage('error_award_bad_user')->escaped();
+			} else {
+				$user = User::newFromName($save['username']);
+				$user->load();
+				$lookup = CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+				if (!$user || !$user->getId() || !$globalId) {
+					$errors['username'] = wfMessage('error_award_bad_user')->escaped();
+				}
+			}
+
+			
+			$save['achievement_id'] = $this->wgRequest->getInt('achievement_id');
+
+			$achievement = Cheevos\Cheevos::getAchievement($save['achievement_id']);
+			if ($achievement === false) {
+				$errors['achievement_id'] = wfMessage('error_award_bad_achievement')->escaped();
+			}
+			
+	
+			$check = Cheevos\Cheevos::getUserProgress($this->globalId);
+
+			var_dump($check);
+
+			die();
+
+			$award = Cheevos\Cheevos::putProgress([
+				'achievement_id'	=> $achievement->getId(),
+				'site_key'			=> $this->site_key,
+				'earned'			=> true,
+				'manually_award' 	=> true,
+				'awarded_at'		=> time(),
+				'notified'			=> false
+			]);
+
+			if (!count($errors)) {
+				if ($do == 'award') {
+					$awarded = $achievement->award($user, $achievement->getIncrement());
+				} elseif ($do == 'unaward') {
+					$awarded = $achievement->unaward($user, true);
+				}
+			}
+		}
+		return [
+			'save'		=> $save,
+			'errors'	=> $errors,
+			'success'	=> $awarded
+		];
+	}
 
 	/**
 	 * Return the group name for this special page.

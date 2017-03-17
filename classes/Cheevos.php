@@ -112,9 +112,9 @@ class Cheevos {
 	}
 
 
-	public static function getAchievements($siteId=0) {
+	public static function getAchievements($site_key=null) {
 		$return = self::get('achievements/all',[
-			'siteId' => $siteId,
+			'site_key' => $site_key,
 			'limit'	=> 0
 		]);
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
@@ -186,7 +186,7 @@ class Cheevos {
 
 		$path = ($id) ? "achievement_category/{$id}" : "achievement_category";
 		$return = self::put($path,$body);
-		return self::return($return);;
+		return self::return($return);
 	}
 
 	public static function updateCategory($id,$body) {
@@ -209,6 +209,44 @@ class Cheevos {
 		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
 		$return = self::get('stats',$data);
 		return self::return($return,'stats');
+	}
+
+	public static function getUserProgress($user_id, $category_id = null, $site_key = null) {
+		$return = self::get('achievements/progress',[
+			'limit'	=> 0
+		]);
+
+		return self::return($return, 'progress', 'Cheevos\CheevosStatProgress');
+	}
+
+	public static function getProgress($id) {
+		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.
+		return self::return($return, 'progress', 'Cheevos\CheevosStatProgress', true);
+	}
+
+
+	public static function deleteProgress($id, $userId=0) {
+		$return = self::delete("achievements/progress/{$id}",[
+			"author_id" => $userId
+		]);
+		return self::return($return);;
+	}
+
+	private static function putProgress($body,$id=null) {
+		$body = self::validateBody($body);
+		if (!$body) return false;
+
+		$path = ($id) ? "achievements/progress/{$id}" : "achievements/progress";
+		$return = self::put($path,$body);
+		return self::return($return);
+	}
+
+	public static function updateProgress($id,$body) {
+		return self::putProgress($body, $id);
+	}
+
+	public static function createProgress($body) {
+		return self::putProgress($body);
 	}
 
 	// WUT IN TARNATION
