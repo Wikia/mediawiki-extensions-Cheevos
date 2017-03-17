@@ -220,7 +220,8 @@ class Cheevos {
 		$data = [
 			'user_id' => intval($globalId),
 			'site_key' => $siteKey,
-			'deltas'   => []
+			'recalculate' => true,
+			'deltas' => []
 		];
 		return Cheevos\Cheevos::increment($data);
 	}
