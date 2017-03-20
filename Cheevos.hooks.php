@@ -298,7 +298,7 @@ class CheevosHooks {
 
 		try {
 			//Using a global key.
-			$redisKey = 'achievement:display:'.$globalId;
+			$redisKey = 'cheevos:display:'.$globalId;
 			$redis->hSet($redisKey, $dsSiteKey."-".$achievement->getHash(), $HTML);
 			$redis->expire($redisKey, 3600);
 		} catch (RedisException $e) {
@@ -330,11 +330,8 @@ class CheevosHooks {
 
 		try {
 			//Using a global key.
-			$redisKey = 'achievement:display:'.$globalId;
+			$redisKey = 'cheevos:display:'.$globalId;
 			$displays = $redis->hGetAll($redisKey);
-			/*foreach ($displays as $key => $value) {
-				$del = $redis->hDel($redisKey, $key);
-			}*/
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			return true;

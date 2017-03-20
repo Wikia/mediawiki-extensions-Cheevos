@@ -125,7 +125,7 @@ class CheevosAPI extends ApiBase {
 			$this->dieUsageMsg(['notloggedin', $this->params['do']]);
 		}
 
-		$redisKey = 'achievement:display:'.$globalId;
+		$redisKey = 'cheevos:display:'.$globalId;
 		$hashes = $this->wgRequest->getVal('hashes');
 		$hashes = @json_decode($hashes, true);
 
