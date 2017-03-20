@@ -134,26 +134,35 @@ class CheevosAchievement extends CheevosModel
 		}
 	}
 
-	public function getImage(){
-		// @TODO: Get the image the "MediaWiki" way.
+	/**
+	 * Returns the image article name.
+	 * "File:ExampleAchievement.png"
+	 *
+	 * @access	public
+	 * @return	string	Image Article Name - If available
+	 */
+	public function getImage() {
 		$image = $this->container['image'];
 		if (empty($image)) {
-			// drop the placeholder.
-			$image = "Media:Placeholder-Achievement.png";
+			return null;
 		}
 		return $image;
 	}
 
-	public function getImageUrl(){
-		$title = \Title::newFromText( $this->getImage() );
+	/**
+	 * Returns the image HTTP(S) URL.
+	 *
+	 * @access	public
+	 * @return	mixed	Image URL; false if unable to locate the file.
+	 */
+	public function getImageUrl() {
+		$title = \Title::newFromText($this->getImage());
 		$file = wfFindFile($title);
 		if ($file) {
 			$url = $file->getCanonicalUrl();
 			return $url; 
-		} else {
-			// @TODO: Possibly retun the "placeholder images" url here.
-			return "";
 		}
+		return false;
 	}
 
 	// quick fix for legacy code calls for now.

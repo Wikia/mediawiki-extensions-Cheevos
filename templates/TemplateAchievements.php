@@ -89,7 +89,7 @@ class TemplateAchievements {
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
 				<div class='p-achievement-source'>".($achievement->global ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
 				<div class='p-achievement-icon'>
-					<img src=\"{$achievement->getImageUrl()}\"/>
+					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
@@ -114,13 +114,14 @@ class TemplateAchievements {
 	public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
 		global $wgUser, $achPointAbbreviation;
 
-		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
-		$achievementsURL	= $achievementsPage->getFullURL();
+		$achievementsPage = Title::newFromText('Special:ManageAchievements');
+		$achievementsURL = $achievementsPage->getFullURL();
+		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
 			<div class='p-achievement-row".(isset($progress['date']) && $progress['date'] > 0 ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
 				<div class='p-achievement-icon'>
-					<img src='{$achievement->getImageUrl()}'/>
+					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
