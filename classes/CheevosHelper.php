@@ -14,6 +14,12 @@
 namespace Cheevos;
 
 class CheevosHelper {
+
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public static function getUserLanguage() {
 		global $wgLang;
 

@@ -10,6 +10,13 @@ class CheevosModel implements ArrayAccess {
 	 */
 	protected $container = [];
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $name
+	 * @param [type] $arguments
+	 * @return void
+	 */
 	public function __call($name, $arguments) {
 		// Getter and Setter
 		if (substr($name, 0, 3) == "get" || substr($name, 0, 3) == "set") {
@@ -46,7 +53,12 @@ class CheevosModel implements ArrayAccess {
 		}
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $property
+	 * @return void
+	 */
 	public function __get($property) {
 		if (isset($this->container[$property])) {
 	  		return $this->container[$property];
@@ -54,6 +66,12 @@ class CheevosModel implements ArrayAccess {
 		return null;
   	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $property
+	 * @param [type] $value
+	 */
   	public function __set($property, $value) {
 		if (isset($this->container[$property])) {
 			$this->container[$property] = $value;
@@ -61,6 +79,13 @@ class CheevosModel implements ArrayAccess {
 		return $this;
   	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $offset
+	 * @param [type] $value
+	 * @return void
+	 */
 	public function offsetSet($offset, $value) {
 		if (is_null($offset)) {
 			$this->container[] = $value;
@@ -69,22 +94,50 @@ class CheevosModel implements ArrayAccess {
 		}
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $offset
+	 * @return void
+	 */
 	public function offsetExists($offset) {
 		return isset($this->container[$offset]);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $offset
+	 * @return void
+	 */
 	public function offsetUnset($offset) {
 		unset($this->container[$offset]);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $offset
+	 * @return void
+	 */
 	public function offsetGet($offset) {
 		return isset($this->container[$offset]) ? $this->container[$offset] : null;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public function toArray() {
 		return $this->container;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return string
+	 */
 	public function __toString() {
 		return json_encode($this->container);
 	}

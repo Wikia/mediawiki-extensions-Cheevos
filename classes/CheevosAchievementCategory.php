@@ -19,6 +19,11 @@ class CheevosAchievementCategory extends CheevosModel
 		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public function save() {
 		if ($this->getId() !== NULL) {
 			Cheevos::updateCategory($this->getId(),$this->container);
@@ -27,6 +32,11 @@ class CheevosAchievementCategory extends CheevosModel
 		}
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public function exists() {
 		if ($this->getId() !== NULL) {
 			$return = true;
@@ -42,6 +52,11 @@ class CheevosAchievementCategory extends CheevosModel
 		}
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public function getName() {
 		$code = CheevosHelper::getUserLanguage();
 		if (array_key_exists($code, $this->container['name']) && isset($this->container['name'][$code])) {
@@ -51,7 +66,11 @@ class CheevosAchievementCategory extends CheevosModel
 		}
 	}
 
-	// Legacy Naming
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public function getTitle() {
 		return $this->getName();
 	}

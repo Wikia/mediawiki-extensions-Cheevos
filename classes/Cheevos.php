@@ -15,6 +15,14 @@ namespace Cheevos;
 
 class Cheevos {
 
+	/**
+	 * Main Request cURL wrapper.
+	 *
+	 * @param string $type
+	 * @param string $path
+	 * @param array $data
+	 * @return void
+	 */
 	private static function request($type, $path, $data = []) {
 		global $wgCheevosHost, $wgCheevosClientId;
 
@@ -60,22 +68,59 @@ class Cheevos {
 		return $result;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $path
+	 * @param array $data
+	 * @return void
+	 */
 	private static function get($path, $data = []) {
 		return self::request('GET', $path, $data);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $path
+	 * @param array $data
+	 * @return void
+	 */
 	private static function put($path, $data = []) {
 		return self::request('PUT', $path, $data);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $path
+	 * @param array $data
+	 * @return void
+	 */
 	private static function post($path, $data = []) {
 		return self::request('POST', $path, $data);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $path
+	 * @param array $data
+	 * @return void
+	 */
 	private static function delete($path, $data = []) {
 		return self::request('DELETE', $path, $data);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $return
+	 * @param [type] $expected
+	 * @param [type] $class
+	 * @param boolean $single
+	 * @return void
+	 */
 	private static function return($return, $expected = null, $class = null, $single = false) {
 		// Throw Errors if we have API errors.
 		if ($return === null) {
@@ -108,6 +153,12 @@ class Cheevos {
 		return $return;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @return void
+	 */
 	private static function validateBody($body) {
 		if (!is_array($body)) {
 			$body = json_decode($body, 1);
@@ -121,7 +172,12 @@ class Cheevos {
 		}
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $site_key
+	 * @return void
+	 */
 	public static function getAchievements($site_key = null) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
@@ -148,11 +204,15 @@ class Cheevos {
 			$return = unserialize($cache);
 		}
 
-
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @return void
+	 */
 	public static function getAchievement($id) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
@@ -179,7 +239,13 @@ class Cheevos {
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement', true);
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param [type] $userId
+	 * @return void
+	 */
 	public static function deleteAchievement($id, $userId = null) {
 		if (!$userId) {
 			global $wgUser;
@@ -191,6 +257,13 @@ class Cheevos {
 		return self::return($return);;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @param [type] $id
+	 * @return void
+	 */
 	private static function putAchievement($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
@@ -200,15 +273,32 @@ class Cheevos {
 		return self::return($return);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function updateAchievement($id, $body) {
 		return self::putAchievement($body, $id);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function createAchievement($body) {
 		return self::putAchievement($body);
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public static function getCategories() {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
@@ -236,6 +326,12 @@ class Cheevos {
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @return void
+	 */
 	public static function getCategory($id) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
@@ -262,6 +358,13 @@ class Cheevos {
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory', true);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param int $userId
+	 * @return void
+	 */
 	public static function deleteCategory($id, $userId = 0) {
 		$return = self::delete("achievement_category/{$id}", [
 			"author_id" => $userId
@@ -269,6 +372,13 @@ class Cheevos {
 		return self::return($return);;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @param [type] $id
+	 * @return void
+	 */
 	private static function putCategory($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
@@ -278,14 +388,33 @@ class Cheevos {
 		return self::return($return);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function updateCategory($id, $body) {
 		return self::putCategory($body, $id);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function createCategory($body) {
 		return self::putCategory($body);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function increment($body) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
@@ -302,6 +431,14 @@ class Cheevos {
 		return self::return($return);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $globalId
+	 * @param [type] $siteKey
+	 * @param boolean $forceRecalculate
+	 * @return void
+	 */
 	static public function checkUnnotified($globalId, $siteKey, $forceRecalculate = false) {
 		if (empty($globalId) || empty($siteKey)) {
 			return;
@@ -316,12 +453,26 @@ class Cheevos {
 		return self::increment($data);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param array $data
+	 * @return void
+	 */
 	public static function stats($data = []) {
 		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
 		$return = self::get('stats', $data);
 		return self::return($return, 'stats');
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $globalId
+	 * @param [type] $categoryId
+	 * @param [type] $siteKey
+	 * @return void
+	 */
 	public static function getUserProgress($globalId, $categoryId = null, $siteKey = null) {
 		$return = self::get('achievements/progress', [
 			'limit'	=> 0,
@@ -333,12 +484,24 @@ class Cheevos {
 		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress');
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @return void
+	 */
 	public static function getProgress($id) {
 		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.
 		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress', true);
 	}
 
-
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param int $globalId
+	 * @return void
+	 */
 	public static function deleteProgress($id, $globalId = 0) {
 		$return = self::delete("achievements/progress/{$id}", [
 			"author_id" => $globalId
@@ -346,6 +509,13 @@ class Cheevos {
 		return self::return($return);;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @param [type] $id
+	 * @return void
+	 */
 	public static function putProgress($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) return false;
@@ -355,15 +525,32 @@ class Cheevos {
 		return self::return($return);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function updateProgress($id, $body) {
 		return self::putProgress($body, $id);
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $body
+	 * @return void
+	 */
 	public static function createProgress($body) {
 		return self::putProgress($body);
 	}
 
-	// WUT IN TARNATION
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	public static function getKnownHooks() {
 		return [];
 	}
