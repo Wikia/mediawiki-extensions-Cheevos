@@ -60,8 +60,12 @@
     "ExtensionMessagesFiles": {
         "SpecialCheevos": "Cheevos.alias.php"
     },
+    "APIModules": {
+        "cheevos": "CheevosAPI"
+    },
     "AutoloadClasses": {
         "CheevosHooks": "Cheevos.hooks.php",
+        "CheevosAPI": "Cheevos.api.php",
         "Cheevos\\DataMiner": "classes/DataMiner.php",
         "Cheevos\\Cheevos": "classes/Cheevos.php",
         "Cheevos\\CheevosHelper": "classes/CheevosHelper.php",

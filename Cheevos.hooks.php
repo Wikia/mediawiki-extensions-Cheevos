@@ -332,9 +332,9 @@ class CheevosHooks {
 			//Using a global key.
 			$redisKey = 'achievement:display:'.$globalId;
 			$displays = $redis->hGetAll($redisKey);
-			foreach ($displays as $key => $value) {
+			/*foreach ($displays as $key => $value) {
 				$del = $redis->hDel($redisKey, $key);
-			}
+			}*/
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			return true;
