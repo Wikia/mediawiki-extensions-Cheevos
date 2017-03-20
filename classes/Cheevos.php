@@ -123,16 +123,59 @@ class Cheevos {
 
 
 	public static function getAchievements($site_key = null) {
-		$return = self::get('achievements/all', [
-			'site_key' => $site_key,
-			'limit'	=> 0
-		]);
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getAchievements:' . ( $site_key ? $site_key : 'all' );
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache) {
+			$return = self::get('achievements/all', [
+				'site_key' => $site_key,
+				'limit'	=> 0
+			]);
+
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
+
+
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
 	}
 
 
 	public static function getAchievement($id) {
-		$return = [ self::get("achievement/{$id}") ]; // return expect array of results. fake it.
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getAchievement:' . $id;
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache) {
+			$return = self::get("achievement/{$id}");
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
+
+		$return = [ $return ]; // return expect array of results. fake it.
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement', true);
 	}
 
@@ -167,15 +210,55 @@ class Cheevos {
 
 
 	public static function getCategories() {
-		$return = self::get('achievement_categories/all', [
-			'limit'	=> 0
-		]);
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getCategories';
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache) {
+			$return = self::get('achievement_categories/all', [
+				'limit'	=> 0
+			]);
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
 
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
 	}
 
 	public static function getCategory($id) {
-		$return = [ self::get("achievement_category/{$id}") ]; // return expect array of results. fake it.
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getCategory:' . $id;
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache) {
+			$return = self::get("achievement_category/{$id}");
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
+
+		$return = [ $return ]; // return expect array of results. fake it.
 		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory', true);
 	}
 
