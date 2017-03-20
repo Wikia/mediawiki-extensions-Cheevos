@@ -33,7 +33,7 @@ class CheevosAchievement extends CheevosModel
 		if ($this->getId() !== NULL) {
 			$result = Cheevos::updateAchievement($this->getId(),$this->container);
 		} else {
-			$result = Cheevos::createAchievement($this->container);	
+			$result = Cheevos::createAchievement($this->container);
 		}
 		return $result;
 	}
@@ -97,7 +97,7 @@ class CheevosAchievement extends CheevosModel
 
 
 	public function getHash() {
-		// @TODO Decide if this is a bad idea. 
+		// @TODO Decide if this is a bad idea.
 		return md5($this->container['id']);
 	}
 
@@ -108,7 +108,7 @@ class CheevosAchievement extends CheevosModel
 	public function getCategory() {
 		if ($this->container['category'] instanceof CheevosAchievementCategory) {
 			return $this->container['category'];
-		} 
+		}
 		$category = new CheevosAchievementCategory($this->container['category']);
 		return $category;
 	}
@@ -160,7 +160,7 @@ class CheevosAchievement extends CheevosModel
 		$file = wfFindFile($title);
 		if ($file) {
 			$url = $file->getCanonicalUrl();
-			return $url; 
+			return $url;
 		}
 		return false;
 	}

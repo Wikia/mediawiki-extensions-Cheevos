@@ -1,188 +1,188 @@
 {
-    "name": "Cheevos",
-    "version": "1.0",
-    "author": [
-        "Wiki Platform Team"
-    ],
-    "descriptionmsg": "achievements_description",
-    "type": "parserhook",
-    "GroupPermissions": {
-        "sysop": {
-            "achievement_admin": true,
-            "edit_achievements": true,
-            "edit_meta_achievements": true,
-            "edit_achievement_triggers": true,
-            "delete_achievements": true,
-            "restore_achievements": true,
-            "award_achievements": true
-        },
-        "hydra_staff": {
-            "achievement_admin": true,
-            "edit_achievements": true,
-            "edit_meta_achievements": true,
-            "edit_achievement_triggers": true,
-            "delete_achievements": true,
-            "restore_achievements": true,
-            "award_achievements": true
-        },
-        "hydra_admin": {
-            "achievement_admin": true,
-            "edit_achievements": true,
-            "edit_meta_achievements": true,
-            "edit_achievement_triggers": true,
-            "delete_achievements": true,
-            "restore_achievements": true,
-            "award_achievements": true,
-            "mega_achievement_admin": true,
-            "edit_mega_achievements": true
-        }
-    },
-    "AvailableRights": [
-        "achievement_admin",
-        "mega_achievement_admin",
-        "edit_achievements",
-        "edit_meta_achievements",
-        "edit_mega_achievements",
-        "edit_achievement_triggers",
-        "delete_achievements",
-        "restore_achievements",
-        "award_achievements"
-    ],
-    "SpecialPages": {
-        "ManageAchievements": "SpecialManageAchievements",
-        "Achievements": "SpecialAchievements"
-    },
-    "MessagesDirs": {
-        "Cheevos": [
-            "i18n"
-        ]
-    },
-    "ExtensionMessagesFiles": {
-        "SpecialCheevos": "Cheevos.alias.php"
-    },
-    "APIModules": {
-        "cheevos": "CheevosAPI"
-    },
-    "AutoloadClasses": {
-        "CheevosHooks": "Cheevos.hooks.php",
-        "CheevosAPI": "Cheevos.api.php",
-        "Cheevos\\DataMiner": "classes/DataMiner.php",
-        "Cheevos\\Cheevos": "classes/Cheevos.php",
-        "Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
-        "Cheevos\\CheevosException": "classes/CheevosException.php",
-        "Cheevos\\CheevosModel": "classes/CheevosModel.php",
-        "Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
-        "Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
-        "Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
-        "Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
-        "Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
-        "Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
-        "SpecialManageAchievements": "specials/SpecialManageAchievements.php",
-        "TemplateManageAchievements": "templates/TemplateManageAchievements.php",
-        "SpecialAchievements": "specials/SpecialAchievements.php",
-        "TemplateAchievements": "templates/TemplateAchievements.php"
-    },
-    "ResourceModules": {
-        "ext.cheevos.resumable.js": {
-            "scripts": [
-                "js/cheevos.resumable.js"
-            ],
-            "targets": [
-                "desktop",
-                "mobile"
-            ],
-            "position": "top"
-        },
-        "ext.cheevos.styles": {
-            "styles": [
-                "css/achievements.css"
-            ],
-            "dependencies": [
-                "ext.hydraCore.button",
-                "ext.hydraCore.pagination"
-            ],
-            "targets": [
-                "desktop",
-                "mobile"
-            ],
-            "position": "top"
-        },
-        "ext.cheevos.js": {
-            "scripts": [
-                "js/cheevos.js"
-            ],
-            "dependencies": [
-                "ext.cheevos.resumable.js"
-            ],
-            "targets": [
-                "desktop",
-                "mobile"
-            ],
-            "position": "top"
-        },
-        "ext.cheevos.triggerBuilder.js": {
-            "scripts": [
-                "js/cheevos.triggerBuilder.js"
-            ],
-            "dependencies": [
-                "ext.cheevos.resumable.js"
-            ],
-            "messages": [
-                "add_condition",
-                "add_trigger",
-                "cancel_trigger",
-                "delete_condition",
-                "delete_trigger",
-                "save_trigger",
-                "trigger_builder",
-                "error_connecting_to_site",
-                "bad_site_key",
-                "choose_existing_hook"
-            ],
-            "targets": [
-                "desktop",
-                "mobile"
-            ],
-            "position": "top"
-        },
-        "ext.cheevos.notice.js": {
-            "scripts": [
-                "js/cheevos.notice.js"
-            ],
-            "dependencies": [
-                "jquery.effects.core",
-                "jquery.effects.pulsate"
-            ],
-            "targets": [
-                "desktop"
-            ],
-            "position": "top"
-        }
-    },
-    "ResourceFileModulePaths": {
-        "localBasePath": "",
-        "remoteExtPath": "Cheevos"
-    },
-    "Hooks": {
-        "ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
-        "PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
-        "PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
-        "ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
-        "ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
-        "BlockIpComplete": "CheevosHooks::onBlockIpComplete",
-        "CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
-        "CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
-        "CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
-        "EmailUserComplete": "CheevosHooks::onEmailUserComplete",
-        "MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
-        "UploadComplete": "CheevosHooks::onUploadComplete",
-        "WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
-        "SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts"
-    },
-    "config": {
-        "CheevosHost": "",
-        "CheevosClientId": ""
-    },
-    "callback": "CheevosHooks::onRegistration",
-    "manifest_version": 1
+	"name": "Cheevos",
+	"version": "1.0",
+	"author": [
+		"Wiki Platform Team"
+	],
+	"descriptionmsg": "achievements_description",
+	"type": "parserhook",
+	"GroupPermissions": {
+		"sysop": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true
+		},
+		"hydra_staff": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true
+		},
+		"hydra_admin": {
+			"achievement_admin": true,
+			"edit_achievements": true,
+			"edit_meta_achievements": true,
+			"edit_achievement_triggers": true,
+			"delete_achievements": true,
+			"restore_achievements": true,
+			"award_achievements": true,
+			"mega_achievement_admin": true,
+			"edit_mega_achievements": true
+		}
+	},
+	"AvailableRights": [
+		"achievement_admin",
+		"mega_achievement_admin",
+		"edit_achievements",
+		"edit_meta_achievements",
+		"edit_mega_achievements",
+		"edit_achievement_triggers",
+		"delete_achievements",
+		"restore_achievements",
+		"award_achievements"
+	],
+	"SpecialPages": {
+		"ManageAchievements": "SpecialManageAchievements",
+		"Achievements": "SpecialAchievements"
+	},
+	"MessagesDirs": {
+		"Cheevos": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"SpecialCheevos": "Cheevos.alias.php"
+	},
+	"APIModules": {
+		"cheevos": "CheevosAPI"
+	},
+	"AutoloadClasses": {
+		"CheevosHooks": "Cheevos.hooks.php",
+		"CheevosAPI": "Cheevos.api.php",
+		"Cheevos\\DataMiner": "classes/DataMiner.php",
+		"Cheevos\\Cheevos": "classes/Cheevos.php",
+		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
+		"Cheevos\\CheevosException": "classes/CheevosException.php",
+		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
+		"Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
+		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
+		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
+		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
+		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
+		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
+		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
+		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
+		"SpecialAchievements": "specials/SpecialAchievements.php",
+		"TemplateAchievements": "templates/TemplateAchievements.php"
+	},
+	"ResourceModules": {
+		"ext.cheevos.resumable.js": {
+			"scripts": [
+				"js/cheevos.resumable.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.styles": {
+			"styles": [
+				"css/achievements.css"
+			],
+			"dependencies": [
+				"ext.hydraCore.button",
+				"ext.hydraCore.pagination"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.js": {
+			"scripts": [
+				"js/cheevos.js"
+			],
+			"dependencies": [
+				"ext.cheevos.resumable.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.triggerBuilder.js": {
+			"scripts": [
+				"js/cheevos.triggerBuilder.js"
+			],
+			"dependencies": [
+				"ext.cheevos.resumable.js"
+			],
+			"messages": [
+				"add_condition",
+				"add_trigger",
+				"cancel_trigger",
+				"delete_condition",
+				"delete_trigger",
+				"save_trigger",
+				"trigger_builder",
+				"error_connecting_to_site",
+				"bad_site_key",
+				"choose_existing_hook"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.notice.js": {
+			"scripts": [
+				"js/cheevos.notice.js"
+			],
+			"dependencies": [
+				"jquery.effects.core",
+				"jquery.effects.pulsate"
+			],
+			"targets": [
+				"desktop"
+			],
+			"position": "top"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "Cheevos"
+	},
+	"Hooks": {
+		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
+		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
+		"PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
+		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
+		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
+		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
+		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
+		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
+		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
+		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
+		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
+		"UploadComplete": "CheevosHooks::onUploadComplete",
+		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
+		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts"
+	},
+	"config": {
+		"CheevosHost": "",
+		"CheevosClientId": ""
+	},
+	"callback": "CheevosHooks::onRegistration",
+	"manifest_version": 1
 }

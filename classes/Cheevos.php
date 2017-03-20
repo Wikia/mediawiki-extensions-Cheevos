@@ -37,8 +37,8 @@ class Cheevos {
 
 		$ch = curl_init();
 		curl_setopt_array($ch, array(
-		    CURLOPT_RETURNTRANSFER		=> 1,
-		    CURLOPT_URL					=> $url,
+			CURLOPT_RETURNTRANSFER		=> 1,
+			CURLOPT_URL					=> $url,
 			CURLOPT_SSL_VERIFYHOST		=> false,
 			CURLOPT_SSL_VERIFYPEER		=> false,
 			CURLOPT_CUSTOMREQUEST		=> $type,
@@ -59,7 +59,7 @@ class Cheevos {
 
 		return $result;
 	}
-	
+
 	private static function get($path, $data = []) {
 		return self::request('GET', $path, $data);
 	}
@@ -94,13 +94,13 @@ class Cheevos {
 		if ($class && class_exists($class)) {
 			$holder = [];
 			foreach ($return as $classme) {
-				if (is_array($classme)) { 
+				if (is_array($classme)) {
 					$holder[] = new $class($classme);
 				}
 			}
 			$return = $holder;
 
-			// If we classify things, single will only return the first.	
+			// If we classify things, single will only return the first.
 			if ($single) {
 				$return = $return[0];
 			}
