@@ -63,7 +63,13 @@ class CheevosHooks {
 				['stat' => $stat,'delta' => $delta]
 			]
 		];
-		return Cheevos\Cheevos::increment($data);
+
+		try {
+			$cheevos = Cheevos\Cheevos::increment($data);
+		} catch (CheevosException $e) {
+			wfDebug(__METHOD__.": Caught CheevosException - ".$e->getMessage());
+		}
+		return $cheevos;
 	}
 
 	/**

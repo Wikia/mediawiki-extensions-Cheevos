@@ -50,7 +50,9 @@ class Cheevos {
 			CURLOPT_SSL_VERIFYHOST		=> false,
 			CURLOPT_SSL_VERIFYPEER		=> false,
 			CURLOPT_CUSTOMREQUEST		=> $type,
+			CURLOPT_CONNECTTIMEOUT 		=> 5
 		));
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,0);
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
 			$url = $url . "/?" . http_build_query($data);
 		} else {
@@ -123,7 +125,7 @@ class Cheevos {
 	 */
 	private static function return($return, $expected = null, $class = null, $single = false) {
 		// Throw Errors if we have API errors.
-		if ($return === null) {
+		if ($return === null || $return === null) {
 			throw new CheevosException('Cheevos Service Unavailable', 503);
 		}
 		if (isset($return['code']) && $return['code'] !== 200) {

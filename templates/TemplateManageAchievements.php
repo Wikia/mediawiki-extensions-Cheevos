@@ -33,7 +33,7 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-		<!--<div class='search_bar'> 
+		<!--<div class='search_bar'>
 			<form method='get' action='{$achievementsURL}'>
 				<fieldset>
 					<input type='text' name='filter' id='search_field' value='' class='search_field' />
@@ -45,7 +45,7 @@ class TemplateManageAchievements {
 		<div class='buttons'>
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='button'>".wfMessage('award_achievement')."</a>" : null)."
-		
+
 		</div>
 			";
 		}
@@ -150,10 +150,10 @@ class TemplateManageAchievements {
 			if ($wgUser->isAllowed('achievement_admin')) {
 				$HTML .= "
 					<div class='p-achievement-admin'>";
-				
+
 					$HTML .= "
 						<span class='p-achievement-delete'><a href='{$achievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>";
-				
+
 				$HTML .= "
 						<span class='p-achievement-edit'><a href='{$achievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
@@ -205,7 +205,7 @@ class TemplateManageAchievements {
 					<label for='category' class='label_above'>".wfMessage('achievement_category')->escaped()."</label>
 					<input id='category_id' name='category_id' type='hidden' value='".$category->getId()."'/>
 					<input id='category' name='category' type='text' maxlength='30' placeholder='".wfMessage('achievement_category_helper')->escaped()."' value='".$category->getName()."'/>";
-		
+
 					if (is_array($categories) && count($categories)) {
 						$HTML .= "<select id='achievement_category_select'>
 									<option value='0'>&nbsp;</option>\n";
@@ -214,7 +214,7 @@ class TemplateManageAchievements {
 							$HTML .= "<option value='{$acid}'".($achievement->getCategoryId() == $acid ? " selected='selected'" : null).">".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
 						}
 						$HTML .= "</select>";
-								
+
 					}
 
 		$HTML .= 	($errors['image_url'] ? '<span class="error">'.$errors['image_url'].'</span>' : '')."
@@ -225,18 +225,18 @@ class TemplateManageAchievements {
 					<label for='image' class='label_above'>".wfMessage('achievement_image_url')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
 					<input id='image' name='image' type='text' value='".htmlentities($achievement->getImage(), ENT_QUOTES)."' />
 
-				
+
 
 					".($errors['points'] ? '<span class="error">'.$errors['points'].'</span>' : '')."
 					<label for='points' class='label_above'>".wfMessage('achievement_points')->escaped()."<div class='helper_mark'><span>".wfMessage('points_help')."</span></div></label>
 					<input id='points' name='points' type='text' value='".htmlentities($achievement->getPoints(), ENT_QUOTES)."' /><br/>
 
-					
+
 
 					<input id='secret' name='secret' type='checkbox' value='1'".($achievement->isSecret() ? " checked='checked'" : null)."/><label for='secret'>".wfMessage('secret_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('secret_help')->escaped()."</span></div></label><br/>
 					<input id='global' name='global' type='checkbox' value='1'".($achievement->isGlobal() ? " checked='checked'" : null)."/><label for='global'>".wfMessage('global_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('global_help')->escaped()."</span></div></label><br/>
 					<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>
-				
+
 
 					";
 
@@ -245,11 +245,11 @@ class TemplateManageAchievements {
 					$stats = ( isset($criteria['stats']) && is_array($criteria['stats']) ) ? $criteria['stats'] : [];
 
 					$statsList = [
-						'visit', 'article_edit', 'article_watch', 'article_create', 'article_delete', 'article_move', 
-						'article_merge', 'article_protect', 'admin_block_ip', 'admin_patrol', 'curse_profile_comment', 
-						'curse_profile_add_friend', 'curse_profile_edit', 'send_email', 'file_upload', 'wiki_points', 
-						'curse_profile_edit_fav_wiki', 'curse_profile_comment_reply', 'curse_profile_edit_link_xbl', 
-						'curse_profile_edit_link_psn', 'curse_profile_edit_link_steam', 'curse_profile_edit_link_facebook', 
+						'visit', 'article_edit', 'article_watch', 'article_create', 'article_delete', 'article_move',
+						'article_merge', 'article_protect', 'admin_block_ip', 'admin_patrol', 'curse_profile_comment',
+						'curse_profile_add_friend', 'curse_profile_edit', 'send_email', 'file_upload', 'wiki_points',
+						'curse_profile_edit_fav_wiki', 'curse_profile_comment_reply', 'curse_profile_edit_link_xbl',
+						'curse_profile_edit_link_psn', 'curse_profile_edit_link_steam', 'curse_profile_edit_link_facebook',
 						'curse_profile_edit_link_twitter', 'curse_profile_edit_link_reddit'
 					];
 
@@ -311,7 +311,7 @@ class TemplateManageAchievements {
 
 			/*
 		if ($wgUser->isAllowed('edit_achievement_triggers')) {
-			
+
 			$HTML .= "
 					<h2>".wfMessage('trigger_section')->escaped()."</h2>
 					".($errors['increment'] ? '<span class="error">'.$errors['increment'].'</span>' : '')."
@@ -323,7 +323,7 @@ class TemplateManageAchievements {
 						<input name='triggers' type='hidden' value='".(count($achievement->getTriggers()) ? json_encode($achievement->getTriggers(), JSON_UNESCAPED_SLASHES) : '{}')."'/>
 						<input id='hooks' type='hidden' value='".(is_array($knownHooks) && count($knownHooks) ? json_encode($knownHooks, JSON_UNESCAPED_SLASHES) : '{}')."'/>
 					</div>";
-					
+
 		}*/
 
 		$HTML .= "
@@ -333,7 +333,7 @@ class TemplateManageAchievements {
 					<input id='wiki_submit' name='wiki_submit' type='submit' value='Save'/>
 				</fieldset>
 			</form>";
-	
+
 	return $HTML;
 	}
 
@@ -375,21 +375,40 @@ class TemplateManageAchievements {
 		$this->awardURL	= $awardPage->getFullURL();
 
 		$HTML = '';
-
 		$wasAwarded = $wgRequest->getVal('do') == wfMessage('award')->escaped();
-		if ($form['success']['message'] == "success") {
-			$HTML = "<div class='successbox'>".wfMessage('achievement_awarded', ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div>";
+		if ( isset($form['success']) && is_array($form['success']) ) {
+			foreach($form['success'] as $s) {
+				if ($s['message'] == "success") {
+					$HTML .= "<div class='successbox'>".wfMessage('achievement_awarded', ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div>";
+				}
+			}
+			if (isset($form['errors']['username'])) {
+				$HTML .= "<br /><div class='errorbox'>".wfMessage('achievement_award_partial_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."";
+					$HTML .= "<ul>";
+					foreach($form['errors']['username'] as $err) {
+						$HTML .= '<li>'.$err.'</li>';
+					}
+					$HTML .= "</ul>";
+				$HTML .= "</div>";
+			}
 		} elseif ($form['success'] !== NULL) {
-			$HTML = "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
-			<br />".$form['success']['message']."
-			</div>";
+				$HTML .= "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
+				<br />".$form['success']['message']."
+				</div>";
 		}
+
+
 		$HTML .= "
 		<form action='{$this->awardURL}' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>
 			<fieldset>
-				<legend>".wfMessage('award_hint')->escaped()."</legend>
-				".(isset($form['errors']['username']) ? '<span class="error">'.$form['errors']['username'].'</span><br/>' : '')."
-				<label for='offset'>".wfMessage('local_username')->escaped()."</label> <input autofocus='' id='offset' name='username' size='20' value='".$form['save']['username']."'><br/>";
+				<legend>".wfMessage('award_hint')->escaped()."</legend>";
+				if (isset($form['errors']['username'])) {
+					foreach($form['errors']['username'] as $err) {
+						$HTML .= '<span class="error">'.$err.'</span><br/>';
+					}
+				}
+				$HTML .= "<label for='offset'>".wfMessage('local_username')->escaped()."</label>
+				<textarea id='username_list' name='username' placeholder='Single username, or comma delimited list of usernames.'>".$form['save']['username']."</textarea>";
 		if (is_array($achievements) && count($achievements)) {
 			$HTML .= "
 				".(isset($form['errors']['achievement_id']) ? '<span class="error">'.$form['errors']['achievement_id'].'</span><br/>' : '')."
@@ -408,7 +427,7 @@ class TemplateManageAchievements {
 			</fieldset>
 		</form>";
 
-		
+
 		return $HTML;
 	}
 
