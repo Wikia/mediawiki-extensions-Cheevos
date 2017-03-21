@@ -38,6 +38,15 @@ class CheevosHooks {
 		return $dsSiteKey;
 	}
 
+	/**
+	 * Do incrementing for a statistic.
+	 *
+	 * @access	public
+	 * @param	string	Stat Name
+	 * @param	integer	Stat Delta
+	 * @param	object	$user: The user being incremented.
+	 * @return	mixed	Array of return status including earned achievements or false on error.
+	 */
 	private static function increment($stat, $delta, $user = null) {
 		$site_key = self::getSiteKey();
 		if ($site_key === false) {
@@ -65,11 +74,18 @@ class CheevosHooks {
 		];
 
 		try {
-			$cheevos = Cheevos\Cheevos::increment($data);
-		} catch (CheevosException $e) {
+			$return = \Cheevos\Cheevos::increment($data);
+
+			if (isset($return['earned'])) {
+				foreach($return['earned'] as $achievement) {
+					\CheevosHooks::displayAchievement($achievement);
+				}
+			}
+		} catch (\Cheevos\CheevosException $e) {
 			wfDebug(__METHOD__.": Caught CheevosException - ".$e->getMessage());
+			return false;
 		}
-		return $cheevos;
+		return $return;
 	}
 
 	/**

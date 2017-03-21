@@ -115,13 +115,14 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Handle the return from a CURL request.
 	 *
-	 * @param [type] $return
-	 * @param [type] $expected
-	 * @param [type] $class
-	 * @param boolean $single
-	 * @return void
+	 * @access	private
+	 * @param	array	$return - Return from CURL request.
+	 * @param	string	$expected - Expected array key to return.
+	 * @param	string	$class - Class to initialize with returned data.
+	 * @param	boolean	$single - Only return the first request of an initialized class.
+	 * @return	mixed
 	 */
 	private static function return($return, $expected = null, $class = null, $single = false) {
 		// Throw Errors if we have API errors.
@@ -143,6 +144,9 @@ class Cheevos {
 			foreach ($return as $classme) {
 				if (is_array($classme)) {
 					$holder[] = new $class($classme);
+				}
+				if ($single) {
+					break;
 				}
 			}
 			$return = $holder;
@@ -412,23 +416,19 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Call the increment end point on the API.
 	 *
-	 * @param [type] $body
-	 * @return void
+	 * @acecss	public
+	 * @param	array	Post Request Body to be converted into JSON.
+	 * @return	mixed	Array of return status including earned achievements or false on error.
 	 */
 	public static function increment($body) {
 		$body = self::validateBody($body);
-		if (!$body) return false;
+		if (!$body) {
+			return false;
+		}
 
 		$return = self::post('increment', $body);
-
-		/* DOING THIS HERE BECAUSE REASONS */
-		if (isset($return['earned'])) {
-			foreach($return['earned'] as $achievement) {
-				\CheevosHooks::displayAchievement($achievement);
-			}
-		}
 
 		return self::return($return);
 	}
