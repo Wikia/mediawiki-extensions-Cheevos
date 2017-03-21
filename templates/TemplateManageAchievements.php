@@ -300,8 +300,6 @@ class TemplateManageAchievements {
 					$HTML .= "</div>";
 		   }
 
-
-
 			/*
 		if ($wgUser->isAllowed('edit_achievement_triggers')) {
 
