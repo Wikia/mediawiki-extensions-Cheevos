@@ -176,6 +176,23 @@ class Cheevos {
 		}
 	}
 
+	public static function invalidateCache() {
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:*';
+
+		try {
+			$cache = $redis->getKeys($redisKey);
+			foreach($cache as $key) {
+				// @TODO: Make this potentially not dumb in the future.
+				$key = str_replace("Hydracheevos","cheevos",$key);
+				$redis->del($key);
+			}
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+	}
+
 	/**
 	 * Get all achievements with caching.
 	 *

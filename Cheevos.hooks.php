@@ -23,13 +23,19 @@ class CheevosHooks {
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
 	static public function invalidateCache() {
 		// this is here for future functionality.
+		return Cheevos\Cheevos::invalidateCache();
 	}
+
 	/**
 	 * Get site key and handle master key.
 	 */
-
 	private static function getSiteKey() {
 		global $dsSiteKey;
 		if (!$dsSiteKey || empty($dsSiteKey)) {
