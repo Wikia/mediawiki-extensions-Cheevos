@@ -93,12 +93,14 @@ class ImportCustomAchievements extends Maintenance {
 						$existingAchievement->setImage($file);
 					}
 
-					if ($existingAchievement->getName() != $row['name']) {
-						$existingAchievement->setName($row['name']);
+					if ($existingAchievement->getPoints() != $row['points']) {
+						$existingAchievement->setPoints($row['points']);
 					}
 
-					if ($existingAchievement->getName() != $row['name']) {
-						$existingAchievement->setName($row['name']);
+					if ($existingAchievement->isManuallyAwarded() != $row['manual_award']) {
+						if ($row['manual_award']) {
+							$existingAchievement->->setCriteria([]);
+						}
 					}
 
 					if ($existingAchievement->getName() != $row['name']) {
