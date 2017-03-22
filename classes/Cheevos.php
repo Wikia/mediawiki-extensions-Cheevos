@@ -186,8 +186,8 @@ class Cheevos {
 
 		try {
 			$cache = $redis->getKeys($redisKey);
-			foreach($cache as $key) {
-				$key = str_replace($prefix."cheevos","cheevos",$key); // remove prefix if exists, because weird.
+			foreach ($cache as $key) {
+				$key = str_replace($prefix."cheevos", "cheevos", $key); // remove prefix if exists, because weird.
 				$redis->del($key);
 			}
 		} catch (RedisException $e) {
