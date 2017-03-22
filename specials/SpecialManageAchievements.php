@@ -72,7 +72,7 @@ class SpecialManageAchievements extends SpecialPage {
 				break;
 			case 'delete':
 			case 'restore':
-				$this->achievementsDelete();
+				$this->achievementsDelete($subpage);
 				break;
 			case 'award':
 				//$this->getUser()->isAllowed('award_achievements') <-- check this here.
@@ -246,12 +246,18 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @param	string	Delete or Restore action take.
 	 * @return	void	[Outputs to screen]
 	 */
-	public function achievementsDelete() {
-		if ($this->wgUser->isAllowed('delete_achievements')) {
+	public function achievementsDelete($subpage) {
+		if ($subpage == 'delete' && !$this->wgUser->isAllowed('delete_achievements')) {
+			throw new PermissionsError('delete_achievements');
+		}
+		if ($subpage == 'restore' && !$this->wgUser->isAllowed('restore_achievements')) {
+			throw new PermissionsError('restore_achievements');
+		}
+		if ($this->wgUser->isAllowed('delete_achievements') || $this->wgUser->isAllowed('restore_achievements')) {
 			$achievementId = $this->wgRequest->getInt('aid');
 
 			if ($achievementId) {
-				$achievement = Cheevos\Cheevos::getAchievement($achievementId);
+				$achievement = \Cheevos\Cheevos::getAchievement($achievementId);
 
 				if ($achievement === false || $achievementId != $achievement->getId()) {
 					$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
@@ -260,16 +266,32 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			if ($this->wgRequest->getVal('confirm') == 'true') {
+				$lookup = CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+				if (!$globalId) {
+					throw new MWException('Could not obtain the global ID for the user attempting to delete an achievement.');
+				}
+				$forceCreate = false;
+				if (empty($achievement->getSite_Key()) && $achievement->getId() > 0) {
+					$forceCreate = true;
+					$achievement->setParent_Id($achievement->getId());
+				}
+				$achievement->setSite_Key($this->site_key);
+				$achievement->setDeleted_At(($subpage == 'restore' ? 0 : time()));
+				$achievement->setDeleted_By(($subpage == 'restore' ? 0 : $globalId));
 
-				Cheevos\Cheevos::deleteAchievement($achievementId);
-				Cheevos\Cheevos::invalidateCache();
+				$success = $achievement->save($forceCreate);
+
+				if ($success['code'] == 200) {
+					\Cheevos\Cheevos::invalidateCache();
+				}
 
 				$page = Title::newFromText('Special:ManageAchievements');
 				$this->output->redirect($page->getFullURL());
 				return;
 			}
 
-			$this->output->setPageTitle(wfMessage('delete_achievement_title')->escaped().' - '.$achievement->getName());
+			$this->output->setPageTitle(wfMessage(($subpage == 'restore' ? 'restore' : 'delete').'_achievement_title')->escaped().' - '.$achievement->getName());
 			$this->content = $this->templates->achievementsDelete($achievement);
 		}
 	}

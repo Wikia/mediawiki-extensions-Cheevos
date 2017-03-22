@@ -133,11 +133,18 @@ class TemplateAchievements {
 				$wgUser->isAllowed('achievement_admin') &&
 				(MASTER_WIKI === true || (MASTER_WIKI !== true && !$achievement->isProtected() && !$achievement->isGlobal()))
 			) {
-				$HTML .= "
+				if (!$achievement->isDeleted()) {
+					$HTML .= "
 					<div class='p-achievement-admin'>
 						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>
 						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
+				} elseif ($achievement->isDeleted() && $wgUser->isAllowed('restore_achievements')) {
+					$HTML .= "
+					<div class='p-achievement-admin'>
+						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='button'>".wfMessage('restore_achievement')->escaped()."</a></span>
+					</div>";
+				}
 			}
 		}
 		$HTML .= "

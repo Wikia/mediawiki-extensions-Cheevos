@@ -180,7 +180,7 @@ class TemplateManageAchievements {
 
 			<label class='label_above'>".wfMessage('criteria_stats')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>
 			<div class='criteria_container'>";
-			foreach($statsList as $stat) {
+			foreach ($statsList as $stat) {
 				$HTML .= "<label><input type='checkbox' name='criteria_stats[]' value='{$stat}'".(in_array($stat, $stats) ? " checked='checked'" : null)."/>{$stat}</label>";
 			}
 			$HTML .= "</div>
@@ -190,7 +190,7 @@ class TemplateManageAchievements {
 
 				<label class='label_above'>".wfMessage('criteria_streak')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>
 				<select name='criteria_streak'>";
-			foreach($streakEnum as $streak) {
+			foreach ($streakEnum as $streak) {
 				$HTML .= "<option value='{$streak}' ".((isset($criteria['streak']) && $criteria['streak'] == $streak) ? 'selected' : '').">".ucfirst($streak)."</option>";
 			}
 			$HTML .= "</select>

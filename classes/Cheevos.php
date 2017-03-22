@@ -221,7 +221,7 @@ class Cheevos {
 
 			if (!empty($siteKey) && isset($return['achievements'])) {
 				$removeParents = [];
-				foreach ($return['achievements'] as $achievement) {
+				foreach ($return['achievements'] as $key => $achievement) {
 					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0) {
 						$removeParents[] = $achievement['parent_id'];
 					}
@@ -236,7 +236,9 @@ class Cheevos {
 			}
 
 			try {
-				$redis->setEx($redisKey, 300, serialize($return));
+				if (isset($return['achievements'])) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
@@ -281,20 +283,20 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Soft delete an achievement from the service.
 	 *
-	 * @param [type] $id
-	 * @param [type] $userId
-	 * @return void
+	 * @access	public
+	 * @param	integer	Achievement ID
+	 * @param	integer	Global ID
+	 * @return	mixed	Array
 	 */
-	public static function deleteAchievement($id, $userId = null) {
-		if (!$userId) {
-			global $wgUser;
-			$userId = $wgUser->getId();
-		}
-		$return = self::delete("achievement/{$id}", [
-			"author_id" => $userId
-		]);
+	public static function deleteAchievement($id, $globalId) {
+		$return = self::delete(
+			"achievement/{$id}",
+			[
+				"author_id" => intval($globalId)
+			]
+		);
 		return self::return($return);;
 	}
 
@@ -317,9 +319,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Update an existing achievement on the service.
 	 *
-	 * @param [type] $id
+	 * @access	public
+	 * @param	integer	Achievement ID
 	 * @param [type] $body
 	 * @return void
 	 */

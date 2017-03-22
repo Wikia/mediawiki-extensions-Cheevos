@@ -20,10 +20,12 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['global'] = isset($data['global']) ? $data['global'] : null;
 		$this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
 		$this->container['secret'] = isset($data['secret']) ? $data['secret'] : null;
-		$this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : null;
-		$this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : null;
-		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
-		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
+		$this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : 0;
+		$this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : 0;
+		$this->container['deleted_at'] = isset($data['deleted_at']) ? $data['deleted_at'] : 0;
+		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : 0;
+		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : 0;
+		$this->container['deleted_by'] = isset($data['deleted_by']) ? $data['deleted_by'] : 0;
 		$this->container['criteria'] = isset($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria();
 	}
 
@@ -179,6 +181,6 @@ class CheevosAchievement extends CheevosModel {
 
 	// quick fix for legacy code calls for now.
 	public function isDeleted() {
-		return false;
+		return boolval($this->container['deleted_at']);
 	}
 }
