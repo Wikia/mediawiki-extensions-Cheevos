@@ -35,7 +35,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->site_key 	= $dsSiteKey;
 
 		if (!$dsSiteKey || empty($dsSiteKey)) {
-			throw new MWException( 'Could not determin the site key for use with Achievements.' );
+			throw new MWException('Could not determined the site key for use for Achievements.');
 			return;
 		}
 
@@ -90,7 +90,6 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsList() {
-
 		$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
 		$categories = Cheevos\Cheevos::getCategories();
 
@@ -137,7 +136,7 @@ class SpecialManageAchievements extends SpecialPage {
 				return;
 			}
 		} else {
-			$this->achievement = new Cheevos\CheevosAchievement();
+			$this->achievement = new \Cheevos\CheevosAchievement();
 		}
 
 		$return = $this->acheivementsSave();
@@ -203,6 +202,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
 			if (MASTER_WIKI === true) {
+				//Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
 			}
@@ -286,8 +286,6 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function awardSave() {
-
-
 		$do = strtolower($this->wgRequest->getVal('do'));
 		$save = [];
 		$errors = [];

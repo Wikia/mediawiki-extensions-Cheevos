@@ -12,8 +12,8 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : 0;
 		$this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : 0;
 		$this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : "";
-		$this->container['name'] = isset($data['name']) ? $data['name'] : null;
-		$this->container['description'] = isset($data['description']) ? $data['description'] : null;
+		$this->container['name'] = isset($data['name']) ? $data['name'] : [];
+		$this->container['description'] = isset($data['description']) ? $data['description'] : [];
 		$this->container['image'] = isset($data['image']) ? $data['image'] : null;
 		$this->container['category'] = isset($data['category']) ? new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory();
 		$this->container['points'] = isset($data['points']) ? $data['points'] : null;
@@ -65,7 +65,7 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function getName() {
-		if ($this->container['name'] == NULL || !count($this->container['name'])) {
+		if ($this->container['name'] == null || !count($this->container['name'])) {
 			return "";
 		}
 		$code = CheevosHelper::getUserLanguage();

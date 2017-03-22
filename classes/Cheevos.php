@@ -271,7 +271,9 @@ class Cheevos {
 	 */
 	private static function putAchievement($body, $id = null) {
 		$body = self::validateBody($body);
-		if (!$body) return false;
+		if (!$body) {
+			return false;
+		}
 
 		$path = ($id) ? "achievement/{$id}" : "achievement";
 		$return = self::put($path, $body);

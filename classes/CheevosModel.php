@@ -34,7 +34,7 @@ class CheevosModel implements ArrayAccess {
 			} else {
 				throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The property {$prop} is not a valid property for this class.");
 			}
-		} elseif (substr($name,0,2) == "is") {
+		} elseif (substr($name, 0, 2) == "is") {
 			$getProp = substr($name, 2);
 			$prop = strtolower($getProp);
 			if (array_key_exists($prop, $this->container)) {
@@ -54,10 +54,11 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 * Magic getter for container properties.
 	 *
-	 * @param [type] $property
-	 * @return void
+	 * @access public
+	 * @param	string	Property
+	 * @return	mixed	Request property or null if it does not exist.
 	 */
 	public function __get($property) {
 		if (isset($this->container[$property])) {
@@ -67,10 +68,13 @@ class CheevosModel implements ArrayAccess {
   	}
 
 	/**
-	 * Undocumented function
+	 * Magic setter for container properties.
+	 * Will only set the property if it was created during the child classes constructor setup.
 	 *
-	 * @param [type] $property
-	 * @param [type] $value
+	 * @access public
+	 * @param	string	Property
+	 * @param	mixed	Value to set.
+	 * @return	object	This object.
 	 */
   	public function __set($property, $value) {
 		if (isset($this->container[$property])) {

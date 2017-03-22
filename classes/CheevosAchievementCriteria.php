@@ -17,6 +17,6 @@ class CheevosAchievementCriteria extends CheevosModel
 		$this->container['streak_reset_to_zero'] = isset($data['streak_reset_to_zero']) ? $data['streak_reset_to_zero'] : null;
 		$this->container['per_site_progress_maximum'] = isset($data['per_site_progress_maximum']) ? $data['per_site_progress_maximum'] : null;
 		$this->container['category_id'] = isset($data['category_id']) ? $data['category_id'] : null;
-		$this->container['achievement_ids'] = isset($data['achievement_ids']) ? $data['achievement_ids'] : null;
+		$this->container['achievement_ids'] = isset($data['achievement_ids']) ? $data['achievement_ids'] : [];
 	}
 }
