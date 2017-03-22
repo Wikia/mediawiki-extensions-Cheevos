@@ -170,6 +170,13 @@ class SpecialManageAchievements extends SpecialPage {
 			$criteria['category_id'] = $this->wgRequest->getInt("criteria_category_id");
 			$criteria['achievement_ids'] = $this->wgRequest->getIntArray("criteria_achievement_ids",[]);
 
+			$forceCreate = false;
+			if (empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
+				$forceCreate = true;
+				$this->achievement->setParent_Id($this->achievement->getId());
+			}
+			$this->achievement->setSite_Key($this->site_key);
+
 			$this->achievement->setCriteria($criteria);
 
 			$name = $this->wgRequest->getText('name');
@@ -208,7 +215,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			if (!count($errors)) {
-				$success = $this->achievement->save();
+				$success = $this->achievement->save($forceCreate);
 
 				if ($success['code'] == 200) {
 					CheevosHooks::invalidateCache();

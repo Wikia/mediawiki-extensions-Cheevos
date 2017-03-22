@@ -27,8 +27,15 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['criteria'] = isset($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria();
 	}
 
-	public function save() {
-		if ($this->getId() !== NULL) {
+	/**
+	 * Save achievement up to the service.
+	 *
+	 * @access	public
+	 * @param	boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
+	 * @return	array	Success Result
+	 */
+	public function save($forceCreate = false) {
+		if ($this->getId() !== null && !$forceCreate) {
 			$result = Cheevos::updateAchievement($this->getId(), $this->container);
 		} else {
 			$result = Cheevos::createAchievement($this->container);
@@ -37,7 +44,7 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function exists() {
-		if ($this->getId() !== NULL) {
+		if ($this->getId() !== null) {
 			$return = true;
 			try {
 				// Throws an error if it doesn't exist.
@@ -104,7 +111,7 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function getDescription() {
-		if ($this->container['description'] == NULL || !count($this->container['description'])) {
+		if ($this->container['description'] == null || !count($this->container['description'])) {
 			return "";
 		}
 		$code = CheevosHelper::getUserLanguage();

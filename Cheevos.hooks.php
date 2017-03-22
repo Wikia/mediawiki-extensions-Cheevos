@@ -30,11 +30,14 @@ class CheevosHooks {
 	 */
 	static public function invalidateCache() {
 		// this is here for future functionality.
-		return Cheevos\Cheevos::invalidateCache();
+		return \Cheevos\Cheevos::invalidateCache();
 	}
 
 	/**
-	 * Get site key and handle master key.
+	 * Get site key.
+	 *
+	 * @access	private
+	 * @return	mixed	Site key string or false if empty.
 	 */
 	private static function getSiteKey() {
 		global $dsSiteKey;
@@ -397,7 +400,7 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Add option to disable pop-up notifications
+	 * Add option to disable pop-up notifications.
 	 *
 	 * @access	public
 	 * @param	object	User
@@ -405,17 +408,12 @@ class CheevosHooks {
 	 * @return	boolean	True
 	 */
 	static public function onGetPreferences($user, &$preferences) {
-		//echo "<pre>";
-		//print_r($preferences);
-		//echo "</pre>";
-
 		$preferences['cheevos-popup-notification'] = [
 			'type' => 'toggle',
 			'label-message' => 'cheevos-popup-notification', // a system message
 			'section' => 'echo/cheevos-notification'
 		];
 
-			// Required return value of a hook function.
 		return true;
 	}
 }
