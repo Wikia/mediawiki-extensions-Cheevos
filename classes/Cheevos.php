@@ -200,7 +200,7 @@ class Cheevos {
 	 *
 	 * @access	public
 	 * @param 	string	MD5 Hash Site Key
-	 * @return	object
+	 * @return	mixed	Ouput of self::return.
 	 */
 	public static function getAchievements($siteKey = null) {
 		$redis = \RedisCache::getClient('cache');
@@ -219,6 +219,22 @@ class Cheevos {
 				'limit'	=> 0
 			]);
 
+			if (!empty($siteKey) && isset($return['achievements'])) {
+				$removeParents = [];
+				foreach ($return['achievements'] as $achievement) {
+					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0) {
+						$removeParents[] = $achievement['parent_id'];
+					}
+				}
+				if (count($removeParents)) {
+					foreach ($return['achievements'] as $key => $achievement) {
+						if (isset($achievement['id']) && in_array($achievement['id'], $removeParents)) {
+							unset($return['achievements'][$key]);
+						}
+					}
+				}
+			}
+
 			try {
 				$redis->setEx($redisKey, 300, serialize($return));
 			} catch (RedisException $e) {
@@ -232,10 +248,11 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get all achievement by database ID with caching.
 	 *
-	 * @param [type] $id
-	 * @return void
+	 * @access	public
+	 * @param 	integer	Achievement ID
+	 * @return	mixed	Ouput of self::return.
 	 */
 	public static function getAchievement($id) {
 		$redis = \RedisCache::getClient('cache');
