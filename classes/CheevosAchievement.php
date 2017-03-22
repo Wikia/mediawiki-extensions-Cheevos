@@ -38,9 +38,9 @@ class CheevosAchievement extends CheevosModel {
 	 */
 	public function save($forceCreate = false) {
 		if ($this->getId() !== null && !$forceCreate) {
-			$result = Cheevos::updateAchievement($this->getId(), $this->container);
+			$result = Cheevos::updateAchievement($this->getId(), $this->toArray());
 		} else {
-			$result = Cheevos::createAchievement($this->container);
+			$result = Cheevos::createAchievement($this->toArray());
 		}
 		return $result;
 	}

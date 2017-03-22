@@ -24,10 +24,10 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @return void
 	 */
 	public function save() {
-		if ($this->getId() !== NULL) {
-			Cheevos::updateCategory($this->getId(),$this->container);
+		if ($this->getId() !== null) {
+			Cheevos::updateCategory($this->getId(), $this->toArray());
 		} else {
-			Cheevos::createCategory($this->container);
+			Cheevos::createCategory($this->toArray());
 		}
 	}
 
@@ -37,7 +37,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @return void
 	 */
 	public function exists() {
-		if ($this->getId() !== NULL) {
+		if ($this->getId() !== null) {
 			$return = true;
 			try {
 				// Throws an error if it doesn't exist.

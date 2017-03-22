@@ -134,6 +134,11 @@ class CheevosModel implements ArrayAccess {
 	 * @return void
 	 */
 	public function toArray() {
+		foreach ($this->container as $key => $value) {
+			if ($value instanceof CheevosModel) {
+				$this->container[$key] = $value->toArray();
+			}
+		}
 		return $this->container;
 	}
 
@@ -143,7 +148,7 @@ class CheevosModel implements ArrayAccess {
 	 * @return string
 	 */
 	public function __toString() {
-		return json_encode($this->container);
+		return json_encode($this->toArray());
 	}
 
 }
