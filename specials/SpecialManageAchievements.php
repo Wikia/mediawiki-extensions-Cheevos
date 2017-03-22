@@ -197,8 +197,10 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
-			$this->achievement->setGlobal($this->wgRequest->getBool('global'));
-			$this->achievement->setProtected($this->wgRequest->getBool('protected'));
+			if (MASTER_WIKI === true) {
+				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
+				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
+			}
 
 			if (!count($errors)) {
 				$success = $this->achievement->save();
