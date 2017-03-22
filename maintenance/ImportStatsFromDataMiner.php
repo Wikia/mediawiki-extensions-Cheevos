@@ -59,7 +59,7 @@ class ImportStatsFromDataMiner extends Maintenance {
 		);
 		$total = $result->fetchRow();
 		$total = intval($total['total']) - $cache->get('ImportStatsFromDataMiner');
-		$this->output("Import data miner wiki totals...\n");
+		$this->output("Importing data miner wiki totals...\n");
 
 		for ($i = $start; $i <= $total; $i = $i + 1000) {
 			$this->output("Iteration start {$i}\n");
