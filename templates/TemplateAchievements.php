@@ -44,7 +44,7 @@ class TemplateAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= $this->achievementBlockRow($achievement, true);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
@@ -111,11 +111,9 @@ class TemplateAchievements {
 	 * @param	array	[Optional] Achievement Progress Information
 	 * @return	string	Built HTML
 	 */
-	public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
+	static public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
 		global $wgUser, $achPointAbbreviation;
 
-		$achievementsPage = Title::newFromText('Special:ManageAchievements');
-		$achievementsURL = $achievementsPage->getFullURL();
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
@@ -126,9 +124,22 @@ class TemplateAchievements {
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
-					<div class='p-achievement-requirements'>";
-		$HTML .= "
+					<div class='p-achievement-requirements'>
+				</div>";
+		if ($showControls) {
+			$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
+			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
+			if (
+				$wgUser->isAllowed('achievement_admin') &&
+				(MASTER_WIKI === true || (MASTER_WIKI !== true && !$achievement->isProtected() && !$achievement->isGlobal()))
+			) {
+				$HTML .= "
+					<div class='p-achievement-admin'>
+						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>
+						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
+			}
+		}
 		$HTML .= "
 				</div>
 				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$achPointAbbreviation}</span>
