@@ -165,8 +165,6 @@
 	},
 	"Hooks": {
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
-		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
-		"PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
@@ -174,10 +172,13 @@
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
+		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
 		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
+		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
+		"PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
+		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
-		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
-		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts"
+		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete"
 	},
 	"config": {
 		"CheevosHost": "",

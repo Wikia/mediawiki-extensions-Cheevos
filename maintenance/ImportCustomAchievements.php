@@ -33,11 +33,18 @@ class ImportCustomAchievements extends Maintenance {
 	 * @return	void
 	 */
 	public function execute() {
+		global $dsSiteKey;
+
 		$cache = wfGetCache(CACHE_MEMCACHED);
 		if (MASTER_WIKI !== true || (boolval($cache->get('ImportCustomAchievements')) && !$this->getOption('restart'))) {
 			throw new MWException('This script is intended to be ran from the master wiki and only once.');
 		} elseif ($this->getOption('restart')) {
 			$cache->set('ImportCustomAchievements', 0);
+		}
+
+		$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
+		if (empty($achievements)) {
+			$this->output("ERROR: Achievements could not be pulled down from the service.\n");
 		}
 
 		$db = wfGetDB(DB_MASTER);
@@ -64,15 +71,48 @@ class ImportCustomAchievements extends Maintenance {
 
 			if (in_array($row['unique_hash'], $this->uniqueHashes)) {
 				//Do comparisons and create update data.
+				$existingAchievement = null;
+				foreach ($achievements as $key => $achievement) {
+					if ($achievement->getId() == $row['aid']) {
+						$existingAchievement = $achievement;
+						break;
+					}
+				}
 
 				//Send the update to the service.
+				if ($existingAchievement !== null) {
+					if ($existingAchievement->getName() != $row['name']) {
+						$existingAchievement->setName($row['name']);
+					}
 
+					if ($existingAchievement->getDescription() != $row['description']) {
+						$existingAchievement->setDescription($row['description']);
+					}
+
+					if ($file !== false && $existingAchievement->getImage() != $file) {
+						$existingAchievement->setImage($file);
+					}
+
+					if ($existingAchievement->getName() != $row['name']) {
+						$existingAchievement->setName($row['name']);
+					}
+
+					if ($existingAchievement->getName() != $row['name']) {
+						$existingAchievement->setName($row['name']);
+					}
+
+					if ($existingAchievement->getName() != $row['name']) {
+						$existingAchievement->setName($row['name']);
+					}
+				} else {
+					$this->output("ERROR: Achievement ID {$row['aid']} could not be found from the service.\n");
+				}
 			} else {
 				//Create new achievement on the service.
 
 				if ($row['part_of_default_mega']) {
 					//Modify the existing default mega achievement.(ID: 96)
-					
+
 				}
 			}
 		}

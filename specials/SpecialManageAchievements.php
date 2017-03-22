@@ -156,7 +156,6 @@ class SpecialManageAchievements extends SpecialPage {
 		global $achImageDomainWhiteList;
 
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
-
 			$criteria = [];
 			$criteria['stats'] = $this->wgRequest->getArray("criteria_stats", []);
 			$criteria['value'] = $this->wgRequest->getInt("criteria_value");
@@ -166,7 +165,6 @@ class SpecialManageAchievements extends SpecialPage {
 			$criteria['per_site_progress_maximum'] = $this->wgRequest->getInt("criteria_per_site_progress_maximum");
 			$criteria['category_id'] = $this->wgRequest->getInt("criteria_category_id");
 			$criteria['achievement_ids'] = $this->wgRequest->getIntArray("criteria_achievement_ids",[]);
-
 
 			$this->achievement->setCriteria($criteria);
 

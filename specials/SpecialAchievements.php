@@ -30,12 +30,9 @@ class SpecialAchievements extends SpecialPage {
 		parent::__construct('Achievements');
 
 		$this->wgRequest	= $this->getRequest();
-		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
 		$this->siteKey		= $dsSiteKey;
 
-		$lookup = CentralIdLookup::factory();
-		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
 	}
 
 	/**
@@ -60,36 +57,42 @@ class SpecialAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsList() {
-		$globalId = $this->wgRequest->getVal('globalid');
-		if ($globalId == null || empty($globalId)) {
-			$globalId = $this->globalId;
-			$username = $this->wgUser->getName();
-		} else {
-			$lookup = CentralIdLookup::factory();
-			$userlookup = $lookup->localUserFromCentralId($globalId);
-			if ($userlookup) {
-				$username = $userlookup->getName();
-			} else {
-				$username = false;
+		$lookup = CentralIdLookup::factory();
+
+		$globalId = false;
+		if ($this->getUser()->isLoggedIn()) {
+			$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
+			$user = $this->getUser();
+		}
+
+		if ($this->wgRequest->getVal('globalid') > 0) {
+			$globalId = $this->wgRequest->getVal('globalid');
+			$user = $lookup->localUserFromCentralId($globalId);
+			if ($globalId < 1 || $user === null) {
+				throw new ErrorPageError('achievements', 'no_user_to_display_achievements');
 			}
 		}
 
-		Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+		if ($globalId < 1 || $user === null) {
+			throw new UserNotLoggedIn('login_to_display_achievements', 'achievements');
+		}
 
-		$awarded = Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
+		\Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+
+		$awarded = \Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
 		$achievements = [];
 
 		foreach ($awarded as $aa) {
 			if ($aa->getEarned()) {
-				$achievements[] = Cheevos\Cheevos::getAchievement($aa->getAchievement_Id());
+				$achievements[] = \Cheevos\Cheevos::getAchievement($aa->getAchievement_Id());
 			}
 		}
 
-		$categories = Cheevos\Cheevos::getCategories();
+		$categories = \Cheevos\Cheevos::getCategories();
 
 		$title = wfMessage('achievements')->escaped();
-		if ($username) {
-			$title .= " for {$username}";
+		if ($user) {
+			$title .= " for {$user->getName()}";
 		}
 
 		$this->output->setPageTitle($title);

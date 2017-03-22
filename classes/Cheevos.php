@@ -179,15 +179,16 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get all achievements with caching.
 	 *
-	 * @param [type] $site_key
-	 * @return void
+	 * @access	public
+	 * @param 	string	MD5 Hash Site Key
+	 * @return	object
 	 */
-	public static function getAchievements($site_key = null) {
+	public static function getAchievements($siteKey = null) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
-		$redisKey = 'cheevos:apicache:getAchievements:' . ( $site_key ? $site_key : 'all' );
+		$redisKey = 'cheevos:apicache:getAchievements:' . ( $siteKey ? $siteKey : 'all' );
 
 		try {
 			$cache = $redis->get($redisKey);
@@ -197,7 +198,7 @@ class Cheevos {
 
 		if (!$cache) {
 			$return = self::get('achievements/all', [
-				'site_key' => $site_key,
+				'site_key' => $siteKey,
 				'limit'	=> 0
 			]);
 

@@ -368,6 +368,16 @@ class CheevosHooks {
 		return true;
 	}
 
+	/**
+	 * Add additional valid login form error messages.
+	 *
+	 * @access	public
+	 * @param	array	Valid login form error messages.
+	 * @return	boolean True
+	 */
+	static public function onLoginFormValidErrorMessages(&$messages) {
+		$messages[] = 'login_to_display_achievements';
 
-
+		return true;
+	}
 }

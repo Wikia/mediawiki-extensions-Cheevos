@@ -2,9 +2,7 @@
 
 namespace Cheevos;
 
-class CheevosAchievement extends CheevosModel
-{
-
+class CheevosAchievement extends CheevosModel {
 	/**
 	 * Constructor
 	 * @param mixed[] $data Associated array of property values initializing the model
@@ -17,7 +15,7 @@ class CheevosAchievement extends CheevosModel
 		$this->container['name'] = isset($data['name']) ? $data['name'] : null;
 		$this->container['description'] = isset($data['description']) ? $data['description'] : null;
 		$this->container['image'] = isset($data['image']) ? $data['image'] : null;
-		$this->container['category'] = isset($data['category']) ?  new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory();
+		$this->container['category'] = isset($data['category']) ? new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory();
 		$this->container['points'] = isset($data['points']) ? $data['points'] : null;
 		$this->container['global'] = isset($data['global']) ? $data['global'] : null;
 		$this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
@@ -31,7 +29,7 @@ class CheevosAchievement extends CheevosModel
 
 	public function save() {
 		if ($this->getId() !== NULL) {
-			$result = Cheevos::updateAchievement($this->getId(),$this->container);
+			$result = Cheevos::updateAchievement($this->getId(), $this->container);
 		} else {
 			$result = Cheevos::createAchievement($this->container);
 		}
@@ -147,6 +145,17 @@ class CheevosAchievement extends CheevosModel
 			return null;
 		}
 		return $image;
+	}
+
+	/**
+	 * Set the image article name.
+	 *
+	 * @access	public
+	 * @param	string	Image Article Name - If available
+	 * @return	void
+	 */
+	public function setImage($image) {
+		$this->container['image'] = $image;
 	}
 
 	/**

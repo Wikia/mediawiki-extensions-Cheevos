@@ -6,6 +6,8 @@
 	"achievements_description": "Awards achievements to editors for varying levels of accomplishments.",
 	"no_achievements_found": "No achievements were found.",
 	"no_achievements_found_help": "To create achievements click the 'Add Achievement' button in the upper right.  If this message has been reached in error please contact an administrator for assistance.",
+	"no_user_to_display_achievements": "The specified user to display achievements for was not found.",
+	"login_to_display_achievements": "You must be logged in to display your achievements.",
 	"no_mega_achievements_found": "No mega achievements were pulled from the service.",
 	"no_mega_achievements_found_help": "To create achievements click the 'Add Achievement' button in the upper right.  If this message has been reached in error please contact an administrator for assistance.",
 	"required_by": "Required by ",
