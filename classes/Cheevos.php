@@ -177,15 +177,17 @@ class Cheevos {
 	}
 
 	public static function invalidateCache() {
+		global $wgRedisServers;
+
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:*';
+		$prefix = isset( $wgRedisServers['cache']['options']['prefix'] ) ?  $wgRedisServers['cache']['options']['prefix'] : "";
 
 		try {
 			$cache = $redis->getKeys($redisKey);
 			foreach($cache as $key) {
-				// @TODO: Make this potentially not dumb in the future.
-				$key = str_replace("Hydracheevos","cheevos",$key);
+				$key = str_replace($prefix."cheevos","cheevos",$key); // remove prefix if exists, because weird.
 				$redis->del($key);
 			}
 		} catch (RedisException $e) {
