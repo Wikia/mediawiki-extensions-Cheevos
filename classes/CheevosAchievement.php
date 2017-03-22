@@ -155,6 +155,21 @@ class CheevosAchievement extends CheevosModel {
 		return false;
 	}
 
+	/**
+	 * Sets this achievement as global.
+	 *
+	 * @access	public
+	 * @param	boolean	[Optional] Set to global.
+	 * @return	void
+	 */
+	public function setGlobal($global = true) {
+		$this->container['global'] = boolval($global);
+		if ($this->container['global']) {
+			$this->container['site_id'] = 0;
+			$this->container['site_key'] = '';
+		}
+	}
+
 	// quick fix for legacy code calls for now.
 	public function isDeleted() {
 		return false;
