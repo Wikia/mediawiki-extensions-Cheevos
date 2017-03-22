@@ -156,13 +156,8 @@ $(document).ready(function() {
 							if ("upload" in result && "result" in result.upload && result.upload.result == 'Success') {
 								$.get(apiURL, { action: 'query', titles: 'Image:' + result.upload.filename, prop: 'imageinfo', iiprop: 'url', format: 'json' }, function(result) {
 									$.each(result.query.pages, function(pageID, pageInfo) {
-
-										// $("input[name='image_url']").val(pageInfo.imageinfo[0].url);
-										// $("input[name='image_url']").keyup();
-
 										$("input[name='image']").val(pageInfo.title);
 										$("input[name='image']").keyup();
-
 
 										return;
 									});

@@ -217,12 +217,12 @@ class TemplateManageAchievements {
 
 					}
 
-		$HTML .= ($errors['image_url'] ? '<span class="error">'.$errors['image_url'].'</span>' : '')."
+		$HTML .= ($errors['image'] ? '<span class="error">'.$errors['image'].'</span>' : '')."
 			<div id='image_upload'>
 				<img id='image_loading' src='".wfExpandUrl($wgScriptPath."/extensions/Achievements/images/loading.gif")."'/>
 				<p class='image_hint'>".wfMessage('image_hint')->escaped()."</p>
 			</div>
-			<label for='image' class='label_above'>".wfMessage('achievement_image_url')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
+			<label for='image' class='label_above'>".wfMessage('achievement_image')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
 			<input id='image' name='image' type='text' value='".htmlentities($achievement->getImage(), ENT_QUOTES)."' />
 
 			".($errors['points'] ? '<span class="error">'.$errors['points'].'</span>' : '')."
