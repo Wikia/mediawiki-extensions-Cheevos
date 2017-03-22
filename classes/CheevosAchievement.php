@@ -69,7 +69,7 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function isMega() {
-		return false; // no.
+		return false; //No no no... you buy.
 	}
 
 	public function getName() {
@@ -145,17 +145,6 @@ class CheevosAchievement extends CheevosModel {
 			return null;
 		}
 		return $image;
-	}
-
-	/**
-	 * Set the image article name.
-	 *
-	 * @access	public
-	 * @param	string	Image Article Name - If available
-	 * @return	void
-	 */
-	public function setImage($image) {
-		$this->container['image'] = $image;
 	}
 
 	/**
