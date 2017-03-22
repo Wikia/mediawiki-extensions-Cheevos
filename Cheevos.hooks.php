@@ -19,7 +19,8 @@ class CheevosHooks {
 	 * @return	void
 	 */
 	static public function onRegistration() {
-		//\Cheevos\DataMiner::getUserGlobalStats([20, 30, 40, 50]);
+		global $wgDefaultUserOptions;
+		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 	}
 
 	static public function invalidateCache() {
@@ -360,9 +361,17 @@ class CheevosHooks {
 		}
 
 		if (is_array($displays) && count($displays)) {
-			$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
-			$skin->getOutput()->enableClientCache(false);
-			$text .= $templates->achievementDisplay(implode("\n", $displays));
+			if ($wgUser->getOption('cheevos-popup-notification')) {
+				// If use wants to recieve these notifications, lets place them on screen
+				$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
+				$skin->getOutput()->enableClientCache(false);
+				$text .= $templates->achievementDisplay(implode("\n", $displays));
+			} else {
+				// If not, lets delete them so that they don't sit around and flood in if this setting ever changes.'
+				foreach ($displays as $key => $value) {
+					$redis->hDel($redisKey, $key);
+				}
+			}
 		}
 
 		return true;
@@ -378,6 +387,32 @@ class CheevosHooks {
 	static public function onLoginFormValidErrorMessages(&$messages) {
 		$messages[] = 'login_to_display_achievements';
 
+<<<<<<< Updated upstream
 		return true;
 	}
+=======
+	/**
+	 * Add option to disable pop-up notifications
+	 *
+	 * @access	public
+	 * @param	object	User
+	 * @param	array	Default user preferences.
+	 * @return	boolean	True
+	 */
+	static public function onGetPreferences($user, &$preferences) {
+		//echo "<pre>";
+		//print_r($preferences);
+		//echo "</pre>";
+
+		$preferences['cheevos-popup-notification'] = [
+			'type' => 'toggle',
+			'label-message' => 'cheevos-popup-notification', // a system message
+			'section' => 'echo/cheevos-notification'
+		];
+
+			// Required return value of a hook function.
+		return true;
+	}
+
+>>>>>>> Stashed changes
 }
