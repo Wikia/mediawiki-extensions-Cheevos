@@ -49,8 +49,7 @@ class Cheevos {
 			CURLOPT_URL					=> $url,
 			CURLOPT_SSL_VERIFYHOST		=> false,
 			CURLOPT_SSL_VERIFYPEER		=> false,
-			CURLOPT_CUSTOMREQUEST		=> $type,
-			CURLOPT_CONNECTTIMEOUT 		=> 5
+			CURLOPT_CUSTOMREQUEST		=> $type
 		));
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
 			$url = $url . "/?" . http_build_query($data);
@@ -65,6 +64,8 @@ class Cheevos {
 		curl_close($ch);
 
 		$result = json_decode($result, true);
+
+
 
 		return $result;
 	}
@@ -195,7 +196,9 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		if (!$cache) {
+
+
+		if (!$cache || !unserialize($cache)) {
 			$return = self::get('achievements/all', [
 				'site_key' => $siteKey,
 				'limit'	=> 0
@@ -230,7 +233,7 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		if (!$cache) {
+		if (!$cache || !unserialize($cache)) {
 			$return = self::get("achievement/{$id}");
 			try {
 				$redis->setEx($redisKey, 300, serialize($return));
@@ -316,7 +319,7 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		if (!$cache) {
+		if (!$cache || !unserialize($cache)) {
 			$return = self::get('achievement_categories/all', [
 				'limit'	=> 0
 			]);
@@ -349,7 +352,7 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		if (!$cache) {
+		if (!$cache || !unserialize($cache)) {
 			$return = self::get("achievement_category/{$id}");
 			try {
 				$redis->setEx($redisKey, 300, serialize($return));
