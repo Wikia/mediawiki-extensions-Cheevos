@@ -78,6 +78,9 @@ class SpecialManageAchievements extends SpecialPage {
 				//$this->getUser()->isAllowed('award_achievements') <-- check this here.
 				$this->awardForm();
 				break;
+			case 'invalidatecache':
+				$this->invalidateCache();
+				break;
 		}
 
 		$this->output->addHTML($this->content);
@@ -218,7 +221,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$success = $this->achievement->save($forceCreate);
 
 				if ($success['code'] == 200) {
-					CheevosHooks::invalidateCache();
+					Cheevos\Cheevos::invalidateCache();
 				}
 
 				$page = Title::newFromText('Special:ManageAchievements');
@@ -259,7 +262,7 @@ class SpecialManageAchievements extends SpecialPage {
 			if ($this->wgRequest->getVal('confirm') == 'true') {
 
 				Cheevos\Cheevos::deleteAchievement($achievementId);
-				CheevosHooks::invalidateCache();
+				Cheevos\Cheevos::invalidateCache();
 
 				$page = Title::newFromText('Special:ManageAchievements');
 				$this->output->redirect($page->getFullURL());
@@ -401,6 +404,14 @@ class SpecialManageAchievements extends SpecialPage {
 			'errors'	=> $errors,
 			'success'	=> $awarded
 		];
+	}
+
+	private function invalidateCache() {
+		Cheevos\Cheevos::invalidateCache();
+
+		$page = Title::newFromText('Special:ManageAchievements');
+		$this->output->redirect($page->getFullURL());
+		return;
 	}
 
 	/**

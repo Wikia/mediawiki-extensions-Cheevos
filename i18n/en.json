@@ -18,6 +18,7 @@
 	"award_achievement": "Award Achievement",
 	"delete_achievement": "Delete",
 	"restore_achievement": "Restore",
+	"invalidatecache_achievement": "Clear Cache",
 	"edit_achievement": "Edit",
 	"add_achievement": "Add",
 	"achievement_name": "Display Name",
