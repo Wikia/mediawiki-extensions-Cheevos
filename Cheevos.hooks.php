@@ -387,10 +387,9 @@ class CheevosHooks {
 	static public function onLoginFormValidErrorMessages(&$messages) {
 		$messages[] = 'login_to_display_achievements';
 
-<<<<<<< Updated upstream
 		return true;
 	}
-=======
+
 	/**
 	 * Add option to disable pop-up notifications
 	 *
@@ -413,6 +412,4 @@ class CheevosHooks {
 			// Required return value of a hook function.
 		return true;
 	}
-
->>>>>>> Stashed changes
 }
