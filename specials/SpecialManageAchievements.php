@@ -127,8 +127,13 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$this->achievement = Cheevos\Cheevos::getAchievement($achievementId);
 
+
 			if ($this->achievement === false || $achievementId != $this->achievement->getId()) {
 				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
+				return;
+			}
+			if (MASTER_WIKI !== true && ($this->achievement->isProtected() || $this->achievement->isGlobal())) {
+				$this->output->showErrorPage('achievements_error', 'error_achievement_protected_global');
 				return;
 			}
 		} else {

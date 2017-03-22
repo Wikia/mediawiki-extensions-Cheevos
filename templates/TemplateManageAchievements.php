@@ -147,14 +147,13 @@ class TemplateManageAchievements {
 		$HTML .= "
 					</div>";
 		if ($showControls) {
-			if ($wgUser->isAllowed('achievement_admin')) {
+			if (
+				$wgUser->isAllowed('achievement_admin') &&
+				(MASTER_WIKI === true || (MASTER_WIKI !== true && !$achievement->isProtected() && !$achievement->isGlobal()))
+			) {
 				$HTML .= "
-					<div class='p-achievement-admin'>";
-
-					$HTML .= "
-						<span class='p-achievement-delete'><a href='{$achievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>";
-
-				$HTML .= "
+					<div class='p-achievement-admin'>
+						<span class='p-achievement-delete'><a href='{$achievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage('delete_achievement')->escaped()."</a></span>
 						<span class='p-achievement-edit'><a href='{$achievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
 			}

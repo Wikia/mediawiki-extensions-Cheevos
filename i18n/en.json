@@ -39,6 +39,7 @@
 	"error_invalid_achievement_url_domain": "Image URLs must be contained with the white list of allowed domains.",
 	"error_invalid_achievement_category": "Category is required for all achievements and may only be maximum of thirty characters long.",
 	"error_bad_wiki_site_key": "The wiki site to be loaded for this mega achievement could not be found.  It may be missing, corrupted, or deleted.  This mega achievement may need to be deleted.",
+	"error_achievement_protected_global": "This achievement can not be edited on a child wiki because it is protected or global.",
 	"error_maintenance_mode": "The achievements system is currently in maintenance.",
 	"achievement_category": "Category",
 	"achievement_category_helper": "Type new or select existing from the drop down.",
