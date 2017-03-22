@@ -65,8 +65,6 @@ class Cheevos {
 
 		$result = json_decode($result, true);
 
-
-
 		return $result;
 	}
 
@@ -195,8 +193,6 @@ class Cheevos {
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
-
-
 
 		if (!$cache || !unserialize($cache)) {
 			$return = self::get('achievements/all', [
