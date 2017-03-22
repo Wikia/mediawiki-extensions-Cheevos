@@ -96,35 +96,6 @@ class TemplateManageAchievements {
 	 *
 	 * @access	public
 	 * @param	array	Achievement Information
-	 * @return	string	Built HTML
-	 */
-	public function achievementBlockPopUp($achievement) {
-		global $achPointAbbreviation, $wgSitename, $dsSiteKey;
-
-		$achievementsPage		= Title::newFromText('Special:'.($achievement->isMega() ? 'Mega' : '').'Achievements');
-
-		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
-				<div class='p-achievement-source'>".($achievement->global ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
-				<div class='p-achievement-icon'>
-					<img src=\"{$achievement->getImageUrl()}\"/>
-				</div>
-				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
-					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
-				</div>
-				<span class='p-achievement-points'>".$achievement->getPoints()."{$achPointAbbreviation}</span>
-				<a href='{$achievementsPage->getFullURL()}'><span></span></a>
-			</div>";
-
-		return $HTML;
-	}
-
-	/**
-	 * Generates achievement block to display.
-	 *
-	 * @access	public
-	 * @param	array	Achievement Information
 	 * @param	boolean	[Optional] Show Controls
 	 * @param	array	[Optional] Achievement Progress Information
 	 * @return	string	Built HTML
@@ -145,7 +116,7 @@ class TemplateManageAchievements {
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
 		$HTML .= "
-					</div>";
+				</div>";
 		if ($showControls) {
 			if (
 				$wgUser->isAllowed('achievement_admin') &&

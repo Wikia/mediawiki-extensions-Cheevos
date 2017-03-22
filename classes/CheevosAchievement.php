@@ -60,14 +60,6 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
-	public function isPartOfDefaultMega() {
-		return false;
-	}
-
-	public function getRequires() {
-		return [];
-	}
-
 	public function isMega() {
 		return false; //No no no... you buy.
 	}

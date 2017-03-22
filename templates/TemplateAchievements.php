@@ -83,7 +83,7 @@ class TemplateAchievements {
 	public function achievementBlockPopUp($achievement) {
 		global $achPointAbbreviation, $wgSitename, $dsSiteKey;
 
-		$achievementsPage		= Title::newFromText('Special:'.($achievement->isMega() ? 'Mega' : '').'Achievements');
+		$achievementsPage = Title::newFromText('Special:Achievements');
 
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
