@@ -60,8 +60,40 @@ class ImportCustomAchievements extends Maintenance {
 
 		while ($row = $result->fetchRow()) {
 			var_dump($row);
+			$file = $this->parseFileName($row['image_url']);
+
+			if (in_array($row['unique_hash'], $this->uniqueHashes)) {
+				//Do comparisons and create update data.
+
+				//Send the update to the service.
+
+			} else {
+				//Create new achievement on the service.
+
+				if ($row['part_of_default_mega']) {
+					//Modify the existing default mega achievement.(ID: 96)
+					
+				}
+			}
 		}
 		$cache->set('ImportCustomAchievements', 1);
+	}
+
+	/**
+	 * Returns the custom file name if not a standard commons image.
+	 *
+	 * @access	private
+	 * @param	string	Image URL
+	 * @return	mixed	String file name or false if using a commons image.
+	 */
+	private function parseFileName($url) {
+		if (strpos($url, 'commons.gamepedia.com') !== false || strpos($url, 'commons.cursetech.com') !== false) {
+			return false;
+		}
+
+		$file = 'File:'.substr($url, strrpos($url, '/') + 1, strlen($url));
+
+		return $file;
 	}
 
 	private $uniqueHashes = [

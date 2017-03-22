@@ -102,7 +102,7 @@ class SpecialManageAchievements extends SpecialPage {
 			// Make it easy on the display logic side?
 		}
 
-		$this->output->setPageTitle(wfMessage('achievements')->escaped());
+		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories);
 	}
 
@@ -138,9 +138,9 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->acheivementsSave();
 
 		if ($this->achievement->exists()) {
-			$this->output->setPageTitle(wfMessage('edit_achievement')->escaped().' - '.wfMessage('achievements')->escaped().' - '.$this->achievement->getName());
+			$this->output->setPageTitle(wfMessage('edit_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped().' - '.$this->achievement->getName());
 		} else {
-			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('achievements')->escaped());
+			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped());
 		}
 		$this->content = $this->templates->achievementsForm($this->achievement, Cheevos\Cheevos::getCategories(), Cheevos\Cheevos::getKnownHooks(),
 		Cheevos\Cheevos::getAchievements($this->site_key), $return['errors']);
