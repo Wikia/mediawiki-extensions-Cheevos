@@ -5,28 +5,32 @@ namespace Cheevos;
 class CheevosAchievement extends CheevosModel {
 	/**
 	 * Constructor
-	 * @param mixed[] $data Associated array of property values initializing the model
+	 *
+	 * @access	public
+	 * @param	array	$data Associated array of property values initializing the model.
+	 * Nearly every property is type constrained to check for data integrity.  However, those that initialize submodels support taking an already initialized object or an ar
+	 * @return	void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
-		$this->container['parent_id'] = isset($data['parent_id']) ? $data['parent_id'] : 0;
-		$this->container['site_id'] = isset($data['site_id']) ? $data['site_id'] : 0;
-		$this->container['site_key'] = isset($data['site_key']) ? $data['site_key'] : "";
-		$this->container['name'] = isset($data['name']) ? $data['name'] : [];
-		$this->container['description'] = isset($data['description']) ? $data['description'] : [];
-		$this->container['image'] = isset($data['image']) ? $data['image'] : null;
-		$this->container['category'] = isset($data['category']) ? new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory();
-		$this->container['points'] = isset($data['points']) ? $data['points'] : null;
-		$this->container['global'] = isset($data['global']) ? $data['global'] : null;
-		$this->container['protected'] = isset($data['protected']) ? $data['protected'] : null;
-		$this->container['secret'] = isset($data['secret']) ? $data['secret'] : null;
-		$this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : 0;
-		$this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : 0;
-		$this->container['deleted_at'] = isset($data['deleted_at']) ? $data['deleted_at'] : 0;
-		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : 0;
-		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : 0;
-		$this->container['deleted_by'] = isset($data['deleted_by']) ? $data['deleted_by'] : 0;
-		$this->container['criteria'] = isset($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria();
+		$this->container['parent_id'] = isset($data['parent_id']) && is_int($data['parent_id']) ? $data['parent_id'] : 0;
+		$this->container['site_id'] = isset($data['site_id']) && is_int($data['site_id']) ? $data['site_id'] : 0;
+		$this->container['site_key'] = isset($data['site_key']) && is_string($data['site_key']) ? $data['site_key'] : "";
+		$this->container['name'] = isset($data['name']) && is_array($data['name']) ? $data['name'] : [];
+		$this->container['description'] = isset($data['description']) && is_array($data['description']) ? $data['description'] : [];
+		$this->container['image'] = isset($data['image']) && is_string($data['image']) ? $data['image'] : '';
+		$this->container['category'] = isset($data['category']) && $data['category'] instanceof CheevosAchievementCategory ? $data['category'] : (is_array($data['category']) ? new CheevosAchievementCategory($data['category']) : new CheevosAchievementCategory());
+		$this->container['points'] = isset($data['points']) && is_int($data['points']) ? $data['points'] : 0;
+		$this->container['global'] = isset($data['global']) && is_bool($data['global']) ? $data['global'] : false;
+		$this->container['protected'] = isset($data['protected']) && is_bool($data['protected']) ? $data['protected'] : false;
+		$this->container['secret'] = isset($data['secret']) && is_bool($data['secret']) ? $data['secret'] : false;
+		$this->container['created_at'] = isset($data['created_at']) && is_int($data['created_at']) ? $data['created_at'] : 0;
+		$this->container['updated_at'] = isset($data['updated_at']) && is_int($data['updated_at']) ? $data['updated_at'] : 0;
+		$this->container['deleted_at'] = isset($data['deleted_at']) && is_int($data['deleted_at']) ? $data['deleted_at'] : 0;
+		$this->container['created_by'] = isset($data['created_by']) && is_int($data['created_by']) ? $data['created_by'] : 0;
+		$this->container['updated_by'] = isset($data['updated_by']) && is_int($data['updated_by']) ? $data['updated_by'] : 0;
+		$this->container['deleted_by'] = isset($data['deleted_by']) && is_int($data['deleted_by']) ? $data['deleted_by'] : 0;
+		$this->container['criteria'] = isset($data['criteria']) && $data['criteria'] instanceof CheevosAchievementCriteria ? $data['criteria'] : (is_array($data['criteria']) ?  new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria());
 	}
 
 	/**

@@ -246,7 +246,7 @@ class Cheevos {
 			$return = unserialize($cache);
 		}
 
-		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement');
+		return self::return($return, 'achievements', '\Cheevos\CheevosAchievement');
 	}
 
 	/**

@@ -40,7 +40,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		if ($this->site_key == "master") {
-			$this->site_key = null;
+			$this->site_key = '';
 		}
 
 		$lookup = CentralIdLookup::factory();
@@ -163,23 +163,24 @@ class SpecialManageAchievements extends SpecialPage {
 		global $achImageDomainWhiteList;
 
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
-			$criteria = [];
-			$criteria['stats'] = $this->wgRequest->getArray("criteria_stats", []);
-			$criteria['value'] = $this->wgRequest->getInt("criteria_value");
-			$criteria['streak'] = $this->wgRequest->getText("criteria_streak");
-			$criteria['streak_progress_required'] = $this->wgRequest->getInt("criteria_streak_progress_required");
-			$criteria['streak_reset_to_zero'] = $this->wgRequest->getBool("criteria_streak_reset_to_zero");
-			$criteria['per_site_progress_maximum'] = $this->wgRequest->getInt("criteria_per_site_progress_maximum");
-			$criteria['category_id'] = $this->wgRequest->getInt("criteria_category_id");
-			$criteria['achievement_ids'] = $this->wgRequest->getIntArray("criteria_achievement_ids",[]);
-
 			$forceCreate = false;
-			if (empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
+			if (!empty($this->site_key) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
 				$forceCreate = true;
 				$this->achievement->setParent_Id($this->achievement->getId());
 			}
 			$this->achievement->setSite_Key($this->site_key);
 
+			$criteria = new \Cheevos\CheevosAchievementCriteria($criteria);
+			$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
+			$criteria->setValue($this->wgRequest->getInt("criteria_value"));
+			$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
+			$criteria->setStreak_Progress_Required($this->wgRequest->getInt("criteria_streak_progress_required"));
+			$criteria->setStreak_Reset_To_Zero($this->wgRequest->getBool("criteria_streak_reset_to_zero"));
+			$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
+			//$criteria->setDate_Range_Start();
+			//$criteria->setDate_Range_End();
+			$criteria->setCategory_Id($this->wgRequest->getInt("criteria_category_id"));
+			$criteria->setAchievement_Ids($this->wgRequest->getIntArray("criteria_achievement_ids", []));
 			$this->achievement->setCriteria($criteria);
 
 			$name = $this->wgRequest->getText('name');

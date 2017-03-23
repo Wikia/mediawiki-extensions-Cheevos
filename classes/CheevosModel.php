@@ -28,6 +28,9 @@ class CheevosModel implements ArrayAccess {
 					return $this->container[$prop];
 				} else {
 					$value = $arguments[0];
+					if (gettype($value) !== gettype($this->container[$prop])) {
+						throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The type ".gettype($value)." is not valid for ".gettype($this->container[$prop]).".");
+					}
 					$this->container[$prop] = $value;
 					return;
 				}

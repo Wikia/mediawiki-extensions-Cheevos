@@ -9,13 +9,15 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @param mixed[] $data Associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
-		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
-		$this->container['name'] = isset($data['name']) ? $data['name'] : [];
-		$this->container['slug'] = isset($data['slug']) ? $data['slug'] : null;
-		$this->container['created_at'] = isset($data['created_at']) ? $data['created_at'] : null;
-		$this->container['updated_at'] = isset($data['updated_at']) ? $data['updated_at'] : null;
-		$this->container['created_by'] = isset($data['created_by']) ? $data['created_by'] : null;
-		$this->container['updated_by'] = isset($data['updated_by']) ? $data['updated_by'] : null;
+		$this->container['id'] = isset($data['id']) && is_int($data['id']) ? $data['id'] : 0;
+		$this->container['name'] = isset($data['name']) && is_array($data['name']) ? $data['name'] : [];
+		$this->container['slug'] = isset($data['slug']) && is_string($data['slug']) ? $data['slug'] : '';
+		$this->container['created_at'] = isset($data['created_at']) && is_int($data['created_at']) ? $data['created_at'] : 0;
+		$this->container['updated_at'] = isset($data['updated_at']) && is_int($data['updated_at']) ? $data['updated_at'] : 0;
+		$this->container['deleted_at'] = isset($data['deleted_at']) && is_int($data['deleted_at']) ? $data['deleted_at'] : 0;
+		$this->container['created_by'] = isset($data['created_by']) && is_int($data['created_by']) ? $data['created_by'] : 0;
+		$this->container['updated_by'] = isset($data['updated_by']) && is_int($data['updated_by']) ? $data['updated_by'] : 0;
+		$this->container['deleted_by'] = isset($data['deleted_by']) && is_int($data['deleted_by']) ? $data['deleted_by'] : 0;
 	}
 
 	/**
