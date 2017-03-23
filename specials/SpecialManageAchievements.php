@@ -199,7 +199,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement->setImage($this->wgRequest->getVal('image'));
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
-			$category = Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
+			$category = \Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
 
 			if ($category === false) {
 				$errors['category'] = wfMessage('error_invalid_achievement_category')->escaped();
@@ -207,7 +207,7 @@ class SpecialManageAchievements extends SpecialPage {
 				if (!$category->exists()) {
 					$category->save();
 				}
-				$this->achievement->setCategory($category->toArray());
+				$this->achievement->setCategory($category);
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
