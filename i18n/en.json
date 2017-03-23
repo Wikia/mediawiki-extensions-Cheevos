@@ -119,7 +119,7 @@
 	"criteria_streak_reset_to_zero_help": "If true, progress towards the streak will be reset to zero when the streak period expires without any progress. If false, progress will only be reset when partial progress is made as described under streak_progress_required.",
 	"criteria_per_site_progress_maximum": "Per Site Progress Maximum",
 	"criteria_per_site_progress_maximum_help": "If not 0, progress towards this achievement can only be made up to this value on each individual site. For an achievement described \"Contributed to 50 different wikis\", this would be 1 and value would be 50. Note that this only makes sense for achievements which are marked global.",
-	"criteria_category_id": "Required Category",
+	"criteria_category_id": "Award if earned all achievements in category:",
 	"criteria_category_id_help": "If not 0, this achievement is awarded when all other achievements in the category are complete.",
 	"criteria_achievement_ids": "Required Achievments",
 	"criteria_achievement_ids_help": "If not empty, this achievement is awared when all of the achievements specified by the ids in this list are complete.",

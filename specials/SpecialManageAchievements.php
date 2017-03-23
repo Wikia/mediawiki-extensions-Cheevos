@@ -166,6 +166,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$forceCreate = false;
 			if (!empty($this->site_key) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
 				$forceCreate = true;
+				$this->achievement->setId(0);
 				$this->achievement->setParent_Id($this->achievement->getId());
 			}
 			$this->achievement->setSite_Key($this->site_key);

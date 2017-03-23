@@ -47,6 +47,8 @@ class ImportCustomAchievements extends Maintenance {
 			$this->output("ERROR: Achievements could not be pulled down from the service.\n");
 		}
 
+		$existCategories = $this->getCategories();
+
 		$db = wfGetDB(DB_MASTER);
 
 		$where = [
@@ -65,6 +67,8 @@ class ImportCustomAchievements extends Maintenance {
 			]
 		);
 
+		$requires = [];
+		$achievementIdMap = []; //Old ID => New ID
 		while ($row = $result->fetchRow()) {
 			$file = $this->parseFileName($row['image_url']);
 
@@ -78,69 +82,126 @@ class ImportCustomAchievements extends Maintenance {
 			var_dump($row);
 			var_dump($triggers);
 
+			$existingAchievement = null;
 			if (in_array($row['unique_hash'], $this->uniqueHashes)) {
-				//Do comparisons and create update data.
-				$existingAchievement = null;
 				foreach ($achievements as $key => $achievement) {
 					if ($achievement->getId() == $row['aid']) {
 						$existingAchievement = $achievement;
 						break;
 					}
 				}
+			}
 
-				//Send the update to the service.
-				if ($existingAchievement !== null) {
-					if ($existingAchievement->getName() != $row['name']) {
-						$existingAchievement->setName($row['name']);
-					}
+			if ($existingAchievement === null) {
+				$existingAchievement = new \Cheevos\CheevosAchievement();
+			}
 
-					if ($existingAchievement->getDescription() != $row['description']) {
-						$existingAchievement->setDescription($row['description']);
-					}
+			$existingAchievement->setName($row['name']);
 
-					if ($file !== false && $existingAchievement->getImage() != $file) {
-						$existingAchievement->setImage($file);
-					}
+			$existingAchievement->setDescription($row['description']);
 
-					if ($existingAchievement->getPoints() != $row['points']) {
-						$existingAchievement->setPoints($row['points']);
-					}
+			if ($file !== false) {
+				$existingAchievement->setImage($file);
+			}
 
-					if ($existingAchievement->isManuallyAwarded() != $row['manual_award']) {
-						if ($row['manual_award']) {
-							$existingAchievement->setCriteria([]);
-						}
-					}
+			$existingAchievement->setPoints(intval($row['points']));
 
-					if ($existingAchievement->getCriteria()->getValue() != $row['rules']['increment']) {
-						$existingAchievement->getCriteria()->setValue($row['rules']['increment']);
-					}
+			$existingAchievement->setSecret(boolval($row['secret']));
 
-					/*$criteria = $existingAchievement->getCriteria();
-					$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
-					$criteria->setValue($this->wgRequest->getInt("criteria_value"));
-					$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
-					$criteria->setStreak_Progress_Required($this->wgRequest->getInt("criteria_streak_progress_required"));
-					$criteria->setStreak_Reset_To_Zero($this->wgRequest->getBool("criteria_streak_reset_to_zero"));
-					$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
-					//$criteria->setDate_Range_Start();
-					//$criteria->setDate_Range_End();
-					$criteria->setCategory_Id($this->wgRequest->getInt("criteria_category_id"));
-					$criteria->setAchievement_Ids($this->wgRequest->getIntArray("criteria_achievement_ids", []));
-					$this->achievement->setCriteria($criteria);*/
-				} else {
-					$this->output("ERROR: Achievement ID {$row['aid']} could not be found from the service.\n");
-				}
+			$row['category_id'] = intval($row['category_id']);
+			if ($row['category_id'] > 10) {
+				$category = new \Cheevos\CheevosAchievementCategory();
 			} else {
-				//Create new achievement on the service.
+				$category = \Cheevos\Cheevos::getCategory($row['category_id']);
+			}
 
-				if ($row['part_of_default_mega']) {
-					//Modify the existing default mega achievement.(ID: 96)
+			if ($category !== false && array_key_exists($row['category_id'], $existCategories)) {
+				if (!$category->exists()) {
+					$category->setName($existCategories[$row['category_id']]['name']);
+					$category->setSlug($existCategories[$row['category_id']]['slug']);
+					$success = $category->save();
+					if ($success['code'] == 200) {
+						$category->setId(intval($success['object_id']));
+					}
+				}
+				$existingAchievement->setCategory($category);
+			}
 
+			if ($row['deleted']) {
+				$existingAchievement->setDeleted_At(time());
+			}
+
+			if ($existingAchievement->isManuallyAwarded() != $row['manual_award']) {
+				if ($row['manual_award']) {
+					$criteria = new \Cheevos\CheevosAchievementCriteria();
+					$requires[$row['aid']] = [];
 				}
 			}
+
+			$criteria = $existingAchievement->getCriteria();
+			if (!$row['manual_award']) {
+				$criteria->setStats($triggers);
+				$criteria->setValue(intval($row['rules']['increment']));
+
+				$requiresResult = $db->select(
+					['achievement_link'],
+					[
+						'requires'
+					],
+					[
+						'achievement_id' => $row['aid']
+					],
+					__METHOD__
+				);
+				while ($requiresRow = $requiresResult->fetchRow()) {
+					$requires[$row['aid']][] = intval($requiresRow['requires']);
+				}
+			}
+
+			$existingAchievement->setCriteria($criteria);
+
+			if ($row['part_of_default_mega']) {
+				//Modify the existing default mega achievement.(ID: 96)
+				$defaultMegaAdd[] = intval($row['aid']);
+			} elseif (!$row['part_of_default_mega']) {
+				$defaultMegaRemove[] = intval($row['aid']);
+			}
+
+			$forceCreate = false;
+			if (!empty($dsSiteKey) && empty($existingAchievement->getSite_Key()) && $existingAchievement->getId() > 0) {
+				$forceCreate = true;
+				$existingAchievement->setId(0);
+				$existingAchievement->setParent_Id($existingAchievement->getId());
+			}
+			$existingAchievement->setSite_Key($dsSiteKey);
+
+			//$success = $existingAchievement->save($forceCreate);
+
+			if (true || $success['code'] == 200) {
+				$achievementIdMap[$row['aid']] = intval($success['object_id']);
+				$this->output("Saved {$row['aid']} with new ID {$success['object_id']}.\n");
+				var_dump($existingAchievement->toArray());
+			} else {
+				$this->output("ERROR: Failed to save {$row['aid']}.\n");
+			}
 		}
+
+		foreach ($requires as $aid => $require) {
+			$newAid = $achievementIdMap[$aid];
+			$achievement = \Cheevos\Cheevos::getAchievement($newAid);
+			$achievement->getCriteria()->setAchievement_Ids($require);
+			//$success = $achievement->save();
+
+			if (true || $success['code'] == 200) {
+				$this->output("Updated requires IDs for new ID {$newAid}.\n");
+				var_dump($achievement->toArray());
+			} else {
+				$this->output("ERROR: Failed to update requires IDs for new ID {$newAid}.\n");
+			}
+		}
+
 		$cache->set('ImportCustomAchievements', 1);
+		\Cheevos\Cheevos::invalidateCache();
 	}
 
 	/**
@@ -158,6 +219,35 @@ class ImportCustomAchievements extends Maintenance {
 		$file = 'File:'.substr($url, strrpos($url, '/') + 1, strlen($url));
 
 		return $file;
+	}
+
+	/**
+	 * Get all categories.
+	 *
+	 * @access	private
+	 * @return	array	Category Information
+	 */
+	private function getCategories() {
+		$db = wfGetDB(DB_MASTER);
+
+		$results = $db->select(
+			['achievement_category'],
+			['*'],
+			null,
+			__METHOD__,
+			[
+				'ORDER BY'	=> 'acid ASC'
+			]
+		);
+
+		$categories = [];
+		while ($row = $results->fetchRow()) {
+			$categories[intval($row['acid'])] = [
+				'name'	=> $row['title'],
+				'slug'	=> $row['title_slug']
+			];
+		}
+		return $categories;
 	}
 
 	private $hookStatMap = [

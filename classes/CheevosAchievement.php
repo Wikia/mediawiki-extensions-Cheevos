@@ -19,11 +19,11 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @access	public
 	 * @param	array	$data Associated array of property values initializing the model.
-	 * Nearly every property is type constrained to check for data integrity.  However, those that initialize submodels support taking an already initialized object or an ar
+	 * Nearly every property is type constrained to check for data integrity.  However, those that initialize submodels support taking an already initialized object or an array for their container model.
 	 * @return	void
 	 */
 	public function __construct(array $data = null) {
-		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
+		$this->container['id'] = isset($data['id']) && is_int($data['id']) ? $data['id'] : 0;
 		$this->container['parent_id'] = isset($data['parent_id']) && is_int($data['parent_id']) ? $data['parent_id'] : 0;
 		$this->container['site_id'] = isset($data['site_id']) && is_int($data['site_id']) ? $data['site_id'] : 0;
 		$this->container['site_key'] = isset($data['site_key']) && is_string($data['site_key']) ? $data['site_key'] : "";
@@ -61,7 +61,7 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function exists() {
-		if ($this->getId() !== null) {
+		if ($this->getId() > 0) {
 			$return = true;
 			try {
 				// Throws an error if it doesn't exist.
@@ -100,6 +100,13 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
+	/**
+	 * Set the name for this achievement with automatic language code selection.
+	 *
+	 * @access	public
+	 * @param	string	Name
+	 * @return	void
+	 */
 	public function setName($name) {
 		$code = CheevosHelper::getUserLanguage();
 		if (!is_array($this->container['name'])) {
@@ -139,6 +146,13 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
+	/**
+	 * Set the description for this achievement with automatic language code selection.
+	 *
+	 * @access	public
+	 * @param	string	Description
+	 * @return	void
+	 */
 	public function setDescription($desc) {
 		$code = CheevosHelper::getUserLanguage();
 		if (!is_array($this->container['description'])) {

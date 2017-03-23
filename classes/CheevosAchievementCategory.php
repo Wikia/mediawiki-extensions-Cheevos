@@ -34,16 +34,18 @@ class CheevosAchievementCategory extends CheevosModel {
 	}
 
 	/**
-	 * Undocumented function
+	 * Save category up to the service.
 	 *
-	 * @return void
+	 * @access	public
+	 * @return	array	Success Result
 	 */
 	public function save() {
 		if ($this->getId() !== null) {
-			Cheevos::updateCategory($this->getId(), $this->toArray());
+			$result = Cheevos::updateCategory($this->getId(), $this->toArray());
 		} else {
-			Cheevos::createCategory($this->toArray());
+			$result = Cheevos::createCategory($this->toArray());
 		}
+		return $result;
 	}
 
 	/**
@@ -52,7 +54,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @return void
 	 */
 	public function exists() {
-		if ($this->getId() !== null) {
+		if ($this->getId() > 0) {
 			$return = true;
 			try {
 				// Throws an error if it doesn't exist.
@@ -80,6 +82,22 @@ class CheevosAchievementCategory extends CheevosModel {
 			return $this->container['name'][$code];
 		} else {
 			return reset($this->container['name']);
+		}
+	}
+
+	/**
+	 * Set the name for this category with automatic language code selection.
+	 *
+	 * @access	public
+	 * @param	string	Name
+	 * @return	void
+	 */
+	public function setName($name) {
+		$code = CheevosHelper::getUserLanguage();
+		if (!is_array($this->container['name'])) {
+			$this->container['name'] = [$code => $name];
+		} else {
+			$this->container['name'][$code] = $name;
 		}
 	}
 

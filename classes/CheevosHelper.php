@@ -14,20 +14,30 @@
 namespace Cheevos;
 
 class CheevosHelper {
-
 	/**
-	 * Undocumented function
+	 * Return the language code the current user.
 	 *
-	 * @return void
+	 * @access	public
+	 * @return	string	Language Code
 	 */
 	public static function getUserLanguage() {
-		global $wgLang;
-
 		try {
-			$code = $wgLang->getCode();
-		} catch (Exception $e) {
-			$code = "en"; // faulure? English is best anyway.
+			$user = \RequestContext::getMain()->getUser();
+			$code = $user->getOption('language');
+		} catch (\Exception $e) {
+			$code = "en"; //"faulure? English is best anyway."  --Cameron Chunn, 2017-03-02 15:37:33 -0600
 		}
 		return $code;
+	}
+
+	/**
+	 * Return the language for the wiki.
+	 *
+	 * @access	public
+	 * @return	string	Language Code
+	 */
+	static public function getWikiLanuage() {
+		global $wgLanguageCode;
+		return $wgLanguageCode;
 	}
 }
