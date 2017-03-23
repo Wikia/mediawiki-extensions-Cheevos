@@ -526,4 +526,29 @@ class CheevosHooks {
 
 		return true;
 	}
+
+	/**
+	 * Insert achievement page link into the personal URLs.
+	 *
+	 * @access	public
+	 * @param	array	Peronsal URLs array.
+	 * @param	object	Title object for the current page.
+	 * @param	object	SkinTemplate instance that is setting up personal urls.
+	 * @return	boolean	True
+	 */
+	static public function onPersonalUrls(array &$personalUrls, Title $title, SkinTemplate $skin) {
+		if (!$skin->getUser()->isAnon()) {
+			$url = Skin::makeSpecialUrl('Achievements');
+			$achievements = [
+				'achievements'	=> [
+					'text'		=> wfMessage('achievements')->text(),
+					'href'		=> $url,
+					'active'	=> true
+				]
+			];
+			HydraCore::array_insert_before_key($personalUrls, 'mycontris', $achievements);
+		}
+
+		return true;
+	}
 }

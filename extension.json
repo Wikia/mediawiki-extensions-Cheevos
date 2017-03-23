@@ -183,7 +183,8 @@
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
 		"WikiPointsSave": "CheevosHooks::onWikiPointsSave",
-		"GetPreferences": "CheevosHooks::onGetPreferences"
+		"GetPreferences": "CheevosHooks::onGetPreferences",
+		"PersonalUrls": "CheevosHooks::onPersonalUrls"
 	},
 	"config": {
 		"CheevosHost": "",
