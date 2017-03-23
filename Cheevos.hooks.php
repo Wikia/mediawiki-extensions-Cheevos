@@ -235,14 +235,39 @@ class CheevosHooks {
 	 * Handle CurseProfile profile edited.
 	 *
 	 * @access	public
-	 * @param	object	User making the comment.
-	 * @param	object	User of the profile being commented on.
-	 * @param	integer	Parent ID of the comment.
+	 * @param	object	User profile edited.
+	 * @param	string	Field being edited.
+	 * @param	string	Field Value
 	 * @param	string	The comment text.
 	 * @return	True
 	 */
-	static public function onCurseProfileEdited($fromUser, $userId, $inReplyTo, $commentText) {
-		self::increment('curse_profile_edit', 1, $fromUser);
+	static public function onCurseProfileEdited($user, $field, $value) {
+		self::increment('curse_profile_edit', 1, $user);
+		if (!empty($value)) {
+			switch ($field) {
+				case 'profile-favwiki':
+					self::increment('curse_profile_edit_fav_wiki', 1, $user);
+					break;
+				case 'profile-link-xbl':
+					self::increment('curse_profile_edit_link_xbl', 1, $user);
+					break;
+				case 'profile-link-psn':
+					self::increment('curse_profile_edit_link_psn', 1, $user);
+					break;
+				case 'profile-link-steam':
+					self::increment('curse_profile_edit_link_steam', 1, $user);
+					break;
+				case 'profile-link-facebook':
+					self::increment('curse_profile_edit_link_facebook', 1, $user);
+					break;
+				case 'profile-link-twitter':
+					self::increment('curse_profile_edit_link_twitter', 1, $user);
+					break;
+				case 'profile-link-reddit':
+					self::increment('curse_profile_edit_link_reddit', 1, $user);
+					break;
+			}
+		}
 		return true;
 	}
 
