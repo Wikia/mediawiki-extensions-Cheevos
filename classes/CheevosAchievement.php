@@ -1,4 +1,15 @@
 <?php
+/**
+ * Cheevos
+ * Cheevos Achievement Model
+ *
+ * @author		Cameron Chunn
+ * @copyright	(c) 2017 Curse Inc.
+ * @license		All Rights Reserved
+ * @package		Cheevos
+ * @link		http://www.curse.com/
+ *
+ **/
 
 namespace Cheevos;
 

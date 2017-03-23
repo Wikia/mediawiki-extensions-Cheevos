@@ -1,11 +1,25 @@
 <?php
+/**
+ * Cheevos
+ * Cheevos Achievement Progress Model
+ *
+ * @author		Cameron Chunn
+ * @copyright	(c) 2017 Curse Inc.
+ * @license		All Rights Reserved
+ * @package		Cheevos
+ * @link		http://www.curse.com/
+ *
+ **/
 
 namespace Cheevos;
 
 class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Constructor
-	 * @param mixed[] $data Associated array of property values initializing the model
+	 *
+	 * @access	public
+	 * @param	array	$data Associated array of property values initializing the model.
+	 * @return	void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) ? $data['id'] : null;
