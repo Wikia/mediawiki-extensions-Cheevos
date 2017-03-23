@@ -13,6 +13,13 @@
 
 class CheevosHooks {
 	/**
+	 * Shutdown Function Registered Already
+	 *
+	 * @var		boolean
+	 */
+	static private $shutdownRegistered = false;
+
+	/**
 	 * Setup anything that needs to be configured before anything else runs.
 	 *
 	 * @access	public
@@ -182,11 +189,29 @@ class CheevosHooks {
 	 * @param	object	$user: the user object who did the protection
 	 * @param	boolean	$protect*: boolean whether it was a protect or an unprotect
 	 * @param	string	$reason: Reason for protect
-	 * @param	bolean	$moveonly: boolean whether it was for move only or not
+	 * @param	boolean	$moveonly: boolean whether it was for move only or not
 	 * @return	True
 	 */
 	static public function onArticleProtectComplete(&$article, &$user, $protect, $reason, $moveonly) {
 		self::increment('article_protect', 1, $user);
+		return true;
+	}
+
+	/**
+	 * Handle article move increment.
+	 *
+	 * @access	public
+	 * @param	object	Original Title
+	 * @param	object	New Title
+	 * @param	object	The User object who did move.
+	 * @param	integer	Old Page ID
+	 * @param	integer	New Page ID
+	 * @param	string	$reason: Reason for protect
+	 * @param	object	Revision created by the move.
+	 * @return	True
+	 */
+	static public function onTitleMoveComplete(Title &$title, Title &$newTitle, User $user, $oldid, $newid, $reason, Revision $revision) {
+		self::increment('article_move', 1, $user);
 		return true;
 	}
 
@@ -325,6 +350,66 @@ class CheevosHooks {
 		return true;
 	}
 
+	/**
+	 * Handles awarding WikiPoints achievements.
+	 *
+	 * @access	public
+	 * @param	integer	Revision Edit ID
+	 * @param	integer	Local User ID
+	 * @param	integer	Article ID
+	 * @param	integer	Score for the edit, not the overall score.
+	 * @param	string	JSON of Calculation Information
+	 * @param	string	[Optional] Stated reason for these points.
+	 * @return	boolean	True
+	 */
+	static public function onWikiPointsSave($editId, $userId, $articleId, $score, $calculationInfo, $reason = '') {
+		global $wgUser;
+
+		if (($score > 0 || $score < 0) && $wgUser->getId() == $userId && $userId > 0) {
+			self::increment('wiki_points', intval($score), $wgUser);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Registers shutdown function to track daily achievements.
+	 *
+	 * @access	public
+	 * @param	object	Title
+	 * @param	object	Article
+	 * @param	object	Output
+	 * @param	object	User
+	 * @param	object	WebRequest
+	 * @param	object	Mediawiki
+	 * @return	boolean	True
+	 */
+	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
+		if (PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+			return true;
+		}
+
+		register_shutdown_function('CheevosHooks::trackVisits');
+
+		self::$shutdownRegistered = true;
+
+		return true;
+	}
+
+	/**
+	 * Handle daily visits.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	static public function trackVisits() {
+		global $wgUser;
+
+		if (PHP_SAPI === 'cli') {
+			return;
+		}
+		self::increment('visit', 1, $wgUser);
+	}
 
 	/**
 	 * Adds achievement display HTML to page output.

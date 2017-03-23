@@ -66,8 +66,17 @@ class ImportCustomAchievements extends Maintenance {
 		);
 
 		while ($row = $result->fetchRow()) {
-			var_dump($row);
 			$file = $this->parseFileName($row['image_url']);
+
+			$triggers = [];
+			$row['rules'] = json_decode($row['rules'], true);
+			foreach ($row['rules']['triggers'] as $trigger => $conditions) {
+				if (array_key_exists($trigger, $this->hookStatMap)) {
+					$triggers[] = $this->hookStatMap[$trigger];
+				}
+			}
+			var_dump($row);
+			var_dump($triggers);
 
 			if (in_array($row['unique_hash'], $this->uniqueHashes)) {
 				//Do comparisons and create update data.
@@ -99,13 +108,26 @@ class ImportCustomAchievements extends Maintenance {
 
 					if ($existingAchievement->isManuallyAwarded() != $row['manual_award']) {
 						if ($row['manual_award']) {
-							$existingAchievement->->setCriteria([]);
+							$existingAchievement->setCriteria([]);
 						}
 					}
 
-					if ($existingAchievement->getName() != $row['name']) {
-						$existingAchievement->setName($row['name']);
+					if ($existingAchievement->getCriteria()->getValue() != $row['rules']['increment']) {
+						$existingAchievement->getCriteria()->setValue($row['rules']['increment']);
 					}
+
+					/*$criteria = $existingAchievement->getCriteria();
+					$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
+					$criteria->setValue($this->wgRequest->getInt("criteria_value"));
+					$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
+					$criteria->setStreak_Progress_Required($this->wgRequest->getInt("criteria_streak_progress_required"));
+					$criteria->setStreak_Reset_To_Zero($this->wgRequest->getBool("criteria_streak_reset_to_zero"));
+					$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
+					//$criteria->setDate_Range_Start();
+					//$criteria->setDate_Range_End();
+					$criteria->setCategory_Id($this->wgRequest->getInt("criteria_category_id"));
+					$criteria->setAchievement_Ids($this->wgRequest->getIntArray("criteria_achievement_ids", []));
+					$this->achievement->setCriteria($criteria);*/
 				} else {
 					$this->output("ERROR: Achievement ID {$row['aid']} could not be found from the service.\n");
 				}
@@ -137,6 +159,23 @@ class ImportCustomAchievements extends Maintenance {
 
 		return $file;
 	}
+
+	private $hookStatMap = [
+		"ArticleDeleteComplete" => "article_delete",
+		"ArticleMergeComplete" => "article_merge",
+		"ArticleProtectComplete" => "article_protect",
+		"BlockIpComplete" => "admin_block_ip",
+		"CurseProfileAddComment" => "curse_profile_comment",
+		"CurseProfileAddFriend" => "curse_profile_add_friend",
+		"CurseProfileEdited" => "curse_profile_edit",
+		"EmailUserComplete" => "send_email",
+		"MarkPatrolledComplete" => "admin_patrol",
+		"PageContentInsertComplete" => "article_create",
+		"PageContentSaveComplete" => 'article_edit',
+		"TitleMoveComplete" => 'article_move',
+		"UploadComplete" => "file_upload",
+		"WatchArticleComplete" => "article_watch"
+	];
 
 	private $uniqueHashes = [
 		'026f8f84a0290e33a4e81d2cb54db9ad',

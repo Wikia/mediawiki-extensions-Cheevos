@@ -168,6 +168,7 @@
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
+		"BeforeInitialize":"CheevosHooks::onBeforeInitialize",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
@@ -178,8 +179,10 @@
 		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
 		"PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
 		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
+		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
+		"WikiPointsSave": "CheevosHooks::onWikiPointsSave",
 		"GetPreferences": "CheevosHooks::onGetPreferences"
 	},
 	"config": {
