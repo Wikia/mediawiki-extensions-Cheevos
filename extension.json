@@ -75,6 +75,7 @@
 		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
 		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
 		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
+		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
