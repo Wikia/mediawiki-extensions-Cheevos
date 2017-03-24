@@ -50,6 +50,7 @@
 	],
 	"SpecialPages": {
 		"ManageAchievements": "SpecialManageAchievements",
+		"AchievementStats": "SpecialAchievementStats",
 		"Achievements": "SpecialAchievements"
 	},
 	"MessagesDirs": {
@@ -61,11 +62,13 @@
 		"SpecialCheevos": "Cheevos.alias.php"
 	},
 	"APIModules": {
-		"cheevos": "CheevosAPI"
+		"cheevos": "CheevosAPI",
+		"cheevosstats": "CheevosStatsAPI"
 	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosAPI": "Cheevos.api.php",
+		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\DataMiner": "classes/DataMiner.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
 		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
@@ -80,6 +83,8 @@
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
+		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
+		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php"
 	},
@@ -96,7 +101,7 @@
 		},
 		"ext.cheevos.styles": {
 			"styles": [
-				"css/achievements.css"
+				"css/cheevos.css"
 			],
 			"dependencies": [
 				"ext.hydraCore.button",
@@ -152,10 +157,45 @@
 			],
 			"dependencies": [
 				"jquery.effects.core",
-				"jquery.effects.pulsate"
+				"jquery.effects.pulsate",
+				"mediawiki.api"
 			],
 			"targets": [
 				"desktop"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.stats.js": {
+			"scripts": [
+				"js/cheevos.stats.js"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"ext.cheevos.chart.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.chart.js": {
+			"scripts": [
+				"js/cheevos.chart.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.stats.css": {
+			"styles": [
+				"css/cheevos.stats.css"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
 			],
 			"position": "top"
 		}
