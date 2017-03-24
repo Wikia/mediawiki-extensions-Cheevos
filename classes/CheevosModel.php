@@ -20,8 +20,7 @@ class CheevosModel implements ArrayAccess {
 	public function __call($name, $arguments) {
 		// Getter and Setter
 		if (substr($name, 0, 3) == "get" || substr($name, 0, 3) == "set") {
-			$getProp = substr($name, 3);
-			$prop = strtolower($getProp);
+			$prop = $this->snipPropName($name, 3);
 			$act = substr($name, 0, 3);
 			if (array_key_exists($prop, $this->container)) {
 				if ($act == "get") {
@@ -38,8 +37,7 @@ class CheevosModel implements ArrayAccess {
 				throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The property {$prop} is not a valid property for this class.");
 			}
 		} elseif (substr($name, 0, 2) == "is") {
-			$getProp = substr($name, 2);
-			$prop = strtolower($getProp);
+			$prop = $this->snipPropName($name, 2);
 			if (array_key_exists($prop, $this->container)) {
 				$evaluate = $this->container[$prop];
 				// @TODO: this should be smarter. May not behave as expected in cases checking other stuff.
@@ -51,9 +49,28 @@ class CheevosModel implements ArrayAccess {
 			} else {
 				throw new CheevosException("[".get_class($this)."->is{$getProp}()] The property {$prop} is not a valid property for this class.");
 			}
+		} elseif (substr($name, 0, 3) == "has") {
+			$prop = $this->snipPropName($name, 3);
+			if (array_key_exists($prop, $this->container)) {
+				return true;
+			}
+			return false;
 		} else {
 			throw new CheevosException("No idea what method you thought you wanted, but {$name} isn't a valid one.");
 		}
+	}
+
+	/**
+	 * Snip property name off a function call.
+	 *
+	 * @access	private
+	 * @param	string	Unsnipped string.
+	 * @param	integer	Amount to snip.
+	 * @return	string	Property name.
+	 */
+	private function snipPropName($prop, $length) {
+		$prop = substr($prop, $length);
+		return strtolower($prop);
 	}
 
 	/**

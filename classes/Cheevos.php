@@ -141,7 +141,12 @@ class Cheevos {
 			$holder = [];
 			foreach ($return as $classme) {
 				if (is_array($classme)) {
-					$holder[] = new $class($classme);
+					$object = new $class($classme);
+					if ($object->hasId()) {
+						$holder[$object->getId()] = $object;
+					} else {
+						$holder[] = $object;
+					}
 				}
 				if ($single) {
 					break;

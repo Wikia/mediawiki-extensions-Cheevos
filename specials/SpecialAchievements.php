@@ -57,6 +57,8 @@ class SpecialAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsList() {
+		global $dsSiteKey;
+
 		$lookup = CentralIdLookup::factory();
 
 		$globalId = false;
@@ -80,15 +82,20 @@ class SpecialAchievements extends SpecialPage {
 		\Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
 
 		$awarded = \Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
-		$achievements = [];
+		$_achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
 
-		foreach ($awarded as $aa) {
-			if ($aa->getEarned()) {
-				$achievements[] = \Cheevos\Cheevos::getAchievement($aa->getAchievement_Id());
+		$achievements = [];
+		$categories = [];
+		if (!empty($_achievements)) {
+			foreach ($awarded as $aa) {
+				if ($aa->getEarned()) {
+					$achievements[$aa->getAchievement_Id()] = $_achievements[$aa->getAchievement_Id()];
+					if (!array_key_exists($achievements[$aa->getAchievement_Id()]->getCategory()->getId(), $categories)) {
+						$categories[$achievements[$aa->getAchievement_Id()]->getCategory()->getId()] = $achievements[$aa->getAchievement_Id()]->getCategory();
+					}
+				}
 			}
 		}
-
-		$categories = \Cheevos\Cheevos::getCategories();
 
 		$title = wfMessage('achievements')->escaped();
 		if ($user) {
