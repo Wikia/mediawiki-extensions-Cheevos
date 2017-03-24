@@ -45,9 +45,30 @@ class ImportCustomAchievements extends Maintenance {
 		$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
 		if (empty($achievements)) {
 			$this->output("ERROR: Achievements could not be pulled down from the service.\n");
+			exit;
+		}
+		$megaAchievement = false;
+		foreach ($achievements as $achievement) {
+			if ($achievement->getId() == 96) {
+				$megaAchievement = $achievement;
+			}
+		}
+		if ($megaAchievement === false) {
+			$this->output("ERROR: The mega achievement could not be pulled down from the service.\n");
+			exit;
 		}
 
-		$existCategories = $this->getCategories();
+		try {
+			$newCategories = \Cheevos\Cheevos::getCategories();
+		} catch (\Cheevos\CheevosException $e) {
+			$this->output("ERROR: Categories could not be pulled down from the service.\n");
+			exit;
+		}
+		if ($newCategories === false) {
+			$this->output("ERROR: Categories could not be pulled down from the service.\n");
+			exit;
+		}
+		$legacyCategories = $this->getCategories();
 
 		$db = wfGetDB(DB_MASTER);
 
@@ -109,22 +130,32 @@ class ImportCustomAchievements extends Maintenance {
 			$existingAchievement->setSecret(boolval($row['secret']));
 
 			$row['category_id'] = intval($row['category_id']);
+			$category = false;
 			if ($row['category_id'] > 10) {
-				$category = new \Cheevos\CheevosAchievementCategory();
+				foreach ($newCategories as $newCategory) {
+					if ($newCategory->getName() === $legacyCategories[$row['category_id']]) {
+						$category = $newCategory;
+					}
+				}
+				if ($category === false) {
+					$category = new \Cheevos\CheevosAchievementCategory();
+				}
 			} else {
-				$category = \Cheevos\Cheevos::getCategory($row['category_id']);
+				$category = $newCategories[$row['category_id']];
 			}
 
-			if ($category !== false && array_key_exists($row['category_id'], $existCategories)) {
+			if ($category !== false && array_key_exists($row['category_id'], $legacyCategories)) {
 				if (!$category->exists()) {
-					$category->setName($existCategories[$row['category_id']]['name']);
-					$category->setSlug($existCategories[$row['category_id']]['slug']);
+					$category->setName($legacyCategories[$row['category_id']]['name']);
+					$category->setSlug($legacyCategories[$row['category_id']]['slug']);
 					$success = $category->save();
 					if ($success['code'] == 200) {
 						$category->setId(intval($success['object_id']));
 					}
 				}
-				$existingAchievement->setCategory($category);
+				if ($category->exists()) {
+					$existingAchievement->setCategory($category);
+				}
 			}
 
 			if ($row['deleted']) {
@@ -163,8 +194,6 @@ class ImportCustomAchievements extends Maintenance {
 			if ($row['part_of_default_mega']) {
 				//Modify the existing default mega achievement.(ID: 96)
 				$defaultMegaAdd[] = intval($row['aid']);
-			} elseif (!$row['part_of_default_mega']) {
-				$defaultMegaRemove[] = intval($row['aid']);
 			}
 
 			$forceCreate = false;
@@ -175,9 +204,9 @@ class ImportCustomAchievements extends Maintenance {
 			}
 			$existingAchievement->setSite_Key($dsSiteKey);
 
-			//$success = $existingAchievement->save($forceCreate);
+			$success = $existingAchievement->save($forceCreate);
 
-			if (true || $success['code'] == 200) {
+			if ($success['code'] == 200) {
 				$achievementIdMap[$row['aid']] = intval($success['object_id']);
 				$this->output("Saved {$row['aid']} with new ID {$success['object_id']}.\n");
 				var_dump($existingAchievement->toArray());
@@ -190,14 +219,25 @@ class ImportCustomAchievements extends Maintenance {
 			$newAid = $achievementIdMap[$aid];
 			$achievement = \Cheevos\Cheevos::getAchievement($newAid);
 			$achievement->getCriteria()->setAchievement_Ids($require);
-			//$success = $achievement->save();
+			$success = $achievement->save();
 
-			if (true || $success['code'] == 200) {
+			if ($success['code'] == 200) {
 				$this->output("Updated requires IDs for new ID {$newAid}.\n");
 				var_dump($achievement->toArray());
 			} else {
 				$this->output("ERROR: Failed to update requires IDs for new ID {$newAid}.\n");
 			}
+		}
+
+		$megaAchievementIds = $megaAchievement->getCriteria()->getAchievement_Ids();
+		sort($megaAchievementIds);
+		sort($defaultMegaAdd);
+
+		if ($megaAchievementIds != $defaultMegaAdd) {
+			$megaAchievement->getCriteria()->setAchievement_Ids($defaultMegaAdd);
+			$megaAchievement->setParent_Id($megaAchievement->getId());
+			$megaAchievement->setId(0);
+			$megaAchievement->save(true);
 		}
 
 		$cache->set('ImportCustomAchievements', 1);
