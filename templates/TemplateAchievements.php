@@ -84,6 +84,8 @@ class TemplateAchievements {
 
 		$achievementsPage = Title::newFromText('Special:Achievements');
 
+		$imageUrl = $achievement->getImageUrl();
+
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getId()}'>
 				<div class='p-achievement-source'>".($achievement->isGlobal() ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
