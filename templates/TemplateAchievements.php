@@ -85,7 +85,7 @@ class TemplateAchievements {
 		$achievementsPage = Title::newFromText('Special:Achievements');
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
+			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getId()}'>
 				<div class='p-achievement-source'>".($achievement->isGlobal() ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
 				<div class='p-achievement-icon'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
@@ -159,14 +159,14 @@ class TemplateAchievements {
 				}
 			}
 		}
-		if ($status !== false && $achievement->getCriteria()->getValue() > 0 && !$status->isEarned()) {
-			$width = ($status->getProgress() / $achievement->getCriteria()->getValue()) * 100;
+		if ($status !== false && $status->getTotal() > 0 && !$status->isEarned()) {
+			$width = ($status->getProgress() / $status->getTotal()) * 100;
 			if ($width > 100) {
 				$width = 100;
 			}
 			$HTML .= "
 					<div class='p-achievement-progress'>
-						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>".$status->getProgress()."/{$achievement->getCriteria()->getValue()}</span>
+						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>".$status->getProgress()."/{$status->getTotal()}</span>
 					</div>";
 		}
 		if ($status !== false && $status->isEarned()) {
