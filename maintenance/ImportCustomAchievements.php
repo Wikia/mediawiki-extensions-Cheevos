@@ -90,6 +90,8 @@ class ImportCustomAchievements extends Maintenance {
 
 		$requires = [];
 		$achievementIdMap = []; //Old ID => New ID
+		$defaultMegaAdd = [];
+		$defaultMegaRemove = [];
 		while ($row = $result->fetchRow()) {
 			$file = $this->parseFileName($row['image_url']);
 
@@ -100,8 +102,6 @@ class ImportCustomAchievements extends Maintenance {
 					$triggers[] = $this->hookStatMap[$trigger];
 				}
 			}
-			var_dump($row);
-			var_dump($triggers);
 
 			$existingAchievement = null;
 			if (in_array($row['unique_hash'], $this->uniqueHashes)) {
@@ -194,13 +194,15 @@ class ImportCustomAchievements extends Maintenance {
 			if ($row['part_of_default_mega']) {
 				//Modify the existing default mega achievement.(ID: 96)
 				$defaultMegaAdd[] = intval($row['aid']);
+			} else {
+				$defaultMegaRemove[] = intval($row['aid']);
 			}
 
 			$forceCreate = false;
 			if (!empty($dsSiteKey) && empty($existingAchievement->getSite_Key()) && $existingAchievement->getId() > 0) {
 				$forceCreate = true;
-				$existingAchievement->setId(0);
 				$existingAchievement->setParent_Id($existingAchievement->getId());
+				$existingAchievement->setId(0);
 			}
 			$existingAchievement->setSite_Key($dsSiteKey);
 
@@ -209,34 +211,45 @@ class ImportCustomAchievements extends Maintenance {
 			if ($success['code'] == 200) {
 				$achievementIdMap[$row['aid']] = intval($success['object_id']);
 				$this->output("Saved {$row['aid']} with new ID {$success['object_id']}.\n");
-				var_dump($existingAchievement->toArray());
 			} else {
 				$this->output("ERROR: Failed to save {$row['aid']}.\n");
 			}
 		}
 
 		foreach ($requires as $aid => $require) {
-			$newAid = $achievementIdMap[$aid];
-			$achievement = \Cheevos\Cheevos::getAchievement($newAid);
+			if (array_key_exists($aid, $achievementIdMap)) {
+				$aid = $achievementIdMap[$aid];
+			}
+			$achievement = \Cheevos\Cheevos::getAchievement($aid);
 			$achievement->getCriteria()->setAchievement_Ids($require);
 			$success = $achievement->save();
 
 			if ($success['code'] == 200) {
-				$this->output("Updated requires IDs for new ID {$newAid}.\n");
-				var_dump($achievement->toArray());
+				$this->output("Updated requires IDs for new ID {$aid}.\n");
 			} else {
-				$this->output("ERROR: Failed to update requires IDs for new ID {$newAid}.\n");
+				$this->output("ERROR: Failed to update requires IDs for new ID {$aid}.\n");
 			}
 		}
 
 		$megaAchievementIds = $megaAchievement->getCriteria()->getAchievement_Ids();
 		sort($megaAchievementIds);
 		sort($defaultMegaAdd);
+		sort($defaultMegaRemove);
 
 		if ($megaAchievementIds != $defaultMegaAdd) {
-			$megaAchievement->getCriteria()->setAchievement_Ids($defaultMegaAdd);
+			$megaAchievementIds = array_merge($megaAchievementIds, $defaultMegaAdd);
+			$megaAchievementIds = array_diff($megaAchievementIds, $defaultMegaRemove);
+			foreach ($megaAchievementIds as $key => $oldId) {
+				if (array_key_exists($oldId, $achievementIdMap)) {
+					$megaAchievementIds[$key] = $achievementIdMap[$oldId];
+				}
+			}
+			$megaAchievementIds = array_unique($megaAchievementIds);
+			sort($megaAchievementIds);
+			$megaAchievement->getCriteria()->setAchievement_Ids($megaAchievementIds);
 			$megaAchievement->setParent_Id($megaAchievement->getId());
 			$megaAchievement->setId(0);
+			$megaAchievement->setSite_Key($dsSiteKey);
 			$megaAchievement->save(true);
 		}
 

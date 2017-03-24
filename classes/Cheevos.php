@@ -156,7 +156,8 @@ class Cheevos {
 
 			// If we classify things, single will only return the first.
 			if ($single) {
-				$return = $return[0];
+				reset($return);
+				$return = current($return);
 			}
 		}
 		return $return;
