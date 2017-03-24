@@ -133,7 +133,7 @@ class ImportCustomAchievements extends Maintenance {
 			$category = false;
 			if ($row['category_id'] > 10) {
 				foreach ($newCategories as $newCategory) {
-					if ($newCategory->getName() === $legacyCategories[$row['category_id']]) {
+					if ($newCategory->getName() === $legacyCategories[$row['category_id']]['name']) {
 						$category = $newCategory;
 					}
 				}
@@ -157,6 +157,7 @@ class ImportCustomAchievements extends Maintenance {
 					$existingAchievement->setCategory($category);
 				}
 			}
+			$newCategories[$category->getId()] = $category;
 
 			if ($row['deleted']) {
 				$existingAchievement->setDeleted_At(time());

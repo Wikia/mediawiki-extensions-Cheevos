@@ -284,7 +284,7 @@ class Cheevos {
 			$return = unserialize($cache);
 		}
 
-		$return = [ $return ]; // return expect array of results. fake it.
+		$return = [ $return ]; //The return function expects an array of results.
 		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement', true);
 	}
 
