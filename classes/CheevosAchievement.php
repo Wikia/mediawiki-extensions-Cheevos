@@ -120,12 +120,6 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
-
-	public function getHash() {
-		// @TODO Decide if this is a bad idea.
-		return md5($this->container['id']);
-	}
-
 	public function getCategoryId() {
 		return $this->container['category']['id'];
 	}

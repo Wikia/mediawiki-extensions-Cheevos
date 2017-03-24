@@ -94,7 +94,8 @@ class CheevosHooks {
 			$return = \Cheevos\Cheevos::increment($data);
 
 			if (isset($return['earned'])) {
-				foreach($return['earned'] as $achievement) {
+				foreach ($return['earned'] as $achievement) {
+					$achievement = new \Cheevos\CheevosAchievement($achievement);
 					\CheevosHooks::displayAchievement($achievement);
 				}
 			}
@@ -441,7 +442,7 @@ class CheevosHooks {
 		try {
 			//Using a global key.
 			$redisKey = 'cheevos:display:'.$globalId;
-			$redis->hSet($redisKey, $dsSiteKey."-".$achievement->getHash(), $HTML);
+			$redis->hSet($redisKey, $dsSiteKey."-".$achievement->getId(), $HTML);
 			$redis->expire($redisKey, 3600);
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
