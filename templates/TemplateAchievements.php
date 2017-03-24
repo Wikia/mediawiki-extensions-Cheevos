@@ -18,12 +18,11 @@ class TemplateAchievements {
 	 * @access	public
 	 * @param	array	Array of Achievement Object
 	 * @param	array	Array of Category Information
-	 * @param	object	Progress object for loaded user if applicable.
-	 * @param	array	Hidden Options
-	 * @param	string	Search Term
+	 * @param	array	[Optional] Array of User Progress for loaded user if applicable.
+	 * @param	array	[Optional] Array of User Status for loaded user if applicable.
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories) {
+	public function achievementsList($achievements, $categories, $status = []) {
 		global $wgOut, $wgRequest, $wgUser;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
@@ -44,7 +43,7 @@ class TemplateAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false), $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
@@ -81,13 +80,13 @@ class TemplateAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function achievementBlockPopUp($achievement) {
-		global $achPointAbbreviation, $wgSitename, $dsSiteKey;
+		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
 
 		$achievementsPage = Title::newFromText('Special:Achievements');
 
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getHash()}'>
-				<div class='p-achievement-source'>".($achievement->global ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
+				<div class='p-achievement-source'>".($achievement->isGlobal() ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
 				<div class='p-achievement-icon'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
@@ -95,7 +94,7 @@ class TemplateAchievements {
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 				</div>
-				<span class='p-achievement-points'>".$achievement->getPoints()."{$achPointAbbreviation}</span>
+				<span class='p-achievement-points'>".$achievement->getPoints()."{$wgAchPointAbbreviation}</span>
 				<a href='{$achievementsPage->getFullURL()}'><span></span></a>
 			</div>";
 
@@ -108,24 +107,37 @@ class TemplateAchievements {
 	 * @access	public
 	 * @param	array	Achievement Information
 	 * @param	boolean	[Optional] Show Controls
-	 * @param	array	[Optional] Achievement Progress Information
+	 * @param	object	[Optional] Achievement Status Information
+	 * @param	array	[Optional] All loaded achievements for showing required criteria.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $progress = []) {
-		global $wgUser, $achPointAbbreviation;
+	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
+		global $wgUser, $wgAchPointAbbreviation;
 
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row".(isset($progress['date']) && $progress['date'] > 0 ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
+			<div class='p-achievement-row".($status !== false && $status->isEarned() ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
 				<div class='p-achievement-icon'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
-					<div class='p-achievement-requirements'>
-				</div>";
+					<div class='p-achievement-requirements'>";
+		if (count($achievement->getCriteria()->getAchievement_Ids())) {
+			$HTML .= "
+						<div class='p-achievement-requires'>
+						".wfMessage('requires')->escaped();
+			foreach ($achievement->getCriteria()->getAchievement_Ids() as $requiresAid) {
+				$HTML .= "
+							<span>".(isset($achievements[$requiresAid]) ? $achievements[$requiresAid]->getName() : "FATAL ERROR LOADING REQUIRED ACHIEVEMENTS - PLEASE FIX THIS")."</span>";
+			}
+			$HTML .= "
+						</div>";
+		}
+		$HTML .= "
+					</div>";
 		if ($showControls) {
 			$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
 			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
@@ -147,9 +159,26 @@ class TemplateAchievements {
 				}
 			}
 		}
+		if ($status !== false && $achievement->getCriteria()->getValue() > 0 && !$status->isEarned()) {
+			$width = ($status->getProgress() / $achievement->getCriteria()->getValue()) * 100;
+			if ($width > 100) {
+				$width = 100;
+			}
+			$HTML .= "
+					<div class='p-achievement-progress'>
+						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>".$status->getProgress()."/{$achievement->getCriteria()->getValue()}</span>
+					</div>";
+		}
+		if ($status !== false && $status->isEarned()) {
+			$timestamp = new MWTimestamp($status->getEarned_At());
+			$HTML .= "
+					<div class='p-achievement-earned'>
+						".$timestamp->getTimestamp(TS_DB)."
+					</div>";
+		}
 		$HTML .= "
 				</div>
-				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$achPointAbbreviation}</span>
+				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$wgAchPointAbbreviation}</span>
 			</div>";
 
 		return $HTML;

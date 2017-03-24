@@ -188,7 +188,8 @@
 	},
 	"config": {
 		"CheevosHost": "",
-		"CheevosClientId": ""
+		"CheevosClientId": "",
+		"AchPointAbbreviation": "<img src=\"/extensions/WikiPoints/images/gp30.png\"/>"
 	},
 	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1

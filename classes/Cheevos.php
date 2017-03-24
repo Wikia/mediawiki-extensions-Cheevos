@@ -504,7 +504,7 @@ class Cheevos {
 	 * Undocumented function
 	 *
 	 * @param array $data
-	 * @return void
+	 * @return	mixed
 	 */
 	public static function stats($data = []) {
 		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
@@ -515,15 +515,36 @@ class Cheevos {
 	/**
 	 * Undocumented function
 	 *
+	 * @access	public
+	 * @param	integer	$globalId
+	 * @param	string	$siteKey
+	 * @return	mixed
+	 */
+	public static function getUserStatus($globalId, $siteKey = null) {
+		$return = self::get(
+			'achievements/status',
+			[
+				'limit'	=> 0,
+				'user_id' => intval($globalId),
+				'site_key' => $siteKey
+			]
+		);
+
+		return self::return($return, 'status', 'Cheevos\CheevosAchievementStatus');
+	}
+
+	/**
+	 * Undocumented function
+	 *
 	 * @param [type] $globalId
 	 * @param [type] $categoryId
 	 * @param [type] $siteKey
-	 * @return void
+	 * @return	mixed
 	 */
 	public static function getUserProgress($globalId, $categoryId = null, $siteKey = null) {
 		$return = self::get('achievements/progress', [
 			'limit'	=> 0,
-			'user_id' => $globalId,
+			'user_id' => intval($globalId),
 			'category_id' => $categoryId,
 			'site_key' => $siteKey
 		]);
@@ -535,7 +556,7 @@ class Cheevos {
 	 * Undocumented function
 	 *
 	 * @param [type] $id
-	 * @return void
+	 * @return	mixed
 	 */
 	public static function getProgress($id) {
 		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.

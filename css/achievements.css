@@ -51,8 +51,8 @@
 	}
 }
 
-.p-achievement-row .p-achievement-icon>img,
-#p-achievement-notices .p-achievement-icon>img {
+.p-achievement-row .p-achievement-icon > img,
+#p-achievement-notices .p-achievement-icon > img {
 	filter: grayscale(75%);
 	max-height: 80px;
 	max-width: 80px;
@@ -60,8 +60,8 @@
 	min-width: 80px;
 }
 
-.p-achievement-row.earned .p-achievement-icon>img,
-#p-achievement-notices .p-achievement-icon>img {
+.p-achievement-row.earned .p-achievement-icon > img,
+#p-achievement-notices .p-achievement-icon > img {
 	filter: none;
 }
 
@@ -239,28 +239,28 @@
 	align-self: auto;
 }
 
-.p-achievement-points>img {
+.p-achievement-points > img {
 	margin-left: 2px;
 	margin-top: -4px;
 	max-height: 18px;
 	max-width: 18px;
 }
 
-.p-achievement-required_by>span:last-child:after,
-.p-achievement-requires>span:last-child:after {
-	content: "";
-}
-
-.p-achievement-required_by>span:after,
-.p-achievement-requires>span:after {
+.p-achievement-required_by > span:after,
+.p-achievement-requires > span:after {
 	color: #000000;
 	content: ", ";
 }
 
-.skin-hydradark .p-achievement-required_by>span:after,
-.skin-hydradark .p-achievement-requires>span:after {
+.skin-hydradark .p-achievement-required_by > span:after,
+.skin-hydradark .p-achievement-requires > span:after {
 	color: #eee;
 	content: ", ";
+}
+
+.p-achievement-required_by > span:last-child:after,
+.p-achievement-requires > span:last-child:after {
+	content: "";
 }
 
 .p-achievement-requirements {
@@ -276,15 +276,15 @@
 	align-self: auto;
 }
 
-.p-achievement-requires {
+.p-achievement-requires > span {
 	color: #AB7F3C;
 }
 
-.skin-hydradark .p-achievement-requires {
+.skin-hydradark .p-achievement-requires > span {
 	color: #ffdead;
 }
 
-.p-achievement-required_by {
+.p-achievement-required_by > span {
 	color: #7FFFD4;
 }
 
@@ -295,7 +295,7 @@
 	top: 3px;
 }
 
-.p-achievement-admin>span {
+.p-achievement-admin > span {
 	display: inline-block;
 }
 
@@ -309,7 +309,7 @@
 	top: 40px;
 }
 
-.p-achievement-progress>span {
+.p-achievement-progress > span {
 	display: inline-block;
 	font-size: 1.2em;
 	height: 19px;
@@ -321,11 +321,11 @@
 	top: -5px;
 }
 
-.p-achievement-row.earned .p-achievement-progress>span {
+.p-achievement-row.earned .p-achievement-progress > span {
 	color: white;
 }
 
-.skin-hydradark .p-achievement-progress>span {
+.skin-hydradark .p-achievement-progress > span {
 	color: white;
 }
 
@@ -599,7 +599,7 @@ div#image_upload {
 	width: 100px;
 }
 
-div#image_upload>p {
+div#image_upload > p {
 	height: 100%;
 	left: 0;
 	line-height: 100px;
@@ -611,7 +611,7 @@ div#image_upload>p {
 	width: 100%;
 }
 
-div#image_upload>p.image_hint {
+div#image_upload > p.image_hint {
 	font-family: sans-serif !important;
 	line-height: 33px;
 }
@@ -641,7 +641,7 @@ div#image_upload img {
 	vertical-align: middle;
 }
 
-.helper_mark>span {
+.helper_mark > span {
 	background-color: #EEEEEE;
 	border-radius: 10px;
 	bottom: 135%;
@@ -659,7 +659,7 @@ div#image_upload img {
 	z-index: 20;
 }
 
-.helper_mark>span:after {
+.helper_mark > span:after {
 	background-color: #EEEEEE;
 	bottom: -5px;
 	-webkit-box-shadow: -4px -4px 5px 2px #EEEEEE, 4px 4px 5px 1px rgba(50, 50, 50, 0.75);

@@ -28,7 +28,7 @@ A white list of domains that are allowed to be used for achievement image URLs. 
 Default:
 	['gamepedia.com', 'gamepedia.local', 'cursecdn.com', 'cursecdn.local']
 
-	$achPointAbbreviation
+	$wgAchPointAbbreviation
 The achievement point abbreviation that appears after points display.  This can be any valid HTML.
 Default:
 	'<img src="/extensions/WikiPoints/images/gp30.png"/>'

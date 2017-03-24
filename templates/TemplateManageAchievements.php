@@ -63,7 +63,7 @@ class TemplateManageAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, false, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
@@ -110,7 +110,7 @@ class TemplateManageAchievements {
 		$achievementsURL	= $achievementsPage->getFullURL();
 		$category = $achievement->getCategory();
 
-		$HTML = TemplateAchievements::achievementBlockRow($achievement, false);
+		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, false, $allAchievements);
 
 		$HTML .= "<h2>".wfMessage('general_achievement_section')->escaped()."</h2>";
 

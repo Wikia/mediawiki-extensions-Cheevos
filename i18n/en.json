@@ -124,5 +124,6 @@
 	"criteria_achievement_ids": "Required Achievments",
 	"criteria_achievement_ids_help": "If not empty, this achievement is awared when all of the achievements specified by the ids in this list are complete.",
 	"prefs-cheevos-notification": "Achievement Notifications",
-	"cheevos-popup-notification": "Show toast notifications for newly awarded achievements"
+	"cheevos-popup-notification": "Show toast notifications for newly awarded achievements",
+	"error_cheevos_service": "There was an error with the Cheevos service.  If this error continues please report it to an administrator.  The error reported is: \"$1\""
 }

@@ -79,21 +79,27 @@ class SpecialAchievements extends SpecialPage {
 			throw new UserNotLoggedIn('login_to_display_achievements', 'achievements');
 		}
 
-		\Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+		try {
+			\Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+			$_statuses = \Cheevos\Cheevos::getUserStatus($globalId, $this->siteKey);
+			$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
+		} catch (\Cheevos\CheevosException $e) {
+			throw new ErrorPageError('achievements', 'error_cheevos_service', [$e->getMessage()]);
+		}
 
-		$awarded = \Cheevos\Cheevos::getUserProgress($globalId, null, $this->siteKey);
-		$_achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
-
-		$achievements = [];
 		$categories = [];
-		if (!empty($_achievements)) {
-			foreach ($awarded as $aa) {
-				if ($aa->getEarned()) {
-					$achievements[$aa->getAchievement_Id()] = $_achievements[$aa->getAchievement_Id()];
-					if (!array_key_exists($achievements[$aa->getAchievement_Id()]->getCategory()->getId(), $categories)) {
-						$categories[$achievements[$aa->getAchievement_Id()]->getCategory()->getId()] = $achievements[$aa->getAchievement_Id()]->getCategory();
-					}
+		if (!empty($achievements)) {
+			foreach ($achievements as $aid => $achievement) {
+				if (!array_key_exists($achievement->getCategory()->getId(), $categories)) {
+					$categories[$achievement->getCategory()->getId()] = $achievement->getCategory();
 				}
+			}
+		}
+
+		$statuses = [];
+		if (!empty($_statuses)) {
+			foreach ($_statuses as $_status) {
+				$statuses[$_status->getAchievement_Id()] = $_status;
 			}
 		}
 
@@ -103,7 +109,7 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		$this->output->setPageTitle($title);
-		$this->content = $this->templates->achievementsList($achievements, $categories);
+		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses);
 	}
 
 

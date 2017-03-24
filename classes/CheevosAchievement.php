@@ -89,15 +89,19 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function getName() {
+		global $wgSitename;
+
 		if ($this->container['name'] == null || !count($this->container['name'])) {
 			return "";
 		}
 		$code = CheevosHelper::getUserLanguage();
 		if (array_key_exists($code, $this->container['name']) && isset($this->container['name'][$code])) {
-			return $this->container['name'][$code];
+			$name = $this->container['name'][$code];
 		} else {
-			return reset($this->container['name']);
+			$name = reset($this->container['name']);
 		}
+
+		return str_replace("%1", $wgSitename, $name);
 	}
 
 	/**
