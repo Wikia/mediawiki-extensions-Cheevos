@@ -104,12 +104,12 @@ class CheevosStatsAPI extends ApiBase {
 		}
 
 
-
-		$curse_accounts = \DynamicSettings\DS::getWikiManagers();
-		var_dump($curse_accounts); die();
-
-
 		$curse_global_ids = [];
+
+		$curseAccounts = \DynamicSettings\DS::getWikiManagers();
+		foreach ($curseAccounts as $key => $localUser) {
+			$user_global_ids[] = $lookup->centralIdFromLocalUser($localUser);
+		}
 
 		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null,$curse_global_ids);
 		$topNonCurseUser = isset($topNonCurseAchieverCall['user_id']) ? $topNonCurseAchieverCall['user_id'] : false;
