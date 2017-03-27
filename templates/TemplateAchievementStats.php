@@ -13,33 +13,13 @@
 
 class TemplateAchievementStats {
 
-	public function achievementsStats($achievements, $categories, $wikis) {
+	public function achievementsStats($wikis) {
 		global $wgOut, $wgRequest, $wgUser;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		$HTML = "";
-
-		$customAchievements = [];
-
-		foreach($achievements as $a) {
-			if ($a->getParent_Id() !== 0) {
-				$customAchievements[$a->getSite_Key()][] = $a;
-			}
-		}
-
-		$data = [
-			'wikisWithCustomAchievements' => count($customAchievements),
-			'totalWikis' => count($wikis)
-		];
-
-		// Some sort of crazy way of passing data into the DOM that might be dumb.
-		$HTML .= "<div id=\"dataHolder\" style=\"display: none;\" ";
-			foreach($data as $key => $value) {
-				$HTML .= " data-${key}=\"{$value}\"";
-			}
-		$HTML .= "></div>";
 
 		$wikiSelectOptions = ['<option value="all">All Wikis</option>'];
 		foreach ($wikis as $wiki) {
@@ -61,41 +41,39 @@ class TemplateAchievementStats {
 							<table>
 								<tr>
 									<th>Total number of Achievements</th>
-									<td>".count($achievements)."</td>
+									<td class=\"dataPoint\" data-name=\"totalAchievements\">???</td>
 								</tr>
 								<tr>
 									<th>Average Achievements per Wiki:</th>
-									<td>???</td>
+									<td class=\"dataPoint\" data-name=\"averageAchievementsPerWiki\">???</td>
 								</tr>
 								<tr>
 									<th>Total Achievements Earned:</th>
-									<td>???</td>
+									<td class=\"dataPoint\" data-name=\"totalEarnedAchievements\">???</td>
 								</tr>
 								<tr>
 									<th>Total Mega Achievements Earned:</th>
-									<td>???</td>
+									<td class=\"dataPoint\" data-name=\"totalEarnedMegaAchievements\">???</td>
 								</tr>
 								<tr>
 									<th>Number of Achievement-Engaged Users:</th>
-									<td>???</td>
+									<td class=\"dataPoint\" data-name=\"engagedUsers\">???</td>
 								</tr>
 							</table>
 						</div>
 					</div>
 					<div class=\"col-8\">
 						<div class=\"achievement-box\">
-
-							<div>
-							<img src=\"http://www.gravatar.com/avatar/c16612aced057a7d3fa0cc0a02afd916?d=mm&s=96\">
-							Top Achiever Gamepedia-wide: Cchunn
+							<div id=\"topAchieverGlobal\">
+							<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+							Top Achiever Gamepedia-wide: <span class=\"achieverName\">???</span>
 							</div>
 						</div>
 						<div class=\"achievement-box\">
-							<div>
-							<img src=\"http://www.gravatar.com/avatar/c16612aced057a7d3fa0cc0a02afd916?d=mm&s=96\">
-							Top Non-Curse Achiever: Cchunn
+							<div id=\"topNonCurseAchieverGlobal\">
+							<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+							Top Non-Curse Achiever: <span class=\"achieverName\">???</span>
 							</div>
-
 						</div>
 					</div>
 					<div class=\"col-4\">
@@ -104,17 +82,77 @@ class TemplateAchievementStats {
 						</div>
 					</div>
 					<div class=\"col-12\">
-						<div class=\"achievement-box\">
-
-							Mega Achievements Earned List.
-
+						<div class=\"achievement-box table-box\">
+							<table id=\"all_sites_mega_list\" class=\"compact hover order-column stripe row-border\">
+								<thead>
+									<tr>
+										<th>User</th>
+										<th>Mega</th>
+										<th>Award Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>N/A</td>
+										<td>N/A</td>
+										<td>N/A</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>";
 
 
 		// VIEW FOR INDIVIDUAL WIKIS
-		$HTML .= "<div id=\"wikiStats\" style=\"display: none;\">THIS BE THE STATS FOR A WIKI</div>";
+		$HTML .= "<div id=\"wikiStats\" style=\"display: none;\" class=\"col-group\">
+					<div class=\"col-8\">
+						<div class=\"achievement-box\">
+							<table>
+								<tr>
+									<th>Total number of Achievements</th>
+									<td class=\"dataPointWiki\" data-name=\"totalAchievements\">???</td>
+
+									<th>Total Mega Achievements Earned:</th>
+									<td class=\"dataPointWiki\" data-name=\"totalEarnedMegaAchievements\">???</td>
+								</tr>
+								<tr>
+									<th>Total Achievements Earned:</th>
+									<td class=\"dataPointWiki\" data-name=\"totalEarnedAchievements\">???</td>
+
+									<th></th>
+									<td></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class=\"col-4\">
+						<div class=\"achievement-box\">
+							<div id=\"topAchieverThisWiki\">
+								<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+								Top Achiever for this wiki: <span class=\"achieverName\">???</span>
+							</div>
+						</div>
+					</div>
+					<div class=\"col-12\">
+						<div class=\"achievement-box table-box\">
+							<table id=\"per_wiki_stats\" class=\"compact hover order-column stripe row-border\">
+								<thead>
+									<tr>
+										<th>Achievement</th>
+										<th>Description</th>
+										<th>Category</th>
+										<th>Earned</th>
+										<th>User %</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>";
 
 
 		//$HTML .= "<pre>".print_r($achievements,1)."</pre><pre>".print_r($categories,1)."</pre>";

@@ -33,6 +33,14 @@
 
 }
 
+.table-box {
+	background: #fff;
+}
+
+.table-box table {
+	color: #000 !important;
+}
+
 
 /*!
  * Fluidable Grid System 1.3

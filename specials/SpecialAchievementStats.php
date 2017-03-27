@@ -77,13 +77,10 @@ class SpecialAchievementStats extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsStats() {
-		$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
-		$categories = Cheevos\Cheevos::getCategories();
 		$sites = \DynamicSettings\Wiki::loadAll();
 
-
 		$this->output->setPageTitle(wfMessage('achievement_stats')->escaped());
-		$this->content = $this->templates->achievementsStats($achievements, $categories, $sites);
+		$this->content = $this->templates->achievementsStats($sites);
 	}
 
 	/**

@@ -559,6 +559,30 @@ class Cheevos {
 	 * @param [type] $id
 	 * @return	mixed
 	 */
+	public static function getProgressCount($site_key = null, $achievement_id = null) {
+		$return = self::get("achievements/progress/count",[
+			"achievement_id" => $achievement_id,
+			"site_key"	=> $site_key
+		]); // return expect array of results. fake it.
+		return self::return($return);
+	}
+
+
+
+	public static function getProgressTop($site_key = null, $ingore_users = []) {
+		$return = self::get("achievements/progress/top",[
+			"ignore_users" => implode(",",$ingore_users),
+			"site_key"	=> $site_key
+		]); // return expect array of results. fake it.
+		return self::return($return);
+	}
+
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $id
+	 * @return	mixed
+	 */
 	public static function getProgress($id) {
 		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.
 		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress', true);

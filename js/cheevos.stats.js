@@ -2,26 +2,132 @@
 	console.log('Cheevos Stats Code Loaded.');
 	var api = new mw.Api();
 
-
-
-	// Pie chart for Custom Achievements.
-	var customAchievementsPie = new Chart($("#customAchievementsPie"), {
-		type: 'pie',
-		data: {
-			labels: ["Have Custom","Standard",],
-			datasets: [{
-					data: [
-						getData('wikisWithCustomAchievements'),
-						(getData('totalWikis') - getData('wikisWithCustomAchievements')),
-					],
-					backgroundColor: ["#FF6384","#36A2EB"],
-					hoverBackgroundColor: ["#FF6384","#36A2EB"]
-				}]
-		},
-		options: { responsive: true }
+	// Initialize DataTable for ALL SITE on load.
+	$("#all_sites_mega_list").DataTable({
+		dom: 'Blfrtip',
+		buttons: [
+			'csv', 'excel', 'pdf'
+		]
 	});
 
+	function allWikiDisplay() {
+		$("#wikiStats").hide();
+		$("#allStats").show();
 
+		api.get({
+			action: 'cheevosstats',
+			do: 'getGlobalStats',
+			format: 'json',
+			formatversion: 2
+		}).done(function (result) {
+			if (result.success) {
+				var data = result.data;
+
+				$(".dataPoint").each(function(){
+					var name = $(this).attr('data-name');
+					if (data[name] !== null) {
+						$(this).html(data[name]);
+					}
+				});
+
+				$("#topAchieverGlobal .achieverImage").attr('src',data.topAchiever.img);
+				$("#topAchieverGlobal .achieverName").html(data.topAchiever.name);
+
+				$("#topNonCurseAchieverGlobal .achieverImage").attr('src', data.topAchieverNonCurse.img);
+				$("#topNonCurseAchieverGlobal .achieverName").html(data.topAchieverNonCurse.name);
+
+				new Chart($("#customAchievementsPie"), {
+					type: 'pie',
+					data: {
+						labels: ["Have Custom", "Standard"],
+						datasets: [{
+							data: [
+								data.wikisWithCustomAchievements,
+								(data.totalWikis - data.wikisWithCustomAchievements),
+							],
+							backgroundColor: ["#FF6384", "#36A2EB"],
+							hoverBackgroundColor: ["#FF6384", "#36A2EB"]
+						}]
+					},
+					options: { responsive: true }
+				});
+			}
+		});
+
+	}
+
+	// Initialize DataTables on WIKI SITE Load.
+	var siteTable = $("#per_wiki_stats").DataTable({
+		"columnDefs": [
+			{ // last row action buttons
+				"targets": -1,
+				"orderable": false,
+				"data": null,
+				"defaultContent": "<button>Action</button>"
+			},{ // yon localization number for Earned
+				"targets": 3,
+				"render": function (data, type, row) {
+					return parseInt(data).toLocaleString();
+				}
+			},{ //
+				"targets": 4,
+				"render": function (data, type, row) {
+					return data.toString() + "%";
+				}
+			}
+		],
+		"columns": [
+			{ "data": "name" },
+			{ "data": "description" },
+			{ "data": "category" },
+			{ "data": "earned" },
+			{ "data": "userpercent" },
+			{}
+		],
+		buttons: [
+			'csv', 'excel', 'pdf'
+		],
+		dom: 'Blfrtip'
+	});
+
+	function singleWikiDisplay() {
+		$("#allStats").hide();
+		$("#wikiStats").show();
+
+		var data = getHashArguments();
+		var wiki = data.wiki;
+
+		// Refresh magical table with new fresh dank data :100:
+		var ajaxUrl = '/api.php?format=json'
+					+ '&action=cheevosstats'
+					+ '&do=getWikiStatsTable'
+					+ '&wiki=' + wiki;
+		siteTable.ajax.url(ajaxUrl).load();
+
+		api.get({
+			action: 'cheevosstats',
+			do: 'getWikiStats',
+			format: 'json',
+			wiki: wiki,
+			formatversion: 2
+		}).done(function (result) {
+			if (result.success) {
+				var data = result.data;
+				console.log(data);
+
+				$(".dataPointWiki").each(function () {
+					var name = $(this).attr('data-name');
+					if (data[name] !== null) {
+						$(this).html(data[name]);
+					}
+				});
+
+				$("#topAchieverThisWiki .achieverImage").attr('src', data.topAchiever.img);
+				$("#topAchieverThisWiki .achieverName").html(data.topAchiever.name);
+			}
+		});
+
+	}
 
 
 	$("#wikiSelector").change(function(){
@@ -47,18 +153,9 @@
 
 		// All Wikis Stat
 		if (args.wiki == "all") {
-			$("#wikiStats").hide();
-			$("#allStats").show();
-
-
-
-
-
+			allWikiDisplay();
 		} else {
-			$("#allStats").hide();
-			$("#wikiStats").show();
-
-
+			singleWikiDisplay();
 		}
 
 	}

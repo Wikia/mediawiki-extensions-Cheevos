@@ -171,7 +171,8 @@
 			],
 			"dependencies": [
 				"mediawiki.api",
-				"ext.cheevos.chart.js"
+				"ext.cheevos.chart.js",
+				"ext.cheevos.dataTables"
 			],
 			"targets": [
 				"desktop",
@@ -198,7 +199,21 @@
 				"mobile"
 			],
 			"position": "top"
+		},
+		"ext.cheevos.dataTables": {
+			"styles": [
+				"css/cheevos.dataTables.css"
+			],
+			"scripts": [
+				"js/cheevos.dataTables.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
 		}
+
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "",

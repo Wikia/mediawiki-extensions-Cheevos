@@ -53,6 +53,9 @@ class CheevosStatsAPI extends ApiBase {
 			case 'getWikiStats':
 				$response = $this->getWikiStats();
 				break;
+			case 'getWikiStatsTable':
+				$response = $this->getWikiStatsTable();
+				break;
 			default:
 				$this->dieUsageMsg(['invaliddo', $this->params['do']]);
 				break;
@@ -65,15 +68,134 @@ class CheevosStatsAPI extends ApiBase {
 
 
 	public function getGlobalStats() {
+		$achievements = Cheevos\Cheevos::getAchievements();
+		$categories = Cheevos\Cheevos::getCategories();
+		$wikis = \DynamicSettings\Wiki::loadAll();
+
+		$progressCount = Cheevos\Cheevos::getProgressCount();
+		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
+
+		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,96);
+		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
 
-		return ['success' => true];
+		$customAchievements = [];
+
+		foreach($achievements as $a) {
+			if ($a->getParent_Id() !== 0) {
+				$customAchievements[$a->getSite_Key()][] = $a;
+			}
+		}
+
+		$lookup = CentralIdLookup::factory();
+
+		$topAchieverCall = Cheevos\Cheevos::getProgressTop();
+		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
+
+		if (!$topUser) {
+			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+		} else {
+			$user = $lookup->localUserFromCentralId($topUser);
+			if ($user) {
+				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
+			} else {
+				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'http://placehold.it/96x96'];
+			}
+		}
+
+
+
+		$curse_accounts = \DynamicSettings\DS::getWikiManagers();
+		var_dump($curse_accounts); die();
+
+
+		$curse_global_ids = [];
+
+		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null,$curse_global_ids);
+		$topNonCurseUser = isset($topNonCurseAchieverCall['user_id']) ? $topNonCurseAchieverCall['user_id'] : false;
+
+		if (!$topNonCurseUser) {
+			$topNonCurseAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+		} else {
+
+			$userNonCurse = $lookup->localUserFromCentralId($topNonCurseUser);
+			if ($user) {
+				$topNonCurseAchiever = ['name'=>$userNonCurse->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($userNonCurse->getEmail())))."?d=mm&amp;s=96"];
+			} else {
+				$topNonCurseAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topNonCurseUser)",'img'=>'http://placehold.it/96x96'];
+			}
+		}
+
+		$data = [
+			'wikisWithCustomAchievements' => count($customAchievements),
+			'totalWikis' => count($wikis),
+			'totalAchievements' => count($achievements),
+			'averageAchievementsPerWiki' => 0,
+			'totalEarnedAchievements' => number_format($totalEarnedAchievements),
+			'totalEarnedMegaAchievements' => number_format($totalEarnedAchievementsMega),
+			'engagedUsers' => 0,
+			'topAchiever' => $topAchiever,
+			'topAchieverNonCurse' => $topNonCurseAchiever,
+		];
+
+		return ['success' => true, 'data' => $data];
 	}
 
-	public function getWikilStats() {
+	public function getWikiStats() {
+		$this->params = $this->extractRequestParams();
+		$site_key = $this->params['wiki'];
+
+		$achievements = Cheevos\Cheevos::getAchievements($site_key);
+
+		$progressCount = Cheevos\Cheevos::getProgressCount($site_key);
+		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
+
+		$progressCountMega = Cheevos\Cheevos::getProgressCount($site_key,96);
+		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
+
+		$topAchieverCall = Cheevos\Cheevos::getProgressTop($site_key);
+		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
+
+		if (!$topUser) {
+			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+		} else {
+			$lookup = CentralIdLookup::factory();
+			$user = $lookup->localUserFromCentralId($topUser);
+			if ($user) {
+				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
+			} else {
+				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'http://placehold.it/96x96'];
+			}
+		}
 
 
-		return ['success' => true];
+		$data = [
+			'totalAchievements' => count($achievements),
+			'totalEarnedAchievements' => number_format($totalEarnedAchievements),
+			'totalEarnedMegaAchievements' => number_format($totalEarnedAchievementsMega),
+			'topAchiever' => $topAchiever,
+		];
+
+		return ['success' => true, 'data' => $data];
+	}
+
+	public function getWikiStatsTable() {
+		$this->params = $this->extractRequestParams();
+		$site_key = $this->params['wiki'];
+		$data = [];
+
+		$achievements = Cheevos\Cheevos::getAchievements($site_key);
+		foreach($achievements as $a) {
+			$data[] = [
+				"name" => $a->getName(),
+				"description" => $a->getDescription(),
+				"category" => $a->getCategory()->getName(),
+				"earned" => "9000",
+				"userpercent" => "1.23"
+			];
+		}
+
+		return ['success' => true, 'data' => $data, 'extra_data' => $extra];
 	}
 
 	/**
@@ -88,16 +210,8 @@ class CheevosStatsAPI extends ApiBase {
 				ApiBase::PARAM_TYPE		=> 'string',
 				ApiBase::PARAM_REQUIRED => true
 			],
-			'curse_id' => [
-				ApiBase::PARAM_TYPE		=> 'integer',
-				ApiBase::PARAM_REQUIRED => false
-			],
-			'limit' => [
-				ApiBase::PARAM_TYPE		=> 'integer',
-				ApiBase::PARAM_REQUIRED => false
-			],
-			'hashes' => [
-				ApiBase::PARAM_TYPE		=> 'string', //Actually a JSON string of a single dimensional array.
+			'wiki' => [
+				ApiBase::PARAM_TYPE		=> 'string',
 				ApiBase::PARAM_REQUIRED => false
 			]
 		];
@@ -112,9 +226,7 @@ class CheevosStatsAPI extends ApiBase {
 	public function getParamDescription() {
 		return [
 			'do'		=> 'Action to take.',
-			'curse_id'	=> 'Curse ID of the user in the database for data retrieval.',
-			'limit'		=> 'Limit the number of achievements return.',
-			'hashes'	=> 'Hashes to acknowledge awards for.'
+			'wiki'		=> 'The wiki to filter by'
 		];
 	}
 
