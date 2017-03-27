@@ -255,6 +255,7 @@ class ImportCustomAchievements extends Maintenance {
 		}
 
 		$cache->set('ImportCustomAchievements', 1);
+		$cache->set('ImportAchievementsMap', json_encode($achievementIdMap));
 		\Cheevos\Cheevos::invalidateCache();
 	}
 

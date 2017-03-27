@@ -26,7 +26,7 @@ class CheevosAchievementProgress extends CheevosModel {
 		$this->container['achievement_id'] = isset($data['achievement_id']) && is_int($data['achievement_id']) ? $data['achievement_id'] : 0;
 		$this->container['user_id'] = isset($data['user_id']) && is_int($data['user_id']) ? $data['user_id'] : 0;
 		$this->container['site_id'] = isset($data['site_id']) && is_int($data['site_id']) ? $data['site_id'] : 0;
-		$this->container['site_key'] = isset($data['site_key']) && is_string($data['site_id']) ? $data['site_key'] : '';
+		$this->container['site_key'] = isset($data['site_key']) && is_string($data['site_key']) ? $data['site_key'] : '';
 		$this->container['earned'] = isset($data['earned']) && is_bool($data['earned']) ? $data['earned'] : false;
 		$this->container['manual_award'] = isset($data['manual_award']) && is_bool($data['manual_award']) ? $data['manual_award'] : false;
 		$this->container['awarded_at'] = isset($data['awarded_at']) && is_int($data['awarded_at']) ? $data['awarded_at'] : 0;
