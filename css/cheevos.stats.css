@@ -15,22 +15,21 @@
 	border: 1px solid #505050;
 }
 
-.achievement-box table {
+.achievement-box table.stat-table {
 	width: 100%;
 	padding: 0;
 	margin: 0;
 	border: 0;
 }
 
-.achievement-box table th {
+.achievement-box table.stat-table th {
 	text-align: left;
 	padding: 0 0 0 5px;
 }
 
-.achievement-box table td {
+	.achievement-box table.stat-table td {
 	text-align: right;
 	padding: 0 5px 0 0;
-
 }
 
 .table-box {
@@ -41,13 +40,41 @@
 	color: #000 !important;
 }
 
+@keyframes flickerAnimation {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
 #loadingStats {
-	width: 100%;
+	color: #5cb85c;
+	margin-left: 5px;
+	animation: flickerAnimation 2s infinite;
+}
+
+@keyframes flickerAnimation2 {
+	0% {
+		color: #fff;
+	}
+	50% {
+		color: #5cb85c;
+	}
+	100% {
+		color: #fff;
+	}
+}
+
+.dataTables_empty {
 	background-color: #5cb85c;
 	border: 1px solid #4cae4c;
 	color: #fff;
-	text-align: center;
-	padding: 5px;
+	animation: flickerAnimation2 2s infinite;
 }
 
 #loadingError {

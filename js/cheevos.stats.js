@@ -1,34 +1,75 @@
 (function(mw, $) {
+
+	/***
+	 *      ______   ________  ________  __    __  _______
+	 *     /      \ /        |/        |/  |  /  |/       \
+	 *    /$$$$$$  |$$$$$$$$/ $$$$$$$$/ $$ |  $$ |$$$$$$$  |
+	 *    $$ \__$$/ $$ |__       $$ |   $$ |  $$ |$$ |__$$ |
+	 *    $$      \ $$    |      $$ |   $$ |  $$ |$$    $$/
+	 *     $$$$$$  |$$$$$/       $$ |   $$ |  $$ |$$$$$$$/
+	 *    /  \__$$ |$$ |_____    $$ |   $$ \__$$ |$$ |
+	 *    $$    $$/ $$       |   $$ |   $$    $$/ $$ |
+	 *     $$$$$$/  $$$$$$$$/    $$/     $$$$$$/  $$/
+	 *
+	 *
+	 *
+	 */
+
 	console.log('Cheevos Stats Code Loaded.');
 	var api = new mw.Api();
 
-	// Initialize DataTable for ALL SITE on load.
-	$("#all_sites_mega_list").DataTable({
-		dom: 'Blfrtip',
-		buttons: [
-			'csv', 'excel', 'pdf'
-		]
-	});
+	/***
+	 *     __    __  ________  __        _______   ________  _______    ______
+	 *    /  |  /  |/        |/  |      /       \ /        |/       \  /      \
+	 *    $$ |  $$ |$$$$$$$$/ $$ |      $$$$$$$  |$$$$$$$$/ $$$$$$$  |/$$$$$$  |
+	 *    $$ |__$$ |$$ |__    $$ |      $$ |__$$ |$$ |__    $$ |__$$ |$$ \__$$/
+	 *    $$    $$ |$$    |   $$ |      $$    $$/ $$    |   $$    $$< $$      \
+	 *    $$$$$$$$ |$$$$$/    $$ |      $$$$$$$/  $$$$$/    $$$$$$$  | $$$$$$  |
+	 *    $$ |  $$ |$$ |_____ $$ |_____ $$ |      $$ |_____ $$ |  $$ |/  \__$$ |
+	 *    $$ |  $$ |$$       |$$       |$$ |      $$       |$$ |  $$ |$$    $$/
+	 *    $$/   $$/ $$$$$$$$/ $$$$$$$$/ $$/       $$$$$$$$/ $$/   $$/  $$$$$$/
+	 *
+	 *
+	 *
+	 */
 
 	function showLoading() {
-		$("#loadingError").hide();
+		$("#loadingError").slideUp();
 		$("#loadingStats").show();
-
 	}
 
 	function hideLoading() {
-		$("#loadingStats").hide();
+		setTimeout(function(){
+			$("#loadingStats").hide();
+		},500);
 	}
 
 	function showError(err) {
 		$("#loadingStats").hide();
-		$("#loadingError").html('<strong>Error Loading Stats:</strong> '+err).show();
+		$("#loadingError").html('<strong>Error Loading Stats:</strong> '+err).slideDown();
 	}
+
+	/***
+	 *      ______   __        __              __       __  ______  __    __  ______   ______
+	 *     /      \ /  |      /  |            /  |  _  /  |/      |/  |  /  |/      | /      \
+	 *    /$$$$$$  |$$ |      $$ |            $$ | / \ $$ |$$$$$$/ $$ | /$$/ $$$$$$/ /$$$$$$  |
+	 *    $$ |__$$ |$$ |      $$ |            $$ |/$  \$$ |  $$ |  $$ |/$$/    $$ |  $$ \__$$/
+	 *    $$    $$ |$$ |      $$ |            $$ /$$$  $$ |  $$ |  $$  $$<     $$ |  $$      \
+	 *    $$$$$$$$ |$$ |      $$ |            $$ $$/$$ $$ |  $$ |  $$$$$  \    $$ |   $$$$$$  |
+	 *    $$ |  $$ |$$ |_____ $$ |_____       $$$$/  $$$$ | _$$ |_ $$ |$$  \  _$$ |_ /  \__$$ |
+	 *    $$ |  $$ |$$       |$$       |      $$$/    $$$ |/ $$   |$$ | $$  |/ $$   |$$    $$/
+	 *    $$/   $$/ $$$$$$$$/ $$$$$$$$/       $$/      $$/ $$$$$$/ $$/   $$/ $$$$$$/  $$$$$$/
+	 *
+	 *
+	 *
+	 */
 
 	function allWikiDisplay() {
 		showLoading();
 		$("#wikiStats").hide();
+		$("#megas").hide();
 		$("#allStats").show();
+
 
 		api.get({
 			action: 'cheevosstats',
@@ -78,14 +119,85 @@
 
 	}
 
+	/***
+	 *     __       __  ________   ______    ______    ______
+	 *    /  \     /  |/        | /      \  /      \  /      \
+	 *    $$  \   /$$ |$$$$$$$$/ /$$$$$$  |/$$$$$$  |/$$$$$$  |
+	 *    $$$  \ /$$$ |$$ |__    $$ | _$$/ $$ |__$$ |$$ \__$$/
+	 *    $$$$  /$$$$ |$$    |   $$ |/    |$$    $$ |$$      \
+	 *    $$ $$ $$/$$ |$$$$$/    $$ |$$$$ |$$$$$$$$ | $$$$$$  |
+	 *    $$ |$$$/ $$ |$$ |_____ $$ \__$$ |$$ |  $$ |/  \__$$ |
+	 *    $$ | $/  $$ |$$       |$$    $$/ $$ |  $$ |$$    $$/
+	 *    $$/      $$/ $$$$$$$$/  $$$$$$/  $$/   $$/  $$$$$$/
+	 *
+	 *
+	 *
+	 */
+
+	// Initialize DataTable for ALL SITE on load.
+	var megaTable = $("#all_sites_mega_list").DataTable({
+		dom: 'Blfrtip',
+		"language": {
+			"emptyTable": "Loading data for table..."
+		},
+		"columns": [
+			{ "data": "user" },
+			{ "data": "mega" },
+			{ "data": "awarded" }
+		],
+		buttons: [
+			'csv', 'excel', 'pdf'
+		]
+	});
+
+	function megasDisplay() {
+		showLoading();
+		$("#allStats").hide();
+		$("#wikiStats").hide();
+		$("#megas").show();
+
+		// Refresh magical table with new fresh dank data :100:
+		var ajaxUrl = '/api.php?format=json'
+			+ '&action=cheevosstats'
+			+ '&do=getMegasTable';
+
+		megaTable.clear().draw();
+		megaTable.ajax.url(ajaxUrl).load();
+
+		hideLoading();
+	}
+
+	/***
+	 *      ______   ______  __    __   ______   __        ________        __       __  ______  __    __  ______
+	 *     /      \ /      |/  \  /  | /      \ /  |      /        |      /  |  _  /  |/      |/  |  /  |/      |
+	 *    /$$$$$$  |$$$$$$/ $$  \ $$ |/$$$$$$  |$$ |      $$$$$$$$/       $$ | / \ $$ |$$$$$$/ $$ | /$$/ $$$$$$/
+	 *    $$ \__$$/   $$ |  $$$  \$$ |$$ | _$$/ $$ |      $$ |__          $$ |/$  \$$ |  $$ |  $$ |/$$/    $$ |
+	 *    $$      \   $$ |  $$$$  $$ |$$ |/    |$$ |      $$    |         $$ /$$$  $$ |  $$ |  $$  $$<     $$ |
+	 *     $$$$$$  |  $$ |  $$ $$ $$ |$$ |$$$$ |$$ |      $$$$$/          $$ $$/$$ $$ |  $$ |  $$$$$  \    $$ |
+	 *    /  \__$$ | _$$ |_ $$ |$$$$ |$$ \__$$ |$$ |_____ $$ |_____       $$$$/  $$$$ | _$$ |_ $$ |$$  \  _$$ |_
+	 *    $$    $$/ / $$   |$$ | $$$ |$$    $$/ $$       |$$       |      $$$/    $$$ |/ $$   |$$ | $$  |/ $$   |
+	 *     $$$$$$/  $$$$$$/ $$/   $$/  $$$$$$/  $$$$$$$$/ $$$$$$$$/       $$/      $$/ $$$$$$/ $$/   $$/ $$$$$$/
+	 *
+	 *
+	 *
+	 */
+
 	// Initialize DataTables on WIKI SITE Load.
 	var siteTable = $("#per_wiki_stats").DataTable({
+		"language": {
+			"emptyTable": "Loading data for table..."
+		},
 		"columnDefs": [
 			{ // last row action buttons
 				"targets": -1,
 				"orderable": false,
-				"data": null,
-				"defaultContent": "<button>Action</button>"
+				"data": function(row, type, set, meta) {
+					if (row.earned > 0) {
+						return "<button>View Users</button>";
+					} else {
+						return "";
+					}
+				},
 			},{ // yon localization number for Earned
 				"targets": 3,
 				"render": function (data, type, row) {
@@ -115,16 +227,19 @@
 	function singleWikiDisplay() {
 		showLoading();
 		$("#allStats").hide();
+		$("#megas").hide();
 		$("#wikiStats").show();
 
 		var data = getHashArguments();
 		var wiki = data.wiki;
+
 
 		// Refresh magical table with new fresh dank data :100:
 		var ajaxUrl = '/api.php?format=json'
 					+ '&action=cheevosstats'
 					+ '&do=getWikiStatsTable'
 					+ '&wiki=' + wiki;
+		siteTable.clear().draw();
 		siteTable.ajax.url(ajaxUrl).load();
 
 		api.get({
@@ -158,6 +273,23 @@
 	}
 
 
+
+	/***
+	 *     __         ______    ______   ______   ______
+	 *    /  |       /      \  /      \ /      | /      \
+	 *    $$ |      /$$$$$$  |/$$$$$$  |$$$$$$/ /$$$$$$  |
+	 *    $$ |      $$ |  $$ |$$ | _$$/   $$ |  $$ |  $$/
+	 *    $$ |      $$ |  $$ |$$ |/    |  $$ |  $$ |
+	 *    $$ |      $$ |  $$ |$$ |$$$$ |  $$ |  $$ |   __
+	 *    $$ |_____ $$ \__$$ |$$ \__$$ | _$$ |_ $$ \__/  |
+	 *    $$       |$$    $$/ $$    $$/ / $$   |$$    $$/
+	 *    $$$$$$$$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/
+	 *
+	 *
+	 *
+	 */
+
+
 	$("#wikiSelector").change(function(){
 		var val = $(this).val();
 		changeHash({'wiki': val});
@@ -182,21 +314,28 @@
 		// All Wikis Stat
 		if (args.wiki == "all") {
 			allWikiDisplay();
+		} else if(args.wiki == "megas") {
+			megasDisplay();
 		} else {
 			singleWikiDisplay();
 		}
 
 	}
 
-	/**
-	  *   _    _           _____ _    _ _____ _   _  _____
-	  *  | |  | |   /\    / ____| |  | |_   _| \ | |/ ____|
-	  *  | |__| |  /  \  | (___ | |__| | | | |  \| | |  __
-	  *  |  __  | / /\ \  \___ \|  __  | | | | . ` | | |_ |
-	  *  | |  | |/ ____ \ ____) | |  | |_| |_| |\  | |__| |
-	  *  |_|  |_/_/    \_\_____/|_|  |_|_____|_| \_|\_____|
-	  */
-
+	/***
+	 *     __    __   ______    ______   __    __  ______  __    __   ______
+	 *    /  |  /  | /      \  /      \ /  |  /  |/      |/  \  /  | /      \
+	 *    $$ |  $$ |/$$$$$$  |/$$$$$$  |$$ |  $$ |$$$$$$/ $$  \ $$ |/$$$$$$  |
+	 *    $$ |__$$ |$$ |__$$ |$$ \__$$/ $$ |__$$ |  $$ |  $$$  \$$ |$$ | _$$/
+	 *    $$    $$ |$$    $$ |$$      \ $$    $$ |  $$ |  $$$$  $$ |$$ |/    |
+	 *    $$$$$$$$ |$$$$$$$$ | $$$$$$  |$$$$$$$$ |  $$ |  $$ $$ $$ |$$ |$$$$ |
+	 *    $$ |  $$ |$$ |  $$ |/  \__$$ |$$ |  $$ | _$$ |_ $$ |$$$$ |$$ \__$$ |
+	 *    $$ |  $$ |$$ |  $$ |$$    $$/ $$ |  $$ |/ $$   |$$ | $$$ |$$    $$/
+	 *    $$/   $$/ $$/   $$/  $$$$$$/  $$/   $$/ $$$$$$/ $$/   $$/  $$$$$$/
+	 *
+	 *
+	 *
+	 */
 
 	if ("onhashchange" in window) {
 		$(window).on('hashchange', function (e) {

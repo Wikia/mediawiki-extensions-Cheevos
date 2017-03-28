@@ -66,9 +66,7 @@ class SpecialAchievements extends SpecialPage {
 			$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
 			$user = $this->getUser();
 
-			$test = CheevosHooks::increment('achievement_engagement',1,$user);
-			var_dump($test);
-			die();
+			CheevosHooks::increment('achievement_engagement',1,$user);
 		}
 
 		if ($this->wgRequest->getVal('globalid') > 0) {

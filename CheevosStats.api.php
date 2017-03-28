@@ -56,6 +56,9 @@ class CheevosStatsAPI extends ApiBase {
 			case 'getWikiStatsTable':
 				$response = $this->getWikiStatsTable();
 				break;
+			case 'getMegasTable':
+				$response = $this->getMegasTable();
+				break;
 			default:
 				$this->dieUsageMsg(['invaliddo', $this->params['do']]);
 				break;
@@ -81,8 +84,8 @@ class CheevosStatsAPI extends ApiBase {
 		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,$wgCheevosMegaAchievementId);
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
-		$progressCountEngagged = Cheevos\Cheevos::getProgressCount(null,$wgCheevosAchievementEngagementId);
-		$totalEarnedAchievementsEngagged = isset($progressCountEngagged['total']) ? $progressCountEngagged['total'] : "N/A";
+		$progressCountEngaged = Cheevos\Cheevos::getProgressCount(null,$wgCheevosAchievementEngagementId);
+		$totalEarnedAchievementsEngaged = isset($progressCountEngaged['total']) ? $progressCountEngaged['total'] : "N/A";
 
 
 		$customAchievements = [];
@@ -141,7 +144,7 @@ class CheevosStatsAPI extends ApiBase {
 			'averageAchievementsPerWiki' => "N/I",
 			'totalEarnedAchievements' => number_format($totalEarnedAchievements),
 			'totalEarnedMegaAchievements' => number_format($totalEarnedAchievementsMega),
-			'engagedUsers' => $totalEarnedAchievementsEngagged,
+			'engagedUsers' => $totalEarnedAchievementsEngaged,
 			'topAchiever' => $topAchiever,
 			'topAchieverNonCurse' => $topNonCurseAchiever,
 		];
@@ -192,19 +195,77 @@ class CheevosStatsAPI extends ApiBase {
 		$site_key = $this->params['wiki'];
 		$data = [];
 
+		$db = wfGetDB(DB_MASTER);
+		$userCount = $db->selectRow(
+			'user',
+			['COUNT(*) as `count`'],
+			'',
+			__METHOD__
+		);
+		$userCount = $userCount->count;
+
 		$achievements = Cheevos\Cheevos::getAchievements($site_key);
 		foreach($achievements as $a) {
+
+			$earned = Cheevos\Cheevos::getProgressCount($site_key,$a->getId());
+			$totalEarned = isset($earned['total']) ? $earned['total'] : 0;
+			$userPercent = ($totalEarned > 0) ? ( ($totalEarned / $userCount) * 100 ) : 0;
+
 			$data[] = [
 				"name" => $a->getName(),
 				"description" => $a->getDescription(),
 				"category" => $a->getCategory()->getName(),
-				"earned" => "9000",
-				"userpercent" => "1.23"
+				"earned" => $totalEarned,
+				"userpercent" => $userPercent
 			];
 		}
 
-		return ['success' => true, 'data' => $data, 'extra_data' => $extra];
+		return ['success' => true, 'data' => $data];
 	}
+
+
+	public function getMegasTable() {
+		global $wgCheevosMegaAchievementId;
+
+		$lookup = CentralIdLookup::factory();
+		$achievementStore = [];
+		$data = [];
+
+		$progress = Cheevos\Cheevos::getAchievementProgress([
+			'user_id' => 0,
+			'achievement_id' => $wgCheevosMegaAchievementId,
+			'earned' => 1,
+			'limit' => 0
+		]);
+
+		foreach ($progress as $p) {
+			$achievementId = $p->getAchievement_Id();
+			if (!isset($achievementStore[$achievementId])) {
+				$achievementStore[$achievementId] = Cheevos\Cheevos::getAchievement($achievementId);
+			}
+			$achievement = $achievementStore[$achievementId];
+
+			$user = $lookup->localUserFromCentralId($p->getUser_Id());
+			$userName = ($user) ? $user->getName() : "User #".$p->getUser_Id();
+
+			$data[] = [
+				'user' => $userName,
+				'mega' => $achievement->getName(),
+				'awarded' => date("m/d/Y h:i A", $p->getAwarded_At())
+			];
+		}
+
+		if (empty($data)) {
+			$data[] = [
+				'user' => "N/A",
+				'mega' => "N/A",
+				'awarded' => "N/A"
+			];
+		}
+
+		return ['success' => true, 'data' => $data];
+	}
+
 
 	/**
 	 * Requirements for API call parameters.

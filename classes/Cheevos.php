@@ -596,12 +596,12 @@ class Cheevos {
 
 
 
-	public static function getProgressTop($site_key = null, $ingore_users = [], $achievement_id = null) {
+	public static function getProgressTop($site_key = null, $ingore_users = [], $achievement_id = null, $limit = 1) {
 		$return = self::get("achievements/progress/top",[
 			"ignore_users" => implode(",",$ingore_users),
 			"site_key"	=> $site_key,
 			"achievement_id" => $achievement_id,
-			"limit"	=> 0
+			"limit"	=> $limit
 		]); // return expect array of results. fake it.
 		return self::return($return);
 	}

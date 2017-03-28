@@ -482,6 +482,10 @@ class CheevosHooks {
 
 		if (is_array($displays) && count($displays)) {
 			if ($wgUser->getOption('cheevos-popup-notification')) {
+				if ($displays > 3) {
+					// Per HYD-784. Only show 3 at a time for a better user experience.
+					$displays = array_slice($displays, 0, 3);
+				}
 				// If use wants to recieve these notifications, lets place them on screen
 				$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
 				$skin->getOutput()->enableClientCache(false);

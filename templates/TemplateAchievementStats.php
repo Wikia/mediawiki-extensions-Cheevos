@@ -21,18 +21,25 @@ class TemplateAchievementStats {
 
 		$HTML = "";
 
-		$wikiSelectOptions = ['<option value="all">All Wikis</option>'];
+		$wikiSelectOptions = [
+			'<option value="all">All Wikis</option>',
+			'<option value="megas">Mega Achievements</option>',
+			'<option disabled="disabled">----------</option>',
+			'<option value="master">Master Wiki</option>'
+		];
 		foreach ($wikis as $wiki) {
 			$wikiSelectOptions[] = "<option value=\"". $wiki->getSiteKey() ."\">". $wiki->getName() ."</option>";
 		}
 
-		$HTML .= "<div class=\"navbar\">
+		$HTML .= "
+
+				<div class=\"navbar\">
 					Showing Stats for
 					<select id=\"wikiSelector\">".implode("",$wikiSelectOptions)."</select>
-					<button>Export as CSV</button>
+					<span id=\"loadingStats\">Loading Stats...</span>
 				</div>";
 
-		$HTML .= "<div id=\"loadingStats\">Loading Stats...</div>";
+		$HTML .= "";
 		$HTML .= "<div id=\"loadingError\" style=\"display: none;\">Error Loading Stats</div>";
 
 		// VIEW FOR ALL WIKIS
@@ -40,15 +47,15 @@ class TemplateAchievementStats {
 				<div id=\"allStats\" style=\"display: none;\" class=\"col-group\">
 					<div class=\"col-12\">
 						<div class=\"achievement-box\">
-							<table>
+							<table class=\"stat-table\">
 								<tr>
 									<th>Total number of Achievements</th>
 									<td class=\"dataPoint\" data-name=\"totalAchievements\">???</td>
 								</tr>
-								<tr>
+								<!--<tr>
 									<th>Average Achievements per Wiki:</th>
 									<td class=\"dataPoint\" data-name=\"averageAchievementsPerWiki\">???</td>
-								</tr>
+								</tr>-->
 								<tr>
 									<th>Total Achievements Earned:</th>
 									<td class=\"dataPoint\" data-name=\"totalEarnedAchievements\">???</td>
@@ -83,6 +90,12 @@ class TemplateAchievementStats {
 							<canvas id=\"customAchievementsPie\" width=\"180\" height=\"180\"></canvas>
 						</div>
 					</div>
+				</div>";
+
+
+		// VIEW FOR MEGAS
+		$HTML .= "
+				<div id=\"megas\" style=\"display: none;\" class=\"col-group\">
 					<div class=\"col-12\">
 						<div class=\"achievement-box table-box\">
 							<table id=\"all_sites_mega_list\" class=\"compact hover order-column stripe row-border\">
@@ -110,7 +123,7 @@ class TemplateAchievementStats {
 		$HTML .= "<div id=\"wikiStats\" style=\"display: none;\" class=\"col-group\">
 					<div class=\"col-8\">
 						<div class=\"achievement-box\">
-							<table>
+							<table class=\"stat-table\">
 								<tr>
 									<th>Total number of Achievements</th>
 									<td class=\"dataPointWiki\" data-name=\"totalAchievements\">???</td>
