@@ -10,7 +10,23 @@
 		]
 	});
 
+	function showLoading() {
+		$("#loadingError").hide();
+		$("#loadingStats").show();
+
+	}
+
+	function hideLoading() {
+		$("#loadingStats").hide();
+	}
+
+	function showError(err) {
+		$("#loadingStats").hide();
+		$("#loadingError").html('<strong>Error Loading Stats:</strong> '+err).show();
+	}
+
 	function allWikiDisplay() {
+		showLoading();
 		$("#wikiStats").hide();
 		$("#allStats").show();
 
@@ -51,7 +67,13 @@
 					},
 					options: { responsive: true }
 				});
+
+				hideLoading();
+			} else {
+				showError('There was an error when pulling stats');
 			}
+		}).fail(function (xhr, status) {
+			showError(status.exception.message);
 		});
 
 	}
@@ -91,6 +113,7 @@
 	});
 
 	function singleWikiDisplay() {
+		showLoading();
 		$("#allStats").hide();
 		$("#wikiStats").show();
 
@@ -124,7 +147,12 @@
 
 				$("#topAchieverThisWiki .achieverImage").attr('src', data.topAchiever.img);
 				$("#topAchieverThisWiki .achieverName").html(data.topAchiever.name);
+				hideLoading();
+			} else {
+				showError('There was an error when pulling stats');
 			}
+		}).fail(function (xhr, status) {
+			showError(status.exception.message);
 		});
 
 	}

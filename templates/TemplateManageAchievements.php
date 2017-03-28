@@ -171,7 +171,7 @@ class TemplateManageAchievements {
 				'curse_profile_add_friend', 'curse_profile_edit', 'send_email', 'file_upload', 'wiki_points',
 				'curse_profile_edit_fav_wiki', 'curse_profile_comment_reply', 'curse_profile_edit_link_xbl',
 				'curse_profile_edit_link_psn', 'curse_profile_edit_link_steam', 'curse_profile_edit_link_facebook',
-				'curse_profile_edit_link_twitter', 'curse_profile_edit_link_reddit'
+				'curse_profile_edit_link_twitter', 'curse_profile_edit_link_reddit', 'achievement_engagement'
 			];
 
 			$streakEnum = ['none','hourly', 'daily', 'weekly', 'monthly', 'yearly'];
