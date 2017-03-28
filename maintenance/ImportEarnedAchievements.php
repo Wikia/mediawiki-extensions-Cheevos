@@ -36,8 +36,9 @@ class ImportEarnedAchievements extends Maintenance {
 		global $dsSiteKey;
 
 		$cache = wfGetCache(CACHE_MEMCACHED);
+		$cacheKey = wfMemcKey(__CLASS__);
 		if ($this->getOption('restart')) {
-			$cache->set(__CLASS__, 0);
+			$cache->set($cacheKey, 0);
 		}
 
 		$db = wfGetDB(DB_MASTER);
@@ -73,7 +74,7 @@ class ImportEarnedAchievements extends Maintenance {
 			]
 		);
 		$total = $result->fetchRow();
-		$total = intval($total['total']) - $cache->get(__CLASS__);
+		$total = intval($total['total']) - $cache->get($cacheKey);
 		$this->output("Importing earned achievements...\n");
 
 		$userStats = [];
@@ -186,7 +187,7 @@ class ImportEarnedAchievements extends Maintenance {
 					}
 				}
 
-				$cache->set(__CLASS__, $i);
+				$cache->set($cacheKey, $i);
 			}
 		}
 	}

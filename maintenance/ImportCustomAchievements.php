@@ -36,10 +36,11 @@ class ImportCustomAchievements extends Maintenance {
 		global $dsSiteKey;
 
 		$cache = wfGetCache(CACHE_MEMCACHED);
-		if (boolval($cache->get('ImportCustomAchievements')) && !$this->getOption('restart')) {
+		$cacheKey = wfMemcKey(__CLASS__);
+		if (boolval($cache->get($cacheKey)) && !$this->getOption('restart')) {
 			throw new MWException('This script is intended to be ran once.');
 		} elseif ($this->getOption('restart')) {
-			$cache->set('ImportCustomAchievements', 0);
+			$cache->set($cacheKey, 0);
 		}
 
 		$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
@@ -254,7 +255,7 @@ class ImportCustomAchievements extends Maintenance {
 			$megaAchievement->save(true);
 		}
 
-		$cache->set('ImportCustomAchievements', 1);
+		$cache->set($cacheKey, 1);
 		$cache->set('ImportAchievementsMap', json_encode($achievementIdMap));
 		\Cheevos\Cheevos::invalidateCache();
 	}
