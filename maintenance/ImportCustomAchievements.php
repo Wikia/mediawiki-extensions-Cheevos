@@ -41,6 +41,7 @@ class ImportCustomAchievements extends Maintenance {
 			throw new MWException('This script is intended to be ran once.');
 		} elseif ($this->getOption('restart')) {
 			$cache->set($cacheKey, 0);
+			$cache->set(wfMemcKey('ImportAchievementsMap'), null);
 		}
 
 		$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
@@ -50,7 +51,7 @@ class ImportCustomAchievements extends Maintenance {
 		}
 		$megaAchievement = false;
 		foreach ($achievements as $achievement) {
-			if ($achievement->getId() == 96) {
+			if ($achievement->getId() == 96 || $achievement->getParentId() == 96) {
 				$megaAchievement = $achievement;
 			}
 		}
