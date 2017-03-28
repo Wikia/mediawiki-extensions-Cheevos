@@ -23,7 +23,7 @@ class ImportEarnedAchievements extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription('Imports earned achievements.  Should only ever be run once.');
-		$this->addOption('restart', 'Run again from the beginning even if run before.');
+		$this->addOption('force', 'Run regardless of missing achievement maps.');
 	}
 
 	/**
@@ -46,11 +46,9 @@ class ImportEarnedAchievements extends Maintenance {
 		$this->output("Importing earned achievements...\n");
 
 		$achievementIdMap = json_decode($cache->get(wfMemcKey('ImportAchievementsMap')), true);
-		if (empty($achievementIdMap) || !is_array($achievementIdMap)) {
-			$this->output("No mapping of old achievement IDs to new achievement IDs were found.  This may because there are none or ImportCustomAchievements was not run first.  Do you wish to continue?  [Y/N]\n");
-			$handle = fopen('php://stdin', 'r');
-			$response = fgets($handle);
-			if (strtolower(trim($response)) !== 'y') {
+		if (!is_array($achievementIdMap)) {
+			if (!$this->getOption('force')) {
+				$this->output("No mapping of old achievement IDs to new achievement IDs were found.  This may because ImportCustomAchievements was not run first.  Use --force to override this behavior.\n");
 				exit;
 			}
 			$achievementIdMap = [];
