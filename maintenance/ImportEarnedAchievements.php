@@ -139,11 +139,15 @@ class ImportEarnedAchievements extends Maintenance {
 					$newValue = intval($row['increment']);
 
 					if (!array_key_exists($globalId, $userStats)) {
-						$userStats[$globalId] = \Cheevos\Cheevos::stats(
-							[
-								'user_id' => $globalId
-							]
-						);
+						try {
+							$userStats[$globalId] = \Cheevos\Cheevos::getStatProgress(
+								[
+									'user_id' => $globalId
+								]
+							);
+						} catch (\Cheevos\CheevosException $e) {
+							$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
+						}
 					}
 
 					$currentValue = 0;
