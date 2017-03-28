@@ -51,7 +51,7 @@ class ImportCustomAchievements extends Maintenance {
 		}
 		$megaAchievement = false;
 		foreach ($achievements as $achievement) {
-			if ($achievement->getId() == 96 || $achievement->getParentId() == 96) {
+			if ($achievement->getId() == 96 || $achievement->getParent_Id() == 96) {
 				$megaAchievement = $achievement;
 			}
 		}
