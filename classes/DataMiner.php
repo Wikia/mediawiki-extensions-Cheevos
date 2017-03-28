@@ -3,6 +3,7 @@
  * Curse Inc.
  * Data Miner
  * Data Miner Class
+ * Legacy Wrapper Class
  *
  * @author		Alexia E. Smith, Cameron Chunn
  * @copyright	(c) 2017 Curse Inc.
