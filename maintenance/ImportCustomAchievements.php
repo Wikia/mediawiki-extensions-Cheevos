@@ -173,7 +173,7 @@ class ImportCustomAchievements extends Maintenance {
 			$criteria = $existingAchievement->getCriteria();
 			if (!$row['manual_award']) {
 				$criteria->setStats($triggers);
-				$criteria->setValue(intval($row['rules']['increment']));
+				$criteria->setValue((count($triggers) && intval($row['rules']['increment']) < 1 ? 1 : intval($row['rules']['increment'])));
 
 				$requiresResult = $db->select(
 					['achievement_link'],
