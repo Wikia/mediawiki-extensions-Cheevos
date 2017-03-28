@@ -40,4 +40,28 @@ class CheevosHelper {
 		global $wgLanguageCode;
 		return $wgLanguageCode;
 	}
+
+	/**
+	 * Turns an array of CheevosStatProgress objects into an array that is easier to consume.
+	 *
+	 * @access	public
+	 * @param	array	Flat array.
+	 * @return	array	Nice array.
+	 */
+	static public function makeNiceStatProgressArray($stats) {
+		$nice = [];
+		foreach ($stats as $stat) {
+			$_data = [
+				'stat_id' => $stat['stat_id'],
+				'count' => $stat['count'],
+				'last_incremented' => $stat['last_incremented'],
+			];
+			if (isset($stat['site_key'])) {
+				$nice[$stat['site_key']][$stat['user_id']][$stat['stat']] = $_data;
+			} else {
+				$nice[$stat['user_id']][$stat['stat']] = $_data;
+			}
+		}
+		return $nice;
+	}
 }

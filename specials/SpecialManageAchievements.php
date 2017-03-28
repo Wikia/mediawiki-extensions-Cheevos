@@ -32,15 +32,15 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
-		$this->site_key 	= $dsSiteKey;
+		$this->siteKey		= $dsSiteKey;
 
 		if (!$dsSiteKey || empty($dsSiteKey)) {
 			throw new MWException('Could not determined the site key for use for Achievements.');
 			return;
 		}
 
-		if ($this->site_key == "master") {
-			$this->site_key = '';
+		if ($this->siteKey == "master") {
+			$this->siteKey = '';
 		}
 
 		$lookup = CentralIdLookup::factory();
@@ -93,7 +93,7 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsList() {
-		$achievements = Cheevos\Cheevos::getAchievements($this->site_key);
+		$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
 		$categories = Cheevos\Cheevos::getCategories();
 
 		$filter = $this->wgRequest->getVal('filter');
@@ -150,7 +150,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped());
 		}
 		$this->content = $this->templates->achievementsForm($this->achievement, Cheevos\Cheevos::getCategories(), Cheevos\Cheevos::getKnownHooks(),
-		Cheevos\Cheevos::getAchievements($this->site_key), $return['errors']);
+		Cheevos\Cheevos::getAchievements($this->siteKey), $return['errors']);
 	}
 
 	/**
@@ -164,12 +164,12 @@ class SpecialManageAchievements extends SpecialPage {
 
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
 			$forceCreate = false;
-			if (!empty($this->site_key) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
+			if (!empty($this->siteKey) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
 				$forceCreate = true;
 				$this->achievement->setId(0);
 				$this->achievement->setParent_Id($this->achievement->getId());
 			}
-			$this->achievement->setSite_Key($this->site_key);
+			$this->achievement->setSite_Key($this->siteKey);
 
 			$criteria = new \Cheevos\CheevosAchievementCriteria($criteria);
 			$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
@@ -278,7 +278,7 @@ class SpecialManageAchievements extends SpecialPage {
 					$forceCreate = true;
 					$achievement->setParent_Id($achievement->getId());
 				}
-				$achievement->setSite_Key($this->site_key);
+				$achievement->setSite_Key($this->siteKey);
 				$achievement->setDeleted_At(($subpage == 'restore' ? 0 : time()));
 				$achievement->setDeleted_By(($subpage == 'restore' ? 0 : $globalId));
 
@@ -310,7 +310,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->awardSave();
 
 		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
-		$this->content = $this->templates->awardForm($return, Cheevos\Cheevos::getAchievements($this->site_key));
+		$this->content = $this->templates->awardForm($return, Cheevos\Cheevos::getAchievements($this->siteKey));
 	}
 
 	/**
@@ -352,14 +352,14 @@ class SpecialManageAchievements extends SpecialPage {
 						continue;
 					}
 
-					$check = Cheevos\Cheevos::getUserProgress($this->globalId);
+					$check = \Cheevos\Cheevos::getAchievementProgress(['user_id' => $this->globalId, 'site_key' => $this->siteKey]);
 					if (!count($check)) {
 						// no progress for anything. heh.
 						if ($do == 'award') {
 							// award it.
 							$awarded[] = Cheevos\Cheevos::putProgress([
 								'achievement_id'	=> $achievement->getId(),
-								'site_key'			=> $this->site_key,
+								'site_key'			=> $this->siteKey,
 								'user_id'			=> $this->globalId,
 								'earned'			=> true,
 								'manually_award' 	=> true,
@@ -386,7 +386,7 @@ class SpecialManageAchievements extends SpecialPage {
 								// award it.
 								$awarded[] = Cheevos\Cheevos::putProgress([
 									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> $this->site_key,
+									'site_key'			=> $this->siteKey,
 									'user_id'			=> $this->globalId,
 									'earned'			=> true,
 									'manually_award' 	=> true,
@@ -404,7 +404,7 @@ class SpecialManageAchievements extends SpecialPage {
 								// award it.
 								$awarded[] = Cheevos\Cheevos::putProgress([
 									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> $this->site_key,
+									'site_key'			=> $this->siteKey,
 									'user_id'			=> $this->globalId,
 									'earned'			=> true,
 									'manually_award' 	=> true,

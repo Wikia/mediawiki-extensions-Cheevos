@@ -329,8 +329,8 @@ class Cheevos {
 	 *
 	 * @access	public
 	 * @param	integer	Achievement ID
-	 * @param [type] $body
-	 * @return void
+	 * @param	array	$body
+	 * @return	void
 	 */
 	public static function updateAchievement($id, $body) {
 		return self::putAchievement($body, $id);
@@ -502,14 +502,32 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Return StatProgress for selected filters.
 	 *
-	 * @param array $data
+	 * @access	public
+	 * @param	array	Limit Filters - All filters are optional and can omitted from the array.
+	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 * 		$filters = [
+	 * 			'user_id'	=> 0, //Limit by global user ID.
+	 * 			'site_key'	=> 'example', //Limit by site key.
+	 * 			'global'	=> false, //Set to true to aggregate stats from all sites.(Also causes site_key to be ignored.)
+	 * 			'stat'		=> 'example', //Filter by a specific stat name.
+	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
+	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
+	 * 		];
 	 * @return	mixed
 	 */
-	public static function stats($data = []) {
-		$data['limit'] = isset($data['limit']) ? $data['limit'] : 200;
-		$return = self::get('stats', $data);
+	public static function getStatProgress($filters = []) {
+		foreach (['user_id', 'limit', 'offset'] as $key) {
+			if (isset($filter[$key]) && !is_int($filter[$key])) {
+				$filter[$key] = intval($filter[$key]);
+			}
+		}
+		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 200);
+
+		$return = self::get('stats', $filters);
+
 		return self::return($return, 'stats');
 	}
 
@@ -517,8 +535,8 @@ class Cheevos {
 	 * Undocumented function
 	 *
 	 * @access	public
-	 * @param	integer	$globalId
-	 * @param	string	$siteKey
+	 * @param	integer	Global User ID
+	 * @param	string	Site Key - From DynamicSettings
 	 * @return	mixed
 	 */
 	public static function getUserStatus($globalId, $siteKey = null) {
@@ -535,20 +553,29 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Return AchievementProgress for selected filters.
 	 *
-	 * @param [type] $globalId
-	 * @param [type] $categoryId
-	 * @param [type] $siteKey
+	 * @access	public
+	 * @param	array	Limit Filters - All filters are optional and can omitted from the array.
+	 * 		$filters = [
+	 * 			'site_key'			=> 'example', //Limit by site key.
+	 * 			'achievement_id'	=> 0, //Limit by achievement ID.
+	 * 			'user_id'			=> 0, //Limit by global user ID.
+	 * 			'category_id'		=> 0, //Limit by category ID.
+	 * 			'earned'			=> false, //Only get progress for earned achievements.
+	 * 			'limit'				=> 100, //Maximum number of results.
+	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
+	 * 		];
 	 * @return	mixed
 	 */
-	public static function getUserProgress($globalId, $categoryId = null, $siteKey = null) {
-		$return = self::get('achievements/progress', [
-			'limit'	=> 0,
-			'user_id' => intval($globalId),
-			'category_id' => $categoryId,
-			'site_key' => $siteKey
-		]);
+	public static function getAchievementProgress($filters = []) {
+		foreach (['user_id', 'achievement_id', 'category_id', 'limit', 'offset'] as $key) {
+			if (isset($filter[$key]) && !is_int($filter[$key])) {
+				$filter[$key] = intval($filter[$key]);
+			}
+		}
+
+		$return = self::get('achievements/progress', $filters);
 
 		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress');
 	}
