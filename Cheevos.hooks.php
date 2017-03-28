@@ -64,7 +64,7 @@ class CheevosHooks {
 	 * @param	object	$user: The user being incremented.
 	 * @return	mixed	Array of return status including earned achievements or false on error.
 	 */
-	private static function increment($stat, $delta, $user = null) {
+	public static function increment($stat, $delta, $user = null) {
 		$site_key = self::getSiteKey();
 		if ($site_key === false) {
 			return;

@@ -32,6 +32,8 @@ class TemplateAchievementStats {
 					<button>Export as CSV</button>
 				</div>";
 
+		$HTML .= "<div id=\"loadingStats\">Loading Stats...</div>";
+		$HTML .= "<div id=\"loadingError\" style=\"display: none;\">Error Loading Stats</div>";
 
 		// VIEW FOR ALL WIKIS
 		$HTML .= "

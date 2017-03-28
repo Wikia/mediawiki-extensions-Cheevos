@@ -68,6 +68,9 @@ class CheevosStatsAPI extends ApiBase {
 
 
 	public function getGlobalStats() {
+		global $wgCheevosAchievementEngagementId, $wgCheevosMegaAchievementId;
+
+
 		$achievements = Cheevos\Cheevos::getAchievements();
 		$categories = Cheevos\Cheevos::getCategories();
 		$wikis = \DynamicSettings\Wiki::loadAll();
@@ -75,8 +78,11 @@ class CheevosStatsAPI extends ApiBase {
 		$progressCount = Cheevos\Cheevos::getProgressCount();
 		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
 
-		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,96);
+		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,$wgCheevosMegaAchievementId);
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
+
+		$progressCountEngagged = Cheevos\Cheevos::getProgressCount(null,$wgCheevosAchievementEngagementId);
+		$totalEarnedAchievementsEngagged = isset($progressCountEngagged['total']) ? $progressCountEngagged['total'] : "N/A";
 
 
 		$customAchievements = [];
@@ -90,7 +96,7 @@ class CheevosStatsAPI extends ApiBase {
 		$lookup = CentralIdLookup::factory();
 
 		$topAchieverCall = Cheevos\Cheevos::getProgressTop();
-		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
+		$topUser = isset($topAchieverCall['counts'][0]['user_id']) ? $topAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topUser) {
 			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
@@ -104,6 +110,8 @@ class CheevosStatsAPI extends ApiBase {
 		}
 
 
+
+
 		$curse_global_ids = [];
 
 		$curseAccounts = \DynamicSettings\DS::getWikiManagers();
@@ -112,7 +120,7 @@ class CheevosStatsAPI extends ApiBase {
 		}
 
 		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null,$curse_global_ids);
-		$topNonCurseUser = isset($topNonCurseAchieverCall['user_id']) ? $topNonCurseAchieverCall['user_id'] : false;
+		$topNonCurseUser = isset($topNonCurseAchieverCall['counts'][0]['user_id']) ? $topNonCurseAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topNonCurseUser) {
 			$topNonCurseAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
@@ -130,10 +138,10 @@ class CheevosStatsAPI extends ApiBase {
 			'wikisWithCustomAchievements' => count($customAchievements),
 			'totalWikis' => count($wikis),
 			'totalAchievements' => count($achievements),
-			'averageAchievementsPerWiki' => 0,
+			'averageAchievementsPerWiki' => "N/I",
 			'totalEarnedAchievements' => number_format($totalEarnedAchievements),
 			'totalEarnedMegaAchievements' => number_format($totalEarnedAchievementsMega),
-			'engagedUsers' => 0,
+			'engagedUsers' => $totalEarnedAchievementsEngagged,
 			'topAchiever' => $topAchiever,
 			'topAchieverNonCurse' => $topNonCurseAchiever,
 		];
@@ -154,7 +162,7 @@ class CheevosStatsAPI extends ApiBase {
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
 		$topAchieverCall = Cheevos\Cheevos::getProgressTop($site_key);
-		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
+		$topUser = isset($topAchieverCall['counts'][0]['user_id']) ? $topAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topUser) {
 			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
