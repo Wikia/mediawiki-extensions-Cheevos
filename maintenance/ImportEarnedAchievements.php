@@ -36,9 +36,7 @@ class ImportEarnedAchievements extends Maintenance {
 		global $dsSiteKey;
 
 		$cache = wfGetCache(CACHE_MEMCACHED);
-		if (MASTER_WIKI !== true) {
-			throw new MWException('This script is intended to be ran from the master wiki and only once.');
-		} elseif ($this->getOption('restart')) {
+		if ($this->getOption('restart')) {
 			$cache->set(__CLASS__, 0);
 		}
 

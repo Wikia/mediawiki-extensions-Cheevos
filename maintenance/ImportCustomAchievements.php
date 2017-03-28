@@ -36,8 +36,8 @@ class ImportCustomAchievements extends Maintenance {
 		global $dsSiteKey;
 
 		$cache = wfGetCache(CACHE_MEMCACHED);
-		if (MASTER_WIKI !== true || (boolval($cache->get('ImportCustomAchievements')) && !$this->getOption('restart'))) {
-			throw new MWException('This script is intended to be ran from the master wiki and only once.');
+		if (boolval($cache->get('ImportCustomAchievements')) && !$this->getOption('restart')) {
+			throw new MWException('This script is intended to be ran once.');
 		} elseif ($this->getOption('restart')) {
 			$cache->set('ImportCustomAchievements', 0);
 		}
