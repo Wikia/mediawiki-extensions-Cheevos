@@ -45,7 +45,7 @@ class ImportEarnedAchievements extends Maintenance {
 
 		$this->output("Importing earned achievements...\n");
 
-		$achievementIdMap = json_decode($cache->get('ImportAchievementsMap'), true);
+		$achievementIdMap = json_decode($cache->get(wfMemcKey('ImportAchievementsMap')), true);
 		if (empty($achievementIdMap) || !is_array($achievementIdMap)) {
 			$this->output("No mapping of old achievement IDs to new achievement IDs were found.  This may because there are none or ImportCustomAchievements was not run first.  Do you wish to continue?  [Y/N]\n");
 			$handle = fopen('php://stdin', 'r');
