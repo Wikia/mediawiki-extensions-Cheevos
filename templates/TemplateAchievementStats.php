@@ -65,13 +65,13 @@ class TemplateAchievementStats {
 					<div class=\"col-8\">
 						<div class=\"achievement-box\">
 							<div id=\"topAchieverGlobal\">
-							<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+							<img class=\"achieverImage\" src=\"https://placehold.it/96x96\">
 							Top Achiever Gamepedia-wide: <span class=\"achieverName\">???</span>
 							</div>
 						</div>
 						<div class=\"achievement-box\">
 							<div id=\"topNonCurseAchieverGlobal\">
-							<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+							<img class=\"achieverImage\" src=\"https://placehold.it/96x96\">
 							Top Non-Curse Achiever: <span class=\"achieverName\">???</span>
 							</div>
 						</div>
@@ -129,7 +129,7 @@ class TemplateAchievementStats {
 					<div class=\"col-4\">
 						<div class=\"achievement-box\">
 							<div id=\"topAchieverThisWiki\">
-								<img class=\"achieverImage\" src=\"http://placehold.it/96x96\">
+								<img class=\"achieverImage\" src=\"https://placehold.it/96x96\">
 								Top Achiever for this wiki: <span class=\"achieverName\">???</span>
 							</div>
 						</div>

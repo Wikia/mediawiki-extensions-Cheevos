@@ -93,13 +93,13 @@ class CheevosStatsAPI extends ApiBase {
 		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
 
 		if (!$topUser) {
-			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
 		} else {
 			$user = $lookup->localUserFromCentralId($topUser);
 			if ($user) {
 				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
 			} else {
-				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'http://placehold.it/96x96'];
+				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'https://placehold.it/96x96'];
 			}
 		}
 
@@ -115,14 +115,14 @@ class CheevosStatsAPI extends ApiBase {
 		$topNonCurseUser = isset($topNonCurseAchieverCall['user_id']) ? $topNonCurseAchieverCall['user_id'] : false;
 
 		if (!$topNonCurseUser) {
-			$topNonCurseAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+			$topNonCurseAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
 		} else {
 
 			$userNonCurse = $lookup->localUserFromCentralId($topNonCurseUser);
 			if ($user) {
 				$topNonCurseAchiever = ['name'=>$userNonCurse->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($userNonCurse->getEmail())))."?d=mm&amp;s=96"];
 			} else {
-				$topNonCurseAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topNonCurseUser)",'img'=>'http://placehold.it/96x96'];
+				$topNonCurseAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topNonCurseUser)",'img'=>'https://placehold.it/96x96'];
 			}
 		}
 
@@ -157,14 +157,14 @@ class CheevosStatsAPI extends ApiBase {
 		$topUser = isset($topAchieverCall['user_id']) ? $topAchieverCall['user_id'] : false;
 
 		if (!$topUser) {
-			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'http://placehold.it/96x96'];
+			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
 		} else {
 			$lookup = CentralIdLookup::factory();
 			$user = $lookup->localUserFromCentralId($topUser);
 			if ($user) {
 				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
 			} else {
-				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'http://placehold.it/96x96'];
+				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'https://placehold.it/96x96'];
 			}
 		}
 
