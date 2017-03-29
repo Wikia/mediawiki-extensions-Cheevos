@@ -86,7 +86,8 @@
 		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
 		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
-		"TemplateAchievements": "templates/TemplateAchievements.php"
+		"TemplateAchievements": "templates/TemplateAchievements.php",
+		"CheevosIncrementJob": "jobs/CheevosIncrementJob.php"
 	},
 	"ResourceModules": {
 		"ext.cheevos.resumable.js": {

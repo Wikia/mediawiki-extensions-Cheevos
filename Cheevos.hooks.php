@@ -90,19 +90,7 @@ class CheevosHooks {
 			]
 		];
 
-		try {
-			$return = \Cheevos\Cheevos::increment($data);
-
-			if (isset($return['earned'])) {
-				foreach ($return['earned'] as $achievement) {
-					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::displayAchievement($achievement);
-				}
-			}
-		} catch (\Cheevos\CheevosException $e) {
-			wfDebug(__METHOD__.": Caught CheevosException - ".$e->getMessage());
-			return false;
-		}
+		$return = CheevosIncrementJob::queue($data);
 		return $return;
 	}
 
