@@ -5,6 +5,16 @@ $(document).ready(function() {
 		}
 	});
 
+	$("#achievement_form").submit(function(e){
+		var cat = $("#category").val();
+		var catid = $("#category_id").val();
+
+		if (!cat.length || !catid) {
+			e.preventDefault();
+			alert("A category is required to save.\n\nIf this error continues, please refresh the page and try again.");
+		} 
+	});
+
 
 	function updateTabs() {
 		var lastElement = false;
