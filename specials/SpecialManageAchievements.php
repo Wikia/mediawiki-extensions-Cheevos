@@ -219,8 +219,6 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
 			}
 
-
-
 			if (!count($errors)) {
 				$success = $this->achievement->save($forceCreate);
 
