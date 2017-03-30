@@ -166,8 +166,8 @@ class SpecialManageAchievements extends SpecialPage {
 			$forceCreate = false;
 			if (!empty($this->siteKey) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
 				$forceCreate = true;
-				$this->achievement->setId(0);
 				$this->achievement->setParent_Id($this->achievement->getId());
+				$this->achievement->setId(0); // <-- do this AFTER setting parent_id... ALEX
 			}
 			$this->achievement->setSite_Key($this->siteKey);
 
@@ -218,6 +218,8 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
 			}
+
+
 
 			if (!count($errors)) {
 				$success = $this->achievement->save($forceCreate);
