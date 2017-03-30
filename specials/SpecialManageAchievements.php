@@ -217,6 +217,8 @@ class SpecialManageAchievements extends SpecialPage {
 				//Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
+				$this->achievement->setSpecial($this->wgRequest->getBool('special'));
+				$this->achievement->setShow_On_All_Sites($this->wgRequest->getBool('show_on_all_sites'));
 			}
 
 			if (!count($errors)) {

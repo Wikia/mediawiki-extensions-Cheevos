@@ -158,7 +158,10 @@ class TemplateManageAchievements {
 		if (MASTER_WIKI === true) {
 			$HTML .= "
 			<input id='global' name='global' type='checkbox' value='1'".($achievement->isGlobal() ? " checked='checked'" : null)."/><label for='global'>".wfMessage('global_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('global_help')->escaped()."</span></div></label><br/>
-			<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>";
+			<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>
+			<input id='special' name='special' type='checkbox' value='1'".($achievement->getSpecial() ? " checked='checked'" : null)."/><label for='special'>".wfMessage('special_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('special_help')->escaped()."</span></div></label><br/>
+			<input id='show_on_all_sites' name='show_on_all_sites' type='checkbox' value='1'".($achievement->getShow_On_All_Sites() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('show_on_all_sites_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('show_on_all_sites_help')->escaped()."</span></div></label><br/>";
+		
 		}
 
 		if ($wgUser->isAllowed('edit_meta_achievements')) {

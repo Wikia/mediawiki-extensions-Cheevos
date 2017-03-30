@@ -35,6 +35,8 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['global'] = isset($data['global']) && is_bool($data['global']) ? $data['global'] : false;
 		$this->container['protected'] = isset($data['protected']) && is_bool($data['protected']) ? $data['protected'] : false;
 		$this->container['secret'] = isset($data['secret']) && is_bool($data['secret']) ? $data['secret'] : false;
+		$this->container['special'] = isset($data['special']) && is_bool($data['special']) ? $data['special'] : false;
+		$this->container['show_on_all_sites'] = isset($data['show_on_all_sites']) && is_bool($data['show_on_all_sites']) ? $data['show_on_all_sites'] : false;
 		$this->container['created_at'] = isset($data['created_at']) && is_int($data['created_at']) ? $data['created_at'] : 0;
 		$this->container['updated_at'] = isset($data['updated_at']) && is_int($data['updated_at']) ? $data['updated_at'] : 0;
 		$this->container['deleted_at'] = isset($data['deleted_at']) && is_int($data['deleted_at']) ? $data['deleted_at'] : 0;
