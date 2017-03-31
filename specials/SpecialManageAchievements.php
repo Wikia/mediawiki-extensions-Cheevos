@@ -33,6 +33,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->wgUser		= $this->getUser();
 		$this->output		= $this->getOutput();
 		$this->siteKey		= $dsSiteKey;
+		$this->isMaster 	= false;
 
 		if (!$dsSiteKey || empty($dsSiteKey)) {
 			throw new MWException('Could not determined the site key for use for Achievements.');
@@ -41,6 +42,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		if ($this->siteKey == "master") {
 			$this->siteKey = '';
+			$this->isMaster = true;
 		}
 
 		$lookup = CentralIdLookup::factory();
@@ -95,6 +97,14 @@ class SpecialManageAchievements extends SpecialPage {
 	public function achievementsList() {
 		$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
 		$categories = Cheevos\Cheevos::getCategories();
+
+		if ($this->isMaster) {
+			foreach($achievements as $i => $a) {
+				if ($a->getSite_Key() !== $this->siteKey) {
+					unset($achievements[$i]);
+				}
+			}
+		}
 
 		$filter = $this->wgRequest->getVal('filter');
 
