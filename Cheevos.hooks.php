@@ -95,7 +95,18 @@ class CheevosHooks {
 			]
 		];
 
-		$return = CheevosIncrementJob::queue($data);
+		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
+		try {
+			$return = \Cheevos\Cheevos::increment($data);
+			if (isset($return['earned'])) {
+				foreach ($return['earned'] as $achievement) {
+					$achievement = new \Cheevos\CheevosAchievement($achievement);
+					\CheevosHooks::displayAchievement($achievement);
+				}
+			}
+		} catch (CheevosException $e) {
+			$return = CheevosIncrementJob::queue($data);
+		}
 		return $return;
 	}
 
