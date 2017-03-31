@@ -86,7 +86,7 @@ class SyncWikiPoints extends Maintenance {
 						'stat' => 'wiki_points',
 						'limit' => 1
 					];
-					$stats = $\Cheevos\Cheevos::getStatProgress($filters);
+					$stats = \Cheevos\Cheevos::getStatProgress($filters);
 					if (count($stats) > 0) {
 						$currentCheevosScore = current($stats)['count'];
 					}
