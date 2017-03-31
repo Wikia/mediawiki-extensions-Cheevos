@@ -43,7 +43,15 @@ class TemplateAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false), $achievements);
+
+					$achievementStatus = (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false);
+					if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
+						|| ( !$achievementStatus && $achievement->isSecret() ) ) {
+						// If status is set and a secret achievement is not earned, don't display it!
+						// Or if there is no status (no earn twords it) and secret, dont display it!
+						continue;
+					}
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $achievementStatus, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
