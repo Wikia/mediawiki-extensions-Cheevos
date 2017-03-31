@@ -30,6 +30,12 @@ class TemplateAchievements {
 
 		$HTML = '';
 
+		if ($wgUser->isAllowed('achievement_admin')) {
+			$HTML .= "<div class='buttons'>
+				<a href='{$achievementsURL}' class='button'>".wfMessage('manageachievements')."</a>
+			</div>";
+		}
+
 		$HTML .= "
 		<div id='p-achievement-list'>";
 		if (count($achievements)) {
