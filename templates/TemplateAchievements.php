@@ -115,13 +115,13 @@ class TemplateAchievements {
 	 * @param	array	[Optional] All loaded achievements for showing required criteria.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
+	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = [], $managing = false) {
 		global $wgUser, $wgAchPointAbbreviation;
 
 		// If status is set and a secret achievement is not earned, don't display it!
 		// Or if there is no status (no earn twords it) and secret, dont display it!
-		if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
-			|| ( !$achievementStatus && $achievement->isSecret() ) ) {
+		if ( !$managing && ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
+			|| ( !$achievementStatus && $achievement->isSecret() ) ) ) {
 				return "";
 		}
 
