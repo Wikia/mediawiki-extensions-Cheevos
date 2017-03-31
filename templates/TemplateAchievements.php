@@ -118,13 +118,12 @@ class TemplateAchievements {
 	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
 		global $wgUser, $wgAchPointAbbreviation;
 
-
-			if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
-				|| ( !$achievementStatus && $achievement->isSecret() ) ) {
-						// If status is set and a secret achievement is not earned, don't display it!
-						// Or if there is no status (no earn twords it) and secret, dont display it!
-					return "<pre>BIG OLD HIDDEN ACHIEVEMENT!".print_r($achievement,1)."</pre>";
-			}
+		// If status is set and a secret achievement is not earned, don't display it!
+		// Or if there is no status (no earn twords it) and secret, dont display it!
+		if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
+			|| ( !$achievementStatus && $achievement->isSecret() ) ) {
+				return "";
+		}
 
 
 		$imageUrl = $achievement->getImageUrl();
