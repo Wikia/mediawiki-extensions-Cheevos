@@ -126,5 +126,7 @@
 	"prefs-cheevos-notification": "Achievement Notifications",
 	"cheevos-popup-notification": "Show toast notifications for newly awarded achievements",
 	"error_cheevos_service": "There was an error with the Cheevos service.  If this error continues please report it to an administrator.  The error reported is: \"$1\"",
-	"achievement_stats": "Achievement Stats"
+	"achievement_stats": "Achievement Stats",
+	"achievementstats": "Achievement Stats",
+	"manageachievements": "Manage Achievements"
 }
