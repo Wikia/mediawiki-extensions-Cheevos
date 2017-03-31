@@ -45,12 +45,6 @@ class TemplateAchievements {
 					}
 
 					$achievementStatus = (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false);
-					if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
-						|| ( !$achievementStatus && $achievement->isSecret() ) ) {
-						// If status is set and a secret achievement is not earned, don't display it!
-						// Or if there is no status (no earn twords it) and secret, dont display it!
-						continue;
-					}
 					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $achievementStatus, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
@@ -123,6 +117,15 @@ class TemplateAchievements {
 	 */
 	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
 		global $wgUser, $wgAchPointAbbreviation;
+
+
+			if ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
+				|| ( !$achievementStatus && $achievement->isSecret() ) ) {
+						// If status is set and a secret achievement is not earned, don't display it!
+						// Or if there is no status (no earn twords it) and secret, dont display it!
+					return "<pre>BIG OLD HIDDEN ACHIEVEMENT!".print_r($achievement,1)."</pre>";
+			}
+
 
 		$imageUrl = $achievement->getImageUrl();
 
