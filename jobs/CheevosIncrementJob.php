@@ -33,6 +33,7 @@ class CheevosIncrementJob extends SyncService\Job {
 	public function execute($data) {
 		try {
 			$return = \Cheevos\Cheevos::increment($data);
+			var_dump($return);
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
 					$achievement = new \Cheevos\CheevosAchievement($achievement);
