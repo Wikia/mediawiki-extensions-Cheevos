@@ -82,7 +82,13 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		try {
-			\Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+			$check = \Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+			if (isset($check['earned'])) {
+				foreach ($check['earned'] as $a) {
+					$ab = new \Cheevos\CheevosAchievement($a);
+					\CheevosHooks::displayAchievement($ab);
+				}
+			}
 			$_statuses = \Cheevos\Cheevos::getUserStatus($globalId, $this->siteKey);
 			$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
 		} catch (\Cheevos\CheevosException $e) {
