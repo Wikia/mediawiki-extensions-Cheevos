@@ -66,12 +66,12 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	string	Stat Name
 	 * @param	integer	Stat Delta
-	 * @param	object	$user: The user being incremented.
+	 * @param	mixed	Local User object or global ID having a stat incremented.
 	 * @return	mixed	Array of return status including earned achievements or false on error.
 	 */
 	public static function increment($stat, $delta, $user = null) {
-		$site_key = self::getSiteKey();
-		if ($site_key === false) {
+		$siteKey = self::getSiteKey();
+		if ($siteKey === false) {
 			return;
 		}
 
@@ -80,16 +80,16 @@ class CheevosHooks {
 			$user = $wgUser;
 		}
 
-		if (is_int($user)) {
-			$user_id = $user;
+		if (is_numeric($user)) {
+			$globalId = intval($user);
 		} else {
 			$lookup = CentralIdLookup::factory();
-			$user_id = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+			$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 		}
 
 		$data = [
-			'user_id' => $user_id,
-			'site_key' => $site_key,
+			'user_id' => $globalId,
+			'site_key' => $siteKey,
 			'deltas'   => [
 				['stat' => $stat, 'delta' => $delta]
 			]

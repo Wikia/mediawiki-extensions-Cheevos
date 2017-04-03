@@ -64,12 +64,25 @@ class SpecialAchievements extends SpecialPage {
 
 		$globalId = false;
 		if ($this->getUser()->isLoggedIn()) {
+			if ($this->getUser() > 0) {
+				//This is unrelated to the user look up.  Just trigger this statistic if a logged in user visits an achievement page.
+				CheevosHooks::increment('achievement_engagement', 1, $this->getUser());
+			}
+
 			$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
 			$user = $this->getUser();
-
-			CheevosHooks::increment('achievement_engagement',1,$user);
 		}
 
+		if (!empty($subpage) && !is_numeric($subpage)) {
+			$lookupUser = User::newFromName($subpage);
+			if ($lookupUser && $lookupUser->getId()) {
+				$user = $lookupUser;
+				$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+			}
+			if ($globalId < 1 || !$lookupUser->getId()) {
+				throw new ErrorPageError('achievements', 'no_user_to_display_achievements');
+			}
+		}
 		if (intval($subpage) > 0) {
 			$globalId = intval($subpage);
 			$user = $lookup->localUserFromCentralId($globalId);
