@@ -128,5 +128,6 @@
 	"error_cheevos_service": "There was an error with the Cheevos service.  If this error continues please report it to an administrator.  The error reported is: \"$1\"",
 	"achievement_stats": "Achievement Stats",
 	"achievementstats": "Achievement Stats",
-	"manageachievements": "Manage Achievements"
+	"manageachievements": "Manage Achievements",
+	"revert_custom_achievement": "Revert to Default"
 }

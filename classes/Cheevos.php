@@ -228,7 +228,7 @@ class Cheevos {
 			if (!empty($siteKey) && isset($return['achievements'])) {
 				$removeParents = [];
 				foreach ($return['achievements'] as $key => $achievement) {
-					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0) {
+					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0 && $achievement['deleted_at'] == 0) {
 						$removeParents[] = $achievement['parent_id'];
 					}
 				}

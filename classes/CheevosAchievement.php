@@ -212,4 +212,8 @@ class CheevosAchievement extends CheevosModel {
 	public function isDeleted() {
 		return boolval($this->container['deleted_at']);
 	}
+
+	public function isChild() {
+		return boolval($this->container['parent_id']);
+	}
 }
