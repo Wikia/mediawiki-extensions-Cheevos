@@ -17,6 +17,7 @@
 	"show_deleted_achievements": "Show Deleted",
 	"award_achievement": "Award Achievement",
 	"delete_achievement": "Delete",
+	"revert_achievement": "Revert",
 	"restore_achievement": "Restore",
 	"invalidatecache_achievement": "Clear Cache",
 	"edit_achievement": "Edit",
