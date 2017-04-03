@@ -149,7 +149,7 @@ class ImportEarnedAchievements extends Maintenance {
 
 					$currentValue = 0;
 					$statIndex = false;
-					if (array_key_exists($globalId, $userStats) && !empty($userStats[$globalId])) {
+					if (isset($userStats[$globalId]) && !empty($userStats[$globalId])) {
 						foreach ($userStats[$globalId] as $index => $userStat) {
 							if ($userStat['stat'] == $stat) {
 								$statIndex = $index;
