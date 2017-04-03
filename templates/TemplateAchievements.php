@@ -51,6 +51,12 @@ class TemplateAchievements {
 					}
 
 					$achievementStatus = (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false);
+
+					if ($achievementStatus !== false && $achievement->isSecret() && !$achievementStatus->isEarned()) {
+						//Do not show show secret achievements to regular users.
+						continue;
+					}
+
 					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $achievementStatus, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
@@ -121,16 +127,8 @@ class TemplateAchievements {
 	 * @param	array	[Optional] All loaded achievements for showing required criteria.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = [], $managing = false) {
+	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
 		global $wgUser, $wgAchPointAbbreviation;
-
-		// If status is set and a secret achievement is not earned, don't display it!
-		// Or if there is no status (no earn twords it) and secret, dont display it!
-		if ( !$managing && ( ($acievementStatus && $achievement->isSecret() && !$achievementStatus->isEarned()) 
-			|| ( !$achievementStatus && $achievement->isSecret() ) ) ) {
-				return "";
-		}
-
 
 		$imageUrl = $achievement->getImageUrl();
 

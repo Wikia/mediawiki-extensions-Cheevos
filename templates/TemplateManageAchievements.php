@@ -63,7 +63,7 @@ class TemplateManageAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, false, $achievements, true);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, false, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
