@@ -52,7 +52,8 @@ class TemplateAchievements {
 
 					$achievementStatus = (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false);
 
-					if ($achievementStatus !== false && $achievement->isSecret() && !$achievementStatus->isEarned()) {
+					if (($achievement->isSecret() && $achievementStatus === false)
+						|| ($achievementStatus !== false && $achievement->isSecret() && !$achievementStatus->isEarned())) {
 						//Do not show show secret achievements to regular users.
 						continue;
 					}
