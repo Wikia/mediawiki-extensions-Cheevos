@@ -69,10 +69,8 @@ class CheevosStatsAPI extends ApiBase {
 		}
 	}
 
-
 	public function getGlobalStats() {
 		global $wgCheevosAchievementEngagementId, $wgCheevosMasterAchievementId;
-
 
 		$achievements = Cheevos\Cheevos::getAchievements();
 		$categories = Cheevos\Cheevos::getCategories();
@@ -81,10 +79,10 @@ class CheevosStatsAPI extends ApiBase {
 		$progressCount = Cheevos\Cheevos::getProgressCount();
 		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
 
-		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,$wgCheevosMasterAchievementId);
+		$progressCountMega = Cheevos\Cheevos::getProgressCount(null, $wgCheevosMasterAchievementId);
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
-		$progressCountEngaged = Cheevos\Cheevos::getProgressCount(null,$wgCheevosAchievementEngagementId);
+		$progressCountEngaged = Cheevos\Cheevos::getProgressCount(null, $wgCheevosAchievementEngagementId);
 		$totalEarnedAchievementsEngaged = isset($progressCountEngaged['total']) ? $progressCountEngaged['total'] : "N/A";
 
 
