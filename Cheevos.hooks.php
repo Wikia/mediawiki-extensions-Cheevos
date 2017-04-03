@@ -27,9 +27,10 @@ class CheevosHooks {
 	 */
 	static public function onRegistration() {
 		global $wgDefaultUserOptions, $extSyncServices;
+
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
-		if(defined('MASTER_WIKI') && MASTER_WIKI === true) {
+		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$extSyncServices[] = 'CheevosIncrementJob';
 		}
 
@@ -105,7 +106,7 @@ class CheevosHooks {
 				}
 			}
 		} catch (CheevosException $e) {
-			$return = CheevosIncrementJob::queue($data);
+			$return = \Cheevos\CheevosIncrementJob::queue($data);
 		}
 		return $return;
 	}

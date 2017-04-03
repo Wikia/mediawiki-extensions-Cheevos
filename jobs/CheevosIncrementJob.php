@@ -1,5 +1,19 @@
 <?php
-class CheevosIncrementJob extends SyncService\Job {
+/**
+ * Cheevos
+ * Cheevos Increment Job
+ *
+ * @author		Cameron Chunn
+ * @copyright	(c) 2017 Curse Inc.
+ * @license		All Rights Reserved
+ * @package		Cheevos
+ * @link		http://www.curse.com/
+ *
+ **/
+
+namespace Cheevos;
+
+class CheevosIncrementJob extends \SyncService\Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
 	 * @var		int		sets the priority at which this service will run
