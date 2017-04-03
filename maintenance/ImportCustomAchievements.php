@@ -239,9 +239,11 @@ class ImportCustomAchievements extends Maintenance {
 		sort($defaultMegaAdd);
 		sort($defaultMegaRemove);
 
-		if ($megaAchievementIds != $defaultMegaAdd) {
-			$megaAchievementIds = array_merge($megaAchievementIds, $defaultMegaAdd);
-			$megaAchievementIds = array_diff($megaAchievementIds, $defaultMegaRemove);
+		$_megaAchievementIds = array_merge($megaAchievementIds, $defaultMegaAdd);
+		$_megaAchievementIds = array_diff($megaAchievementIds, $defaultMegaRemove);
+		sort($_megaAchievementIds);
+		if ($megaAchievementIds != $_megaAchievementIds) {
+			$megaAchievementIds = $_megaAchievementIds;
 			foreach ($megaAchievementIds as $key => $oldId) {
 				if (array_key_exists($oldId, $achievementIdMap)) {
 					$megaAchievementIds[$key] = $achievementIdMap[$oldId];
