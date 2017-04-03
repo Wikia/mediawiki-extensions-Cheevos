@@ -247,7 +247,7 @@
 		"CheevosClientId": "",
 		"AchPointAbbreviation": "<img src=\"/extensions/WikiPoints/images/gp30.png\"/>",
 		"CheevosAchievementEngagementId": 459,
-		"CheevosMegaAchievementId": 96
+		"CheevosMasterAchievementId": 96
 	},
 	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1

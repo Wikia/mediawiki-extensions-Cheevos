@@ -71,7 +71,7 @@ class CheevosStatsAPI extends ApiBase {
 
 
 	public function getGlobalStats() {
-		global $wgCheevosAchievementEngagementId, $wgCheevosMegaAchievementId;
+		global $wgCheevosAchievementEngagementId, $wgCheevosMasterAchievementId;
 
 
 		$achievements = Cheevos\Cheevos::getAchievements();
@@ -81,7 +81,7 @@ class CheevosStatsAPI extends ApiBase {
 		$progressCount = Cheevos\Cheevos::getProgressCount();
 		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
 
-		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,$wgCheevosMegaAchievementId);
+		$progressCountMega = Cheevos\Cheevos::getProgressCount(null,$wgCheevosMasterAchievementId);
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
 		$progressCountEngaged = Cheevos\Cheevos::getProgressCount(null,$wgCheevosAchievementEngagementId);
@@ -225,7 +225,7 @@ class CheevosStatsAPI extends ApiBase {
 
 
 	public function getMegasTable() {
-		global $wgCheevosMegaAchievementId;
+		global $wgCheevosMasterAchievementId;
 
 		$lookup = CentralIdLookup::factory();
 		$achievementStore = [];
@@ -233,7 +233,7 @@ class CheevosStatsAPI extends ApiBase {
 
 		$progress = Cheevos\Cheevos::getAchievementProgress([
 			'user_id' => 0,
-			'achievement_id' => $wgCheevosMegaAchievementId,
+			'achievement_id' => $wgCheevosMasterAchievementId,
 			'earned' => 1,
 			'limit' => 0
 		]);
