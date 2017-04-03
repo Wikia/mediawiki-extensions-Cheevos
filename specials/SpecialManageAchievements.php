@@ -139,7 +139,6 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$this->achievement = Cheevos\Cheevos::getAchievement($achievementId);
 
-
 			if ($this->achievement === false || $achievementId != $this->achievement->getId()) {
 				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
 				return;
@@ -322,7 +321,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->awardSave();
 
 		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
-		$this->content = $this->templates->awardForm($return, Cheevos\Cheevos::getAchievements($this->siteKey));
+		$this->content = $this->templates->awardForm($return, \Cheevos\Cheevos::getAchievements($this->siteKey));
 	}
 
 	/**
@@ -351,10 +350,8 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			if (!count($errors)) {
-
-				$users = explode(",",$save['username']);
+				$users = explode(",", $save['username']);
 				foreach ($users as $getuser) {
-
 					$user = User::newFromName(trim($getuser));
 					$user->load();
 					$lookup = CentralIdLookup::factory();
