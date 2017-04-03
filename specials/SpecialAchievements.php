@@ -46,7 +46,7 @@ class SpecialAchievements extends SpecialPage {
 		$this->templates = new TemplateAchievements;
 		$this->output->addModules(['ext.cheevos.styles', 'ext.cheevos.js']);
 		$this->setHeaders();
-		$this->achievementsList();
+		$this->achievementsList($subpage);
 		$this->output->addHTML($this->content);
 	}
 
@@ -54,9 +54,10 @@ class SpecialAchievements extends SpecialPage {
 	 * Cheevos List
 	 *
 	 * @access	public
+	 * @param	mixed	Passed subpage parameter to be intval()'ed for a Global ID.
 	 * @return	void	[Outputs to screen]
 	 */
-	public function achievementsList() {
+	public function achievementsList($subpage = null) {
 		global $dsSiteKey;
 
 		$lookup = CentralIdLookup::factory();
@@ -69,8 +70,8 @@ class SpecialAchievements extends SpecialPage {
 			CheevosHooks::increment('achievement_engagement',1,$user);
 		}
 
-		if ($this->wgRequest->getVal('globalid') > 0) {
-			$globalId = $this->wgRequest->getVal('globalid');
+		if (intval($subpage) > 0) {
+			$globalId = intval($subpage);
 			$user = $lookup->localUserFromCentralId($globalId);
 			if ($globalId < 1 || $user === null) {
 				throw new ErrorPageError('achievements', 'no_user_to_display_achievements');
