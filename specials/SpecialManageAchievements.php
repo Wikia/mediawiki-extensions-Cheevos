@@ -73,6 +73,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievementsForm();
 				break;
 			case 'delete':
+			case 'revert':
 			case 'restore':
 				$this->achievementsDelete($subpage);
 				break;
@@ -260,6 +261,12 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsDelete($subpage) {
+		$action = $subpage; // saving original intent for language strings.
+		if ($subpage == "restore") {
+			// a restore is a delete on a child. This will be fine.
+			$subpage = "delete";
+		}
+
 		if ($subpage == 'delete' && !$this->wgUser->isAllowed('delete_achievements')) {
 			throw new PermissionsError('delete_achievements');
 		}
@@ -304,8 +311,8 @@ class SpecialManageAchievements extends SpecialPage {
 				return;
 			}
 
-			$this->output->setPageTitle(wfMessage(($subpage == 'restore' ? 'restore' : 'delete').'_achievement_title')->escaped().' - '.$achievement->getName());
-			$this->content = $this->templates->achievementsDelete($achievement);
+			$this->output->setPageTitle(wfMessage($action.'_achievement_title')->escaped().' - '.$achievement->getName());
+			$this->content = $this->templates->achievementsDelete($achievement,$action);
 		}
 	}
 

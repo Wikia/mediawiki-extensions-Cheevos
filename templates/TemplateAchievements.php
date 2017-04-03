@@ -165,7 +165,7 @@ class TemplateAchievements {
 				if (!$achievement->isDeleted()) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
-						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='button'>".wfMessage(($achievement->isChild() ? 'revert_custom_achievement' : 'delete_achievement'))->escaped()."</a></span>
+						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/".($achievement->isChild() ? 'revert' : 'delete')."?aid={$achievement->getId()}' class='button'>".wfMessage(($achievement->isChild() ? 'revert_custom_achievement' : 'delete_achievement'))->escaped()."</a></span>
 						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='button'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
 				} elseif ($achievement->isDeleted() && $wgUser->isAllowed('restore_achievements')) {

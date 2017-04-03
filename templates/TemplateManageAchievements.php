@@ -255,7 +255,7 @@ class TemplateManageAchievements {
 	 * @param	array	Achievement information.
 	 * @return	string	Built HTML
 	 */
-	public function achievementsDelete($achievement) {
+	public function achievementsDelete($achievement, $action) {
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
 
@@ -269,8 +269,8 @@ class TemplateManageAchievements {
 		} else {
 			$HTML = "
 			<div>
-				".wfMessage('delete_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/delete?aid={$achievement->getId()}&amp;confirm=true' class='button'>".wfMessage('delete_achievement')."</a>
+				".wfMessage($action.'_achievement_confirm')."<br/>
+				<a href='{$achievementsURL}/delete?aid={$achievement->getId()}&amp;confirm=true' class='button'>".wfMessage($action.'_achievement')."</a>
 			</div>
 			";
 		}
