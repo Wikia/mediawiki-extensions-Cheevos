@@ -219,13 +219,17 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		if (!$cache || !unserialize($cache)) {
-			$return = self::get('achievements/all', [
-				'site_key' => $siteKey,
-				'limit'	=> 0
-			]);
+		$return = unserialize($cache);
+		if (!$cache || !$return) {
+			$return = self::get(
+				'achievements/all',
+				[
+					'site_key' => $siteKey,
+					'limit'	=> 0
+				]
+			);
 
-			if (!empty($siteKey) && isset($return['achievements'])) {
+			/*if (!empty($siteKey) && isset($return['achievements'])) {
 				$removeParents = [];
 				foreach ($return['achievements'] as $key => $achievement) {
 					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0 && $achievement['deleted_at'] == 0) {
@@ -239,7 +243,7 @@ class Cheevos {
 						}
 					}
 				}
-			}
+			}*/
 
 			try {
 				if (isset($return['achievements'])) {
@@ -248,8 +252,6 @@ class Cheevos {
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
-		} else {
-			$return = unserialize($cache);
 		}
 
 		return self::return($return, 'achievements', '\Cheevos\CheevosAchievement');
