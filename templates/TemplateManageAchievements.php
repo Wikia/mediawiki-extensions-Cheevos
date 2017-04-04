@@ -108,7 +108,7 @@ class TemplateManageAchievements {
 	* @return	string	Built HTML
 	*/
 	public function achievementsForm($achievement, $categories, $knownHooks, $allAchievements, $errors) {
-		global $wgUser, $wgScriptPath;
+		global $wgUser, $wgScriptPath, $wgCheevosStats;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
@@ -172,14 +172,7 @@ class TemplateManageAchievements {
 			$criteria = $achievement->getCriteria();
 			$stats = ( isset($criteria['stats']) && is_array($criteria['stats']) ) ? $criteria['stats'] : [];
 
-			$statsList = [
-				'visit', 'article_edit', 'article_watch', 'article_create', 'article_delete', 'article_move',
-				'article_merge', 'article_protect', 'admin_block_ip', 'admin_patrol', 'curse_profile_comment',
-				'curse_profile_add_friend', 'curse_profile_edit', 'send_email', 'file_upload', 'wiki_points',
-				'curse_profile_edit_fav_wiki', 'curse_profile_comment_reply', 'curse_profile_edit_link_xbl',
-				'curse_profile_edit_link_psn', 'curse_profile_edit_link_steam', 'curse_profile_edit_link_facebook',
-				'curse_profile_edit_link_twitter', 'curse_profile_edit_link_reddit', 'achievement_engagement'
-			];
+			
 
 			$streakEnum = ['none','hourly', 'daily', 'weekly', 'monthly', 'yearly'];
 
@@ -187,7 +180,7 @@ class TemplateManageAchievements {
 
 			<label class='label_above'>".wfMessage('criteria_stats')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>
 			<div class='criteria_container'>";
-			foreach ($statsList as $stat) {
+			foreach ($wgCheevosStats as $stat) {
 				$HTML .= "<label><input type='checkbox' name='criteria_stats[]' value='{$stat}'".(in_array($stat, $stats) ? " checked='checked'" : null)."/>{$stat}</label>";
 			}
 			$HTML .= "</div>

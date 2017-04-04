@@ -263,6 +263,19 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Handle CurseProfile friend addition increment.
+	 *
+	 * @access	public
+	 * @param	integer	Global ID of the user adding a friend.
+	 * @param	integer	Global ID of the friend being added.
+	 * @return	True
+	 */
+	static public function onCurseProfileAcceptFriend($fromGlobalId, $toGlobalId) {
+		self::increment('curse_profile_accept_friend', 1, $fromGlobalId);
+		return true;
+	}
+
+	/**
 	 * Handle CurseProfile profile edited.
 	 *
 	 * @access	public
