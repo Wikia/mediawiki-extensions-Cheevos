@@ -261,7 +261,7 @@ class TemplateManageAchievements {
 			$HTML = "
 			<div>
 				".wfMessage('restore_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/restore?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button mw-ui-constructive'>".wfMessage('restore_achievement')."</a>
+				<a href='{$achievementsURL}/restore?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button'>".wfMessage('restore_achievement')."</a>
 			</div>
 			";
 		} else {
