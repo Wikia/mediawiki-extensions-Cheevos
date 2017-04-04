@@ -64,4 +64,30 @@ class CheevosHelper {
 		}
 		return $nice;
 	}
+
+	/**
+	 * Removes achievement parents when a child is presents.
+	 *
+	 * @access	public
+	 * @param	array	CheevosAchievement objects.
+	 * @return	array	CheevosAchievement objects.
+	 */
+	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true) {
+		if (count($achievements)) {
+			$removeParents = [];
+			foreach ($achievements as $key => $achievement) {
+				if ($achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
+					$removeParents[] = $achievement->getParent_Id();
+				}
+			}
+			if ($removeParents && count($removeParents)) {
+				foreach ($achievements as $key => $achievement) {
+					if (in_array($achievement->getId(), $removeParents)) {
+						unset($achievements[$key]);
+					}
+				}
+			}
+		}
+		return $achievements;
+	}
 }

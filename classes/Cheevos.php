@@ -229,22 +229,6 @@ class Cheevos {
 				]
 			);
 
-			/*if (!empty($siteKey) && isset($return['achievements'])) {
-				$removeParents = [];
-				foreach ($return['achievements'] as $key => $achievement) {
-					if (isset($achievement['parent_id']) && $achievement['parent_id'] > 0 && $achievement['deleted_at'] == 0) {
-						$removeParents[] = $achievement['parent_id'];
-					}
-				}
-				if (count($removeParents)) {
-					foreach ($return['achievements'] as $key => $achievement) {
-						if (isset($achievement['id']) && in_array($achievement['id'], $removeParents)) {
-							unset($return['achievements'][$key]);
-						}
-					}
-				}
-			}*/
-
 			try {
 				if (isset($return['achievements'])) {
 					$redis->setEx($redisKey, 300, serialize($return));

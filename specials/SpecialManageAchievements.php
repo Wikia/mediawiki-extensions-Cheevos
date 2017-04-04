@@ -100,7 +100,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$categories = Cheevos\Cheevos::getCategories();
 
 		if ($this->isMaster) {
-			foreach($achievements as $i => $a) {
+			foreach ($achievements as $i => $a) {
 				if ($a->getSite_Key() !== $this->siteKey) {
 					unset($achievements[$i]);
 				}
@@ -116,7 +116,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
-		$this->content = $this->templates->achievementsList($achievements, $categories);
+		$this->content = $this->templates->achievementsList(\Cheevos\CheevosHelper::pruneAchievements($achievements), $categories);
 	}
 
 	/**
