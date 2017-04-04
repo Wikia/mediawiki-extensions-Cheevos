@@ -54,6 +54,10 @@ class CheevosAchievement extends CheevosModel {
 	 * @return	array	Success Result
 	 */
 	public function save($forceCreate = false) {
+		if ($this->readOnly) {
+			throw new CheevosException("This object is read only and can not be saved.");
+		}
+
 		if ($this->getId() !== null && !$forceCreate) {
 			$result = Cheevos::updateAchievement($this->getId(), $this->toArray());
 		} else {
@@ -215,5 +219,81 @@ class CheevosAchievement extends CheevosModel {
 
 	public function isChild() {
 		return boolval($this->container['parent_id']);
+	}
+
+	/**
+	 * Removes achievements that should not be used or shown in the context they are called from.
+	 *
+	 * @access	public
+	 * @param	array	CheevosAchievement objects.
+	 * @param	boolean	Remove parent achievements if the child achievement is present.
+	 * @param	array	CheevosAchievementStatus objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
+	 * @return	array	CheevosAchievement objects.
+	 */
+	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = []) {
+		if (count($achievements)) {
+			$children = self::getParentToChild($achievements);
+			foreach ($achievements as $id => $achievement) {
+				$earned = false;
+				if (isset($statuses[$achievement->getId()])) {
+					$earned = $statuses[$achievement->getId()]->isEarned();
+				}
+				if (!$earned && isset($statuses[$achievement->getParent_Id()])) {
+					$earned = $statuses[$achievement->getParent_Id()]->isEarned();
+				}
+				if (!$earned && $removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
+					unset($achievements[$achievement->getParent_Id()]);
+				}
+				if ($removeDeleted && $achievement->getDeleted_At() > 0) {
+					unset($achievements[$achievement->getId()]);
+				}
+			}
+		}
+		return $achievements;
+	}
+
+	/**
+	 * When displaying "Requires" criteria it may refer to a parent achievement that has been succeeded by a child achievement.  This corrects it for display purposes.
+	 *
+	 * @access	public
+	 * @param	array	CheevosAchievement objects.
+	 * @return	array	CheevosAchievement objects.
+	 */
+	static public function correctCriteriaChildAchievements($achievements) {
+		if (count($achievements)) {
+			$children = self::getParentToChild($achievements);
+			if (count($children)) {
+				foreach ($achievements as $id => $achievement) {
+					$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
+					foreach ($requiredIds as $key => $requiresAid) {
+						if (isset($children[$requiresAid])) {
+							$requiredIds[$key] = $children[$requiresAid];
+						}
+					}
+					$achievements[$id]->getCriteria()->setAchievement_Ids($requiredIds);
+					$achievements[$id]->setReadOnly();
+				}
+			}
+		}
+		return $achievements;
+	}
+
+	/**
+	 * Get an array of child information for parents.
+	 *
+	 * @access	public
+	 * @param	array	CheevosAchievement objects.
+	 * @return	array	Array of parent_id => child_id.
+	 */
+	static public function getParentToChild($achievements) {
+		$children = [];
+		if (count($achievements)) {
+			foreach ($achievements as $id => $achievement) {
+				if ($achievement->getParent_Id()) {
+					$children[$achievement->getParent_Id()] = $achievement->getId();
+				}
+			}
+		}
+		return $children;
 	}
 }

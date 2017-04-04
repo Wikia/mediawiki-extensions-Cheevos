@@ -118,8 +118,13 @@ class SpecialManageAchievements extends SpecialPage {
 			// Make it easy on the display logic side?
 		}
 
+		//Fix requires achievement child IDs for display purposes.
+		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
+		//Remove achievements that should not be shown in this context.
+		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false);
+
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
-		$this->content = $this->templates->achievementsList(\Cheevos\CheevosHelper::pruneAchievements($achievements, true, false), $categories);
+		$this->content = $this->templates->achievementsList($achievements, $categories);
 	}
 
 	/**

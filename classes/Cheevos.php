@@ -289,7 +289,7 @@ class Cheevos {
 				"author_id" => intval($globalId)
 			]
 		);
-		return self::return($return);;
+		return self::return($return);
 	}
 
 	/**

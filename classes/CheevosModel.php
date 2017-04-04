@@ -6,9 +6,17 @@ use \ArrayAccess;
 class CheevosModel implements ArrayAccess {
 	/**
 	 * Associative array for storing property values
-	 * @var mixed[]
+	 *
+	 * @var	mixed[]
 	 */
 	protected $container = [];
+
+	/**
+	 * Sometimes data might have to be munged for display purposes only.  Setting this objec to read only will prevent it from being saved.
+	 *
+	 * @var	boolean
+	 */
+	private $readOnly = false;
 
 	/**
 	 * Undocumented function
@@ -172,6 +180,23 @@ class CheevosModel implements ArrayAccess {
 		return json_encode($this->toArray());
 	}
 
+	/**
+	 * Is this only read only?
+	 *
+	 * @access	public
+	 * @return	boolean
+	 */
+	public function isReadOnly() {
+		return $this->readOnly;
+	}
+
+	/**
+	 * Set this object to read only.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function setReadOnly() {
+		$this->readOnly = true;
+	}
 }
-
-

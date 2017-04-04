@@ -130,6 +130,11 @@ class SpecialAchievements extends SpecialPage {
 			$title .= " for {$user->getName()}";
 		}
 
+		//Fix requires achievement child IDs for display purposes.
+		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
+		//Remove achievements that should not be shown in this context.
+		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, true, $statuses);
+
 		$this->output->setPageTitle($title);
 		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses);
 	}

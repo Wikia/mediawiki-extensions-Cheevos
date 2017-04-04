@@ -40,6 +40,10 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @return	array	Success Result
 	 */
 	public function save() {
+		if ($this->readOnly) {
+			throw new CheevosException("This object is read only and can not be saved.");
+		}
+
 		if ($this->getId() !== null) {
 			$result = Cheevos::updateCategory($this->getId(), $this->toArray());
 		} else {
