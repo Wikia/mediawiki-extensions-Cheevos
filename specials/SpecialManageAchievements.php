@@ -116,7 +116,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
-		$this->content = $this->templates->achievementsList(\Cheevos\CheevosHelper::pruneAchievements($achievements), $categories);
+		$this->content = $this->templates->achievementsList(\Cheevos\CheevosHelper::pruneAchievements($achievements, true, false), $categories);
 	}
 
 	/**

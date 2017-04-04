@@ -219,7 +219,7 @@ class Cheevos {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
-		$return = unserialize($cache);
+		$return = unserialize($cache, [false]);
 		if (!$cache || !$return) {
 			$return = self::get(
 				'achievements/all',
