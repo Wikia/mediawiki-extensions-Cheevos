@@ -222,6 +222,7 @@
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
+		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
 		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
