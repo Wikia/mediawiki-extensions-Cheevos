@@ -25,14 +25,15 @@ class TemplateAchievements {
 	public function achievementsList($achievements, $categories, $status = []) {
 		global $wgOut, $wgRequest, $wgUser;
 
-		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
-		$achievementsURL	= $achievementsPage->getFullURL();
+		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
+		$manageAchievementsURL	= $manageAchievementsPage->getFullURL();
 
 		$HTML = '';
 
 		if ($wgUser->isAllowed('achievement_admin')) {
-			$HTML .= "<div class='buttons'>
-				<a href='{$achievementsURL}' class='button'>".wfMessage('manageachievements')."</a>
+			$HTML .= "
+			<div class='buttons'>
+				<a href='{$manageAchievementsURL}' class='button'>".wfMessage('manageachievements')."</a>
 			</div>";
 		}
 

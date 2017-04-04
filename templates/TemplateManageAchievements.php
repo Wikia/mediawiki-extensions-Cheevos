@@ -33,7 +33,7 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-		<!--<div class='search_bar'>
+		<div class='search_bar'>
 			<form method='get' action='{$achievementsURL}'>
 				<fieldset>
 					<input type='text' name='filter' id='search_field' value='' class='search_field' />
@@ -41,7 +41,7 @@ class TemplateManageAchievements {
 					<a href='{$achievementsURL}' class='button'>".wfMessage('list_reset')."</a>
 				</fieldset>
 			</form>
-		</div>-->
+		</div>
 		<div class='buttons'>
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='button'>".wfMessage('award_achievement')."</a>" : null)."

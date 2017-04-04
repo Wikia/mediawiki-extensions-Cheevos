@@ -11,7 +11,6 @@
 			"achievement_admin": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"edit_achievement_triggers": true,
 			"delete_achievements": true,
 			"restore_achievements": true,
 			"award_achievements": true
@@ -20,7 +19,6 @@
 			"achievement_admin": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"edit_achievement_triggers": true,
 			"delete_achievements": true,
 			"restore_achievements": true,
 			"award_achievements": true
@@ -29,21 +27,15 @@
 			"achievement_admin": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"edit_achievement_triggers": true,
 			"delete_achievements": true,
 			"restore_achievements": true,
-			"award_achievements": true,
-			"mega_achievement_admin": true,
-			"edit_mega_achievements": true
+			"award_achievements": true
 		}
 	},
 	"AvailableRights": [
 		"achievement_admin",
-		"mega_achievement_admin",
 		"edit_achievements",
 		"edit_meta_achievements",
-		"edit_mega_achievements",
-		"edit_achievement_triggers",
 		"delete_achievements",
 		"restore_achievements",
 		"award_achievements"

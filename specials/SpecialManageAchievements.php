@@ -62,6 +62,10 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->output->addModules(['ext.cheevos.styles', 'ext.cheevos.js']);
 		$this->setHeaders();
 
+		if (!$this->wgUser->isAllowed('edit_achievements')) {
+			throw new PermissionsError('edit_achievements');
+		}
+
 		switch ($subpage) {
 			default:
 			case 'view':
@@ -78,7 +82,6 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievementsDelete($subpage);
 				break;
 			case 'award':
-				//$this->getUser()->isAllowed('award_achievements') <-- check this here.
 				$this->awardForm();
 				break;
 			case 'invalidatecache':
@@ -109,7 +112,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$filter = $this->wgRequest->getVal('filter');
 
-		if ($filter !== NULL && !empty($filter)) {
+		if ($filter !== null && !empty($filter)) {
 			// @TODO: Make Search Work
 			// @IDEA: Make a single "category" called "Search Results" and pass that.$_COOKIE
 			// Make it easy on the display logic side?
@@ -126,11 +129,6 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsForm() {
-		if (!$this->wgUser->isAllowed('edit_achievements')) {
-			throw new PermissionsError('edit_achievements');
-			return;
-		}
-
 		$side_id = 0;
 
 		$this->output->addModules(['ext.achievements.triggerBuilder.js']);
@@ -323,6 +321,9 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function awardForm() {
+		if (!$this->getUser()->isAllowed('award_achievements')) {
+			throw new PermissionsError('award_achievements');
+		}
 		$this->checkPermissions();
 
 		$return = $this->awardSave();

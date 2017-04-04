@@ -58,12 +58,6 @@ Allowed to edit achievements.
 	edit_meta_achievements
 Allowed to edit meta style local achievements.
 
-	edit_mega_achievements
-Allowed to edit mega achievements up to the global service.
-
-	edit_achievement_triggers
-Allowed to edit triggers and conditions for an achievement.
-
 	delete_achievements
 Allowed to delete achievements.
 
