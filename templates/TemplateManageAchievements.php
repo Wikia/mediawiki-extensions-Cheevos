@@ -222,7 +222,8 @@ class TemplateManageAchievements {
 					if ($info->getId() == $achievement->getId()) {
 						continue;
 					}
-					$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$info->getId()}'".(in_array($info->getId(), $criteria['achievement_ids']) ? " checked='checked'" : null)."/>{$info->getName()}</label>";
+					$id = ($info->getParent_Id() ? $info->getParent_Id() : $info->getId());
+					$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$id}'".(in_array($id, $criteria['achievement_ids']) ? " checked='checked'" : null)."/>{$info->getName()}</label>";
 				}
 			}
 			$HTML .= "</div>";

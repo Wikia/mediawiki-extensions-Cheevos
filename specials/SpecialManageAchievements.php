@@ -162,8 +162,11 @@ class SpecialManageAchievements extends SpecialPage {
 		} else {
 			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped());
 		}
-		$this->content = $this->templates->achievementsForm($this->achievement, Cheevos\Cheevos::getCategories(), Cheevos\Cheevos::getKnownHooks(),
-		Cheevos\Cheevos::getAchievements($this->siteKey), $return['errors']);
+
+		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements(\Cheevos\Cheevos::getAchievements($this->siteKey), true, true);
+		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
+
+		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), \Cheevos\Cheevos::getKnownHooks(), $allAchievements, $return['errors']);
 	}
 
 	/**
