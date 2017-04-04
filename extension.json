@@ -98,7 +98,9 @@
 			],
 			"dependencies": [
 				"ext.hydraCore.button",
-				"ext.hydraCore.pagination"
+				"ext.hydraCore.pagination",
+				"mediawiki.ui.button",
+				"mediawiki.ui.input"
 			],
 			"targets": [
 				"desktop",
