@@ -46,7 +46,6 @@ class TemplateManageAchievements {
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='button'>".wfMessage('award_achievement')."</a>" : null)."
 			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='button'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
-
 		</div>
 			";
 		}
