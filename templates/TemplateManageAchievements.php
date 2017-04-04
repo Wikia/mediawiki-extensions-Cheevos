@@ -36,17 +36,16 @@ class TemplateManageAchievements {
 		<div class='search_bar'>
 			<form method='get' action='{$achievementsURL}'>
 				<fieldset>
-					<input type='text' name='filter' id='search_field' value='' class='search_field' />
-					<input type='submit' value='".wfMessage('list_search')."' class='button' />
-					<a href='{$achievementsURL}' class='button'>".wfMessage('list_reset')."</a>
+					<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
+					<input type='submit' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
+					<a href='{$achievementsURL}' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')."</a>
 				</fieldset>
 			</form>
 		</div>
 		<div class='buttons'>
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='button'>".wfMessage('add_achievement')."</a>" : null)."
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='button'>".wfMessage('award_achievement')."</a>" : null)."
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='button'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
-
+			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
+			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='mw-ui-button'>".wfMessage('award_achievement')."</a>" : null)."
+			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>".wfMessage('add_achievement')."</a>" : null)."
 		</div>
 			";
 		}
@@ -121,7 +120,6 @@ class TemplateManageAchievements {
 		$HTML .= "
 			<form id='achievement_form' class=\"pure-form pure-form-stacked\" method='post' action='{$achievementsURL}/admin?do=save'>
 				<fieldset>
-
 					".($errors['name'] ? '<span class="error">'.$errors['name'].'</span>' : '')."
 					<label for='name' class='label_above'>".wfMessage('achievement_name')->escaped()."</label>
 					<input id='name' name='name' type='text' maxlength='50' placeholder='".wfMessage('achievement_name_helper')->escaped()."' value='".htmlentities($achievement->getName(), ENT_QUOTES)."' />
@@ -256,14 +254,14 @@ class TemplateManageAchievements {
 			$HTML = "
 			<div>
 				".wfMessage('restore_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/restore?aid={$achievement->getId()}&amp;confirm=true' class='button'>".wfMessage('restore_achievement')."</a>
+				<a href='{$achievementsURL}/restore?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button'>".wfMessage('restore_achievement')."</a>
 			</div>
 			";
 		} else {
 			$HTML = "
 			<div>
 				".wfMessage($action.'_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/delete?aid={$achievement->getId()}&amp;confirm=true' class='button'>".wfMessage($action.'_achievement')."</a>
+				<a href='{$achievementsURL}/delete?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button mw-ui-destructive'>".wfMessage($action.'_achievement')."</a>
 			</div>
 			";
 		}
