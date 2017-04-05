@@ -107,7 +107,7 @@ class CheevosAchievement extends CheevosModel {
 			$name = reset($this->container['name']);
 		}
 
-		return str_replace("%1", $wgSitename, $name);
+		return str_replace("{{SITENAME}}", $wgSitename, $name);
 	}
 
 	/**
