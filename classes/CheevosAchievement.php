@@ -94,9 +94,14 @@ class CheevosAchievement extends CheevosModel {
 		return false; //No no no... you buy.
 	}
 
-	public function getName() {
-		global $wgSitename;
-
+	/**
+	 * Get the achievement name for display.
+	 *
+	 * @access	public
+	 * @param	string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
+	 * @return	string	Achievement Name
+	 */
+	public function getName($siteKey = null) {
 		if ($this->container['name'] == null || !count($this->container['name'])) {
 			return "";
 		}
@@ -107,7 +112,31 @@ class CheevosAchievement extends CheevosModel {
 			$name = reset($this->container['name']);
 		}
 
-		return str_replace("{{SITENAME}}", $wgSitename, $name);
+		$sitename = '';
+		if ($siteKey === null) {
+			$siteKey = $this->container['site_key'];
+		}
+		if (!empty($siteKey)) {
+			try {
+				$redis = \RedisCache::getClient('cache');
+				$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+				if (!empty($info)) {
+					foreach ($info as $field => $value) {
+						$info[$field] = unserialize($value);
+					}
+				}
+				$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
+			} catch (\RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		if (empty($sitename)) {
+			global $wgSitename, $wgLanguageCode;
+			$sitename = $wgSitename." (".strtoupper($wgLanguageCode).")";;
+		}
+
+		return str_replace("{{SITENAME}}", $sitename, $name);
 	}
 
 	/**

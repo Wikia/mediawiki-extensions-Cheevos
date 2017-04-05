@@ -140,7 +140,7 @@ class TemplateAchievements {
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
 				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
+					<span class='p-achievement-name'>".htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getCriteria()->getAchievement_Ids())) {
