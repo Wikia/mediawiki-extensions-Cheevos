@@ -20,6 +20,13 @@ class CheevosHooks {
 	static private $shutdownRegistered = false;
 
 	/**
+	 * Data points to increment on shutdown.
+	 *
+	 * @var		array
+	 */
+	static private $increments = [];
+
+	/**
 	 * Setup anything that needs to be configured before anything else runs.
 	 *
 	 * @access	public
@@ -73,7 +80,7 @@ class CheevosHooks {
 	public static function increment($stat, $delta, $user = null) {
 		$siteKey = self::getSiteKey();
 		if ($siteKey === false) {
-			return;
+			return false;
 		}
 
 		if (!$user) {
@@ -88,27 +95,15 @@ class CheevosHooks {
 			$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 		}
 
-		$data = [
-			'user_id' => $globalId,
-			'site_key' => $siteKey,
-			'deltas'   => [
-				['stat' => $stat, 'delta' => $delta]
-			]
-		];
-
-		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
-		try {
-			$return = \Cheevos\Cheevos::increment($data);
-			if (isset($return['earned'])) {
-				foreach ($return['earned'] as $achievement) {
-					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::displayAchievement($achievement);
-				}
-			}
-		} catch (CheevosException $e) {
-			$return = \Cheevos\CheevosIncrementJob::queue($data);
+		if (!$globalId) {
+			return false;
 		}
-		return $return;
+
+		self::$increments[$globalId]['user_id'] = $globalId;
+		self::$increments[$globalId]['site_key'] = $siteKey;
+		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
+
+		return true;
 	}
 
 	/**
@@ -404,11 +399,14 @@ class CheevosHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
-		if (PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+		if ('MW_NO_SESSION' === 'warn' || MW_API === true || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
 			return true;
 		}
 
-		register_shutdown_function('CheevosHooks::trackVisits');
+		global $wgUser;
+		self::increment('visit', 1, $wgUser);
+
+		register_shutdown_function('CheevosHooks::doIncrements');
 
 		self::$shutdownRegistered = true;
 
@@ -416,18 +414,28 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Handle daily visits.
+	 * Send all the tallied increments up to the service.
 	 *
 	 * @access	public
 	 * @return	void
 	 */
-	static public function trackVisits() {
-		global $wgUser;
-
-		if (PHP_SAPI === 'cli') {
-			return;
+	static public function doIncrements() {
+		//Attempt to do it NOW. If we get an error, fall back to the SyncService job.
+		try {
+			foreach (self::$increments as $globalId => $increment) {
+				$return = \Cheevos\Cheevos::increment($increment);
+				if (isset($return['earned'])) {
+					foreach ($return['earned'] as $achievement) {
+						$achievement = new \Cheevos\CheevosAchievement($achievement);
+						\CheevosHooks::displayAchievement($achievement);
+					}
+				}
+			}
+		} catch (\Cheevos\CheevosException $e) {
+			foreach (self::$increments as $globalId => $increment) {
+				\Cheevos\CheevosIncrementJob::queue($increment);
+			}
 		}
-		self::increment('visit', 1, $wgUser);
 	}
 
 	/**

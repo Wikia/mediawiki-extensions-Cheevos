@@ -474,12 +474,13 @@ class Cheevos {
 	 * @return void
 	 */
 	static public function checkUnnotified($globalId, $siteKey, $forceRecalculate = false) {
+		$globalId = intval($globalId);
 		if (empty($globalId) || empty($siteKey)) {
 			return;
 		}
 
 		$data = [
-			'user_id' => intval($globalId),
+			'user_id' => $globalId,
 			'site_key' => $siteKey,
 			'recalculate' => $forceRecalculate,
 			'deltas' => []
