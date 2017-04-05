@@ -389,15 +389,17 @@ class SpecialManageAchievements extends SpecialPage {
 						// no progress for anything. heh.
 						if ($do == 'award') {
 							// award it.
-							$awarded[] = Cheevos\Cheevos::putProgress([
-								'achievement_id'	=> $achievement->getId(),
-								'site_key'			=> $dsSiteKey,
-								'user_id'			=> $this->globalId,
-								'earned'			=> true,
-								'manual_award' 		=> true,
-								'awarded_at'		=> time(),
-								'notified'			=> false
-							]);
+							$awarded[] = Cheevos\Cheevos::putProgress(
+								[
+									'achievement_id'	=> $achievement->getId(),
+									'site_key'			=> $dsSiteKey,
+									'user_id'			=> $this->globalId,
+									'earned'			=> true,
+									'manual_award' 		=> true,
+									'awarded_at'		=> time(),
+									'notified'			=> false
+								]
+							);
 						} else {
 							// nothing was there anyway?
 							$awarded = true;
@@ -416,15 +418,17 @@ class SpecialManageAchievements extends SpecialPage {
 							// They dont have any current progress for this specific achievement. Same as if they had no progress at all.
 							if ($do == 'award') {
 								// award it.
-								$awarded[] = Cheevos\Cheevos::putProgress([
-									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> $dsSiteKey,
-									'user_id'			=> $this->globalId,
-									'earned'			=> true,
-									'manual_award' 		=> true,
-									'awarded_at'		=> time(),
-									'notified'			=> false
-								]);
+								$awarded[] = Cheevos\Cheevos::putProgress(
+									[
+										'achievement_id'	=> $achievement->getId(),
+										'site_key'			=> $dsSiteKey,
+										'user_id'			=> $this->globalId,
+										'earned'			=> true,
+										'manual_award' 		=> true,
+										'awarded_at'		=> time(),
+										'notified'			=> false
+									]
+								);
 								\CheevosHooks::displayAchievement($achievement);
 							} else {
 								// nothing was there anyway?
@@ -434,15 +438,18 @@ class SpecialManageAchievements extends SpecialPage {
 
 							if ($do == 'award') {
 								// award it.
-								$awarded[] = Cheevos\Cheevos::putProgress([
-									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> $dsSiteKey,
-									'user_id'			=> $this->globalId,
-									'earned'			=> true,
-									'manual_award' 		=> true,
-									'awarded_at'		=> time(),
-									'notified'			=> false
-								],$current_progress_id);
+								$awarded[] = Cheevos\Cheevos::putProgress(
+									[
+										'achievement_id'	=> $achievement->getId(),
+										'site_key'			=> $dsSiteKey,
+										'user_id'			=> $this->globalId,
+										'earned'			=> true,
+										'manual_award' 		=> true,
+										'awarded_at'		=> time(),
+										'notified'			=> false
+									],
+									$current_progress_id
+								);
 								\CheevosHooks::displayAchievement($achievement);
 
 							} elseif ($do == 'unaward') {
