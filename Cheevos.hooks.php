@@ -427,7 +427,7 @@ class CheevosHooks {
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
-						\CheevosHooks::displayAchievement($achievement);
+						\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
 					}
 				}
 			}
@@ -443,33 +443,32 @@ class CheevosHooks {
 	 *
 	 * @access	public
 	 * @param	object	Achievement
-	 * @param	object	User
-	 * @return	void
+	 * @param	string	Site Key
+	 * @param	integer	Global User ID
+	 * @return	boolean	Success
 	 */
-	static public function displayAchievement($achievement, $user = null) {
-		global $dsSiteKey, $wgUser;
-		if (!$user) {
-			$user = $wgUser;
-		}
+	static public function displayAchievement($achievement, $siteKey, $globalId) {
+		$globalId = intval($globalId);
 
+		if (empty($siteKey) || $globalId < 0) {
+			return false;
+		}
 
 		$templates = new TemplateAchievements;
 		$redis = RedisCache::getClient('cache');
 
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
-
-		if ($redis === false || !$globalId) {
-			return;
+		if ($redis === false) {
+			return false;
 		}
 
-		$HTML = $templates->achievementBlockPopUp($achievement);
+		$html = $templates->achievementBlockPopUp($achievement, $siteKey, $globalId);
 
 		try {
 			//Using a global key.
 			$redisKey = 'cheevos:display:'.$globalId;
-			$redis->hSet($redisKey, $dsSiteKey."-".$achievement->getId(), $HTML);
+			$redis->hSet($redisKey, $siteKey."-".$achievement->getId(), $html);
 			$redis->expire($redisKey, 3600);
+			return true;
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			return false;

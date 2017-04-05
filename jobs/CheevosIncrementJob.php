@@ -50,7 +50,7 @@ class CheevosIncrementJob extends \SyncService\Job {
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
 					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::displayAchievement($achievement);
+					\CheevosHooks::displayAchievement($achievement, $data['site_key'], $data['user_id']);
 				}
 			}
 			return ($return === false ? false : true);

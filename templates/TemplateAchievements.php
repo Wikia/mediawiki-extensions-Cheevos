@@ -93,9 +93,11 @@ class TemplateAchievements {
 	 *
 	 * @access	public
 	 * @param	array	Achievement Information
+	 * @param	string	Site Key
+	 * @param	integer	Global User ID
 	 * @return	string	Built HTML
 	 */
-	public function achievementBlockPopUp($achievement) {
+	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
 
 		$achievementsPage = Title::newFromText('Special:Achievements');
@@ -103,13 +105,13 @@ class TemplateAchievements {
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$dsSiteKey}-{$achievement->getId()}'>
+			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$siteKey}-{$achievement->getId()}'>
 				<div class='p-achievement-source'>".($achievement->isGlobal() ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
 				<div class='p-achievement-icon'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>
 				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>".htmlentities($achievement->getName(), ENT_QUOTES)."</span>
+					<span class='p-achievement-name'>".htmlentities($achievement->getName($siteKey), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 				</div>
 				<span class='p-achievement-points'>".$achievement->getPoints()."{$wgAchPointAbbreviation}</span>

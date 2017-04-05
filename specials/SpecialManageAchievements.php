@@ -46,8 +46,6 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$lookup = CentralIdLookup::factory();
-		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
-
 	}
 
 	/**
@@ -374,17 +372,17 @@ class SpecialManageAchievements extends SpecialPage {
 
 			if (!count($errors)) {
 				$users = explode(",", $save['username']);
-				foreach ($users as $getuser) {
-					$user = User::newFromName(trim($getuser));
+				foreach ($users as $getUser) {
+					$user = User::newFromName(trim($getUser));
 					$user->load();
 					$lookup = CentralIdLookup::factory();
 					$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 					if (!$user || !$user->getId() || !$globalId) {
-						$errors['username'][] = "{$getuser}: ".wfMessage('error_award_bad_user')->escaped();
+						$errors['username'][] = "{$getUser}: ".wfMessage('error_award_bad_user')->escaped();
 						continue;
 					}
 
-					$check = \Cheevos\Cheevos::getAchievementProgress(['user_id' => $this->globalId, 'site_key' => $dsSiteKey]);
+					$check = \Cheevos\Cheevos::getAchievementProgress(['user_id' => $globalId, 'site_key' => $dsSiteKey]);
 					if (!count($check)) {
 						// no progress for anything. heh.
 						if ($do == 'award') {
@@ -393,13 +391,14 @@ class SpecialManageAchievements extends SpecialPage {
 								[
 									'achievement_id'	=> $achievement->getId(),
 									'site_key'			=> $dsSiteKey,
-									'user_id'			=> $this->globalId,
+									'user_id'			=> $globalId,
 									'earned'			=> true,
 									'manual_award' 		=> true,
 									'awarded_at'		=> time(),
 									'notified'			=> false
 								]
 							);
+							\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
 						} else {
 							// nothing was there anyway?
 							$awarded = true;
@@ -422,27 +421,26 @@ class SpecialManageAchievements extends SpecialPage {
 									[
 										'achievement_id'	=> $achievement->getId(),
 										'site_key'			=> $dsSiteKey,
-										'user_id'			=> $this->globalId,
+										'user_id'			=> $globalId,
 										'earned'			=> true,
 										'manual_award' 		=> true,
 										'awarded_at'		=> time(),
 										'notified'			=> false
 									]
 								);
-								\CheevosHooks::displayAchievement($achievement);
+								\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
 							} else {
 								// nothing was there anyway?
 								$awarded[] = true;
 							}
 						} else {
-
 							if ($do == 'award') {
 								// award it.
 								$awarded[] = Cheevos\Cheevos::putProgress(
 									[
 										'achievement_id'	=> $achievement->getId(),
 										'site_key'			=> $dsSiteKey,
-										'user_id'			=> $this->globalId,
+										'user_id'			=> $globalId,
 										'earned'			=> true,
 										'manual_award' 		=> true,
 										'awarded_at'		=> time(),
@@ -450,11 +448,10 @@ class SpecialManageAchievements extends SpecialPage {
 									],
 									$current_progress_id
 								);
-								\CheevosHooks::displayAchievement($achievement);
-
+								\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
 							} elseif ($do == 'unaward') {
 								// unaward it.
-								$awarded[] = Cheevos\Cheevos::deleteProgress($current_progress_id, $this->globalId);
+								$awarded[] = Cheevos\Cheevos::deleteProgress($current_progress_id, $globalId);
 							}
 						}
 					}

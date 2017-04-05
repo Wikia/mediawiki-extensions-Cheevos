@@ -98,9 +98,9 @@ class SpecialAchievements extends SpecialPage {
 		try {
 			$check = \Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
 			if (isset($check['earned'])) {
-				foreach ($check['earned'] as $a) {
-					$ab = new \Cheevos\CheevosAchievement($a);
-					\CheevosHooks::displayAchievement($ab);
+				foreach ($check['earned'] as $earned) {
+					$earnedAchievement = new \Cheevos\CheevosAchievement($earned);
+					\CheevosHooks::displayAchievement($earnedAchievement, $this->siteKey, $globalId);
 				}
 			}
 			$_statuses = \Cheevos\Cheevos::getUserStatus($globalId, $this->siteKey);
