@@ -75,6 +75,9 @@ class SyncWikiPoints extends Maintenance {
 
 				$lookup = \CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+				if (!$globalId) {
+					continue;
+				}
 
 				$currentScore = intval($row['score']);
 				try {
