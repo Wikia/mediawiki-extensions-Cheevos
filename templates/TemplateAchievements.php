@@ -145,6 +145,17 @@ class TemplateAchievements {
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES)."</span>
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
+		if (count($achievement->getRequiredBy())) {
+			$HTML .= "
+						<div class='p-achievement-required_by'>
+						".wfMessage('required_by')->escaped();
+			foreach ($achievement->getRequiredBy() as $requiredByAId) {
+				$HTML .= "
+							<span>".(isset($achievements[$requiredByAId]) ? $achievements[$requiredByAId]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
+			}
+			$HTML .= "
+						</div>";
+		}
 		if (count($achievement->getCriteria()->getAchievement_Ids())) {
 			$HTML .= "
 						<div class='p-achievement-requires'>
