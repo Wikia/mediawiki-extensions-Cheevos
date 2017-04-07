@@ -356,7 +356,6 @@ class CheevosAchievement extends CheevosModel {
 		}
 		$this->requiredBy = array_unique($this->requiredBy);
 		sort($this->requiredBy);
-		var_dump($this->requiredBy);
 
 		return $this->requiredBy;
 	}
