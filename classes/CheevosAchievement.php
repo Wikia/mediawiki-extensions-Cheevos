@@ -109,6 +109,8 @@ class CheevosAchievement extends CheevosModel {
 	 * @return	string	Achievement Name
 	 */
 	public function getName($siteKey = null) {
+		global $dsSiteKey;
+
 		if ($this->container['name'] == null || !count($this->container['name'])) {
 			return "";
 		}
@@ -123,7 +125,7 @@ class CheevosAchievement extends CheevosModel {
 		if ($siteKey === null) {
 			$siteKey = $this->container['site_key'];
 		}
-		if (!empty($siteKey)) {
+		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
 			try {
 				$redis = \RedisCache::getClient('cache');
 				$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
