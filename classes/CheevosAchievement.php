@@ -15,6 +15,13 @@ namespace Cheevos;
 
 class CheevosAchievement extends CheevosModel {
 	/**
+	 * What achievements this achievement is required by.
+	 *
+	 * @var		array
+	 */
+	private $requiredBy = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @access	public
@@ -324,5 +331,33 @@ class CheevosAchievement extends CheevosModel {
 			}
 		}
 		return $children;
+	}
+
+	/**
+	 * Get achievement IDs that require this achievement.
+	 *
+	 * @access	public
+	 * @return	array	Array achievement IDs that require this achievement.
+	 */
+	public function getRequiredBy() {
+		global $dsSiteKey;
+
+		if ($this->requiredBy !== null) {
+			return $this->requiredBy;
+		}
+
+		$this->requiredBy = [];
+		$achievements = Cheevos::getAchievements($dsSiteKey);
+		foreach ($achievements as $id => $achievement) {
+			$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
+			if (in_array($this->getId(), $requiredIds)) {
+				$this->requiredBy[] = $achievement->getId();
+			}
+		}
+		$this->requiredBy = array_unique($this->requiredBy);
+		sort($this->requiredBy);
+		var_dump($this->requiredBy);
+
+		return $this->requiredBy;
 	}
 }

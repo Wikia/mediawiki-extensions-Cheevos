@@ -100,13 +100,21 @@ class CheevosStatsAPI extends ApiBase {
 		$topUser = isset($topAchieverCall['counts'][0]['user_id']) ? $topAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topUser) {
-			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
+			$topAchiever = [
+				'name' => "API RETURNED NO USER",
+				'img' => 'https://placehold.it/96x96'
+			];
 		} else {
 			$user = $lookup->localUserFromCentralId($topUser);
 			if ($user) {
-				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
+				$topAchiever = [
+					'name' => $user->getName(),
+					'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"
+				];
 			} else {
-				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'https://placehold.it/96x96'];
+				$topAchiever = [
+					'name' => "UNABLE TO LOOKUP USER ($topUser)",'img' => 'https://placehold.it/96x96'
+				];
 			}
 		}
 
@@ -120,18 +128,18 @@ class CheevosStatsAPI extends ApiBase {
 			$user_global_ids[] = $lookup->centralIdFromLocalUser($localUser);
 		}
 
-		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null,$curse_global_ids);
+		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null, $curse_global_ids);
 		$topNonCurseUser = isset($topNonCurseAchieverCall['counts'][0]['user_id']) ? $topNonCurseAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topNonCurseUser) {
-			$topNonCurseAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
+			$topNonCurseAchiever = ['name' => "API RETURNED NO USER", 'img' => 'https://placehold.it/96x96'];
 		} else {
 
 			$userNonCurse = $lookup->localUserFromCentralId($topNonCurseUser);
 			if ($user) {
-				$topNonCurseAchiever = ['name'=>$userNonCurse->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($userNonCurse->getEmail())))."?d=mm&amp;s=96"];
+				$topNonCurseAchiever = ['name' => $userNonCurse->getName(), 'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($userNonCurse->getEmail())))."?d=mm&amp;s=96"];
 			} else {
-				$topNonCurseAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topNonCurseUser)",'img'=>'https://placehold.it/96x96'];
+				$topNonCurseAchiever = ['name' => "UNABLE TO LOOKUP USER ($topNonCurseUser)", 'img' => 'https://placehold.it/96x96'];
 			}
 		}
 
@@ -152,28 +160,28 @@ class CheevosStatsAPI extends ApiBase {
 
 	public function getWikiStats() {
 		$this->params = $this->extractRequestParams();
-		$site_key = $this->params['wiki'];
+		$siteKey = $this->params['wiki'];
 
-		$achievements = Cheevos\Cheevos::getAchievements($site_key);
+		$achievements = Cheevos\Cheevos::getAchievements($siteKey);
 
-		$progressCount = Cheevos\Cheevos::getProgressCount($site_key);
+		$progressCount = Cheevos\Cheevos::getProgressCount($siteKey);
 		$totalEarnedAchievements = isset($progressCount['total']) ? $progressCount['total'] : "N/A";
 
-		$progressCountMega = Cheevos\Cheevos::getProgressCount($site_key,96);
+		$progressCountMega = Cheevos\Cheevos::getProgressCount($siteKey, 96);
 		$totalEarnedAchievementsMega = isset($progressCountMega['total']) ? $progressCountMega['total'] : "N/A";
 
-		$topAchieverCall = Cheevos\Cheevos::getProgressTop($site_key);
+		$topAchieverCall = Cheevos\Cheevos::getProgressTop($siteKey);
 		$topUser = isset($topAchieverCall['counts'][0]['user_id']) ? $topAchieverCall['counts'][0]['user_id'] : false;
 
 		if (!$topUser) {
-			$topAchiever = ['name'=>"API RETURNED NO USER",'img'=>'https://placehold.it/96x96'];
+			$topAchiever = ['name' => "API RETURNED NO USER", 'img' => 'https://placehold.it/96x96'];
 		} else {
 			$lookup = CentralIdLookup::factory();
 			$user = $lookup->localUserFromCentralId($topUser);
 			if ($user) {
-				$topAchiever = ['name'=>$user->getName(),'img'=>"//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
+				$topAchiever = ['name' => $user->getName(), 'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
 			} else {
-				$topAchiever = ['name'=>"UNABLE TO LOOKUP USER ($topUser)",'img'=>'https://placehold.it/96x96'];
+				$topAchiever = ['name' => "UNABLE TO LOOKUP USER ($topUser)", 'img' => 'https://placehold.it/96x96'];
 			}
 		}
 
@@ -190,7 +198,7 @@ class CheevosStatsAPI extends ApiBase {
 
 	public function getWikiStatsTable() {
 		$this->params = $this->extractRequestParams();
-		$site_key = $this->params['wiki'];
+		$siteKey = $this->params['wiki'];
 		$data = [];
 
 		$db = wfGetDB(DB_MASTER);
@@ -202,10 +210,10 @@ class CheevosStatsAPI extends ApiBase {
 		);
 		$userCount = $userCount->count;
 
-		$achievements = Cheevos\Cheevos::getAchievements($site_key);
+		$achievements = Cheevos\Cheevos::getAchievements($siteKey);
 		foreach($achievements as $a) {
 
-			$earned = Cheevos\Cheevos::getProgressCount($site_key,$a->getId());
+			$earned = Cheevos\Cheevos::getProgressCount($siteKey, $a->getId());
 			$totalEarned = isset($earned['total']) ? $earned['total'] : 0;
 			$userPercent = ($totalEarned > 0) ? ( ($totalEarned / $userCount) * 100 ) : 0;
 
