@@ -605,17 +605,15 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Delete progress towards an achievement.
 	 *
-	 * @param [type] $id
-	 * @param int $globalId
-	 * @return void
+	 * @access	public
+	 * @param	integer	Progress ID
+	 * @return	mixed
 	 */
-	public static function deleteProgress($id, $globalId = 0) {
-		$return = self::delete("achievements/progress/{$id}", [
-			"author_id" => $globalId
-		]);
-		return self::return($return);;
+	public static function deleteProgress($id) {
+		$return = self::delete("achievements/progress/{$id}");
+		return self::return($return);
 	}
 
 	/**

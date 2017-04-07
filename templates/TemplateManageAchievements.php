@@ -66,7 +66,7 @@ class TemplateManageAchievements {
 						// Don't show restore, show the default.
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, false, $achievements);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, [], $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
@@ -113,7 +113,7 @@ class TemplateManageAchievements {
 		$achievementsURL	= $achievementsPage->getFullURL();
 		$category = $achievement->getCategory();
 
-		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, false, $allAchievements);
+		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, [], $allAchievements);
 
 		$HTML .= "<h2>".wfMessage('general_achievement_section')->escaped()."</h2>";
 
@@ -294,7 +294,7 @@ class TemplateManageAchievements {
 					$HTML .= "</ul>";
 				$HTML .= "</div>";
 			}
-		} elseif ($form['success'] !== NULL) {
+		} elseif ($form['success'] !== null) {
 				$HTML .= "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
 				<br />".$form['success']['message']."
 				</div>";

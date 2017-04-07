@@ -59,7 +59,7 @@ class TemplateAchievements {
 						continue;
 					}
 
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $achievementStatus, $achievements);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $status, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
@@ -127,12 +127,14 @@ class TemplateAchievements {
 	 * @access	public
 	 * @param	array	Achievement Information
 	 * @param	boolean	[Optional] Show Controls
-	 * @param	object	[Optional] Achievement Status Information
+	 * @param	array	[Optional] AchievementStatus Objects
 	 * @param	array	[Optional] All loaded achievements for showing required criteria.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $status = false, $achievements = []) {
+	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = []) {
 		global $wgUser, $wgAchPointAbbreviation;
+
+		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
 
 		$imageUrl = $achievement->getImageUrl();
 
@@ -146,15 +148,21 @@ class TemplateAchievements {
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
-			$HTML .= "
-						<div class='p-achievement-required_by'>
-						".wfMessage('required_by')->escaped();
 			foreach ($achievement->getRequiredBy() as $requiredByAId) {
-				$HTML .= "
+				if (isset($achievements[$requiredByAId]) && $achievements[$requiredByAId]->isSecret()) {
+					if (!isset($statuses[$requiredByAId]) || !$statuses[$requiredByAId]->isEarned()) {
+						continue;
+					}
+				}
+				$_rbInnerHtml .= "
 							<span>".(isset($achievements[$requiredByAId]) ? $achievements[$requiredByAId]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
 			}
-			$HTML .= "
+			if (!empty($_rbInnerHtml)) {
+				$HTML .= "
+						<div class='p-achievement-required_by'>
+						".wfMessage('required_by')->escaped()."{$_rbInnerHtml}
 						</div>";
+			}
 		}
 		if (count($achievement->getCriteria()->getAchievement_Ids())) {
 			$HTML .= "
