@@ -225,6 +225,7 @@
 		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
+		"LocalUserCreated": "CheevosHooks::onLocalUserCreated",
 		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
 		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
 		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",

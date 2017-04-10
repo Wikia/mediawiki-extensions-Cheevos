@@ -367,6 +367,19 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Handle when a local user is created in the database.
+	 *
+	 * @access	public
+	 * @param	object	User created.
+	 * @param	boolean	Automatic Creation
+	 * @return	True
+	 */
+	static public function onLocalUserCreated($user, $autoCreated) {
+		self::increment('account_create', 1, $user);
+		return true;
+	}
+
+	/**
 	 * Handles awarding WikiPoints achievements.
 	 *
 	 * @access	public
