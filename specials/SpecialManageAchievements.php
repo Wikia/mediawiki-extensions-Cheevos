@@ -181,7 +181,7 @@ class SpecialManageAchievements extends SpecialPage {
 			if (!empty($this->siteKey) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {
 				$forceCreate = true;
 				$this->achievement->setParent_Id($this->achievement->getId());
-				$this->achievement->setId(0); // <-- do this AFTER setting parent_id... ALEX
+				$this->achievement->setId(0);
 			}
 			$this->achievement->setSite_Key($this->siteKey);
 
@@ -215,15 +215,30 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement->setImage($this->wgRequest->getVal('image'));
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
-			$category = \Cheevos\Cheevos::getCategory($this->wgRequest->getInt('category_id'));
+			$categoryId = $this->wgRequest->getInt('category_id');
+			$categoryName = $this->wgRequest->getText('category');
+			$category = \Cheevos\Cheevos::getCategory($categoryId);
+			if ($category !== false && $categoryId > 0 && $categoryId == $category->getId() && $categoryName == $category->getName()) {
+				$this->achievement->setCategory($category);
+			} elseif (!empty($categoryName)) {
+				$category = new \Cheevos\CheevosAchievementCategory();
+				$category->setName($categoryName);
+				$return = $category->save();
+				if (isset($return['code']) && $return['code'] !== 200) {
+					throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+				}
+				if (isset($return['object_id'])) {
+					$category = \Cheevos\Cheevos::getCategory($return['object_id']);
+					$this->achievement->setCategory($category);
+				} else {
+					$category = false;
+				}
+			} else {
+				$category = false;
+			}
 
 			if ($category === false) {
 				$errors['category'] = wfMessage('error_invalid_achievement_category')->escaped();
-			} else {
-				if (!$category->exists()) {
-					$category->save();
-				}
-				$this->achievement->setCategory($category);
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));

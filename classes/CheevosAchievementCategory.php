@@ -67,9 +67,9 @@ class CheevosAchievementCategory extends CheevosModel {
 				$return = false;
 			}
 			return $return;
-		} else {
-			return false; // no ID on this. Can't exist?
 		}
+
+		return false; // no ID on this. Can't exist?
 	}
 
 	/**
@@ -103,6 +103,9 @@ class CheevosAchievementCategory extends CheevosModel {
 		} else {
 			$this->container['name'][$code] = $name;
 		}
+		if (!isset($this->container['slug']) || empty($this->container['slug'])) {
+			$this->container['slug'] = $this->makeCanonicalTitle($name);
+		}
 	}
 
 	/**
@@ -112,5 +115,36 @@ class CheevosAchievementCategory extends CheevosModel {
 	 */
 	public function getTitle() {
 		return $this->getName();
+	}
+
+	/**
+	 * Transforms text into canonical versions safe for usage in URLs and Javascript data attributes.
+	 *
+	 * @access	private
+	 * @param	integer	Text to filter
+	 * @param	boolean	[Optional] Ignore spaces
+	 * @return	integer	Generated Canonical Title
+	 */
+	private function makeCanonicalTitle($text, $ignoreSpaces = false) {
+		$text = html_entity_decode(rawurldecode(trim($text)), ENT_QUOTES, 'UTF-8');
+		$text = mb_strtolower($text, 'UTF-8');
+
+		if (!$ignoreSpaces) {
+			$text = str_replace(' ', '-', $text);
+		}
+
+		//Replace non-alpha numeric characters that would be bad for SEO
+        $text = preg_replace('#(?![a-zA-Z0-9_\-|\\\|/|\+]).*?#is', '', $text);
+
+		//Replace other separators with dashes.
+		$text = preg_replace("#(_+|/+|\\\+|\+)#is", "-", $text);
+
+		//Remove excess dashes.
+		$text = preg_replace("#(-+)#is", "-", $text);
+
+		//Remove trailing dashes.
+		$text = trim($text, '-');
+
+		return $text;
 	}
 }
