@@ -102,6 +102,8 @@ class CheevosHooks {
 		self::$increments[$globalId]['user_id'] = $globalId;
 		self::$increments[$globalId]['site_key'] = $siteKey;
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
+		self::$increments[$globalId]['timestamp'] = time();
+		self::$increments[$globalId]['request_uuid'] = sha1(self::$increments[$globalId]['user_id'].self::$increments[$globalId]['site_key'].self::$increments[$globalId]['timestamp'].random_bytes(4));
 
 		return true;
 	}
