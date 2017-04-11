@@ -121,29 +121,11 @@ class CheevosAchievement extends CheevosModel {
 			$name = reset($this->container['name']);
 		}
 
-		$sitename = '';
 		if ($siteKey === null) {
 			$siteKey = $this->container['site_key'];
 		}
-		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
-			try {
-				$redis = \RedisCache::getClient('cache');
-				$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
-				if (!empty($info)) {
-					foreach ($info as $field => $value) {
-						$info[$field] = unserialize($value);
-					}
-				}
-				$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
-			} catch (\RedisException $e) {
-				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
-			}
-		}
 
-		if (empty($sitename)) {
-			global $wgSitename, $wgLanguageCode;
-			$sitename = $wgSitename." (".strtoupper($wgLanguageCode).")";;
-		}
+		$sitename = CheevosHelper::getSiteName($siteKey);
 
 		return str_replace("{{SITENAME}}", $sitename, $name);
 	}

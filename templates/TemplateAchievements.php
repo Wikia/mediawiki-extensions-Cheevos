@@ -100,13 +100,17 @@ class TemplateAchievements {
 	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
 
+		if (empty($siteKey)) {
+			$siteKey = $dsSiteKey;
+		}
+
 		$achievementsPage = Title::newFromText('Special:Achievements');
 
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$siteKey}-{$achievement->getId()}'>
-				<div class='p-achievement-source'>".($achievement->isGlobal() ? wfMessage('mega_achievement_earned')->escaped() : $wgSitename)."</div>
+				<div class='p-achievement-source'>".\Cheevos\CheevosHelper::getSiteName($siteKey)."</div>
 				<div class='p-achievement-icon'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
 				</div>

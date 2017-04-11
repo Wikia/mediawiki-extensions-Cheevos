@@ -64,4 +64,36 @@ class CheevosHelper {
 		}
 		return $nice;
 	}
+
+	/**
+	 * Get a site name for a site key.
+	 *
+	 * @access	public
+	 * @param	string	Site Key
+	 * @return	string	Site Name with Language
+	 */
+	static public function getSiteName($siteKey) {
+		global $dsSiteKey, $wgSitename, $wgLanguageCode;
+
+		$sitename = '';
+		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
+			try {
+				$redis = \RedisCache::getClient('cache');
+				$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+				if (!empty($info)) {
+					foreach ($info as $field => $value) {
+						$info[$field] = unserialize($value);
+					}
+				}
+				$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
+			} catch (\RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		if (empty($sitename)) {
+			$sitename = $wgSitename." (".strtoupper($wgLanguageCode).")";;
+		}
+		return $sitename;
+	}
 }
