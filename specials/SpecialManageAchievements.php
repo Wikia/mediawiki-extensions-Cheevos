@@ -412,7 +412,7 @@ class SpecialManageAchievements extends SpecialPage {
 						$awarded[] = Cheevos\Cheevos::putProgress(
 							[
 								'achievement_id'	=> $achievement->getId(),
-								'site_key'			=> $dsSiteKey,
+								'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
 								'user_id'			=> $globalId,
 								'earned'			=> true,
 								'manual_award' 		=> true,
