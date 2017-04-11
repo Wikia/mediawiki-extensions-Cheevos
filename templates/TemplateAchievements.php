@@ -133,9 +133,10 @@ class TemplateAchievements {
 	 * @param	boolean	[Optional] Show Controls
 	 * @param	array	[Optional] AchievementStatus Objects
 	 * @param	array	[Optional] All loaded achievements for showing required criteria.
+	 * @param	boolean	[Optional] Show Required By even if hidden by secret.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = []) {
+	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false) {
 		global $wgUser, $wgAchPointAbbreviation;
 
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
@@ -153,7 +154,7 @@ class TemplateAchievements {
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
 			foreach ($achievement->getRequiredBy() as $requiredByAid) {
-				if (isset($achievements[$requiredByAid]) && $achievements[$requiredByAid]->isSecret() && !$showControls) {
+				if (isset($achievements[$requiredByAid]) && $achievements[$requiredByAid]->isSecret() && !$showControls && !$ignoreHiddenBySecretRequiredBy) {
 					if (!isset($statuses[$requiredByAid]) || !$statuses[$requiredByAid]->isEarned()) {
 						continue;
 					}

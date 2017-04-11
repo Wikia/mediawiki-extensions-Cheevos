@@ -113,7 +113,7 @@ class TemplateManageAchievements {
 		$achievementsURL	= $achievementsPage->getFullURL();
 		$category = $achievement->getCategory();
 
-		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, [], $allAchievements);
+		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, [], $allAchievements, true);
 
 		$HTML .= "<h2>".wfMessage('general_achievement_section')->escaped()."</h2>";
 
