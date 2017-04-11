@@ -152,14 +152,14 @@ class TemplateAchievements {
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
-			foreach ($achievement->getRequiredBy() as $requiredByAId) {
-				if (isset($achievements[$requiredByAId]) && $achievements[$requiredByAId]->isSecret()) {
-					if (!isset($statuses[$requiredByAId]) || !$statuses[$requiredByAId]->isEarned()) {
+			foreach ($achievement->getRequiredBy() as $requiredByAid) {
+				if (isset($achievements[$requiredByAid]) && $achievements[$requiredByAid]->isSecret() && !$showControls) {
+					if (!isset($statuses[$requiredByAid]) || !$statuses[$requiredByAid]->isEarned()) {
 						continue;
 					}
 				}
 				$_rbInnerHtml .= "
-							<span>".(isset($achievements[$requiredByAId]) ? $achievements[$requiredByAId]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
+							<span>".(isset($achievements[$requiredByAid]) ? $achievements[$requiredByAid]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
 			}
 			if (!empty($_rbInnerHtml)) {
 				$HTML .= "
