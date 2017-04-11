@@ -130,5 +130,9 @@
 	"achievement_stats": "Achievement Stats",
 	"achievementstats": "Achievement Stats",
 	"manageachievements": "Manage Achievements",
-	"revert_custom_achievement": "Revert to Default"
+	"revert_custom_achievement": "Revert to Default",
+	"special_achievement": "Special Achievement",
+	"special_help": "Make this achievement feel like a special flower.",
+	"show_on_all_sites_achievement": "Show On All Sites",
+	"show_on_all_sites_help": "This does nothing."
 }
