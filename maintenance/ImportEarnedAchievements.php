@@ -111,7 +111,7 @@ class ImportEarnedAchievements extends Maintenance {
 					$progress = new \Cheevos\CheevosAchievementProgress([
 						'achievement_id'	=> $aid,
 						'user_id'			=> $globalId,
-						'site_key'			=> $dsSiteKey,
+						'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
 						'earned'			=> ($row['date'] > 0 ? true : false),
 						'manual_award'		=> false,
 						'awarded_at'		=> intval($row['date']),
