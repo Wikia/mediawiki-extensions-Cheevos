@@ -115,8 +115,8 @@ class ImportEarnedAchievements extends Maintenance {
 				}
 				$achievement = $achievements[$aid];
 
+				//Only fake manually award if they earned it.
 				if ($row['date'] > 0) {
-					//Only fake manually award if they earned it.
 					$progress = new \Cheevos\CheevosAchievementProgress([
 						'achievement_id'	=> $aid,
 						'user_id'			=> $globalId,
@@ -145,9 +145,11 @@ class ImportEarnedAchievements extends Maintenance {
 					$newValue = intval($row['increment']);
 
 					try {
-						$userStats[$globalId] = \Cheevos\Cheevos::getStatProgress(
+						$statProgress = \Cheevos\Cheevos::getStatProgress(
 							[
-								'user_id' => $globalId
+								'user_id'	=> $globalId,
+								'site_key'	=> $dsSiteKey,
+								'stat'		=> $stat
 							]
 						);
 					} catch (\Cheevos\CheevosException $e) {
@@ -155,13 +157,15 @@ class ImportEarnedAchievements extends Maintenance {
 					}
 
 					$currentValue = 0;
-					if (isset($userStats[$globalId]) && !empty($userStats[$globalId])) {
-						foreach ($userStats[$globalId] as $index => $userStat) {
-							if ($userStat['stat'] == $stat) {
+					if (isset($statProgress) && !empty($statProgress)) {
+						foreach ($statProgress as $index => $userStat) {
+							if ($userStat->getStat() == $stat) {
 								$currentValue = $userStat['count'];
+								break;
 							}
 						}
 					}
+
 					if ($newValue > $currentValue) {
 						$data = [
 							'user_id' => intval($globalId),
