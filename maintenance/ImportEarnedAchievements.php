@@ -73,6 +73,9 @@ class ImportEarnedAchievements extends Maintenance {
 		);
 		$total = $result->fetchRow();
 		$total = intval($total['total']) - $cache->get($cacheKey);
+		if ($cache->get($cacheKey) + 1000 >= $total) {
+			exit;
+		}
 		$this->output("Importing earned achievements...\n");
 
 		$userStats = [];
