@@ -135,29 +135,24 @@ class ImportEarnedAchievements extends Maintenance {
 					$stat = current($stats);
 					$newValue = intval($row['increment']);
 
-					if (!array_key_exists($globalId, $userStats)) {
-						try {
-							$userStats[$globalId] = \Cheevos\Cheevos::getStatProgress(
-								[
-									'user_id' => $globalId
-								]
-							);
-						} catch (\Cheevos\CheevosException $e) {
-							$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
-						}
+					try {
+						$userStats[$globalId] = \Cheevos\Cheevos::getStatProgress(
+							[
+								'user_id' => $globalId
+							]
+						);
+					} catch (\Cheevos\CheevosException $e) {
+						$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
 					}
 
 					$currentValue = 0;
-					$statIndex = false;
 					if (isset($userStats[$globalId]) && !empty($userStats[$globalId])) {
 						foreach ($userStats[$globalId] as $index => $userStat) {
 							if ($userStat['stat'] == $stat) {
-								$statIndex = $index;
 								$currentValue = $userStat['count'];
 							}
 						}
 					}
-					$delta = abs($newValue - $currentValue);
 					if ($newValue > $currentValue) {
 						$data = [
 							'user_id' => intval($globalId),
@@ -165,7 +160,7 @@ class ImportEarnedAchievements extends Maintenance {
 							'deltas' => [
 								[
 									'stat' => current($stats),
-									'delta' => $delta
+									'delta' => $newValue - $currentValue
 								]
 							]
 						];
@@ -173,9 +168,6 @@ class ImportEarnedAchievements extends Maintenance {
 							$status = \Cheevos\Cheevos::increment($data);
 							if (isset($status['code']) && $status['code'] != 200) {
 								$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$status['code']}\n");
-							}
-							if ($statIndex !== false) {
-								$userStats[$globalId][$statIndex]['count'] += $delta;
 							}
 							$this->output("Processed G: {$globalId} - SK: {$dsSiteKey} - AID: {$row['achievement_id']}\n");
 						} catch (\Cheevos\CheevosException $e) {
