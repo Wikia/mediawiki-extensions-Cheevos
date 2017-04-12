@@ -35,6 +35,7 @@ class ImportEarnedAchievements extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
+		$memcache = wfGetCache(CACHE_MEMCACHED);
 		$cache = RedisCache::getClient('cache');
 		if ($cache === false) {
 			throw new MWException("Redis is down, can not continue.");
@@ -49,7 +50,7 @@ class ImportEarnedAchievements extends Maintenance {
 
 		$this->output("Importing earned achievements...\n");
 
-		$achievementIdMap = json_decode($cache->get(wfMemcKey('ImportAchievementsMap')), true);
+		$achievementIdMap = json_decode($memcache->get(wfMemcKey('ImportAchievementsMap')), true);
 		if (!is_array($achievementIdMap)) {
 			if (!$this->getOption('force')) {
 				$this->output("No mapping of old achievement IDs to new achievement IDs were found.  This may because ImportCustomAchievements was not run first.  Use --force to override this behavior.\n");
