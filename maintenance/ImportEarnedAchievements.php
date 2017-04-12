@@ -35,7 +35,11 @@ class ImportEarnedAchievements extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
-		$cache = wfGetCache(CACHE_MEMCACHED);
+		$cache = RedisCache::getClient('cache');
+		if ($cache === false) {
+			throw new MWException("Redis is down, can not continue.");
+		}
+
 		$cacheKey = wfMemcKey(__CLASS__);
 		if ($this->getOption('restart')) {
 			$cache->set($cacheKey, 0);
@@ -72,7 +76,8 @@ class ImportEarnedAchievements extends Maintenance {
 			]
 		);
 		$total = $result->fetchRow();
-		$total = intval($total['total']) - $cache->get($cacheKey);
+		$total = intval($total['total']) - intval($cache->get($cacheKey));
+		$start = $cache->get($cacheKey);
 		if ($cache->get($cacheKey) + 1000 >= $total) {
 			exit;
 		}
