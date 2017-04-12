@@ -402,7 +402,26 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Registers shutdown function to track daily achievements.
+	 * Registers shutdown function to do increments.
+	 *
+	 * @access	public
+	 * @param	object	ApiMain
+	 * @return	boolean	True
+	 */
+	static public function onApiBeforeMain(&$processor) {
+		if ('MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+			return true;
+		}
+
+		register_shutdown_function('CheevosHooks::doIncrements');
+
+		self::$shutdownRegistered = true;
+
+		return true;
+	}
+
+	/**
+	 * Registers shutdown function to do increments.
 	 *
 	 * @access	public
 	 * @param	object	Title

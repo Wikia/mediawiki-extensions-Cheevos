@@ -215,6 +215,7 @@
 		"remoteExtPath": "Cheevos"
 	},
 	"Hooks": {
+		"ApiBeforeMain":"CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
