@@ -185,9 +185,9 @@ class ImportEarnedAchievements extends Maintenance {
 						}
 					}
 				}
-
-				$cache->set($cacheKey, $i);
 			}
+
+			$cache->set($cacheKey, $i);
 		}
 	}
 }
