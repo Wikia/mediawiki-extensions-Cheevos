@@ -414,12 +414,14 @@ class CheevosHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
-		if ('MW_NO_SESSION' === 'warn' || MW_API === true || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+		if ('MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
 			return true;
 		}
 
 		global $wgUser;
-		self::increment('visit', 1, $wgUser);
+		if (MW_API != true) {
+			self::increment('visit', 1, $wgUser);
+		}
 
 		register_shutdown_function('CheevosHooks::doIncrements');
 

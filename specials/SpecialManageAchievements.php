@@ -117,11 +117,9 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		//Fix requires achievement child IDs for display purposes.
-		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
+		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements, $this->siteKey);
 		//Remove achievements that should not be shown in this context.
-		if (!empty($this->siteKey)) {
-			$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false);
-		}
+		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false, [], $this->siteKey);
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories);
@@ -164,10 +162,8 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
-		if (!empty($this->siteKey)) {
-			$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements($allAchievements, true, true);
-		}
-		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
+		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements($allAchievements, true, true, [], $this->siteKey);
+		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement], $this->siteKey));
 
 		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), \Cheevos\Cheevos::getKnownHooks(), $allAchievements, $return['errors']);
 	}

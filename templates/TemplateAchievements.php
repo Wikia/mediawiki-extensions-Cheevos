@@ -160,7 +160,7 @@ class TemplateAchievements {
 					}
 				}
 				$_rbInnerHtml .= "
-							<span>".(isset($achievements[$requiredByAid]) ? $achievements[$requiredByAid]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT - PLEASE FIX THIS")."</span>";
+							<span>".(isset($achievements[$requiredByAid]) ? $achievements[$requiredByAid]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT '{$requiredByAid}'")."</span>";
 			}
 			if (!empty($_rbInnerHtml)) {
 				$HTML .= "
@@ -175,7 +175,7 @@ class TemplateAchievements {
 						".wfMessage('requires')->escaped();
 			foreach ($achievement->getCriteria()->getAchievement_Ids() as $requiresAid) {
 				$HTML .= "
-							<span>".(isset($achievements[$requiresAid]) ? $achievements[$requiresAid]->getName() : "FATAL ERROR LOADING REQUIRED ACHIEVEMENTS - PLEASE FIX THIS")."</span>";
+							<span>".(isset($achievements[$requiresAid]) ? $achievements[$requiresAid]->getName() : "FATAL ERROR LOADING REQUIRED ACHIEVEMENT '{$requiresAid}'")."</span>";
 			}
 			$HTML .= "
 						</div>";

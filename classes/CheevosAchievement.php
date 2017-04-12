@@ -246,24 +246,35 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @access	public
 	 * @param	array	CheevosAchievement objects.
-	 * @param	boolean	Remove parent achievements if the child achievement is present.
-	 * @param	array	CheevosAchievementStatus objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
+	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
+	 * @param	array	[Optional] CheevosAchievementStatus objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
+	 * @param	string	[Optional] Remove if the achievement site key does not match this one.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = []) {
+	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = [], $siteKey = null) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			foreach ($achievements as $id => $achievement) {
+				if ($siteKey !== null && $achievement->getSite_Key() !== $siteKey) {
+					unset($achievements[$achievement->getId()]);
+					continue;
+				}
+
 				$earned = false;
 				if (isset($statuses[$achievement->getId()])) {
 					$earned = $statuses[$achievement->getId()]->isEarned();
 				}
+
 				if (!$earned && isset($statuses[$achievement->getParent_Id()])) {
 					$earned = $statuses[$achievement->getParent_Id()]->isEarned();
 				}
+
 				if (!$earned && $removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
-					unset($achievements[$achievement->getParent_Id()]);
+					if ($siteKey === null || $achievement->getSite_Key() === $siteKey) {
+						unset($achievements[$achievement->getParent_Id()]);
+					}
 				}
+
 				if ($removeDeleted && $achievement->getDeleted_At() > 0) {
 					unset($achievements[$achievement->getId()]);
 				}
@@ -277,15 +288,19 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @access	public
 	 * @param	array	CheevosAchievement objects.
+	 * @param	string	[Optional] Indicate which site key this is being corrected for.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function correctCriteriaChildAchievements($achievements) {
+	static public function correctCriteriaChildAchievements($achievements, $siteKey = null) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			if (count($children)) {
 				foreach ($achievements as $id => $achievement) {
 					$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 					foreach ($requiredIds as $key => $requiresAid) {
+						if ($siteKey !== null && $siteKey !== $achievements[$requiresAid]->getSite_Key()) {
+							continue;
+						}
 						if (isset($children[$requiresAid])) {
 							$requiredIds[$key] = $children[$requiresAid];
 						}
