@@ -27,7 +27,7 @@ class SpecialAchievementStats extends SpecialPage {
 	 */
 	public function __construct() {
 		global $dsSiteKey;
-		parent::__construct('AchievementStats');
+		parent::__construct('AchievementStats','achievement_admin');
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -37,10 +37,6 @@ class SpecialAchievementStats extends SpecialPage {
 		if (!$dsSiteKey || empty($dsSiteKey)) {
 			throw new MWException('Could not determined the site key for use for Achievements.');
 			return;
-		}
-
-		if ($this->site_key == "master") {
-			$this->site_key = '';
 		}
 
 		$lookup = CentralIdLookup::factory();
@@ -56,6 +52,15 @@ class SpecialAchievementStats extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
+		if ( !$this->userCanExecute( $this->getUser() ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
+
+		if (! defined('MASTER_WIKI') || MASTER_WIKI === false) {
+			$this->output->redirect("/");
+		}
+
 		$this->templates = new TemplateAchievementStats;
 		$this->output->addModules(['ext.cheevos.styles','ext.cheevos.stats.css','ext.cheevos.stats.js']);
 		$this->setHeaders();
@@ -82,6 +87,29 @@ class SpecialAchievementStats extends SpecialPage {
 		$this->output->setPageTitle(wfMessage('achievement_stats')->escaped());
 		$this->content = $this->templates->achievementsStats($sites);
 	}
+
+	  /**
+     * Hides special page from SpecialPages special page.
+     *
+     * @access    public
+     * @return    boolean
+     */
+    public function isListed() {
+        if ($this->wgUser->isAllowed('achievement_admin')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Lets others determine that this special page is restricted.
+     *
+     * @access    public
+     * @return    boolean    True
+     */
+    public function isRestricted() {
+        return true;
+    }
 
 	/**
 	 * Return the group name for this special page.
