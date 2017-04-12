@@ -419,7 +419,7 @@ class CheevosHooks {
 		}
 
 		global $wgUser;
-		if (MW_API != true) {
+		if (!defined('MW_API')) {
 			self::increment('visit', 1, $wgUser);
 		}
 
