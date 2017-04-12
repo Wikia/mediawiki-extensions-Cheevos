@@ -154,6 +154,9 @@ class TemplateAchievements {
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
 			foreach ($achievement->getRequiredBy() as $requiredByAid) {
+				if (!isset($achievements[$requiredByAid])) {
+					continue;
+				}
 				if (isset($achievements[$requiredByAid]) && $achievements[$requiredByAid]->isSecret() && !$showControls && !$ignoreHiddenBySecretRequiredBy) {
 					if (!isset($statuses[$requiredByAid]) || !$statuses[$requiredByAid]->isEarned()) {
 						continue;

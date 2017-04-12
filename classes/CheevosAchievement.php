@@ -338,7 +338,7 @@ class CheevosAchievement extends CheevosModel {
 		foreach ($achievements as $id => $achievement) {
 			$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 			if (in_array($this->getId(), $requiredIds)) {
-				$this->requiredBy[] = $achievement->getId();
+				$this->requiredBy[($achievement->getParent_Id() > 0 ? $achievement->getParent_Id() : $achievement->getId())] = $achievement->getId();
 			}
 		}
 		$this->requiredBy = array_unique($this->requiredBy);
