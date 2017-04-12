@@ -56,7 +56,7 @@ class CheevosHelper {
 				'count' => $stat['count'],
 				'last_incremented' => $stat['last_incremented'],
 			];
-			if (isset($stat['site_key'])) {
+			if (isset($stat['site_key']) && !empty($stat['site_key'])) {
 				$nice[$stat['site_key']][$stat['user_id']][$stat['stat']] = $_data;
 			} else {
 				$nice[$stat['user_id']][$stat['stat']] = $_data;
