@@ -174,8 +174,13 @@ class TemplateAchievements {
 						<div class='p-achievement-requires'>
 						".wfMessage('requires')->escaped();
 			foreach ($achievement->getCriteria()->getAchievement_Ids() as $requiresAid) {
-				$HTML .= "
-							<span>".(isset($achievements[$requiresAid]) ? $achievements[$requiresAid]->getName() : "FATAL ERROR LOADING REQUIRED ACHIEVEMENT '{$requiresAid}'")."</span>";
+				if (isset($achievements[$requiresAid])) {
+					$HTML .= "
+							<span data-id='".$achievements[$requiresAid]->getId()."'>".$achievements[$requiresAid]->getName()."</span>";
+				} else {
+					$HTML .= "
+							<span data-id=''>FATAL ERROR LOADING REQUIRED ACHIEVEMENT '{$requiresAid}'</span>";
+				}
 			}
 			$HTML .= "
 						</div>";
