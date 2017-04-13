@@ -248,18 +248,12 @@ class CheevosAchievement extends CheevosModel {
 	 * @param	array	CheevosAchievement objects.
 	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
 	 * @param	array	[Optional] CheevosAchievementStatus objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
-	 * @param	string	[Optional] Remove if the achievement site key does not match this one.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = [], $siteKey = null) {
+	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = []) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			foreach ($achievements as $id => $achievement) {
-				if ($siteKey !== null && $achievement->getSite_Key() !== $siteKey) {
-					unset($achievements[$achievement->getId()]);
-					continue;
-				}
-
 				$earned = false;
 				if (isset($statuses[$achievement->getId()])) {
 					$earned = $statuses[$achievement->getId()]->isEarned();
@@ -270,9 +264,7 @@ class CheevosAchievement extends CheevosModel {
 				}
 
 				if (!$earned && $removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
-					if ($siteKey === null || $achievement->getSite_Key() === $siteKey) {
-						unset($achievements[$achievement->getParent_Id()]);
-					}
+					unset($achievements[$achievement->getParent_Id()]);
 				}
 
 				if ($removeDeleted && $achievement->getDeleted_At() > 0) {
@@ -288,19 +280,15 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @access	public
 	 * @param	array	CheevosAchievement objects.
-	 * @param	string	[Optional] Indicate which site key this is being corrected for.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function correctCriteriaChildAchievements($achievements, $siteKey = null) {
+	static public function correctCriteriaChildAchievements($achievements) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			if (count($children)) {
 				foreach ($achievements as $id => $achievement) {
 					$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 					foreach ($requiredIds as $key => $requiresAid) {
-						if ($siteKey !== null && $siteKey !== $achievements[$requiresAid]->getSite_Key()) {
-							continue;
-						}
 						if (isset($children[$requiresAid])) {
 							$requiredIds[$key] = $children[$requiresAid];
 						}
@@ -350,7 +338,7 @@ class CheevosAchievement extends CheevosModel {
 		foreach ($achievements as $id => $achievement) {
 			$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 			if (in_array($this->getId(), $requiredIds)) {
-				$this->requiredBy[] = $achievement->getId();
+				$this->requiredBy[($achievement->getParent_Id() > 0 ? $achievement->getParent_Id() : $achievement->getId())] = $achievement->getId();
 			}
 		}
 		$this->requiredBy = array_unique($this->requiredBy);

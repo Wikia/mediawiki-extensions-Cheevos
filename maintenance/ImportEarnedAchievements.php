@@ -35,7 +35,12 @@ class ImportEarnedAchievements extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
-		$cache = wfGetCache(CACHE_MEMCACHED);
+		$memcache = wfGetCache(CACHE_MEMCACHED);
+		$cache = RedisCache::getClient('cache');
+		if ($cache === false) {
+			throw new MWException("Redis is down, can not continue.");
+		}
+
 		$cacheKey = wfMemcKey(__CLASS__);
 		if ($this->getOption('restart')) {
 			$cache->set($cacheKey, 0);
@@ -45,7 +50,7 @@ class ImportEarnedAchievements extends Maintenance {
 
 		$this->output("Importing earned achievements...\n");
 
-		$achievementIdMap = json_decode($cache->get(wfMemcKey('ImportAchievementsMap')), true);
+		$achievementIdMap = json_decode($memcache->get(wfMemcKey('ImportAchievementsMap')), true);
 		if (!is_array($achievementIdMap)) {
 			if (!$this->getOption('force')) {
 				$this->output("No mapping of old achievement IDs to new achievement IDs were found.  This may because ImportCustomAchievements was not run first.  Use --force to override this behavior.\n");
@@ -72,7 +77,11 @@ class ImportEarnedAchievements extends Maintenance {
 			]
 		);
 		$total = $result->fetchRow();
-		$total = intval($total['total']) - $cache->get($cacheKey);
+		$total = intval($total['total']);
+		$start = $cache->get($cacheKey);
+		if ($total > 1000 && $cache->get($cacheKey) + 1000 >= $total) {
+			exit;
+		}
 		$this->output("Importing earned achievements...\n");
 
 		$userStats = [];
@@ -106,8 +115,8 @@ class ImportEarnedAchievements extends Maintenance {
 				}
 				$achievement = $achievements[$aid];
 
+				//Only fake manually award if they earned it.
 				if ($row['date'] > 0) {
-					//Only fake manually award if they earned it.
 					$progress = new \Cheevos\CheevosAchievementProgress([
 						'achievement_id'	=> $aid,
 						'user_id'			=> $globalId,
@@ -135,29 +144,28 @@ class ImportEarnedAchievements extends Maintenance {
 					$stat = current($stats);
 					$newValue = intval($row['increment']);
 
-					if (!array_key_exists($globalId, $userStats)) {
-						try {
-							$userStats[$globalId] = \Cheevos\Cheevos::getStatProgress(
-								[
-									'user_id' => $globalId
-								]
-							);
-						} catch (\Cheevos\CheevosException $e) {
-							$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
-						}
+					try {
+						$statProgress = \Cheevos\Cheevos::getStatProgress(
+							[
+								'user_id'	=> $globalId,
+								'site_key'	=> $dsSiteKey,
+								'stat'		=> $stat
+							]
+						);
+					} catch (\Cheevos\CheevosException $e) {
+						$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
 					}
 
 					$currentValue = 0;
-					$statIndex = false;
-					if (isset($userStats[$globalId]) && !empty($userStats[$globalId])) {
-						foreach ($userStats[$globalId] as $index => $userStat) {
-							if ($userStat['stat'] == $stat) {
-								$statIndex = $index;
+					if (isset($statProgress) && !empty($statProgress)) {
+						foreach ($statProgress as $index => $userStat) {
+							if ($userStat->getStat() == $stat) {
 								$currentValue = $userStat['count'];
+								break;
 							}
 						}
 					}
-					$delta = abs($newValue - $currentValue);
+
 					if ($newValue > $currentValue) {
 						$data = [
 							'user_id' => intval($globalId),
@@ -165,7 +173,7 @@ class ImportEarnedAchievements extends Maintenance {
 							'deltas' => [
 								[
 									'stat' => current($stats),
-									'delta' => $delta
+									'delta' => $newValue - $currentValue
 								]
 							]
 						];
@@ -174,9 +182,6 @@ class ImportEarnedAchievements extends Maintenance {
 							if (isset($status['code']) && $status['code'] != 200) {
 								$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$status['code']}\n");
 							}
-							if ($statIndex !== false) {
-								$userStats[$globalId][$statIndex]['count'] += $delta;
-							}
 							$this->output("Processed G: {$globalId} - SK: {$dsSiteKey} - AID: {$row['achievement_id']}\n");
 						} catch (\Cheevos\CheevosException $e) {
 							$this->output("Exiting, encountered API error at {$globalId} - SK: {$dsSiteKey} - AID: {$row['achievement_id']} due to: {$e->getMessage()}\n");
@@ -184,9 +189,9 @@ class ImportEarnedAchievements extends Maintenance {
 						}
 					}
 				}
-
-				$cache->set($cacheKey, $i);
 			}
+
+			$cache->set($cacheKey, $i);
 		}
 	}
 }

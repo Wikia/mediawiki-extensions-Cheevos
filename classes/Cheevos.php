@@ -515,7 +515,7 @@ class Cheevos {
 
 		$return = self::get('stats', $filters);
 
-		return self::return($return, 'stats');
+		return self::return($return, 'stats', 'Cheevos\CheevosStatProgress');
 	}
 
 	/**
