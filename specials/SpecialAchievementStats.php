@@ -52,13 +52,14 @@ class SpecialAchievementStats extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		if ( !$this->userCanExecute( $this->getUser() ) ) {
+		if (!$this->userCanExecute($this->getUser())) {
 			$this->displayRestrictionError();
 			return;
 		}
 
-		if (! defined('MASTER_WIKI') || MASTER_WIKI === false) {
+		if (!defined('MASTER_WIKI') || MASTER_WIKI === false) {
 			$this->output->redirect("/");
+			return;
 		}
 
 		$this->templates = new TemplateAchievementStats;
