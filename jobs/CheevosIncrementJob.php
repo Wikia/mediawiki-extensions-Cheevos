@@ -11,9 +11,7 @@
  *
  **/
 
-namespace Cheevos;
-
-class CheevosIncrementJob extends \SyncService\Job {
+class CheevosIncrementJob extends SyncService\Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
 	 * @var		int		sets the priority at which this service will run
