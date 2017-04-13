@@ -418,12 +418,14 @@ class SpecialManageAchievements extends SpecialPage {
 							]
 						);
 						\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
+						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					} elseif ($do === 'award') {
 						$awarded[] = true;
 					}
 
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
 						$awarded[] = Cheevos\Cheevos::deleteProgress($currentProgress->getId(), $globalId);
+						Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
 					} elseif ($do === 'unaward') {
 						$awarded[] = true;
 					}

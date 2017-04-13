@@ -464,6 +464,7 @@ class CheevosHooks {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
 						\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
 			}
@@ -472,6 +473,54 @@ class CheevosHooks {
 				\Cheevos\CheevosIncrementJob::queue($increment);
 			}
 		}
+	}
+
+	/**
+	 * Handle actions when an achievement is awarded.
+	 *
+	 * @access	public
+	 * @param	object	\Cheevos\CheevosAchievement
+	 * @param	object	Global User ID
+	 * @return	boolean	True
+	 */
+	static public function onAchievementAwarded($achievement, $globalId) {
+		global $dsSiteKey;
+
+		if ($achievement === false || $globalId < 1) {
+			return true;
+		}
+
+		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
+			$points = EditPoints::achievementEarned($globalId, $achievement->getPoints());
+			if ($points->save()) {
+				$points->updatePointTotals();
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Handle actions when an achievement or a mega achievement is unawarded.
+	 *
+	 * @access	public
+	 * @param	object	\Cheevos\CheevosAchievement
+	 * @param	object	Global User ID
+	 * @return	boolean	True
+	 */
+	static public function onAchievementUnawarded($achievement, $globalId) {
+		if ($achievement === false || $globalId < 1) {
+			return true;
+		}
+
+		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
+			$points = EditPoints::achievementRevoked($globalId, ($achievement->getPoints() * -1));
+			if ($points->save()) {
+				$points->updatePointTotals();
+			}
+		}
+
+		return true;
 	}
 
 	/**

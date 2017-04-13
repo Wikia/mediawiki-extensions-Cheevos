@@ -215,6 +215,8 @@
 		"remoteExtPath": "Cheevos"
 	},
 	"Hooks": {
+		"AchievementAwarded": "CheevosHooks::onAchievementAwarded",
+		"AchievementUnawarded": "CheevosHooks::onAchievementUnawarded",
 		"ApiBeforeMain":"CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
