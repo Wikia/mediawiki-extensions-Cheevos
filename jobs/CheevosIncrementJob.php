@@ -55,7 +55,7 @@ class CheevosIncrementJob extends \SyncService\Job {
 			}
 			return ($return === false ? false : true);
 		} catch (\Cheevos\CheevosException $e) {
-			self::queue($args); //Requeue in case of unintended failure.
+			self::queue($data); //Requeue in case of unintended failure.
 			return false;
 		}
 	}
