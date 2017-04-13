@@ -218,22 +218,38 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
 			$categoryId = $this->wgRequest->getInt('category_id');
-			$categoryName = $this->wgRequest->getText('category');
+			$categoryName = trim($this->wgRequest->getText('category'));
 			$category = \Cheevos\Cheevos::getCategory($categoryId);
+			$categories = Cheevos\Cheevos::getCategories(true);
 			if ($category !== false && $categoryId > 0 && $categoryId == $category->getId() && $categoryName == $category->getName()) {
 				$this->achievement->setCategory($category);
 			} elseif (!empty($categoryName)) {
-				$category = new \Cheevos\CheevosAchievementCategory();
-				$category->setName($categoryName);
-				$return = $category->save();
-				if (isset($return['code']) && $return['code'] !== 200) {
-					throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+				$found = false;
+				foreach ($categories as $_categoryId => $_category) {
+					if ($categoryName == $_category->getName()) {
+						$this->achievement->setCategory($_category);
+						$found = true;
+						break;
+					}
 				}
-				if (isset($return['object_id'])) {
-					$category = \Cheevos\Cheevos::getCategory($return['object_id']);
-					$this->achievement->setCategory($category);
-				} else {
-					$category = false;
+				if (!$found) {
+					$lookup = CentralIdLookup::factory();
+					$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
+
+					$category = new \Cheevos\CheevosAchievementCategory();
+					$category->setName($categoryName);
+					$category->setCreated_At(time());
+					$category->setCreated_By($globalId);
+					$return = $category->save();
+					if (isset($return['code']) && $return['code'] !== 200) {
+						throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+					}
+					if (isset($return['object_id'])) {
+						$category = \Cheevos\Cheevos::getCategory($return['object_id']);
+						$this->achievement->setCategory($category);
+					} else {
+						$category = false;
+					}
 				}
 			} else {
 				$category = false;

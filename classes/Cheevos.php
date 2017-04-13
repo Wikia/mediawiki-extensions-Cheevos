@@ -333,25 +333,32 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get all categories.
 	 *
-	 * @return void
+	 * @acess	public
+	 * @param	boolean	[Optional] Skip Local Cache
+	 * @return	void
 	 */
-	public static function getCategories() {
-		$redis = \RedisCache::getClient('cache');
+	static public function getCategories($skipCache = false) {
 		$cache = false;
-		$redisKey = 'cheevos:apicache:getCategories';
+		if (!$skipCache) {
+			$redis = \RedisCache::getClient('cache');
+			$redisKey = 'cheevos:apicache:getCategories';
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		if (!$cache || !unserialize($cache)) {
-			$return = self::get('achievement_categories/all', [
-				'limit'	=> 0
-			]);
+			$return = self::get(
+				'achievement_categories/all',
+				[
+					'limit'	=> 0
+				]
+			);
 			try {
 				$redis->setEx($redisKey, 300, serialize($return));
 			} catch (RedisException $e) {
