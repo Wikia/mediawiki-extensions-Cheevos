@@ -27,7 +27,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function __construct() {
 		global $dsSiteKey;
-		parent::__construct('ManageAchievements');
+
+		parent::__construct('ManageAchievements', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -464,6 +465,29 @@ class SpecialManageAchievements extends SpecialPage {
 		$page = Title::newFromText('Special:ManageAchievements');
 		$this->output->redirect($page->getFullURL());
 		return;
+	}
+
+	/**
+	 * Hides special page from SpecialPages special page.
+	 *
+	 * @access	  public
+	 * @return	  boolean
+	 */
+	public function isListed() {
+		if ($this->wgUser->isAllowed('achievement_admin')) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Lets others determine that this special page is restricted.
+	 *
+	 * @access	  public
+	 * @return	  boolean	 True
+	 */
+	public function isRestricted() {
+		return true;
 	}
 
 	/**
