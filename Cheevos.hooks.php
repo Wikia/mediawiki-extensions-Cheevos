@@ -20,6 +20,13 @@ class CheevosHooks {
 	static private $shutdownRegistered = false;
 
 	/**
+	 * Shutdown Function Ran Already
+	 *
+	 * @var		boolean
+	 */
+	static private $shutdownRan = false;
+
+	/**
 	 * Data points to increment on shutdown.
 	 *
 	 * @var		array
@@ -104,6 +111,10 @@ class CheevosHooks {
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 		self::$increments[$globalId]['timestamp'] = time();
 		self::$increments[$globalId]['request_uuid'] = sha1(self::$increments[$globalId]['user_id'].self::$increments[$globalId]['site_key'].self::$increments[$globalId]['timestamp'].random_bytes(4));
+
+		if (self::$shutdownRan) {
+			self::doIncrements();
+		}
 
 		return true;
 	}
@@ -458,8 +469,10 @@ class CheevosHooks {
 	static public function doIncrements() {
 		//Attempt to do it NOW. If we get an error, fall back to the SyncService job.
 		try {
+			self::$shutdownRan = true;
 			foreach (self::$increments as $globalId => $increment) {
 				$return = \Cheevos\Cheevos::increment($increment);
+				unset(self::$increments[$globalId]);
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
@@ -471,6 +484,7 @@ class CheevosHooks {
 		} catch (\Cheevos\CheevosException $e) {
 			foreach (self::$increments as $globalId => $increment) {
 				\Cheevos\CheevosIncrementJob::queue($increment);
+				unset(self::$increments[$globalId]);
 			}
 		}
 	}
