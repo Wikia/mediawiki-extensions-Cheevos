@@ -107,7 +107,7 @@ class TemplateManageAchievements {
 	* @return	string	Built HTML
 	*/
 	public function achievementsForm($achievement, $categories, $knownHooks, $allAchievements, $errors) {
-		global $wgUser, $wgScriptPath, $wgCheevosStats;
+		global $wgUser, $wgScriptPath, $wgCheevosStats, $dsSiteKey;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
@@ -157,7 +157,7 @@ class TemplateManageAchievements {
 			<input id='points' name='points' type='text' value='".htmlentities($achievement->getPoints(), ENT_QUOTES)."' /><br/>
 
 			<input id='secret' name='secret' type='checkbox' value='1'".($achievement->isSecret() ? " checked='checked'" : null)."/><label for='secret'>".wfMessage('secret_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('secret_help')->escaped()."</span></div></label><br/>";
-		if (MASTER_WIKI === true) {
+		if ($dsSiteKey === 'master') {
 			$HTML .= "
 			<input id='global' name='global' type='checkbox' value='1'".($achievement->isGlobal() ? " checked='checked'" : null)."/><label for='global'>".wfMessage('global_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('global_help')->escaped()."</span></div></label><br/>
 			<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>
@@ -200,11 +200,15 @@ class TemplateManageAchievements {
 				<select name='criteria_streak_reset_to_zero'>
 					<option value='0' ".(isset($criteria['streak_reset_to_zero']) && !$criteria['streak_reset_to_zero'] ? "selected" : '').">False</option>
 					<option value='1' ".(isset($criteria['streak_reset_to_zero']) && $criteria['streak_reset_to_zero'] ? "selected" : '').">True</option>
-				</select>
+				</select>";
 
+			if ($dsSiteKey === 'master') {
+				$HTML .= "
 				<label class='label_above'>".wfMessage('criteria_per_site_progress_maximum')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_per_site_progress_maximum_help')."</span></div></label>
-				<input name='criteria_per_site_progress_maximum' type='text' value='".(isset($criteria['per_site_progress_maximumd']) ? $criteria['per_site_progress_maximum'] : '')."' />
+				<input name='criteria_per_site_progress_maximum' type='text' value='".(isset($criteria['per_site_progress_maximumd']) ? $criteria['per_site_progress_maximum'] : '')."' />";
+			}
 
+			$HTML .= "
 				<label class='label_above'>".wfMessage('criteria_category_id')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_category_id_help')."</span></div></label>
 				<select name='criteria_category_id'>
 					<option value='0'>(0) None</option>";
