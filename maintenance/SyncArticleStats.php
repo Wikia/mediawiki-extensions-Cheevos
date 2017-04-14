@@ -34,6 +34,8 @@ class SyncArticleStats extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
+		$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
+
 		$db = wfGetDB(DB_MASTER);
 
 		$where = [
@@ -93,13 +95,23 @@ class SyncArticleStats extends Maintenance {
 				//Edits
 				$revisionResult = $db->select(
 					['revision'],
-					['count(*) AS total'],
+					[
+						'rev_page',
+						'rev_text_id',
+						'rev_comment',
+						'COUNT(rev_text_id) as total'
+					],
 					[
 						'rev_user'	=> $userId
 					],
-					__METHOD__
+					__METHOD__,
+					[
+						'GROUP BY'	=> 'rev_text_id'
+					]
 				);
-				$local['article_edit'] = intval($revisionResult->fetchRow()['total']);
+				while ($row = $revisionResult->fetchRow()) {
+					$local['article_edit']++;
+				}
 
 				//Deletes
 				$revisionResult = $db->select(
@@ -166,6 +178,7 @@ class SyncArticleStats extends Maintenance {
 					'user_id'		=> $globalId,
 					'site_key'		=> $dsSiteKey,
 					'timestamp'		=> time(),
+					'recalculate'	=> true,
 					'request_uuid'	=> sha1($globalId.$dsSiteKey.time().random_bytes(4))
 				];
 
@@ -174,9 +187,37 @@ class SyncArticleStats extends Maintenance {
 						$increment['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 					}
 				}
-				if (isset($increment['deltas'])) {
-					var_dump($increment);
-				}
+				/*if (isset($increment['deltas'])) {
+					$this->output("\tSending delta(s)...\n");
+					try {
+						$return = \Cheevos\Cheevos::increment($increment);
+						var_dump($return);
+						if (isset($return['earned'])) {
+							foreach ($return['earned'] as $achievement) {
+								$achievement = new \Cheevos\CheevosAchievement($achievement);
+								$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
+								\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+								Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+								$this->output("done.\n");
+							}
+						}
+						if (isset($return['unearned'])) {
+							foreach ($return['unearned'] as $progress) {
+								$progress = new \Cheevos\CheevosAchievementProgress($progress);
+								$achievement = $achievements[$progress->getAchievement_Id()];
+								$this->output("\tUnawarding {$achievement->getId()} - {$achievement->getName()}...");
+								$deleted = Cheevos\Cheevos::deleteProgress($progress->getId(), $globalId);
+								if ($deleted['code'] == 200) {
+									Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+									$this->output("done.\n");
+								}
+							}
+						}
+					} catch (\Cheevos\CheevosException $e) {
+						$this->output("Exiting, encountered API error at {$i} due to: {$e->getMessage()}\n");
+						exit;
+					}
+				}*/
 			}
 		}
 	}
