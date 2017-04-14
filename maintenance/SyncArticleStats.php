@@ -114,6 +114,18 @@ class SyncArticleStats extends Maintenance {
 				);
 				$local['article_delete'] = intval($revisionResult->fetchRow()['total']);
 
+				//Uploads
+				$revisionResult = $db->select(
+					['logging'],
+					['count(*) AS total'],
+					[
+						'log_type'		=> 'upload',
+						'log_user'		=> $userId
+					],
+					__METHOD__
+				);
+				$local['file_upload'] = intval($revisionResult->fetchRow()['total']);
+
 				try {
 					$statProgress = \Cheevos\Cheevos::getStatProgress(
 						[
@@ -130,11 +142,12 @@ class SyncArticleStats extends Maintenance {
 				$cheevos = [
 					'article_create' => 0,
 					'article_edit' => 0,
-					'article_delete' => 0
+					'article_delete' => 0,
+					'file_upload' => 0
 				];
 				if (isset($statProgress) && !empty($statProgress)) {
 					foreach ($statProgress as $index => $userStat) {
-						if (in_array($userStat->getStat(), ['article_create', 'article_edit', 'article_delete'])) {
+						if (in_array($userStat->getStat(), ['article_create', 'article_edit', 'article_delete', 'file_upload'])) {
 							$cheevos[$userStat->getStat()] = $userStat->getCount();
 						}
 					}
