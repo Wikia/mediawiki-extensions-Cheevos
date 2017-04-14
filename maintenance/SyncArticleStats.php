@@ -91,6 +91,16 @@ class SyncArticleStats extends Maintenance {
 					__METHOD__
 				);
 				$local['article_create'] = intval($revisionResult->fetchRow()['total']);
+				$revisionResult = $db->select(
+					['archive'],
+					['count(*) AS total'],
+					[
+						'ar_user'		=> $userId,
+						'ar_parent_id'	=> 0
+					],
+					__METHOD__
+				);
+				$local['article_create'] += intval($revisionResult->fetchRow()['total']);
 
 				//Edits
 				$revisionResult = $db->select(
