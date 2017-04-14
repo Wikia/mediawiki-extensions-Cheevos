@@ -109,6 +109,7 @@ class SyncArticleStats extends Maintenance {
 						'GROUP BY'	=> 'rev_text_id'
 					]
 				);
+				$local['article_edit'] = 0;
 				while ($row = $revisionResult->fetchRow()) {
 					$local['article_edit']++;
 				}
