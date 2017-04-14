@@ -178,7 +178,6 @@ class SyncArticleStats extends Maintenance {
 					'user_id'		=> $globalId,
 					'site_key'		=> $dsSiteKey,
 					'timestamp'		=> time(),
-					'recalculate'	=> true,
 					'request_uuid'	=> sha1($globalId.$dsSiteKey.time().random_bytes(4))
 				];
 
