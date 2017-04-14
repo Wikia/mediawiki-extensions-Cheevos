@@ -187,7 +187,7 @@ class SyncArticleStats extends Maintenance {
 						$increment['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 					}
 				}
-				/*if (isset($increment['deltas'])) {
+				if (isset($increment['deltas'])) {
 					$this->output("\tSending delta(s)...\n");
 					try {
 						$return = \Cheevos\Cheevos::increment($increment);
@@ -217,7 +217,7 @@ class SyncArticleStats extends Maintenance {
 						$this->output("Exiting, encountered API error at {$i} due to: {$e->getMessage()}\n");
 						exit;
 					}
-				}*/
+				}
 			}
 		}
 	}
