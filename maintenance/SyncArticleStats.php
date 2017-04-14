@@ -119,7 +119,6 @@ class SyncArticleStats extends Maintenance {
 						[
 							'user_id'	=> $globalId,
 							'site_key'	=> $dsSiteKey,
-							'stat'		=> $stat,
 							'limit'		=> 0
 						]
 					);
