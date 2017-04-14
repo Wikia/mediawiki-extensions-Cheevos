@@ -191,7 +191,6 @@ class SyncArticleStats extends Maintenance {
 					$this->output("\tSending delta(s)...\n");
 					try {
 						$return = \Cheevos\Cheevos::increment($increment);
-						var_dump($return);
 						if (isset($return['earned'])) {
 							foreach ($return['earned'] as $achievement) {
 								$achievement = new \Cheevos\CheevosAchievement($achievement);
