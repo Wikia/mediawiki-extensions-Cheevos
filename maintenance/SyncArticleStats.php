@@ -96,9 +96,7 @@ class SyncArticleStats extends Maintenance {
 				$revisionResult = $db->select(
 					['revision'],
 					[
-						'rev_page',
 						'rev_text_id',
-						'rev_comment',
 						'COUNT(rev_text_id) as total'
 					],
 					[
@@ -110,6 +108,24 @@ class SyncArticleStats extends Maintenance {
 					]
 				);
 				$local['article_edit'] = 0;
+				while ($row = $revisionResult->fetchRow()) {
+					$local['article_edit']++;
+				}
+				//Archived Edits
+				$revisionResult = $db->select(
+					['archive'],
+					[
+						'ar_text_id',
+						'COUNT(ar_text_id) as total'
+					],
+					[
+						'ar_user'	=> $userId
+					],
+					__METHOD__,
+					[
+						'GROUP BY'	=> 'ar_text_id'
+					]
+				);
 				while ($row = $revisionResult->fetchRow()) {
 					$local['article_edit']++;
 				}
