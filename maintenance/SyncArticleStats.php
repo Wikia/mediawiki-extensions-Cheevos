@@ -148,6 +148,22 @@ class SyncArticleStats extends Maintenance {
 				$this->output("\tLocal: ".json_encode($local)."\n");
 				$this->output("\tCheevos: ".json_encode($cheevos)."\n");
 				$this->output("\tDelta: ".json_encode($delta)."\n");
+
+				$increment = [
+					'user_id'		=> $globalId,
+					'site_key'		=> $dsSiteKey,
+					'timestamp'		=> time(),
+					'request_uuid'	=> sha1($globalId.$dsSiteKey.time().random_bytes(4))
+				];
+
+				foreach ($delta as $stat => $delta) {
+					if ($delta != 0) {
+						$increment['deltas'][] = ['stat' => $stat, 'delta' => $delta];
+					}
+				}
+				if (isset($increment['deltas'])) {
+					var_dump($increment);
+				}
 			}
 		}
 	}
