@@ -123,7 +123,8 @@ class SyncArticleStats extends Maintenance {
 						]
 					);
 				} catch (\Cheevos\CheevosException $e) {
-					$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
+					$this->output("Exiting, encountered API error at {$i} due to: {$e->getMessage()}\n");
+					exit;
 				}
 
 				$cheevos = [
@@ -135,7 +136,6 @@ class SyncArticleStats extends Maintenance {
 					foreach ($statProgress as $index => $userStat) {
 						if (in_array($userStat->getStat(), ['article_create', 'article_edit', 'article_delete'])) {
 							$cheevos[$userStat->getStat()] = $userStat->getCount();
-							break;
 						}
 					}
 				}
