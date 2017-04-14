@@ -73,8 +73,10 @@ class SyncArticleStats extends Maintenance {
 
 			while ($row = $result->fetchRow()) {
 				$userId = intval($row['user_id']);
-				$this->output("Global ID: {$row['global_id']} - ");
+				$globalId = intval($row['global_id']);
+				$this->output("Global ID: {$globalId}\n");
 
+				$local = [];
 
 				//Creations
 				$revisionResult = $db->select(
@@ -86,8 +88,7 @@ class SyncArticleStats extends Maintenance {
 					],
 					__METHOD__
 				);
-				$totalCreations = intval($revisionResult->fetchRow()['total']);
-				$this->output("Creations: {$totalCreations} - ");
+				$local['article_create'] = intval($revisionResult->fetchRow()['total']);
 
 				//Edits
 				$revisionResult = $db->select(
@@ -98,8 +99,7 @@ class SyncArticleStats extends Maintenance {
 					],
 					__METHOD__
 				);
-				$totalEdits = intval($revisionResult->fetchRow()['total']);
-				$this->output("Edits: {$totalEdits} - ");
+				$local['article_edit'] = intval($revisionResult->fetchRow()['total']);
 
 				//Deletes
 				$revisionResult = $db->select(
@@ -112,8 +112,43 @@ class SyncArticleStats extends Maintenance {
 					],
 					__METHOD__
 				);
-				$totalDeletes = intval($revisionResult->fetchRow()['total']);
-				$this->output("Deletes: {$totalDeletes}\n");
+				$local['article_delete'] = intval($revisionResult->fetchRow()['total']);
+
+				try {
+					$statProgress = \Cheevos\Cheevos::getStatProgress(
+						[
+							'user_id'	=> $globalId,
+							'site_key'	=> $dsSiteKey,
+							'stat'		=> $stat,
+							'limit'		=> 0
+						]
+					);
+				} catch (\Cheevos\CheevosException $e) {
+					$this->output("Exiting, encountered API error at {$row['aeid']} due to: {$e->getMessage()}\n");
+				}
+
+				$cheevos = [
+					'article_create' => 0,
+					'article_edit' => 0,
+					'article_delete' => 0
+				];
+				if (isset($statProgress) && !empty($statProgress)) {
+					foreach ($statProgress as $index => $userStat) {
+						if (in_array($userStat->getStat(), ['article_create', 'article_edit', 'article_delete'])) {
+							$cheevos[$userStat->getStat()] = $userStat->getCount();
+							break;
+						}
+					}
+				}
+				$delta = $local;
+				foreach ($local as $stat => $count) {
+					if (isset($cheevos[$stat])) {
+						$delta[$stat] = $local[$stat] - $cheevos[$stat];
+					}
+				}
+				$this->output("\tLocal: ".json_encode($local)."\n");
+				$this->output("\tCheevos: ".json_encode($cheevos)."\n");
+				$this->output("\tDelta: ".json_encode($delta)."\n");
 			}
 		}
 	}
