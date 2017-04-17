@@ -526,7 +526,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get achievement status for an user.
 	 *
 	 * @access	public
 	 * @param	integer	Global User ID
