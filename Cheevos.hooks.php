@@ -47,7 +47,6 @@ class CheevosHooks {
 		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$extSyncServices[] = 'CheevosIncrementJob';
 		}
-
 	}
 
 	/**
