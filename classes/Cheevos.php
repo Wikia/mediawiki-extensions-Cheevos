@@ -336,13 +336,13 @@ class Cheevos {
 	 * Get all categories.
 	 *
 	 * @acess	public
-	 * @param	boolean	[Optional] Skip Local Cache
+	 * @param	boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
 	 * @return	void
 	 */
 	static public function getCategories($skipCache = false) {
 		$cache = false;
+		$redis = \RedisCache::getClient('cache');
 		if (!$skipCache) {
-			$redis = \RedisCache::getClient('cache');
 			$redisKey = 'cheevos:apicache:getCategories';
 
 			try {
