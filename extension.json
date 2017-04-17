@@ -61,7 +61,6 @@
 		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosAPI": "Cheevos.api.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
-		"Cheevos\\DataMiner": "classes/DataMiner.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
 		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
 		"Cheevos\\CheevosException": "classes/CheevosException.php",
