@@ -23,6 +23,7 @@ class SyncArticleStats extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription('Synchronizes data on edits and creations to the Cheevos service.');
+		$this->addOption('v', 'Verbose - Show debug information.');
 	}
 
 	/**
@@ -56,7 +57,9 @@ class SyncArticleStats extends Maintenance {
 		$this->output("Updating article statistics for {$total} users in Cheevos...\n");
 
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
-			$this->output("Iteration start {$i}\n");
+			if ($this->getOption('v')) {
+				$this->output("Iteration start {$i}\n");
+			}
 
 			$result = $db->select(
 				['user_global'],
@@ -76,7 +79,9 @@ class SyncArticleStats extends Maintenance {
 			while ($row = $result->fetchRow()) {
 				$userId = intval($row['user_id']);
 				$globalId = intval($row['global_id']);
-				$this->output("Global ID: {$globalId}\n");
+				if ($this->getOption('v')) {
+					$this->output("Global ID: {$globalId}\n");
+				}
 
 				$local = [];
 
@@ -197,9 +202,11 @@ class SyncArticleStats extends Maintenance {
 						$delta[$stat] = $local[$stat] - $cheevos[$stat];
 					}
 				}
-				$this->output("\tLocal: ".json_encode($local)."\n");
-				$this->output("\tCheevos: ".json_encode($cheevos)."\n");
-				$this->output("\tDelta: ".json_encode($delta)."\n");
+				if ($this->getOption('v')) {
+					$this->output("\tLocal: ".json_encode($local)."\n");
+					$this->output("\tCheevos: ".json_encode($cheevos)."\n");
+					$this->output("\tDelta: ".json_encode($delta)."\n");
+				}
 
 				$increment = [
 					'user_id'		=> $globalId,
@@ -214,27 +221,37 @@ class SyncArticleStats extends Maintenance {
 					}
 				}
 				if (isset($increment['deltas'])) {
-					$this->output("\tSending delta(s)...\n");
+					if ($this->getOption('v')) {
+						$this->output("\tSending delta(s)...\n");
+					}
 					try {
 						$return = \Cheevos\Cheevos::increment($increment);
 						if (isset($return['earned'])) {
 							foreach ($return['earned'] as $achievement) {
 								$achievement = new \Cheevos\CheevosAchievement($achievement);
-								$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
+								if ($this->getOption('v')) {
+									$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
+								}
 								\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
 								Hooks::run('AchievementAwarded', [$achievement, $globalId]);
-								$this->output("done.\n");
+								if ($this->getOption('v')) {
+									$this->output("done.\n");
+								}
 							}
 						}
 						if (isset($return['unearned'])) {
 							foreach ($return['unearned'] as $progress) {
 								$progress = new \Cheevos\CheevosAchievementProgress($progress);
 								$achievement = $achievements[$progress->getAchievement_Id()];
-								$this->output("\tUnawarding {$achievement->getId()} - {$achievement->getName()}...");
+								if ($this->getOption('v')) {
+									$this->output("\tUnawarding {$achievement->getId()} - {$achievement->getName()}...");
+								}
 								$deleted = Cheevos\Cheevos::deleteProgress($progress->getId(), $globalId);
 								if ($deleted['code'] == 200) {
 									Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
-									$this->output("done.\n");
+									if ($this->getOption('v')) {
+										$this->output("done.\n");
+									}
 								}
 							}
 						}
