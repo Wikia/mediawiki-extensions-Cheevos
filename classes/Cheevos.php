@@ -526,6 +526,26 @@ class Cheevos {
 	}
 
 	/**
+	 * Return stats/user_site_count for selected filters.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
+	 * @return	mixed
+	 */
+	public static function getUserSitesCountByStat($globalId, $stat) {
+		$return = self::get(
+			'stats/user_sites_count',
+			[
+				'user_id'	=> $globalId,
+				'stat'		=> $stat
+			]
+		);
+
+		return self::return($return, 'count');
+	}
+
+	/**
 	 * Get achievement status for an user.
 	 *
 	 * @access	public
