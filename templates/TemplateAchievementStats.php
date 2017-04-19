@@ -149,8 +149,8 @@ class TemplateAchievementStats {
 							</div>
 						</div>
 					</div>
-					<div class=\"col-12\">
-						<div class=\"achievement-box table-box\">
+					<div class=\"col-12\" id=\"thetablecontainer\">
+						<div id=\"per_wiki_stats_box\" class=\"achievement-box table-box\">
 							<table id=\"per_wiki_stats\" class=\"compact hover order-column stripe row-border\">
 								<thead>
 									<tr>
@@ -166,6 +166,20 @@ class TemplateAchievementStats {
 								</tbody>
 							</table>
 						</div>
+						<div id=\"user_earned_stats_box\" style=\"display: none;\" class=\"achievement-box table-box\">
+							<button> BACK </button>
+							<table id=\"user_earned_stats\" class=\"compact hover order-column stripe row-border\">
+								<thead>
+									<tr>
+										<th>Achievement</th>
+										<th>User</th>
+										<th>Earned On</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>";
 
@@ -173,7 +187,5 @@ class TemplateAchievementStats {
 		//$HTML .= "<pre>".print_r($achievements,1)."</pre><pre>".print_r($categories,1)."</pre>";
 		return $HTML;
 	}
-
-
 
 }

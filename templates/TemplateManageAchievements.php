@@ -282,17 +282,16 @@ class TemplateManageAchievements {
 		if ( isset($form['success']) && is_array($form['success']) ) {
 			foreach($form['success'] as $s) {
 				if ($s['message'] == "success") {
-					$HTML .= "<div class='successbox'>".wfMessage('achievement_awarded', ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div>";
+					$HTML .= "<div class='successbox'>".wfMessage('achievement_awarded_to', $s['username'], ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div><br />";
+				}
+				if ($s['message'] == "nochange") {
+					$HTML .= "<div class='successbox'>".wfMessage('achievement_nochange_to', $s['username'], ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped()."</div><br />";
 				}
 			}
-			if (isset($form['errors']['username'])) {
-				$HTML .= "<br /><div class='errorbox'>".wfMessage('achievement_award_partial_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."";
-					$HTML .= "<ul>";
-					foreach($form['errors']['username'] as $err) {
-						$HTML .= '<li>'.$err.'</li>';
-					}
-					$HTML .= "</ul>";
-				$HTML .= "</div>";
+			if (isset($form['errors'])) {
+				foreach($form['errors'] as $e) {
+					$HTML .= "<div class='errorbox'>".$e['username'].": ".$e['message']."</div><br />";
+				}
 			}
 		} elseif ($form['success'] !== null) {
 				$HTML .= "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."

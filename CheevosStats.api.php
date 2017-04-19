@@ -218,6 +218,7 @@ class CheevosStatsAPI extends ApiBase {
 			$userPercent = ($totalEarned > 0) ? ( ($totalEarned / $userCount) * 100 ) : 0;
 
 			$data[] = [
+				"id" => $a->getId(),
 				"name" => $a->getName(),
 				"description" => $a->getDescription(),
 				"category" => $a->getCategory()->getName(),
