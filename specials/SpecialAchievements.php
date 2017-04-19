@@ -101,6 +101,7 @@ class SpecialAchievements extends SpecialPage {
 				foreach ($check['earned'] as $earned) {
 					$earnedAchievement = new \Cheevos\CheevosAchievement($earned);
 					\CheevosHooks::displayAchievement($earnedAchievement, $this->siteKey, $globalId);
+					Hooks::run('AchievementAwarded', [$earnedAchievement, $globalId]);
 				}
 			}
 			$_statuses = \Cheevos\Cheevos::getUserStatus($globalId, $this->siteKey);

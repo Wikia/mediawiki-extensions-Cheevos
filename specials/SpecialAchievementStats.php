@@ -27,7 +27,8 @@ class SpecialAchievementStats extends SpecialPage {
 	 */
 	public function __construct() {
 		global $dsSiteKey;
-		parent::__construct('AchievementStats','achievement_admin');
+
+		parent::__construct('AchievementStats', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -52,13 +53,14 @@ class SpecialAchievementStats extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		if ( !$this->userCanExecute( $this->getUser() ) ) {
+		if (!$this->userCanExecute($this->getUser())) {
 			$this->displayRestrictionError();
 			return;
 		}
 
-		if (! defined('MASTER_WIKI') || MASTER_WIKI === false) {
+		if (!defined('MASTER_WIKI') || MASTER_WIKI === false) {
 			$this->output->redirect("/");
+			return;
 		}
 
 		$this->templates = new TemplateAchievementStats;
@@ -88,28 +90,28 @@ class SpecialAchievementStats extends SpecialPage {
 		$this->content = $this->templates->achievementsStats($sites);
 	}
 
-	  /**
-     * Hides special page from SpecialPages special page.
-     *
-     * @access    public
-     * @return    boolean
-     */
-    public function isListed() {
-        if ($this->wgUser->isAllowed('achievement_admin')) {
-            return true;
-        }
-        return false;
-    }
+	/**
+	 * Hides special page from SpecialPages special page.
+	 *
+	 * @access	  public
+	 * @return	  boolean
+	 */
+	public function isListed() {
+		if ($this->wgUser->isAllowed('achievement_admin')) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Lets others determine that this special page is restricted.
-     *
-     * @access    public
-     * @return    boolean    True
-     */
-    public function isRestricted() {
-        return true;
-    }
+	/**
+	 * Lets others determine that this special page is restricted.
+	 *
+	 * @access	  public
+	 * @return	  boolean	 True
+	 */
+	public function isRestricted() {
+		return true;
+	}
 
 	/**
 	 * Return the group name for this special page.

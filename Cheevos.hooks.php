@@ -20,6 +20,13 @@ class CheevosHooks {
 	static private $shutdownRegistered = false;
 
 	/**
+	 * Shutdown Function Ran Already
+	 *
+	 * @var		boolean
+	 */
+	static private $shutdownRan = false;
+
+	/**
 	 * Data points to increment on shutdown.
 	 *
 	 * @var		array
@@ -40,7 +47,6 @@ class CheevosHooks {
 		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$extSyncServices[] = 'CheevosIncrementJob';
 		}
-
 	}
 
 	/**
@@ -104,6 +110,10 @@ class CheevosHooks {
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 		self::$increments[$globalId]['timestamp'] = time();
 		self::$increments[$globalId]['request_uuid'] = sha1(self::$increments[$globalId]['user_id'].self::$increments[$globalId]['site_key'].self::$increments[$globalId]['timestamp'].random_bytes(4));
+
+		if (self::$shutdownRan) {
+			self::doIncrements();
+		}
 
 		return true;
 	}
@@ -402,7 +412,26 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Registers shutdown function to track daily achievements.
+	 * Registers shutdown function to do increments.
+	 *
+	 * @access	public
+	 * @param	object	ApiMain
+	 * @return	boolean	True
+	 */
+	static public function onApiBeforeMain(&$processor) {
+		if ('MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+			return true;
+		}
+
+		register_shutdown_function('CheevosHooks::doIncrements');
+
+		self::$shutdownRegistered = true;
+
+		return true;
+	}
+
+	/**
+	 * Registers shutdown function to do increments.
 	 *
 	 * @access	public
 	 * @param	object	Title
@@ -419,7 +448,7 @@ class CheevosHooks {
 		}
 
 		global $wgUser;
-		if (MW_API != true) {
+		if (!defined('MW_API')) {
 			self::increment('visit', 1, $wgUser);
 		}
 
@@ -439,20 +468,72 @@ class CheevosHooks {
 	static public function doIncrements() {
 		//Attempt to do it NOW. If we get an error, fall back to the SyncService job.
 		try {
+			self::$shutdownRan = true;
 			foreach (self::$increments as $globalId => $increment) {
 				$return = \Cheevos\Cheevos::increment($increment);
+				unset(self::$increments[$globalId]);
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
 						\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
 			}
 		} catch (\Cheevos\CheevosException $e) {
 			foreach (self::$increments as $globalId => $increment) {
 				\Cheevos\CheevosIncrementJob::queue($increment);
+				unset(self::$increments[$globalId]);
 			}
 		}
+	}
+
+	/**
+	 * Handle actions when an achievement is awarded.
+	 *
+	 * @access	public
+	 * @param	object	\Cheevos\CheevosAchievement
+	 * @param	object	Global User ID
+	 * @return	boolean	True
+	 */
+	static public function onAchievementAwarded($achievement, $globalId) {
+		global $dsSiteKey;
+
+		if ($achievement === false || $globalId < 1) {
+			return true;
+		}
+
+		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
+			$points = EditPoints::achievementEarned($globalId, $achievement->getPoints());
+			if ($points->save()) {
+				$points->updatePointTotals();
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Handle actions when an achievement or a mega achievement is unawarded.
+	 *
+	 * @access	public
+	 * @param	object	\Cheevos\CheevosAchievement
+	 * @param	object	Global User ID
+	 * @return	boolean	True
+	 */
+	static public function onAchievementUnawarded($achievement, $globalId) {
+		if ($achievement === false || $globalId < 1) {
+			return true;
+		}
+
+		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
+			$points = EditPoints::achievementRevoked($globalId, ($achievement->getPoints() * -1));
+			if ($points->save()) {
+				$points->updatePointTotals();
+			}
+		}
+
+		return true;
 	}
 
 	/**

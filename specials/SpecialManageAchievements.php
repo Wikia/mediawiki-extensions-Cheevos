@@ -27,7 +27,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function __construct() {
 		global $dsSiteKey;
-		parent::__construct('ManageAchievements');
+
+		parent::__construct('ManageAchievements', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -117,9 +118,9 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		//Fix requires achievement child IDs for display purposes.
-		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements, ($this->siteKey === '' ? $this->siteKey : null));
+		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
-		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false, [], ($this->siteKey === '' ? $this->siteKey : null));
+		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false);
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories);
@@ -162,8 +163,9 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
-		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements($allAchievements, true, true, [], ($this->siteKey === '' ? $this->siteKey : null));
-		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement], ($this->siteKey === '' ? $this->siteKey : null)));
+		$allAchievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($allAchievements);
+		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
+		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements($allAchievements, true, true);
 
 		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), \Cheevos\Cheevos::getKnownHooks(), $allAchievements, $return['errors']);
 	}
@@ -175,7 +177,7 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function acheivementsSave() {
-		global $achImageDomainWhiteList;
+		global $achImageDomainWhiteList, $dsSiteKey;
 
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
 			$forceCreate = false;
@@ -192,7 +194,9 @@ class SpecialManageAchievements extends SpecialPage {
 			$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
 			$criteria->setStreak_Progress_Required($this->wgRequest->getInt("criteria_streak_progress_required"));
 			$criteria->setStreak_Reset_To_Zero($this->wgRequest->getBool("criteria_streak_reset_to_zero"));
-			$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
+			if ($dsSiteKey === 'master') {
+				$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
+			}
 			//$criteria->setDate_Range_Start();
 			//$criteria->setDate_Range_End();
 			$criteria->setCategory_Id($this->wgRequest->getInt("criteria_category_id"));
@@ -217,22 +221,38 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->achievement->setPoints($this->wgRequest->getInt('points'));
 
 			$categoryId = $this->wgRequest->getInt('category_id');
-			$categoryName = $this->wgRequest->getText('category');
+			$categoryName = trim($this->wgRequest->getText('category'));
 			$category = \Cheevos\Cheevos::getCategory($categoryId);
+			$categories = Cheevos\Cheevos::getCategories(true);
 			if ($category !== false && $categoryId > 0 && $categoryId == $category->getId() && $categoryName == $category->getName()) {
 				$this->achievement->setCategory($category);
 			} elseif (!empty($categoryName)) {
-				$category = new \Cheevos\CheevosAchievementCategory();
-				$category->setName($categoryName);
-				$return = $category->save();
-				if (isset($return['code']) && $return['code'] !== 200) {
-					throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+				$found = false;
+				foreach ($categories as $_categoryId => $_category) {
+					if ($categoryName == $_category->getName()) {
+						$this->achievement->setCategory($_category);
+						$found = true;
+						break;
+					}
 				}
-				if (isset($return['object_id'])) {
-					$category = \Cheevos\Cheevos::getCategory($return['object_id']);
-					$this->achievement->setCategory($category);
-				} else {
-					$category = false;
+				if (!$found) {
+					$lookup = CentralIdLookup::factory();
+					$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
+
+					$category = new \Cheevos\CheevosAchievementCategory();
+					$category->setName($categoryName);
+					$category->setCreated_At(time());
+					$category->setCreated_By($globalId);
+					$return = $category->save();
+					if (isset($return['code']) && $return['code'] !== 200) {
+						throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+					}
+					if (isset($return['object_id'])) {
+						$category = \Cheevos\Cheevos::getCategory($return['object_id']);
+						$this->achievement->setCategory($category);
+					} else {
+						$category = false;
+					}
 				}
 			} else {
 				$category = false;
@@ -243,7 +263,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
-			if (MASTER_WIKI === true) {
+			if ($dsSiteKey === 'master') {
 				//Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
@@ -428,12 +448,14 @@ class SpecialManageAchievements extends SpecialPage {
 							]
 						);
 						\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
+						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					} elseif ($do === 'award') {
 						$award = ['message'=>'nochange'];
 					}
 
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
 						$award = Cheevos\Cheevos::deleteProgress($currentProgress->getId(), $globalId);
+						Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
 					} elseif ($do === 'unaward') {
 						$award = ['message'=>'nochange'];
 					}
@@ -478,9 +500,9 @@ class SpecialManageAchievements extends SpecialPage {
      * @access    public
      * @return    boolean    True
      */
-    public function isRestricted() {
-        return true;
-    }
+	public function isRestricted() {
+		return true;
+	}
 
 	/**
 	 * Return the group name for this special page.

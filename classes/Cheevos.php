@@ -333,25 +333,32 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get all categories.
 	 *
-	 * @return void
+	 * @acess	public
+	 * @param	boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
+	 * @return	void
 	 */
-	public static function getCategories() {
-		$redis = \RedisCache::getClient('cache');
+	static public function getCategories($skipCache = false) {
 		$cache = false;
-		$redisKey = 'cheevos:apicache:getCategories';
+		$redis = \RedisCache::getClient('cache');
+		if (!$skipCache) {
+			$redisKey = 'cheevos:apicache:getCategories';
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		if (!$cache || !unserialize($cache)) {
-			$return = self::get('achievement_categories/all', [
-				'limit'	=> 0
-			]);
+			$return = self::get(
+				'achievement_categories/all',
+				[
+					'limit'	=> 0
+				]
+			);
 			try {
 				$redis->setEx($redisKey, 300, serialize($return));
 			} catch (RedisException $e) {
@@ -515,11 +522,31 @@ class Cheevos {
 
 		$return = self::get('stats', $filters);
 
-		return self::return($return, 'stats');
+		return self::return($return, 'stats', 'Cheevos\CheevosStatProgress');
 	}
 
 	/**
-	 * Undocumented function
+	 * Return stats/user_site_count for selected filters.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
+	 * @return	mixed
+	 */
+	public static function getUserSitesCountByStat($globalId, $stat) {
+		$return = self::get(
+			'stats/user_sites_count',
+			[
+				'user_id'	=> $globalId,
+				'stat'		=> $stat
+			]
+		);
+
+		return self::return($return, 'count');
+	}
+
+	/**
+	 * Get achievement status for an user.
 	 *
 	 * @access	public
 	 * @param	integer	Global User ID

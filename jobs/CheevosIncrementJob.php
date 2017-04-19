@@ -11,9 +11,7 @@
  *
  **/
 
-namespace Cheevos;
-
-class CheevosIncrementJob extends \SyncService\Job {
+class CheevosIncrementJob extends SyncService\Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
 	 * @var		int		sets the priority at which this service will run
@@ -44,18 +42,20 @@ class CheevosIncrementJob extends \SyncService\Job {
 	 * - ...
 	 * @return	boolean	Success, reported to Worker class to set the exit status of the process.
 	 */
-	public function execute($data) {
+	public function execute($increment) {
 		try {
-			$return = \Cheevos\Cheevos::increment($data);
+			$lookup = CentralIdLookup::factory();
+			$return = \Cheevos\Cheevos::increment($increment);
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
 					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::displayAchievement($achievement, $data['site_key'], $data['user_id']);
+					\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+					Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 				}
 			}
 			return ($return === false ? false : true);
 		} catch (\Cheevos\CheevosException $e) {
-			self::queue($args); //Requeue in case of unintended failure.
+			self::queue($increment); //Requeue in case of unintended failure.
 			return false;
 		}
 	}
