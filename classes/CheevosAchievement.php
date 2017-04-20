@@ -248,13 +248,39 @@ class CheevosAchievement extends CheevosModel {
 	 * @param	array	CheevosAchievement objects.
 	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
 	 * @param	array	[Optional] CheevosAchievementStatus OR CheevosAchievementProgress objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
+	 * @param	string	[Optional] Site Key for contextual removal and reassignment of earned status.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = []) {
+	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = [], $siteKey = null) {
 		if (count($achievements)) {
-			$children = self::getParentToChild($achievements);
-			foreach ($achievements as $id => $achievement) {
+			$_achievements = $achievements;
+			if ($removeParents && !empty($siteKey)) {
+				foreach ($statuses as $statusId => $status) {
+					if ($status->getSite_Key() === $siteKey && isset($achievements[$status->getAchievement_Id()]) && $achievements[$status->getAchievement_Id()]->getParent_Id() < 1) {
+						$fixChildrenStatus[$achievements[$status->getAchievement_Id()]->getId()] = $statusId;
+					}
+				}
+				foreach ($statuses as $statusId => $status) {
+					if (isset($fixChildrenStatus[$achievements[$status->getAchievement_Id()]->getParent_Id()])) {
+						$parentStatusId = $fixChildrenStatus[$achievements[$status->getAchievement_Id()]->getParent_Id()];
+						$statuses[$statusId]->copyFrom($statuses[$parentStatusId]);
+						$statuses[$statusId]->setReadOnly();
+						unset($statuses[$parentStatusId]);
+					}
+				}
+			}
+			foreach ($_achievements as $id => $achievement) {
 				if ($removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
+					/*if (!empty($siteKey)) {
+						foreach ($statuses as $statusId => $status) {
+							if ($status->isEarned() && $status->getSite_Key() == $siteKey) {
+								if (isset($achievements[$status->getAchievement_Id()]) && $achievements[$status->getAchievement_Id()]->getParent_Id()) {
+									$statuses[????]->setEarned(true);
+									$statuses[????]->setReadOnly();
+								}
+							}
+						}
+					}
 					if (isset($statuses[$achievement->getParent_Id()])) {
 						if ($statuses[$achievement->getParent_Id()]->isEarned()) {
 							if (!isset($statuses[$achievement->getId()]) || !$statuses[$achievement->getId()]->isEarned()) {
@@ -262,16 +288,16 @@ class CheevosAchievement extends CheevosModel {
 								$statuses[$achievement->getId()]->setReadOnly();
 							}
 						}
-					}
-					unset($achievements[$achievement->getParent_Id()]);
+					}*/
+					unset($_achievements[$achievement->getParent_Id()]);
 				}
 
 				if ($removeDeleted && $achievement->getDeleted_At() > 0) {
-					unset($achievements[$achievement->getId()]);
+					unset($_achievements[$achievement->getId()]);
 				}
 			}
 		}
-		return $achievements;
+		return $_achievements;
 	}
 
 	/**

@@ -32,4 +32,17 @@ class CheevosAchievementProgress extends CheevosModel {
 		$this->container['awarded_at'] = isset($data['awarded_at']) && is_int($data['awarded_at']) ? $data['awarded_at'] : 0;
 		$this->container['notified'] = isset($data['notified']) && is_bool($data['notified']) ? $data['notified'] : false;
 	}
+
+	/**
+	 * Copy the progress from another to this one.  Typically used for copying progress from a parent into the child for display purposes.
+	 *
+	 * @access	public
+	 * @param	object	CheevosAchievementProgress
+	 * @return	void
+	 */
+	public function copyFrom(CheevosAchievementProgress $progress) {
+		$data = $progress->toArray();
+		$data['id'] = $this->container['id'];
+		$this->container = $data;
+	}
 }
