@@ -490,7 +490,7 @@ class SpecialManageAchievements extends SpecialPage {
 	}
 	
 	/**
-	 * Invalidates the cash
+	 * Invalidates the cache
 	 *
 	 * @return void
 	 */
