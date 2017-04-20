@@ -141,12 +141,14 @@ class TemplateAchievements {
 
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
 
+		$image = $achievement->getImage();
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
 			<div class='p-achievement-row".($status !== false && $status->isEarned() ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
-				<div class='p-achievement-icon'>
-					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
+				<div class='p-achievement-icon".(($showControls && !empty($imageUrl)) ? " edit-on-hover" : null)."'>
+					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/ data-img='{$image}'>" : "")."
+					".(($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">[upload new image]</span>" : null)."
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES)."</span>
