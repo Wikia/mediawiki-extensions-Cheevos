@@ -488,8 +488,12 @@ class SpecialManageAchievements extends SpecialPage {
 			'success'	=> $awarded
 		];
 	}
-
-
+	
+	/**
+	 * Invalidates the cash
+	 *
+	 * @return void
+	 */
 	private function invalidateCache() {
 		Cheevos\Cheevos::invalidateCache();
 
