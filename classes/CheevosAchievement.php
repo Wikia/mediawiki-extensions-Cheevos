@@ -277,7 +277,7 @@ class CheevosAchievement extends CheevosModel {
 					if (isset($_achievements[$status->getAchievement_Id()])) {
 						$achParentId = $_achievements[$status->getAchievement_Id()]->getParent_Id();
 						if ($achParentId > 0 && isset($fixChildrenStatus[$achParentId][$status->getSite_Key()][$status->getUser_Id()])) {
-							$parentStatusId = $fixChildrenStatus[$achParentId])[$status->getSite_Key()][$status->getUser_Id()];
+							$parentStatusId = $fixChildrenStatus[$achParentId][$status->getSite_Key()][$status->getUser_Id()];
 							$statuses[$statusId]->copyFrom($statuses[$parentStatusId]);
 							$statuses[$statusId]->setReadOnly();
 							unset($statuses[$parentStatusId]);
