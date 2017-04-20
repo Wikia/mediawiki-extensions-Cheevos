@@ -17,7 +17,7 @@
 
 	console.log('Cheevos Stats Code Loaded.');
 	var api = new mw.Api();
-
+	
 	/***
 	 *     __    __  ________  __        _______   ________  _______    ______
 	 *    /  |  /  |/        |/  |      /       \ /        |/       \  /      \
@@ -193,7 +193,7 @@
 				"orderable": false,
 				"data": function(row, type, set, meta) {
 					if (row.earned > 0) {
-						return "<button>View Users</button>";
+						return "<button class=\"viewUsersEarned mw-ui-button mw-ui-constructive\" data-achievement=\""+row.id+"\">View Users</button>";
 					} else {
 						return "";
 					}
@@ -222,6 +222,13 @@
 			'csv', 'excel', 'pdf'
 		],
 		dom: 'Blfrtip'
+	});
+
+	$(document).on('click', '.viewUsersEarned', function(){
+		var achievement = $(this).data('achievement');
+		changeHash({
+			achievement: achievement
+		});
 	});
 
 	function singleWikiDisplay() {
@@ -272,7 +279,13 @@
 
 	}
 
+	function usersEarnedDisplay() {
+		// display datatable and load table data. 
+		var args = getHashArguments();
 
+		
+
+	}
 
 	/***
 	 *     __         ______    ______   ______   ______
@@ -289,7 +302,6 @@
 	 *
 	 */
 
-
 	$("#wikiSelector").change(function(){
 		var val = $(this).val();
 		changeHash({'wiki': val});
@@ -299,6 +311,7 @@
 		return $("#dataHolder").attr('data-'+name);
 	}
 
+	var lastHash = {wiki:false,achievement:false}; // used to hold a hash after change, to compare it to previous hash.
 	function handleChange() {
 		var args = getHashArguments();
 		console.log("New Hash Set: ", args);
@@ -311,15 +324,23 @@
 		// Make selector match.
 		$("#wikiSelector").val(args.wiki);
 
-		// All Wikis Stat
-		if (args.wiki == "all") {
-			allWikiDisplay();
-		} else if(args.wiki == "megas") {
-			megasDisplay();
-		} else {
-			singleWikiDisplay();
+		if (lastHash.wiki !== args.wiki) {
+			// All Wikis Stat
+			if (args.wiki == "all") {
+				allWikiDisplay();
+			} else if(args.wiki == "megas") {
+				megasDisplay();
+			} else {
+				singleWikiDisplay();
+			}
 		}
 
+		if (args.achievement && lastHash.achievement !== args.achievement) {
+			usersEarnedDisplay();
+		}
+		
+
+		lastHash = args;
 	}
 
 	/***

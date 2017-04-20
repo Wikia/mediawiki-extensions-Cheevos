@@ -396,14 +396,20 @@ class SpecialManageAchievements extends SpecialPage {
 			$awarded = false;
 			$save['username'] = $this->wgRequest->getVal('username');
 			if (empty($save['username'])) {
-				$errors['username'][] = wfMessage('error_award_bad_user')->escaped();
+				$errors[] = [
+					'username' => $save['username'], 
+					'message' => wfMessage('error_award_bad_user')->escaped()
+				];
 			}
 
 			$save['achievement_id'] = $this->wgRequest->getInt('achievement_id');
 
 			$achievement = \Cheevos\Cheevos::getAchievement($save['achievement_id']);
 			if ($achievement === false) {
-				$errors['achievement_id'] = wfMessage('error_award_bad_achievement')->escaped();
+				$errors[] = [
+					'username' => $save['username'], 
+					'message' => wfMessage('error_award_bad_achievement')->escaped()
+				];
 			}
 
 			if (!count($errors)) {
@@ -414,9 +420,14 @@ class SpecialManageAchievements extends SpecialPage {
 					$lookup = CentralIdLookup::factory();
 					$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 					if (!$user || !$user->getId() || !$globalId) {
-						$errors['username'][] = "{$getUser}: ".wfMessage('error_award_bad_user')->escaped();
+						$errors[] = [
+							'username' => $getUser, 
+							'message' => wfMessage('error_award_bad_user')->escaped()
+						];
 						continue;
 					}
+
+					$award = [];
 
 					$currentProgress = \Cheevos\Cheevos::getAchievementProgress(['user_id' => $globalId, 'achievement_id' => $achievement->getId(), 'site_key' => $dsSiteKey]);
 					if (is_array($currentProgress)) {
@@ -425,29 +436,48 @@ class SpecialManageAchievements extends SpecialPage {
 						$currentProgress = null;
 					}
 					if (!$currentProgress && $do === 'award') {
-						$awarded[] = Cheevos\Cheevos::putProgress(
-							[
-								'achievement_id'	=> $achievement->getId(),
-								'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
-								'user_id'			=> $globalId,
-								'earned'			=> true,
-								'manual_award' 		=> true,
-								'awarded_at'		=> time(),
-								'notified'			=> false
-							]
-						);
-						\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
-						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+						try {
+							$award = Cheevos\Cheevos::putProgress(
+								[
+									'achievement_id'	=> $achievement->getId(),
+									'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
+									'user_id'			=> $globalId,
+									'earned'			=> true,
+									'manual_award' 		=> true,
+									'awarded_at'		=> time(),
+									'notified'			=> false
+								]
+							);
+							\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
+							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+						} catch (CheevosException $e) {
+							$errors[] = [
+								'username' => $save['username'], 
+								'message' => "Distinct Failure to Chooch: ".$e->getMessage();
+							];
+						}
+						
 					} elseif ($do === 'award') {
-						$awarded[] = true;
+						$award = ['message'=>'nochange'];
 					}
 
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
-						$awarded[] = Cheevos\Cheevos::deleteProgress($currentProgress->getId(), $globalId);
-						Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+						try {
+							$award = Cheevos\Cheevos::deleteProgress($currentProgress->getId(), $globalId);
+							Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+						} catch (CheevosException $e) {
+							$errors[] = [
+								'username' => $save['username'], 
+								'message' => "Distinct Failure to Chooch: ".$e->getMessage();
+							];
+						}
+
 					} elseif ($do === 'unaward') {
-						$awarded[] = true;
+						$award = ['message'=>'nochange'];
 					}
+
+					$award['username'] = $user->getName();
+					$awarded[] = $award;
 				}
 			}
 		}
@@ -458,7 +488,12 @@ class SpecialManageAchievements extends SpecialPage {
 			'success'	=> $awarded
 		];
 	}
-
+	
+	/**
+	 * Invalidates the cache
+	 *
+	 * @return void
+	 */
 	private function invalidateCache() {
 		Cheevos\Cheevos::invalidateCache();
 
@@ -467,11 +502,11 @@ class SpecialManageAchievements extends SpecialPage {
 		return;
 	}
 
-	/**
+	  /**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @access	  public
-	 * @return	  boolean
+	 * @access	public
+	 * @return	boolean
 	 */
 	public function isListed() {
 		if ($this->wgUser->isAllowed('achievement_admin')) {
@@ -483,8 +518,8 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access	  public
-	 * @return	  boolean	 True
+	 * @access	public
+	 * @return	boolean	True
 	 */
 	public function isRestricted() {
 		return true;

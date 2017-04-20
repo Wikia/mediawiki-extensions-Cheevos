@@ -90,6 +90,8 @@
 	"award": "Award",
 	"unaward": "Unaward",
 	"achievement_awarded": "Achievement $1 successfully.",
+	"achievement_awarded_to": "Achievement for $1 $2 successfully.",
+	"achievement_nochange_to": "Achievement for $1 was already $2.",
 	"achievement_award_partial_failed": "Some achievements failed to $1 for the following reasons:",
 	"achievement_award_failed": "Failed to $1 the achievement.  The achievement may have already been $2 to the user.  More information may be available below.",
 	"awarded": "awarded",
