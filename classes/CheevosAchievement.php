@@ -254,17 +254,30 @@ class CheevosAchievement extends CheevosModel {
 	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = [], $siteKey = null) {
 		if (count($achievements)) {
 			$_achievements = $achievements;
-			if ($removeParents && !empty($siteKey)) {
+			if ($removeParents) {
 				foreach ($statuses as $statusId => $status) {
-					if ($status->getSite_Key() === $siteKey && isset($achievements[$status->getAchievement_Id()]) && $achievements[$status->getAchievement_Id()]->getParent_Id() < 1) {
-						$fixChildrenStatus[$achievements[$status->getAchievement_Id()]->getId()] = $statusId;
+					if (!$status->isEarned()) {
+						continue;
 					}
+					if (!isset($_achievements[$status->getAchievement_Id()])) {
+						continue;
+					}
+					$achievement = $_achievements[$status->getAchievement_Id()];
+					if ($achievement->getParent_Id() < 1) {
+						continue;
+					}
+					if ($removeDeleted && $achievement->getDeleted_At() > 0) {
+						unset($statuses[$statusId]);
+						unset($_achievements[$achievement->getId()]);
+						continue;
+					}
+					$fixChildrenStatus[$status->getAchievement_Id()][$status->getSite_Key()][$status->getUser_Id()] = $statusId;
 				}
 				foreach ($statuses as $statusId => $status) {
-					if (isset($achievements[$status->getAchievement_Id()])) {
-						$achParentId = $achievements[$status->getAchievement_Id()]->getParent_Id();
-						if ($achParentId > 0 && isset($fixChildrenStatus[$achParentId])) {
-							$parentStatusId = $fixChildrenStatus[$achParentId];
+					if (isset($_achievements[$status->getAchievement_Id()])) {
+						$achParentId = $_achievements[$status->getAchievement_Id()]->getParent_Id();
+						if ($achParentId > 0 && isset($fixChildrenStatus[$achParentId])[$status->getSite_Key()][$status->getUser_Id()]) {
+							$parentStatusId = $fixChildrenStatus[$achParentId])[$status->getSite_Key()][$status->getUser_Id()];
 							$statuses[$statusId]->copyFrom($statuses[$parentStatusId]);
 							$statuses[$statusId]->setReadOnly();
 							unset($statuses[$parentStatusId]);
