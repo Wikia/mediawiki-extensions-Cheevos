@@ -247,23 +247,22 @@ class CheevosAchievement extends CheevosModel {
 	 * @access	public
 	 * @param	array	CheevosAchievement objects.
 	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
-	 * @param	array	[Optional] CheevosAchievementStatus objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
+	 * @param	array	[Optional] CheevosAchievementStatus OR CheevosAchievementProgress objects - Used to determine if $removeParents or $removeDeleted should be ignored if the achievement is earned.
 	 * @return	array	CheevosAchievement objects.
 	 */
 	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = []) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			foreach ($achievements as $id => $achievement) {
-				$earned = false;
-				if (isset($statuses[$achievement->getId()])) {
-					$earned = $statuses[$achievement->getId()]->isEarned();
-				}
-
-				if (!$earned && isset($statuses[$achievement->getParent_Id()])) {
-					$earned = $statuses[$achievement->getParent_Id()]->isEarned();
-				}
-
-				if (!$earned && $removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
+				if ($removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0) {
+					if (isset($statuses[$achievement->getParent_Id()])) {
+						if ($statuses[$achievement->getParent_Id()]->isEarned()) {
+							if (!isset($statuses[$achievement->getId()]) || !$statuses[$achievement->getId()]->isEarned()) {
+								$statuses[$achievement->getId()]->setEarned(true);
+								$statuses[$achievement->getId()]->setReadOnly();
+							}
+						}
+					}
 					unset($achievements[$achievement->getParent_Id()]);
 				}
 
