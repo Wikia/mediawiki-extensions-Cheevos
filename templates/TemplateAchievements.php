@@ -147,7 +147,7 @@ class TemplateAchievements {
 		$HTML = "
 			<div class='p-achievement-row".($status !== false && $status->isEarned() ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
 				<div class='p-achievement-icon".(($showControls && !empty($imageUrl)) ? " edit-on-hover" : null)."'>
-					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/ data-img='{$image}'>" : "")."
+					".(!empty($imageUrl) ? "<img src='{$imageUrl}' data-img='{$image}'>" : "")."
 					".(($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">[upload new image]</span>" : null)."
 				</div>
 				<div class='p-achievement-row-inner'>
