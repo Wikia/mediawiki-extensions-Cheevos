@@ -16,6 +16,14 @@ $(document).ready(function() {
 	});
 
 
+	$(".edit-on-hover").hover(function(){
+		$(this).find('.image-edit-box').first().show();
+	},function(){
+		$(this).find('.image-edit-box').first().hide();
+	}).click(function(){
+		document.location.href = "/Special:Upload?wpDestFile=" + $(this).find('img').first().attr('data-img') + "&wpForReUpload=1";
+	});
+
 	function updateTabs() {
 		var lastElement = false;
 		var isEnd = false;
