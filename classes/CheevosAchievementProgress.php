@@ -43,6 +43,7 @@ class CheevosAchievementProgress extends CheevosModel {
 	public function copyFrom(CheevosAchievementProgress $progress) {
 		$data = $progress->toArray();
 		$data['id'] = $this->container['id'];
+		$data['achievement_id'] = $this->container['achievement_id'];
 		$this->container = $data;
 	}
 }
