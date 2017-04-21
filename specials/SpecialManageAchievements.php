@@ -453,7 +453,7 @@ class SpecialManageAchievements extends SpecialPage {
 						} catch (CheevosException $e) {
 							$errors[] = [
 								'username' => $save['username'], 
-								'message' => "Distinct Failure to Chooch: ".$e->getMessage();
+								'message' => "There was an API failure attempting to putProgress: ".$e->getMessage()
 							];
 						}
 						
@@ -468,7 +468,7 @@ class SpecialManageAchievements extends SpecialPage {
 						} catch (CheevosException $e) {
 							$errors[] = [
 								'username' => $save['username'], 
-								'message' => "Distinct Failure to Chooch: ".$e->getMessage();
+								'message' => "There was an API failure attempting to deleteProgress: ".$e->getMessage()
 							];
 						}
 
