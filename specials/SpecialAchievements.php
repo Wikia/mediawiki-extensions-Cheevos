@@ -128,6 +128,8 @@ class SpecialAchievements extends SpecialPage {
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
 		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
+
+		//@TODO: This fuckery of the $statuses array is backwards compatibility for the template.  If we fix the template to be able to handle more than one wiki at a time this piece of code needs to be removed.
 		if (!empty($_statuses)) {
 			foreach ($_statuses as $_status) {
 				$statuses[$_status->getAchievement_Id()] = $_status;
