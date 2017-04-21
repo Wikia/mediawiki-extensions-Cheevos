@@ -252,8 +252,8 @@ class CheevosAchievement extends CheevosModel {
 	 * @return	array	CheevosAchievement objects.
 	 */
 	static public function pruneAchievements($achievements, $removeParents = true, $removeDeleted = true, $statuses = [], $siteKey = null) {
-		if (count($achievements)) {
-			$_achievements = $achievements;
+		$_achievements = $achievements;
+		if (count($_achievements)) {
 			if ($removeParents) {
 				foreach ($statuses as $statusId => $status) {
 					if (!$status->isEarned()) {
