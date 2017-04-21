@@ -120,7 +120,7 @@ class SpecialManageAchievements extends SpecialPage {
 		//Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
-		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, false);
+		list($achievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, []], true, false);
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
 		$this->content = $this->templates->achievementsList($achievements, $categories);
@@ -165,7 +165,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
 		$allAchievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($allAchievements);
 		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
-		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements($allAchievements, true, true);
+		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], true, true);
 
 		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), \Cheevos\Cheevos::getKnownHooks(), $allAchievements, $return['errors']);
 	}
@@ -373,7 +373,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->awardSave();
 
 		//Using the 'master' site key for the awarding form.
-		$allAchievements = \Cheevos\CheevosAchievement::pruneAchievements(\Cheevos\Cheevos::getAchievements($dsSiteKey), true, true);
+		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([\Cheevos\Cheevos::getAchievements($dsSiteKey), []], true, true);
 
 		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
 		$this->content = $this->templates->awardForm($return, $allAchievements);

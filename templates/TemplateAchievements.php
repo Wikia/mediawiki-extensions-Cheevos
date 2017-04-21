@@ -18,12 +18,14 @@ class TemplateAchievements {
 	 * @access	public
 	 * @param	array	Array of Achievement Object
 	 * @param	array	Array of Category Information
-	 * @param	array	[Optional] Array of User Progress for loaded user if applicable.
-	 * @param	array	[Optional] Array of User Status for loaded user if applicable.
+	 * @param	array	Array of User Status for loaded user.
+	 * @param	object	User
+	 * @param	integer	User's Global ID
+	 * @param	string	Site Key Context
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories, $status = []) {
-		global $wgOut, $wgRequest, $wgUser;
+	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId, $siteKey) {
+		global $wgOut, $wgRequest, $wgUser, $dsSiteKey;
 
 		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$manageAchievementsURL	= $manageAchievementsPage->getFullURL();
@@ -51,7 +53,7 @@ class TemplateAchievements {
 						continue;
 					}
 
-					$achievementStatus = (isset($status[$achievement->getId()]) ? $status[$achievement->getId()] : false);
+					$achievementStatus = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
 
 					if (($achievement->isSecret() && $achievementStatus === false)
 						|| ($achievementStatus !== false && $achievement->isSecret() && !$achievementStatus->isEarned())) {
@@ -59,7 +61,7 @@ class TemplateAchievements {
 						continue;
 					}
 
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $status, $achievements);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $statuses, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";

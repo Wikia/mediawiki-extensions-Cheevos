@@ -119,13 +119,6 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		$statuses = [];
-		if (!empty($_statuses)) {
-			foreach ($_statuses as $_status) {
-				$statuses[$_status->getAchievement_Id()] = $_status;
-			}
-		}
-
 		$title = wfMessage('achievements')->escaped();
 		if ($user) {
 			$title .= " for {$user->getName()}";
@@ -134,10 +127,15 @@ class SpecialAchievements extends SpecialPage {
 		//Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
-		$achievements = \Cheevos\CheevosAchievement::pruneAchievements($achievements, true, true, $statuses, $dsSiteKey);
+		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true, $statuses, $dsSiteKey);
+		if (!empty($_statuses)) {
+			foreach ($_statuses as $_status) {
+				$statuses[$_status->getAchievement_Id()] = $_status;
+			}
+		}
 
 		$this->output->setPageTitle($title);
-		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses);
+		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses, $user, $globalId, $siteKey);
 	}
 
 
