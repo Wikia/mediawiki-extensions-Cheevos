@@ -254,10 +254,10 @@ class CheevosAchievement extends CheevosModel {
 	 *		Also note: Just pruning statuses is useless as it needs achievement information to successfully prune them.
 	 *		Pruning statuses is not required.
 	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
-	 * @param	string	[Optional] Site Key for contextual removal and reassignment of earned status.
+	 * @param	boolean	[Optional] Remove deleted achievements.
 	 * @return	array	CheevosAchievement objects.
 	 */
-	static public function pruneAchievements(array $toPrune, $removeParents = true, $removeDeleted = true, $siteKey = null) {
+	static public function pruneAchievements(array $toPrune, $removeParents = true, $removeDeleted = true) {
 		list($achievements, $statuses) = $toPrune;
 		$_achievements = $achievements;
 		if (count($_achievements)) {
@@ -302,24 +302,6 @@ class CheevosAchievement extends CheevosModel {
 			}
 			foreach ($_achievements as $id => $achievement) {
 				if ($removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0 && !array_key_exists($achievement->getId(), $preserveAchs)) {
-					/*if (!empty($siteKey)) {
-						foreach ($statuses as $statusId => $status) {
-							if ($status->isEarned() && $status->getSite_Key() == $siteKey) {
-								if (isset($achievements[$status->getAchievement_Id()]) && $achievements[$status->getAchievement_Id()]->getParent_Id()) {
-									$statuses[????]->setEarned(true);
-									$statuses[????]->setReadOnly();
-								}
-							}
-						}
-					}
-					if (isset($statuses[$achievement->getParent_Id()])) {
-						if ($statuses[$achievement->getParent_Id()]->isEarned()) {
-							if (!isset($statuses[$achievement->getId()]) || !$statuses[$achievement->getId()]->isEarned()) {
-								$statuses[$achievement->getId()]->setEarned(true);
-								$statuses[$achievement->getId()]->setReadOnly();
-							}
-						}
-					}*/
 					unset($_achievements[$achievement->getParent_Id()]);
 				}
 

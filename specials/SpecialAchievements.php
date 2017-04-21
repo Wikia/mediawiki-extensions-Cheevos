@@ -127,7 +127,7 @@ class SpecialAchievements extends SpecialPage {
 		//Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
-		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true, $dsSiteKey);
+		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
 		if (!empty($_statuses)) {
 			foreach ($_statuses as $_status) {
 				$statuses[$_status->getAchievement_Id()] = $_status;
