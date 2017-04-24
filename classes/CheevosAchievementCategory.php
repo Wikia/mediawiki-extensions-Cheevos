@@ -53,7 +53,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	}
 
 	/**
-	 * Undocumented function
+	 * Check if category exists
 	 *
 	 * @return void
 	 */
@@ -73,7 +73,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get name (by current language)
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	}
 
 	/**
-	 * Undocumented function
+	 * Same as getName
 	 *
 	 * @return void
 	 */

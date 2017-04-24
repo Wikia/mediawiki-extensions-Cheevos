@@ -19,10 +19,10 @@ class CheevosModel implements ArrayAccess {
 	private $readOnly = false;
 
 	/**
-	 * Undocumented function
+	 * Call method
 	 *
-	 * @param [type] $name
-	 * @param [type] $arguments
+	 * @param string $name
+	 * @param array $arguments
 	 * @return void
 	 */
 	public function __call($name, $arguments) {
@@ -112,10 +112,10 @@ class CheevosModel implements ArrayAccess {
   	}
 
 	/**
-	 * Undocumented function
+	 * Sets the value at the specified index to newval
 	 *
-	 * @param [type] $offset
-	 * @param [type] $value
+	 * @param int $offset
+	 * @param int $value
 	 * @return void
 	 */
 	public function offsetSet($offset, $value) {
@@ -127,9 +127,9 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 * Returns whether the requested index exists
 	 *
-	 * @param [type] $offset
+	 * @param int $offset
 	 * @return void
 	 */
 	public function offsetExists($offset) {
@@ -137,9 +137,9 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 * Unsets the value at the specified index
 	 *
-	 * @param [type] $offset
+	 * @param int $offset
 	 * @return void
 	 */
 	public function offsetUnset($offset) {
@@ -147,9 +147,9 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 *Returns the value at the specified index
 	 *
-	 * @param [type] $offset
+	 * @param int $offset
 	 * @return void
 	 */
 	public function offsetGet($offset) {
@@ -157,7 +157,7 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 * Convert model to array
 	 *
 	 * @return void
 	 */
@@ -172,7 +172,7 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Undocumented function
+	 * Convert model to string
 	 *
 	 * @return string
 	 */

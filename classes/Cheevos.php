@@ -69,9 +69,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for GET method.
 	 *
-	 * @param [type] $path
+	 * @param string $path
 	 * @param array $data
 	 * @return void
 	 */
@@ -80,9 +80,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for PUT method.
 	 *
-	 * @param [type] $path
+	 * @param string $path
 	 * @param array $data
 	 * @return void
 	 */
@@ -91,9 +91,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for POST method.
 	 *
-	 * @param [type] $path
+	 * @param string $path
 	 * @param array $data
 	 * @return void
 	 */
@@ -102,9 +102,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for DELETE method.
 	 *
-	 * @param [type] $path
+	 * @param string $path
 	 * @param array $data
 	 * @return void
 	 */
@@ -164,9 +164,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Validate data recieved from Cheevos
 	 *
-	 * @param [type] $body
+	 * @param array $body
 	 * @return void
 	 */
 	private static function validateBody($body) {
@@ -293,10 +293,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * PUT Achievement into Cheevos
 	 *
-	 * @param [type] $body
-	 * @param [type] $id
+	 * @param array $body
+	 * @param int $id
 	 * @return void
 	 */
 	private static function putAchievement($body, $id = null) {
@@ -323,9 +323,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Achievement
 	 *
-	 * @param [type] $body
+	 * @param array $body
 	 * @return void
 	 */
 	public static function createAchievement($body) {
@@ -372,9 +372,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get Category by ID
 	 *
-	 * @param [type] $id
+	 * @param int $id
 	 * @return void
 	 */
 	public static function getCategory($id) {
@@ -404,9 +404,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Delete Category by ID (with optional user_id for user that deleted the category)
 	 *
-	 * @param [type] $id
+	 * @param int $id
 	 * @param int $userId
 	 * @return void
 	 */
@@ -418,10 +418,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create a Category
 	 *
-	 * @param [type] $body
-	 * @param [type] $id
+	 * @param array $body
+	 * @param int $id
 	 * @return void
 	 */
 	private static function putCategory($body, $id = null) {
@@ -434,10 +434,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Update Category by ID
 	 *
-	 * @param [type] $id
-	 * @param [type] $body
+	 * @param int $id
+	 * @param array $body
 	 * @return void
 	 */
 	public static function updateCategory($id, $body) {
@@ -445,9 +445,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Category
 	 *
-	 * @param [type] $body
+	 * @param array $body
 	 * @return void
 	 */
 	public static function createCategory($body) {
@@ -473,10 +473,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Call increment to check for any unnotified achievement rewards.
 	 *
-	 * @param [type] $globalId
-	 * @param [type] $siteKey
+	 * @param int $globalId
+	 * @param string $siteKey
 	 * @param boolean $forceRecalculate
 	 * @return void
 	 */
@@ -595,9 +595,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get progress for an achievement
 	 *
-	 * @param [type] $id
+	 * @param int $id
 	 * @return	mixed
 	 */
 	public static function getProgressCount($site_key = null, $achievement_id = null) {
@@ -621,9 +621,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get process for achievement
 	 *
-	 * @param [type] $id
+	 * @param int $id
 	 * @return	mixed
 	 */
 	public static function getProgress($id) {
@@ -644,10 +644,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Put process for achievement. Either create or updates.
 	 *
-	 * @param [type] $body
-	 * @param [type] $id
+	 * @param array $body
+	 * @param int $id
 	 * @return void
 	 */
 	public static function putProgress($body, $id = null) {
@@ -660,10 +660,10 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Update progress
 	 *
-	 * @param [type] $id
-	 * @param [type] $body
+	 * @param int $id
+	 * @param array $body
 	 * @return void
 	 */
 	public static function updateProgress($id, $body) {
@@ -671,9 +671,9 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Progress
 	 *
-	 * @param [type] $body
+	 * @param array $body
 	 * @return void
 	 */
 	public static function createProgress($body) {
@@ -681,7 +681,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Junk left for legacy compliance. Can possibly be removed.
 	 *
 	 * @return void
 	 */
