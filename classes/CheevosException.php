@@ -18,7 +18,7 @@ class CheevosException extends \MWException {
 	/**
 	 * Constructor for Exception-+
 	 *
-	 * @param [type] $message
+	 * @param string $message
 	 * @param int $code
 	 * @param Exception $previous
 	 */
