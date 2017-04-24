@@ -298,9 +298,15 @@ class TemplateManageAchievements {
 				}
 			}
 		} elseif ($form['success'] !== null) {
-				$HTML .= "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
-				<br />".$form['success']['message']."
-				</div>";
+				if (isset($form['errors'])) {
+					foreach($form['errors'] as $e) {
+						$HTML .= "<div class='errorbox'>".$e['username'].": ".$e['message']."</div><br />";
+					}
+				} else {
+					$HTML .= "<div class='errorbox'>".wfMessage('achievement_award_failed', mb_strtolower(($wasAwarded ? wfMessage('award') : wfMessage('unaward')), 'UTF-8'), mb_strtolower(($wasAwarded ? wfMessage('awarded') : wfMessage('unawarded')), 'UTF-8'))->escaped()."
+					<br />".$form['success']['message']."
+					</div>";
+				}
 		}
 
 
