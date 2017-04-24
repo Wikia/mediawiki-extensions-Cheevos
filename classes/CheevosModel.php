@@ -138,8 +138,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Unsets the value at the specified index
-
-
 	 *
 	 * @param int $offset
 	 * @return void
