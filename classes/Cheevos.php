@@ -69,7 +69,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for GET method.
 	 *
 	 * @param [type] $path
 	 * @param array $data
@@ -80,7 +80,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for PUT method.
 	 *
 	 * @param [type] $path
 	 * @param array $data
@@ -91,7 +91,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for POST method.
 	 *
 	 * @param [type] $path
 	 * @param array $data
@@ -102,7 +102,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Wrapper for Request Function for DELETE method.
 	 *
 	 * @param [type] $path
 	 * @param array $data
@@ -164,7 +164,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Validate data recieved from Cheevos
 	 *
 	 * @param [type] $body
 	 * @return void
@@ -293,7 +293,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * PUT Achievement into Cheevos
 	 *
 	 * @param [type] $body
 	 * @param [type] $id
@@ -323,7 +323,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Achievement
 	 *
 	 * @param [type] $body
 	 * @return void
@@ -372,7 +372,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get Category by ID
 	 *
 	 * @param [type] $id
 	 * @return void
@@ -404,7 +404,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Delete Category by ID (with optional user_id for user that deleted the category)
 	 *
 	 * @param [type] $id
 	 * @param int $userId
@@ -418,7 +418,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create a Category
 	 *
 	 * @param [type] $body
 	 * @param [type] $id
@@ -434,7 +434,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Update Category by ID
 	 *
 	 * @param [type] $id
 	 * @param [type] $body
@@ -445,7 +445,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Category
 	 *
 	 * @param [type] $body
 	 * @return void
@@ -473,7 +473,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Call increment to check for any unnotified achievement rewards.
 	 *
 	 * @param [type] $globalId
 	 * @param [type] $siteKey
@@ -595,7 +595,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get progress for an achievement
 	 *
 	 * @param [type] $id
 	 * @return	mixed
@@ -621,7 +621,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Get process for achievement
 	 *
 	 * @param [type] $id
 	 * @return	mixed
@@ -644,7 +644,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Put process for achievement. Either create or updates.
 	 *
 	 * @param [type] $body
 	 * @param [type] $id
@@ -660,7 +660,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Update progress
 	 *
 	 * @param [type] $id
 	 * @param [type] $body
@@ -671,7 +671,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Create Progress
 	 *
 	 * @param [type] $body
 	 * @return void
@@ -681,7 +681,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Undocumented function
+	 * Junk left for legacy compliance. Can possibly be removed.
 	 *
 	 * @return void
 	 */

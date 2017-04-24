@@ -16,7 +16,7 @@ namespace Cheevos;
 class CheevosException extends \MWException {
 
 	/**
-	 * Undocumented function
+	 * Constructor for Exception-+
 	 *
 	 * @param [type] $message
 	 * @param int $code
@@ -27,7 +27,7 @@ class CheevosException extends \MWException {
 	}
 
 	/**
-	 * Undocumented function
+	 * Return a string of the exception message and code
 	 *
 	 * @return string
 	 */
