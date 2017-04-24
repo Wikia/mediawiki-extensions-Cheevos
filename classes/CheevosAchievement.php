@@ -284,14 +284,16 @@ class CheevosAchievement extends CheevosModel {
 				foreach ($statuses as $statusId => $status) {
 					if (isset($_achievements[$status->getAchievement_Id()])) {
 						$achParentId = $_achievements[$status->getAchievement_Id()]->getParent_Id();
-						if ($achParentId > 0 && isset($fixChildrenStatus[$achParentId][$status->getSite_Key()][$status->getUser_Id()]) && isset($statuses[$parentStatusId])) {
+						if ($achParentId > 0 && isset($fixChildrenStatus[$achParentId][$status->getSite_Key()][$status->getUser_Id()])) {
 							$parentStatusId = $fixChildrenStatus[$achParentId][$status->getSite_Key()][$status->getUser_Id()];
-							$statuses[$statusId]->copyFrom($statuses[$parentStatusId]);
-							$statuses[$statusId]->setReadOnly();
-							if ($status->isEarned()) {
-								$preserveAchs[$status->getAchievement_Id()] = true;
+							if (isset($statuses[$parentStatusId])) {
+								$statuses[$statusId]->copyFrom($statuses[$parentStatusId]);
+								$statuses[$statusId]->setReadOnly();
+								if ($status->isEarned()) {
+									$preserveAchs[$status->getAchievement_Id()] = true;
+								}
+								unset($statuses[$parentStatusId]);
 							}
-							unset($statuses[$parentStatusId]);
 						} else {
 							if ($status->isEarned()) {
 								$preserveAchs[$status->getAchievement_Id()] = true;
