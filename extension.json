@@ -9,41 +9,51 @@
 	"GroupPermissions": {
 		"sysop": {
 			"achievement_admin": true,
+			"award_achievements": true,
+			"delete_achievements": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"delete_achievements": true,
 			"restore_achievements": true,
-			"award_achievements": true
+			"wiki_points_admin": true
 		},
 		"hydra_staff": {
 			"achievement_admin": true,
+			"award_achievements": true,
+			"delete_achievements": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"delete_achievements": true,
 			"restore_achievements": true,
-			"award_achievements": true
+			"wiki_points_admin": true
+
 		},
 		"hydra_admin": {
 			"achievement_admin": true,
+			"award_achievements": true,
+			"delete_achievements": true,
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
-			"delete_achievements": true,
 			"restore_achievements": true,
-			"award_achievements": true
+			"wiki_points_admin": true
+
 		}
 	},
 	"AvailableRights": [
 		"achievement_admin",
+		"award_achievements",
+		"delete_achievements",
 		"edit_achievements",
 		"edit_meta_achievements",
-		"delete_achievements",
 		"restore_achievements",
-		"award_achievements"
+		"wiki_points_admin"
 	],
 	"SpecialPages": {
-		"ManageAchievements": "SpecialManageAchievements",
+		"Achievements": "SpecialAchievements",
 		"AchievementStats": "SpecialAchievementStats",
-		"Achievements": "SpecialAchievements"
+		"ManageAchievements": "SpecialManageAchievements",
+		"WikiPoints": "SpecialWikiPoints",
+		"WikiPointsAdmin": "SpecialWikiPointsAdmin",
+		"WikiPointsLevels": "SpecialWikiPointsLevels",
+		"WikiPointsMultipliers": "SpecialWikiPointsMultipliers"
 	},
 	"MessagesDirs": {
 		"Cheevos": [
@@ -51,7 +61,8 @@
 		]
 	},
 	"ExtensionMessagesFiles": {
-		"SpecialCheevos": "Cheevos.alias.php"
+		"SpecialCheevos": "Cheevos.alias.php",
+		"CheevosMagic": "Cheevos.i18n.magic.php"
 	},
 	"APIModules": {
 		"cheevos": "CheevosAPI",
@@ -72,12 +83,21 @@
 		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
-		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
-		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
-		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
-		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
+		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
+		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
+		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
+		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
+		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
+		"SpecialWikiPointsLevels": "specials/SpecialWikiPointsLevels.php",
+		"SpecialWikiPointsMultipliers": "specials/SpecialWikiPointsMultipliers.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
+		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
+		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
+		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
+		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
+		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
+		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php",
 		"CheevosIncrementJob": "jobs/CheevosIncrementJob.php"
 	},
 	"ResourceModules": {
@@ -206,8 +226,20 @@
 				"mobile"
 			],
 			"position": "top"
+		},
+		"ext.cheevos.wikiPoints": {
+			"styles": [
+				"css/cheevos.wikipoints.css"
+			],
+			"scripts": [
+				"js/cheevos.wikipoints.js"
+			],
+			"dependencies": [
+				"jquery.ui.datepicker",
+				"ext.hydraCore.pagination"
+			],
+			"position": "top"
 		}
-
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
@@ -222,23 +254,25 @@
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
 		"BeforeInitialize":"CheevosHooks::onBeforeInitialize",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
+		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
+		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
-		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
+		"GetPreferences": "CheevosHooks::onGetPreferences",
 		"LocalUserCreated": "CheevosHooks::onLocalUserCreated",
 		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
 		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
 		"PageContentInsertComplete": "CheevosHooks::onPageContentInsertComplete",
 		"PageContentSaveComplete": "CheevosHooks::onPageContentSaveComplete",
+		"ParserFirstCallInit": "CheevosHooks::onParserFirstCallInit",
+		"PersonalUrls": "CheevosHooks::onPersonalUrls",
 		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
 		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
-		"WikiPointsSave": "CheevosHooks::onWikiPointsSave",
-		"GetPreferences": "CheevosHooks::onGetPreferences",
-		"PersonalUrls": "CheevosHooks::onPersonalUrls"
+		"WikiPointsSave": "CheevosHooks::onWikiPointsSave"
 	},
 	"config": {
 		"CheevosHost": "",

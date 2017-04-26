@@ -679,4 +679,45 @@ class CheevosHooks {
 
 		return true;
 	}
+
+	/**
+	 * Add a link to WikiPoints on the contributions special page.
+	 *
+	 * @access	public
+	 * @param	integer	User ID
+	 * @param	object	Title object for the user's page.
+	 * @param	array	Array of tools links.
+	 * @return	boolean	true
+	 */
+	static public function onContributionsToolLinks($userId, $userPageTitle, &$tools) {
+		global $wgUser;
+
+		if (!$wgUser->isAllowed('wiki_points_admin')) {
+			return true;
+		}
+
+		$tools[] = Linker::linkKnown(
+			SpecialPage::getTitleFor('WikiPointsAdmin'),
+			wfMessage('sp_contributions_wikipoints_admin')->escaped(),
+			[],
+			[
+				'action'	=> 'lookup',
+				'user_name'	=> $userPageTitle->getText()
+			]
+		);
+
+		return true;
+	}
+
+	/**
+	 * Registers our function hooks for displaying blocks of user points
+	 *
+	 * @access	public
+	 * @param	object	Parser reference
+	 * @return	boolean	true
+	 */
+	public static function onParserFirstCallInit(Parser &$parser) {
+		$parser->setFunctionHook('wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock');
+		return true;
+	}
 }
