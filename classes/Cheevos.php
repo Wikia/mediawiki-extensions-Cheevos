@@ -14,7 +14,6 @@
 namespace Cheevos;
 
 class Cheevos {
-
 	/**
 	 * Main Request cURL wrapper.
 	 *
