@@ -138,5 +138,6 @@
 	"show_on_all_sites_achievement": "Show On All Sites",
 	"show_on_all_sites_help": "This does nothing.",
 	"edit_disabled_protected": "Editing of Protected Achievements Disabled",
-	"edit_disabled_global": "Editing of Global Achievements Disabled"
+	"edit_disabled_global": "Editing of Global Achievements Disabled",
+	"click_to_upload_new_image": "click to upload new image"
 }
