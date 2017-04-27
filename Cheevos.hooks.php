@@ -81,9 +81,10 @@ class CheevosHooks {
 	 * @param	string	Stat Name
 	 * @param	integer	Stat Delta
 	 * @param	mixed	Local User object or global ID having a stat incremented.
+	 * @param	array	Array of edit information for article_create or article_edit statistics.
 	 * @return	mixed	Array of return status including earned achievements or false on error.
 	 */
-	public static function increment($stat, $delta, $user = null) {
+	public static function increment($stat, $delta, $user = null, $edits = []) {
 		$siteKey = self::getSiteKey();
 		if ($siteKey === false) {
 			return false;
@@ -110,6 +111,12 @@ class CheevosHooks {
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 		self::$increments[$globalId]['timestamp'] = time();
 		self::$increments[$globalId]['request_uuid'] = sha1(self::$increments[$globalId]['user_id'].self::$increments[$globalId]['site_key'].self::$increments[$globalId]['timestamp'].random_bytes(4));
+		if (!empty($edits)) {
+			if (!is_array(self::$increments[$globalId]['edits'])) {
+				self::$increments[$globalId]['edits'] = [];
+			}
+			self::$increments[$globalId]['edits'] = array_merge(self::$increments[$globalId]['edits'], $edits);
+		}
 
 		if (self::$shutdownRan) {
 			self::doIncrements();
@@ -136,48 +143,62 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Handle article insertion increment.
+	 * Updates user's points after they've made an edit in a namespace that is listed in the $wgNamespacesForEditPoints array.
+	 * This hook will not be called if a null revision is created.
 	 *
-	 * @access	public
-	 * @param	object	$wikiPage: WikiPage created
-	 * @param	object	$user: User creating the article
-	 * @param	object	$content: New content as a Content object
-	 * @param	string	$summary: Edit summary/comment
-	 * @param	boolean	$isMinor: Whether or not the edit was marked as minor (new pages can not currently be marked as minor)
-	 * @param	boolean	$isWatch: (No longer used)
-	 * @param	string	$section: (No longer used)
-	 * @param	integer	$flags: Flags passed to WikiPage::doEditContent()
-	 * @param	object	$revision: New Revision of the article
-	 * @return	True
+	 * @param	object	Article
+	 * @param	object	Revision
+	 * @param	mixed	ID of revision this new edit started with.  May also be 0 or false for no prevision revision.
+	 * @param	object	User that performed the action.
+	 * @return	boolean	true
 	 */
-	static public function onPageContentInsertComplete(WikiPage $wikiPage, User $user, $content, $summary, $isMinor, $isWatch, $section, $flags, Revision $revision) {
-		self::increment('article_create', 1, $user);
+	static public function onNewRevisionFromEditComplete(WikiPage $wikiPage, Revision $revision, $baseRevId, User $user) {
+		global $wgNamespacesForEditPoints;
+
+		if (!$user->getId()) {
+			//We do not gather statistics for logged out users.
+			return true;
+		}
+
+		$isBot = $user->isAllowed('bot');
+
+		if (!$baseRevId) {
+			self::increment('article_create', 1, $user);
+		}
+
+		$edits = [];
+		if (!$isBot && in_array($wikiPage->getTitle()->getNamespace(), $wgNamespacesForEditPoints)) {
+			$prevSize = $revision->getPrevious() ? $revision->getPrevious()->getSize() : 0;
+			$sizeDiff = $revision->getSize() - $prevSize;
+			$edits[] = [
+				'size'		=> $revision->getSize(),
+				'size_diff'	=> $sizeDiff,
+				'page_id'	=> $wikiPage->getId(),
+				'page_name'	=> $wikiPage->getTitle()->getFullText()
+			];
+		}
+
+		self::increment('article_edit', 1, $user, $edits);
+
 		return true;
 	}
 
 	/**
-	 * Handle article save(edit) increment.
+	 * Revokes all edits between $revision and $current
 	 *
-	 * @access	public
-	 * @param	object	$wikiPage: WikiPage created
-	 * @param	object	$user: User creating the article
-	 * @param	object	$content: New content as a Content object
-	 * @param	string	$summary: Edit summary/comment
-	 * @param	boolean	$isMinor: Whether or not the edit was marked as minor (new pages can not currently be marked as minor)
-	 * @param	boolean	$isWatch: (No longer used)
-	 * @param	string	$section: (No longer used)
-	 * @param	integer	$flags: Flags passed to WikiPage::doEditContent()
-	 * @param	object	$revision: New Revision of the article
-	 * @param	object	$status: Status object about to be returned by doEditContent()
-	 * @param	integer	$baseRevId: the rev ID (or false) this edit was based on
-	 * @return	True
+	 * @param	object	mediawiki Article reference, the article edited
+	 * @param	object	mediawiki User reference, the user performing the rollback
+	 * @param	object	mediawiki Revision reference, the old revision to become current after the rollback
+	 * @param	object	mediawiki Revision reference, the revision that was current before the rollback
+	 * @return	boolean	true
 	 */
-	static public function onPageContentSaveComplete(WikiPage $wikiPage, User $user, $content, $summary, $isMinor, $isWatch, $section, $flags, $revision, $status, $baseRevId) {
-		//Do not increment if Revision is null due to a null edit.
-		if ($revision === null || is_null($status->getValue()['revision'])) {
-			return true;
+	static public function onArticleRollbackComplete($article, $user, $revision, $current) {
+		$editsToRevoke = [];
+		while ($current && $current->getId() != $revision->getId()) {
+			$editsToRevoke[] = $current->getId();
+			$current = $current->getPrevious();
 		}
-		self::increment('article_edit', 1, $user);
+		EditPoints::revoke($editsToRevoke);
 		return true;
 	}
 
