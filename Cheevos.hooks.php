@@ -171,10 +171,11 @@ class CheevosHooks {
 			$prevSize = $revision->getPrevious() ? $revision->getPrevious()->getSize() : 0;
 			$sizeDiff = $revision->getSize() - $prevSize;
 			$edits[] = [
-				'size'		=> $revision->getSize(),
-				'size_diff'	=> $sizeDiff,
-				'page_id'	=> $wikiPage->getId(),
-				'page_name'	=> $wikiPage->getTitle()->getFullText()
+				'size'			=> $revision->getSize(),
+				'size_diff'		=> $sizeDiff,
+				'page_id'		=> $wikiPage->getId(),
+				'revision_id'	=> $revision->getId(),
+				'page_name'		=> $wikiPage->getTitle()->getFullText()
 			];
 		}
 
@@ -186,18 +187,22 @@ class CheevosHooks {
 	/**
 	 * Revokes all edits between $revision and $current
 	 *
-	 * @param	object	mediawiki Article reference, the article edited
-	 * @param	object	mediawiki User reference, the user performing the rollback
-	 * @param	object	mediawiki Revision reference, the old revision to become current after the rollback
-	 * @param	object	mediawiki Revision reference, the revision that was current before the rollback
+	 * @param	object	Article reference, the article edited
+	 * @param	object	User reference, the user performing the rollback
+	 * @param	object	Revision reference, the old revision to become current after the rollback
+	 * @param	object	Revision reference, the revision that was current before the rollback
 	 * @return	boolean	true
 	 */
-	static public function onArticleRollbackComplete($article, $user, $revision, $current) {
+	static public function onArticleRollbackComplete(WikiPage $wikiPage, $user, Revision $revision, Revision $current) {
 		$editsToRevoke = [];
 		while ($current && $current->getId() != $revision->getId()) {
 			$editsToRevoke[] = $current->getId();
 			$current = $current->getPrevious();
 		}
+		$edits[] = [
+			'page_id'		=> $wikiPage->getId(),
+			'revision_id'	=> $editsToRevoke
+		];
 		EditPoints::revoke($editsToRevoke);
 		return true;
 	}
