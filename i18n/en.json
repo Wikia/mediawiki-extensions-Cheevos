@@ -136,5 +136,7 @@
 	"special_achievement": "Special Achievement",
 	"special_help": "Make this achievement feel like a special flower.",
 	"show_on_all_sites_achievement": "Show On All Sites",
-	"show_on_all_sites_help": "This does nothing."
+	"show_on_all_sites_help": "This does nothing.",
+	"edit_disabled_protected": "Editing of Protected Achievements Disabled",
+	"edit_disabled_global": "Editing of Global Achievements Disabled"
 }
