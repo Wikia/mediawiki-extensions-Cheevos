@@ -219,14 +219,13 @@ class CheevosHooks {
 	 * Handle article protect increment.
 	 *
 	 * @access	public
-	 * @param	object	$article: the article object that was protected
-	 * @param	object	$user: the user object who did the protection
-	 * @param	boolean	$protect*: boolean whether it was a protect or an unprotect
+	 * @param	object	Article object that was protected
+	 * @param	object	User object who did the protection.
+	 * @param	array	Protection limits being added.
 	 * @param	string	$reason: Reason for protect
-	 * @param	boolean	$moveonly: boolean whether it was for move only or not
 	 * @return	True
 	 */
-	static public function onArticleProtectComplete(&$article, &$user, $protect, $reason, $moveonly) {
+	static public function onArticleProtectComplete(WikiPage &$wikiPage, User &$user, $limit, $reason) {
 		self::increment('article_protect', 1, $user);
 		return true;
 	}
