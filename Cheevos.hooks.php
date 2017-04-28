@@ -174,8 +174,7 @@ class CheevosHooks {
 				'size'			=> $revision->getSize(),
 				'size_diff'		=> $sizeDiff,
 				'page_id'		=> $wikiPage->getId(),
-				'revision_id'	=> $revision->getId(),
-				'page_name'		=> $wikiPage->getTitle()->getFullText()
+				'revision_id'	=> $revision->getId()
 			];
 		}
 
