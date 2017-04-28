@@ -30,7 +30,7 @@ class PointsDisplay {
 	 * TODO: break this function down, make it easier to read
 	 *
 	 * @param	Parser	mediawiki Parser reference
-	 * @param	mixed	[optional, default: 25, max 500] number of top users to display or string username
+	 * @param	mixed	[optional, default: 25, max 200] number of top users to display or string username
 	 * @param	string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
 	 * @param	string	[optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
@@ -39,11 +39,168 @@ class PointsDisplay {
 	 * @return	array	generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(&$parser, $users = 25, $wikis = '', $markup = 'table') {
+		global $wgServer;
 
+		if (empty($users) || is_numeric($limit)) {
+			$limit = intval($users);
+			if (!$limit) {
+				$limit = 25;
+			}
+		}
+
+		$globalIds = [];
+		if (strpos($users, 'User:') === 0) {
+			// look up the score for the specific given user (strip User: from the beginning)
+			// look up curse ID
+			$_users = explode(',', $users);
+			foreach ($_users as $key => $user) {
+				$user = trim($user);
+				if (empty($user)) {
+					unset($_users[$key]);
+					continue;
+				}
+
+				$_users[$key] = $user;
+				$user = User::newFromName(substr(trim($user), 5));
+
+				if ($user === false || !$user->getId()) {
+					continue;
+				}
+
+				$userId = intval($user->getId());
+				$foundUsers[$userId] = [
+					'user_name'	=> $user->getName(),
+					'user_id'	=> $user->getId(),
+					'score'		=> 0
+				];
+
+				$lookup = \CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+				if ($globalId) {
+					$globalIds[] = $globalId;
+				}
+			}
+			if (!is_array($foundUsers)) {
+				$foundUsers = 'Could not find given username(s).';
+			}
+		}
+
+		$isSitesMode = false;
+		if ($wikis === 'all') {
+			$isSitesMode = true;
+		} else {
+			//self::extractDomain($wgServer)
+		}
+
+		$html = self::pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode, $isMonthly);
 
 		return [
-			$HTML,
+			$html,
 			'isHTML' => true,
 		];
+	}
+
+	/**
+	 * Function Documentation
+	 *
+	 * @access	public
+	 * @param	integer	[Optional] Items Per Page
+	 * @param	integer	[Optional] Offset to start at.
+	 * @param	boolean	[Optional] Including all wikis or not.
+	 * @param	boolean	[Optional] Showing monthly totals.
+	 * @return	void
+	 */
+	static public function pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
+		global $dsSiteKey;
+
+		$lookup = \CentralIdLookup::factory();
+
+		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
+		$start = intval($start);
+		$isSitesMode = boolval($isSitesMode);
+		$isMonthly = boolval($isMonthly);
+
+		$total = 0;
+
+		$filters = [
+			'stat'		=> 'wiki_points',
+			'limit'		=> $itemsPerPage,
+			'offset'	=> $start
+		];
+
+		if (!$isSitesMode) {
+			$filters['site_key'] = $dsSiteKey;
+		}
+
+		$statProgress = [];
+		try {
+			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+		} catch (\Cheevos\CheevosException $e) {
+			throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+		}
+
+		$userPoints = [];
+		$siteKeys = [];
+		foreach ($statProgress as $progress) {
+			$globalId = $progress->getUser_Id();
+			if (isset($userPoints[$globalId])) {
+				continue;
+			}
+			$user = $lookup->localUserFromCentralId($globalId);
+			if ($globalId < 1) {
+				continue;
+			}
+			$userPointsRow = new \stdClass();
+			if ($user !== null) {
+				$userPointsRow->userName = $user->getName();
+				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
+				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()));
+			} else {
+				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
+				$userPointsRow->userToolsLinks = $userPointsRow->userName;
+				$userPointsRow->userLink = '';
+			}
+			$userPointsRow->score = $progress->getCount();
+			$userPointsRow->siteKey = $progress->getSite_Key();
+			$userPoints[$globalId] = $userPointsRow;
+			if ($isSitesMode) {
+				$siteKeys[] = $progress->getSite_Key();
+			}
+		}
+		$siteKeys = array_unique($siteKeys);
+
+		$wikis = [];
+		if ($isSitesMode && !empty($siteKeys)) {
+			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+		}
+
+		return \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $wikis, $isSitesMode, $isMonthly);
+	}
+
+	/**
+	 * Extracts a domain name from a fragment.  Does not guarantee the domain is real or valid.
+	 * Example: //example.com/ => example.com
+	 * Example: //sub.example.com/ => sub.example.com
+	 * Example: //FakeDomain/ => FakeDomain
+	 * Example: FakeDomain => FakeDomain
+	 *
+	 * @param	string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 * @return	string	Bare host name extracted or false if unable to parse.
+	 */
+	static public function extractDomain($fragment) {
+		$fragment = mb_strtolower($fragment, 'UTF-8');
+
+		$host = parse_url($fragment, PHP_URL_HOST);
+		if ($host !== null) {
+			//If parse_url() went fine then return it.
+			return $host;
+		}
+
+		$fragment = trim(trim($fragment), '/');
+		if (preg_match('#^([\w|\.]+?)$#', $fragment, $matches)) {
+			return $matches[1];
+		}
+
+		return false;
 	}
 }

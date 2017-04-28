@@ -38,8 +38,6 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->templateWikiPoints = new TemplateWikiPoints;
-
 		$this->output->addModules('ext.cheevos.wikiPoints');
 
 		$this->setHeaders();
@@ -66,71 +64,13 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$total = 0;
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
-
-		$filters = [
-			'stat'		=> 'wiki_points',
-			'limit'		=> $itemsPerPage,
-			'offset'	=> $start
-		];
-
-		$loadSites = false;
-		if (!in_array('sites', $modifiers)) {
-			$filters['site_key'] = $dsSiteKey;
-		} else {
-			$loadSites = true;
-		}
-
-		$isMonthly = false;
-		if (in_array('monthly', $modifiers)) {
-			$isMonthly = true;
-		}
-
-		$statProgress = [];
-		try {
-			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-		} catch (\Cheevos\CheevosException $e) {
-			throw new ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
-		}
-
-		$userPoints = [];
-		$siteKeys = [];
-		foreach ($statProgress as $progress) {
-			$globalId = $progress->getUser_Id();
-			if (isset($userPoints[$globalId])) {
-				continue;
-			}
-			$user = $lookup->localUserFromCentralId($globalId);
-			if ($globalId < 1) {
-				continue;
-			}
-			$userPointsRow = new stdClass();
-			if ($user !== null) {
-				$userPointsRow->userName = $user->getName();
-				$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = Linker::link(Title::newFromText("User:".$user->getName()));
-			} else {
-				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
-				$userPointsRow->userToolsLinks = $userPointsRow->userName;
-				$userPointsRow->userLink = '';
-			}
-			$userPointsRow->score = $progress->getCount();
-			$userPointsRow->siteKey = $progress->getSite_Key();
-			$userPoints[$globalId] = $userPointsRow;
-			if ($loadSites) {
-				$siteKeys[] = $progress->getSite_Key();
-			}
-		}
-		$siteKeys = array_unique($siteKeys);
-
-		$wikis = [];
-		if ($loadSites && !empty($siteKeys)) {
-			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
-		}
+		$isSitesMode = in_array('sites', $modifiers);
+		$isMonthly = in_array('monthly', $modifiers);
 
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
 
-		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($modifier === 'monthly' ? '_monthly' : '')));
-		$this->content = $this->templateWikiPoints->wikiPoints($userPoints, $pagination, $wikis, $loadSites, $isMonthly);
+		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($isMonthly ? '_monthly' : '')));
+		$this->content = TemplateWikiPoints::getWikiPointsLinks()."<div>{$pagination}</div>".\Cheevos\Points\PointsDisplay::pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode, $isMonthly)."<div>{$pagination}</div>";
 	}
 
 	/**

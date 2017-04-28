@@ -12,16 +12,7 @@
  *
 **/
 
-use \Cheevos\Points;
-
 class TemplateWikiPoints {
-	/**
-	 * Output HTML
-	 *
-	 * @var		string
-	 */
-	private $HMTL;
-
 	/**
 	 * Points table
 	 *
@@ -33,15 +24,8 @@ class TemplateWikiPoints {
 	 * @param	boolean	[Optional] Showing monthly totals.
 	 * @return	string	Built HTML
 	 */
-	public function wikiPoints($userPoints, $pagination, $wikis = [], $isSitesMode = false, $isMonthly = false) {
-		global $wgUser;
-
-		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
-
-		$HTML = implode(' | ', $this->getWikiPointsLinks());
-
-		$HTML .= "
-		<div>{$pagination}</div>
+	static public function pointsBlockHtml($userPoints, $pagination, $wikis = [], $isSitesMode = false, $isMonthly = false) {
+		$html .= "
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -56,18 +40,8 @@ class TemplateWikiPoints {
 		if (!empty($userPoints)) {
 			$i = 0;
 			foreach ($userPoints as $userPointsRow) {
-				$adminLink = '';
-				if ($wgUser->isAllowed('wiki_points_admin')) {
-					$adminLink = ' | '.Html::element(
-						'a',
-						[
-							'href' => $wikiPointsAdminPage->getFullURL(['action' => 'lookup', 'userName' => $userPointsRow->userName])
-						],
-						wfMessage('wp_admin')
-					);
-				}
 				$i++;
-				$HTML .= "
+				$html .= "
 				<tr>
 					<td>{$i}</td>
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>".
@@ -77,18 +51,17 @@ class TemplateWikiPoints {
 				</tr>";
 			}
 		} else {
-			$HTML .= "
+			$html .= "
 				<tr>
 					<td colspan='".(3 + $isSitesMode + $isMonthly)."'>".wfMessage('no_points_results_found')->escaped()."</td>
 				</tr>
 			";
 		}
-		$HTML .= "
+		$html .= "
 			</tbody>
-		</table>
-		<div>{$pagination}</div>";
+		</table>";
 
-		return $HTML;
+		return $html;
 	}
 
 	/**
@@ -97,7 +70,7 @@ class TemplateWikiPoints {
 	 * @access	private
 	 * @return	array	Anchor links.
 	 */
-	private function getWikiPointsLinks() {
+	static public function getWikiPointsLinks() {
 		$links = [
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
@@ -105,6 +78,6 @@ class TemplateWikiPoints {
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped())
 		];
 
-		return $links;
+		return implode(' | ', $links);
 	}
 }
