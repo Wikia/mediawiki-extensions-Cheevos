@@ -57,31 +57,70 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return	void
 	 */
 	public function wikiPoints($subpage = null) {
+		global $dsSiteKey;
+
+		$lookup = CentralIdLookup::factory();
+
 		$start = $this->wgRequest->getInt('st');
-		$itemsPerPage = 500;
+		$itemsPerPage = 200;
 		$total = 0;
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
+
+		$filters = [
+			'stat'		=> 'wiki_points',
+			'limit'		=> $itemsPerPage,
+			'offset'	=> $start
+		];
+
+		$loadSites = false;
+		if (!in_array('sites', $modifiers)) {
+			$filters['site_key'] = $dsSiteKey;
+		} else {
+			$loadSites = true;
+		}
 
 		$pointsData = [];
 		if (in_array('monthly', $modifiers)) {
 
 		}
 
-		foreach ($results as $row) {
-			$pointsData[] = $row;
+		$statProgress = [];
+		try {
+			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+		} catch (\Cheevos\CheevosException $e) {
+			throw new ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
 		}
 
-		if (in_array('sites', $modifiers) && !empty($siteKeys)) {
+		$userPoints = [];
+		foreach ($statProgress as $progress) {
+			$globalId = $progress->getUser_Id();
+			if (isset($userPoints[$globalId])) {
+				continue;
+			}
+			$user = $lookup->localUserFromCentralId($globalId);
+			if ($globalId < 1 || $user === null) {
+				continue;
+			}
+			$userPointsRow = new stdClass();
+			$userPointsRow->userName = $user->getName();
+			$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
+			$userPointsRow->userLink = Linker::link(Title::newFromText("User:".$user->getName()));
+			$userPointsRow->score = $progress->getCount();
+			$userPoints[$globalId] = $userPointsRow;
+			if ($loadSites) {
+				$siteKeys[] = $progress->getSite_Key();
+			}
+		}
+
+		if ($loadSites && !empty($siteKeys)) {
 			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
 		}
-
-		$total = 0;
 
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
 
 		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($modifier === 'monthly' ? '_monthly' : '')));
-		$this->content = $this->templateWikiPoints->wikiPoints($pointsData, $pagination, $modifier);
+		$this->content = $this->templateWikiPoints->wikiPoints($userPoints, $pagination, $modifier);
 	}
 
 	/**

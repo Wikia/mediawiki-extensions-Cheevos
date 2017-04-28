@@ -53,29 +53,24 @@ class TemplateWikiPoints {
 		if (!empty($userPoints)) {
 			$i = 0;
 			foreach ($userPoints as $userPointsRow) {
-				$userLink = "<a href=\"".Title::newFromText("User:".$userPointsRow->user_name)->getFullURL()."\">".$userPointsRow->user_name."</a>";
-				$userContribLink = PointsDisplay::contribsLink($userPointsRow->user_name);
 				$adminLink = '';
 				if ($wgUser->isAllowed('wiki_points_admin')) {
 					$adminLink = ' | '.Html::element(
 						'a',
 						[
-							'href' => $wikiPointsAdminPage->getFullURL(['action' => 'lookup','user_name' => $userPointsRow->user_name])
+							'href' => $wikiPointsAdminPage->getFullURL(['action' => 'lookup','userName' => $userPointsRow->userName])
 						],
 						wfMessage('wp_admin')
 					);
 				}
-				if ($userContribLink) {
-					$i++;
-					$HTML .= "
+				$i++;
+				$HTML .= "
 				<tr>
 					<td>{$i}</td>
-					<td>{$userLink} ({$userContribLink}{$adminLink})</td>
+					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>
 					<td class='score'>{$userPointsRow->score}</td>
 					".($modifier === 'monthly' ? "<td class='monthly'>".gmdate('F Y', strtotime($userPointsRow->yyyymm.'01'))."</td>" : '')."
 				</tr>";
-				}
-
 			}
 		} else {
 			$HTML .= "
@@ -126,17 +121,17 @@ class TemplateWikiPoints {
 			$i = 0;
 			foreach ($userPoints as $userPointsRow) {
 				$userLink = Linker::makeExternalLink(
-					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText("User:".$userPointsRow->user_name)->getLocalURL(),
-					$userPointsRow->user_name
+					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText("User:".$userPointsRow->userName)->getLocalURL(),
+					$userPointsRow->userName
 				);
 				$userContribLink = Linker::makeExternalLink(
-					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText('Special:Contributions/'.$userPointsRow->user_name)->getLocalURL(),
+					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText('Special:Contributions/'.$userPointsRow->userName)->getLocalURL(),
 					wfMessage('wp_contribs')
 				);
 				$adminLink = '';
 				if ($wgUser->isAllowed('wiki_points_admin')) {
 					$adminLink = ' | '.Linker::makeExternalLink(
-						(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').$wikiPointsAdminPage->getLocalURL(['action' => 'lookup','user_name' => $userPointsRow->user_name]),
+						(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').$wikiPointsAdminPage->getLocalURL(['action' => 'lookup','userName' => $userPointsRow->userName]),
 						wfMessage('wp_admin')
 					);
 				}
