@@ -23,6 +23,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription('Dumps WikiPoints tables to SQL to import into Cheevos.');
+		$this->addOption('folder', 'Specify a folder to dump a file into instead of outputing to the terminal.');
 	}
 
 	/**
@@ -33,6 +34,20 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	 */
 	public function execute() {
 		global $dsSiteKey, $wgDBname;
+
+		$folder = false;
+		if ($this->getOption('folder')) {
+			$folder = $this->getOption('folder');
+			$folder = realpath($folder);
+			if ($folder === false) {
+				$this->error("Selected folder is not valid.");
+				exit;
+			}
+			if (!is_writable($folder)) {
+				$this->error("Selected folder is not writable.");
+				exit;
+			}
+		}
 
 		$db = wfGetDB(DB_MASTER);
 
@@ -99,7 +114,11 @@ class DumpWikiPointsSqlImport extends Maintenance {
 			}
 		}
 		$sql .= "\n".implode(",\n", $inserts).";\n";
-		echo $sql;
+		if ($folder !== false) {
+			file_put_contents($folder.'/'.$wgDBname.'_wiki_points.sql', $sql);
+		} else {
+			echo $sql;
+		}
 	}
 }
 
