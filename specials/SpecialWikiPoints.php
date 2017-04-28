@@ -80,9 +80,9 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 			$loadSites = true;
 		}
 
-		$pointsData = [];
+		$isMonthly = false;
 		if (in_array('monthly', $modifiers)) {
-
+			$isMonthly = true;
 		}
 
 		$statProgress = [];
@@ -93,26 +93,36 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		}
 
 		$userPoints = [];
+		$siteKeys = [];
 		foreach ($statProgress as $progress) {
 			$globalId = $progress->getUser_Id();
 			if (isset($userPoints[$globalId])) {
 				continue;
 			}
 			$user = $lookup->localUserFromCentralId($globalId);
-			if ($globalId < 1 || $user === null) {
+			if ($globalId < 1) {
 				continue;
 			}
 			$userPointsRow = new stdClass();
-			$userPointsRow->userName = $user->getName();
-			$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
-			$userPointsRow->userLink = Linker::link(Title::newFromText("User:".$user->getName()));
+			if ($user !== null) {
+				$userPointsRow->userName = $user->getName();
+				$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
+				$userPointsRow->userLink = Linker::link(Title::newFromText("User:".$user->getName()));
+			} else {
+				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
+				$userPointsRow->userToolsLinks = $userPointsRow->userName;
+				$userPointsRow->userLink = '';
+			}
 			$userPointsRow->score = $progress->getCount();
+			$userPointsRow->siteKey = $progress->getSite_Key();
 			$userPoints[$globalId] = $userPointsRow;
 			if ($loadSites) {
 				$siteKeys[] = $progress->getSite_Key();
 			}
 		}
+		$siteKeys = array_unique($siteKeys);
 
+		$wikis = [];
 		if ($loadSites && !empty($siteKeys)) {
 			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
 		}
@@ -120,7 +130,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
 
 		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($modifier === 'monthly' ? '_monthly' : '')));
-		$this->content = $this->templateWikiPoints->wikiPoints($userPoints, $pagination, $modifier);
+		$this->content = $this->templateWikiPoints->wikiPoints($userPoints, $pagination, $wikis, $loadSites, $isMonthly);
 	}
 
 	/**

@@ -720,13 +720,19 @@ class CheevosHooks {
 			return true;
 		}
 
+		if ($userPageTitle instanceof Title) {
+			$userName = $userPageTitle->getText();
+		} elseif ($userPageTitle instanceof User) {
+			$userName = $userPageTitle->getName();
+		}
+
 		$tools[] = Linker::linkKnown(
 			SpecialPage::getTitleFor('WikiPointsAdmin'),
 			wfMessage('sp_contributions_wikipoints_admin')->escaped(),
 			[],
 			[
 				'action'	=> 'lookup',
-				'user_name'	=> $userPageTitle->getText()
+				'user_name'	=> $userName
 			]
 		);
 

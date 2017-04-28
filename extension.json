@@ -270,6 +270,7 @@
 		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
 		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
+		"UserToolLinksEdit": "CheevosHooks::onContributionsToolLinks",
 		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
 		"WikiPointsSave": "CheevosHooks::onWikiPointsSave"
 	},

@@ -28,10 +28,12 @@ class TemplateWikiPoints {
 	 * @access	public
 	 * @param	array	Array of rows of top points
 	 * @param	string	Pagination HTML
-	 * @param	string	[Optional] Modifier - Monthly, Daily, etecetera.
+	 * @param	array	[Optional] Load wiki information for sites mode.
+	 * @param	boolean	[Optional] Including all wikis or not.
+	 * @param	boolean	[Optional] Showing monthly totals.
 	 * @return	string	Built HTML
 	 */
-	public function wikiPoints($userPoints, $pagination, $modifier = null) {
+	public function wikiPoints($userPoints, $pagination, $wikis = [], $isSitesMode = false, $isMonthly = false) {
 		global $wgUser;
 
 		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
@@ -44,9 +46,10 @@ class TemplateWikiPoints {
 			<thead>
 				<tr>
 					<th>".wfMessage('rank')->escaped()."</th>
-					<th>".wfMessage('wiki_user')->escaped()."</th>
-					<th>".wfMessage('score')->escaped()."</th>
-					".($modifier === 'monthly' ? "<th>".wfMessage('monthly')->escaped()."</th>" : '')."
+					<th>".wfMessage('wiki_user')->escaped()."</th>".
+					($isSitesMode ? "<th>".wfMessage('wiki_site')->escaped()."</th>" : "\n")
+					."<th>".wfMessage('score')->escaped()."</th>
+					".($isMonthly ? "<th>".wfMessage('monthly')->escaped()."</th>" : '')."
 				</tr>
 			</thead>
 			<tbody>";
@@ -58,7 +61,7 @@ class TemplateWikiPoints {
 					$adminLink = ' | '.Html::element(
 						'a',
 						[
-							'href' => $wikiPointsAdminPage->getFullURL(['action' => 'lookup','userName' => $userPointsRow->userName])
+							'href' => $wikiPointsAdminPage->getFullURL(['action' => 'lookup', 'userName' => $userPointsRow->userName])
 						],
 						wfMessage('wp_admin')
 					);
@@ -67,91 +70,16 @@ class TemplateWikiPoints {
 				$HTML .= "
 				<tr>
 					<td>{$i}</td>
-					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>
-					<td class='score'>{$userPointsRow->score}</td>
-					".($modifier === 'monthly' ? "<td class='monthly'>".gmdate('F Y', strtotime($userPointsRow->yyyymm.'01'))."</td>" : '')."
+					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>".
+					($isSitesMode ? "<td>".(isset($wikis[$userPointsRow->siteKey]) ? $wikis[$userPointsRow->siteKey]->getNameForDisplay() : $userPointsRow->siteKey)."</td>" : "\n")
+					."<td class='score'>{$userPointsRow->score}</td>"
+					.($isMonthly ? "<td class='monthly'>".gmdate('F Y', strtotime($userPointsRow->yyyymm.'01'))."</td>" : '')."
 				</tr>";
 			}
 		} else {
 			$HTML .= "
 				<tr>
-					<td colspan='".($modifier === 'monthly' ? 4 : 3)."'>".wfMessage('no_points_results_found')->escaped()."</td>
-				</tr>
-			";
-		}
-		$HTML .= "
-			</tbody>
-		</table>
-		<div>{$pagination}</div>";
-
-		return $HTML;
-	}
-
-	/**
-	 * Wiki points sites totals.
-	 *
-	 * @access	public
-	 * @param	array	Array of rows of top points
-	 * @param	string	Pagination HTML
-	 * @param	array	Wiki objects loaded from a search.
-	 * @param	string	[Optional] Modifier - Monthly, Daily, etecetera.
-	 * @return	string	Built HTML
-	 */
-	public function wikiPointsSite($userPoints, $pagination, $wikis, $modifier = null) {
-		global $wgUser;
-
-		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
-
-		$HTML = implode(' | ', $this->getWikiPointsLinks());
-
-		$HTML .= "
-		<div>{$pagination}</div>
-		<table class='wikitable'>
-			<thead>
-				<tr>
-					<th>".wfMessage('rank')->escaped()."</th>
-					<th>".wfMessage('wiki_user')->escaped()."</th>
-					<th>".wfMessage('wiki_site')->escaped()."</th>
-					<th>".wfMessage('score')->escaped()."</th>
-					".($modifier === 'monthly' ? "<th>".wfMessage('monthly')->escaped()."</th>" : '')."
-				</tr>
-			</thead>
-			<tbody>";
-		if (!empty($userPoints)) {
-			$i = 0;
-			foreach ($userPoints as $userPointsRow) {
-				$userLink = Linker::makeExternalLink(
-					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText("User:".$userPointsRow->userName)->getLocalURL(),
-					$userPointsRow->userName
-				);
-				$userContribLink = Linker::makeExternalLink(
-					(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').Title::newFromText('Special:Contributions/'.$userPointsRow->userName)->getLocalURL(),
-					wfMessage('wp_contribs')
-				);
-				$adminLink = '';
-				if ($wgUser->isAllowed('wiki_points_admin')) {
-					$adminLink = ' | '.Linker::makeExternalLink(
-						(isset($wikis[$userPointsRow->site_key]) ? '//'.$wikis[$userPointsRow->site_key]->getDomains()->getDomain() : '').$wikiPointsAdminPage->getLocalURL(['action' => 'lookup','userName' => $userPointsRow->userName]),
-						wfMessage('wp_admin')
-					);
-				}
-				if ($userContribLink) {
-					$i++;
-					$HTML .= "
-				<tr>
-					<td>{$i}</td>
-					<td>{$userLink} ({$userContribLink}{$adminLink})</td>
-					<td>".(isset($wikis[$userPointsRow->site_key]) ? $wikis[$userPointsRow->site_key]->getNameForDisplay() : $userPointsRow->site_key)."</td>
-					<td class='score'>{$userPointsRow->score}</td>
-					".($modifier === 'monthly' ? "<td class='monthly'>".gmdate('F Y', strtotime($userPointsRow->yyyymm.'01'))."</td>" : '')."
-				</tr>";
-				}
-
-			}
-		} else {
-			$HTML .= "
-				<tr>
-					<td colspan='".($modifier === 'monthly' ? 5 : 4)."'>".wfMessage('no_points_results_found')->escaped()."</td>
+					<td colspan='".(3 + $isSitesMode + $isMonthly)."'>".wfMessage('no_points_results_found')->escaped()."</td>
 				</tr>
 			";
 		}
