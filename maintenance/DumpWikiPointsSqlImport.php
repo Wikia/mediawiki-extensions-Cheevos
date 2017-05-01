@@ -88,13 +88,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				if (isset($userIdGlobalId[$userId])) {
 					$globalId = $userIdGlobalId[$userId];
 				} else {
-					$user = User::newFromId($userId);
-					$user->load();
-					if ($user->isAnon()) {
-						continue;
-					}
-
-					$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+					$globalId = HydraAuthUser::globalIdFromUserId($userId);
 					$userIdGlobalId[$userId] = $globalId;
 				}
 
