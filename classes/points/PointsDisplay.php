@@ -30,7 +30,7 @@ class PointsDisplay {
 	 * TODO: break this function down, make it easier to read
 	 *
 	 * @param	Parser	mediawiki Parser reference
-	 * @param	mixed	[optional, default: 25, max 200] number of top users to display or string username
+	 * @param	limit	[Optional] Limit results.
 	 * @param	string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
 	 * @param	string	[optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
@@ -38,61 +38,20 @@ class PointsDisplay {
 	 * 					'table' uses an unstyled HTML table
 	 * @return	array	generated HTML string as element 0, followed by parser options
 	 */
-	public static function pointsBlock(&$parser, $users = 25, $wikis = '', $markup = 'table') {
+	public static function pointsBlock(&$parser, $limit = 25, $wikis = '', $markup = 'table') {
 		global $wgServer;
 
-		if (empty($users) || is_numeric($limit)) {
-			$limit = intval($users);
-			if (!$limit) {
-				$limit = 25;
-			}
-		}
-
-		$globalIds = [];
-		if (strpos($users, 'User:') === 0) {
-			// look up the score for the specific given user (strip User: from the beginning)
-			// look up curse ID
-			$_users = explode(',', $users);
-			foreach ($_users as $key => $user) {
-				$user = trim($user);
-				if (empty($user)) {
-					unset($_users[$key]);
-					continue;
-				}
-
-				$_users[$key] = $user;
-				$user = User::newFromName(substr(trim($user), 5));
-
-				if ($user === false || !$user->getId()) {
-					continue;
-				}
-
-				$userId = intval($user->getId());
-				$foundUsers[$userId] = [
-					'user_name'	=> $user->getName(),
-					'user_id'	=> $user->getId(),
-					'score'		=> 0
-				];
-
-				$lookup = \CentralIdLookup::factory();
-				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
-				if ($globalId) {
-					$globalIds[] = $globalId;
-				}
-			}
-			if (!is_array($foundUsers)) {
-				$foundUsers = 'Could not find given username(s).';
-			}
+		$limit = intval($limit);
+		if (!$limit || $limit < 0) {
+			$limit = 25;
 		}
 
 		$isSitesMode = false;
 		if ($wikis === 'all') {
 			$isSitesMode = true;
-		} else {
-			//self::extractDomain($wgServer)
 		}
 
-		$html = self::pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode, $isMonthly);
+		$html = self::pointsBlockHtml($limit, 0, $isSitesMode, $isMonthly);
 
 		return [
 			$html,
@@ -123,9 +82,10 @@ class PointsDisplay {
 		$total = 0;
 
 		$filters = [
-			'stat'		=> 'wiki_points',
-			'limit'		=> $itemsPerPage,
-			'offset'	=> $start
+			'stat'				=> 'wiki_points',
+			'limit'				=> $itemsPerPage,
+			'offset'			=> $start,
+			'sort_direction'	=> 'desc'
 		];
 
 		if (!$isSitesMode) {
