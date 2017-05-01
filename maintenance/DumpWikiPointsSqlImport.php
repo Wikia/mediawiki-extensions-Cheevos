@@ -128,7 +128,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 			}
 			if ($maxLines >= 30000) {
 				$maxLines = 0;
-				fwrite($file, ";\n");
+				fwrite($file, $insert.";\n");
+				$insert = false;
 				fwrite($file, $sql);
 			}
 		}
