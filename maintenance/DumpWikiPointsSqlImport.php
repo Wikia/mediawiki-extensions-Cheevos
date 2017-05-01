@@ -65,7 +65,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		);
 		$total = intval($result->fetchRow()['total']);
 
-		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES ";
+		$sql = 'INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES ';
 		$inserts = [];
 
 		$userIdGlobalId = [];
@@ -110,7 +110,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$inserts[] = "({$globalId}, (SELECT id FROM site_key WHERE `key` = '{$dsSiteKey}'), {$row['edit_id']}, {$row['article_id']}, ".wfTimestamp(TS_UNIX, $row['created']).", {$size}, {$sizeDiff}, {$row['score']})";
+				$inserts[] = '('.$globalId.', (SELECT id FROM site_key WHERE `key` = \''.$dsSiteKey.'\'), '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].')';
 			}
 		}
 		$sql .= "\n".implode(",\n", $inserts).";\n";
