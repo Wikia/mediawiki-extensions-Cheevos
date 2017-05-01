@@ -172,6 +172,16 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
+	 * Wrapper for MediaWiki's API serializer.
+	 *
+	 * @access	public
+	 * @return	array
+	 */
+	public function serializeForApiResult() {
+		return $this->toArray();
+	}
+
+	/**
 	 * Convert model to string
 	 *
 	 * @return string

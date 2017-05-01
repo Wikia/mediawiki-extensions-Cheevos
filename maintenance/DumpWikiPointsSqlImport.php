@@ -80,7 +80,9 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$userIdGlobalId = [];
 		$lookup = \CentralIdLookup::factory();
 		$insert = false;
+		$maxLines = 0;
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
+			$maxLines += 1000;
 			$result = $db->select(
 				['wiki_points', 'revision', 'user_global'],
 				['wiki_points.*', 'revision.rev_len', 'user_global.global_id'],
@@ -123,6 +125,11 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
 				$insert = '('.$globalId.', @site_id, '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
+			}
+			if ($maxLines >= 30000) {
+				$maxLines = 0;
+				fwrite($file, ";\n");
+				fwrite($file, $sql);
 			}
 		}
 		if ($insert !== false) {
