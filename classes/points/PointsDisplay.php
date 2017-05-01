@@ -51,7 +51,7 @@ class PointsDisplay {
 			$isSitesMode = true;
 		}
 
-		$html = self::pointsBlockHtml($limit, 0, $isSitesMode, $isMonthly);
+		$html = self::pointsBlockHtml($limit, 0, $isSitesMode, $isMonthly, $markup);
 
 		return [
 			$html,
@@ -67,9 +67,13 @@ class PointsDisplay {
 	 * @param	integer	[Optional] Offset to start at.
 	 * @param	boolean	[Optional] Including all wikis or not.
 	 * @param	boolean	[Optional] Showing monthly totals.
-	 * @return	void
+	 * @param	string	[Optional] Determines what type of markup is used for the output.
+	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
+	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
+	 * 					'table' Uses an unstyled HTML table.
+	 * @return	string	HTML
 	 */
-	static public function pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
+	static public function pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table') {
 		global $dsSiteKey;
 
 		$lookup = \CentralIdLookup::factory();
@@ -134,7 +138,32 @@ class PointsDisplay {
 			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
 		}
 
-		return \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $wikis, $isSitesMode, $isMonthly);
+		switch ($markup) {
+			case 'badged':
+			case 'raw':
+				foreach ($userPoints as $userPointsRow) {
+					$html = $userPointsRow->score;
+					if ($markup == 'badged') {
+						$html .= ' '.\Html::element(
+							'img',
+							[
+								'src' => '/extensions/WikiPoints/images/gp30.png',
+								'alt' => 'GP',
+								'class' => 'GP-brand',
+								'title' => wfMessage('pointsicon-tooltip')
+							]
+						);
+					}
+					break;
+				}
+				break;
+			case 'table':
+			default:
+				$html = \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $wikis, $isSitesMode, $isMonthly);
+				break;
+		}
+
+		return $html;
 	}
 
 	/**
