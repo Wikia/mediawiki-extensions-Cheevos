@@ -78,14 +78,19 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				fwrite($file, $insert.",\n");
 			}
 			$result = $db->select(
-				['wiki_points'],
-				['*'],
+				['wiki_points', 'revision'],
+				['wiki_points.*', 'revision.rev_len'],
 				$where,
 				__METHOD__,
 				[
 					'OFFSET'	=> $i,
 					'LIMIT'		=> 1000,
 					'ORDER BY'	=> 'wiki_points_id ASC'
+				],
+				[
+					'revision' => [
+						'LEFT JOIN', 'revision.rev_id = wiki_points.edit_id'
+					]
 				]
 			);
 
@@ -102,13 +107,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 					continue;
 				}
 
-				$revResult = $db->select(
-					['revision'],
-					['rev_len'],
-					['rev_id' => $row['edit_id']],
-					__METHOD__
-				);
-				$size = intval($revResult->fetchRow()['rev_len']);
+				$size = intval($row['rev_len']);
 
 				if (strpos($row['calculation_info'], '\"') !== false) {
 					$row['calculation_info'] = str_replace('\"', '"', $row['calculation_info']);
