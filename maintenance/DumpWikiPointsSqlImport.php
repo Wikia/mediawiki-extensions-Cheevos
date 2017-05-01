@@ -69,6 +69,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$inserts = [];
 
 		$userIdGlobalId = [];
+		$lookup = \CentralIdLookup::factory();
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
 			$result = $db->select(
 				['wiki_points'],
@@ -93,7 +94,6 @@ class DumpWikiPointsSqlImport extends Maintenance {
 						continue;
 					}
 
-					$lookup = \CentralIdLookup::factory();
 					$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
 					$userIdGlobalId[$userId] = $globalId;
 				}
