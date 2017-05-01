@@ -302,8 +302,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function achievementsDelete($subpage) {
 		$action = $subpage; // saving original intent for language strings.
-		if ($subpage == "restore") {
-			// a restore is a delete on a child. This will be fine.
+		if ($subpage == "revert") {
+			// a revert is a delete on a child. This will be fine.
 			$subpage = "delete";
 		}
 
@@ -332,7 +332,7 @@ class SpecialManageAchievements extends SpecialPage {
 					throw new MWException('Could not obtain the global ID for the user attempting to delete an achievement.');
 				}
 				$forceCreate = false;
-				if (empty($achievement->getSite_Key()) && $achievement->getId() > 0) {
+				if (empty($achievement->getSite_Key()) && $achievement->getId() > 0 && !$this->isMaster) {
 					$forceCreate = true;
 					$achievement->setParent_Id($achievement->getId());
 				}
