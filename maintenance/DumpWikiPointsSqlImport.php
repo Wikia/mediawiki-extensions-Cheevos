@@ -52,8 +52,6 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$db = wfGetDB(DB_MASTER);
 
 		$where = [
-			'wiki_points.user_id > 0',
-			'article_id > 0',
 			'reason' => 1
 		];
 
@@ -107,8 +105,12 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				if ($insert !== false) {
 					fwrite($file, $insert.",\n");
 				}
-				$globalId = intval($row['global_id']);
 
+				if ($row['user_id'] < 1 || $row['article_id'] < 1) {
+					continue;
+				}
+
+				$globalId = intval($row['global_id']);
 				if (!$globalId) {
 					continue;
 				}
