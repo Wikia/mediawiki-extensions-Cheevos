@@ -102,11 +102,13 @@ class DumpWikiPointsSqlImport extends Maintenance {
 					continue;
 				}
 
-				$revision = Revision::newFromId($row['edit_id']);
-				if (is_null($revision)) {
-					continue;
-				}
-				$size = $revision->getSize();
+				$revResult = $db->select(
+					['revision'],
+					['rev_len'],
+					['rev_id' => $row['edit_id']],
+					__METHOD__
+				);
+				$size = intval($result->fetchRow()['rev_len']);
 
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
