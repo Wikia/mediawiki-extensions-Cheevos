@@ -163,4 +163,43 @@ class PointsDisplay {
 
 		return false;
 	}
+
+	/**
+	 * Get wiki points for user by month.
+	 *
+	 * @param	integer Global ID
+	 * @param	integer Aggregate months into the past.
+	 * @return	integer Wiki Points
+	 */
+	public static function getWikiPointsForRange($globalId, $months = null) {
+		if ($globalId < 1) {
+			return 0;
+		}
+
+		$filters = [
+			'stat'		=> 'wiki_points',
+			'limit'		=> $itemsPerPage,
+			'offset'	=> $start,
+			'site_key'	=> $dsSiteKey,
+			'user_id'	=> $globalId,
+			'global'	=> true
+		];
+
+		$statProgress = [];
+		try {
+			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+		} catch (\Cheevos\CheevosException $e) {
+			throw new \MWException("Encountered Cheevos API error {$e->getMessage()}\n");
+		}
+
+		$userPoints = [];
+		$siteKeys = [];
+		foreach ($statProgress as $progress) {
+			if ($progress->getStat() === 'wiki_points') {
+				return intval($progress->getCount());
+			}
+		}
+
+		return 0;
+	}
 }
