@@ -75,7 +75,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$total = intval($result->fetchRow()['total']);
 
 		$file = fopen($folder.'/'.$wgDBname.'_wiki_points.sql', 'w+');
-		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
+		$sql = "@site_id = (SELECT id FROM site_key WHERE `key` = '".$dsSiteKey."');\nINSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
 		fwrite($file, $sql);
 		$inserts = [];
 
@@ -120,7 +120,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				}
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$insert = '('.$globalId.', (SELECT id FROM site_key WHERE `key` = \''.$dsSiteKey.'\'), '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
+				$insert = '('.$globalId.', @site_id, '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
 			}
 		}
 		if ($insert !== false) {
