@@ -110,6 +110,9 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				);
 				$size = intval($revResult->fetchRow()['rev_len']);
 
+				if (strpos($row['calculation_info'], '\"') !== false) {
+					$row['calculation_info'] = str_replace('\"', '"', $row['calculation_info']);
+				}
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
 				$insert = '('.$globalId.', (SELECT id FROM site_key WHERE `key` = \''.$dsSiteKey.'\'), '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
