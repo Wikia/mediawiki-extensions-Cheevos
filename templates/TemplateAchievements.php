@@ -150,7 +150,7 @@ class TemplateAchievements {
 			<div class='p-achievement-row".($status !== false && $status->isEarned() ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
 				<div class='p-achievement-icon".(($showControls && !empty($imageUrl)) ? " edit-on-hover" : null)."'>
 					".(!empty($imageUrl) ? "<img src='{$imageUrl}' data-img='{$image}'>" : "")."
-					".(($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">[upload new image]</span>" : null)."
+					".(($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">".wfMessage('click_to_upload_new_image')->escaped()."</span>" : null)."
 				</div>
 				<div class='p-achievement-row-inner'>
 					<span class='p-achievement-name'>".htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES)."</span>
@@ -213,8 +213,18 @@ class TemplateAchievements {
 						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='mw-ui-button'>".wfMessage('restore_achievement')->escaped()."</a></span>
 					</div>";
 				}
+				
 			}
 		}
+
+		if (MASTER_WIKI !== true && $achievement->isProtected()) {
+			$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_protected')->escaped()."</div>";
+		}
+
+		if (MASTER_WIKI !== true && $achievement->isGlobal()) {
+			$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_global')->escaped()."</div>";
+		}
+
 		if ($status !== false && $status->getTotal() > 0 && !$status->isEarned()) {
 			$width = ($status->getProgress() / $status->getTotal()) * 100;
 			if ($width > 100) {
