@@ -73,7 +73,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$total = intval($result->fetchRow()['total']);
 
 		$file = fopen($folder.'/'.$wgDBname.'_wiki_points.sql', 'w+');
-		$sql = "SET @site_id = (SELECT id FROM site_key WHERE `key` = '".$dsSiteKey."');\nINSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
+		fwrite($file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '".$dsSiteKey."');\n");
+		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
 		fwrite($file, $sql);
 		$inserts = [];
 
