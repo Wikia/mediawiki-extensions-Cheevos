@@ -23,7 +23,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription('Dumps WikiPoints tables to SQL to import into Cheevos.');
-		$this->addOption('folder', 'Specify a folder to dump a file into instead of outputing to the terminal.');
+		$this->addOption('folder', 'Specify a folder to dump a file into instead of outputing to the terminal.', true, true);
 	}
 
 	/**
@@ -65,12 +65,18 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		);
 		$total = intval($result->fetchRow()['total']);
 
-		$sql = 'INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES ';
+		$file = fopen($folder.'/'.$wgDBname.'_wiki_points.sql', 'w+');
+		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
+		fwrite($file, $sql);
 		$inserts = [];
 
 		$userIdGlobalId = [];
 		$lookup = \CentralIdLookup::factory();
+		$insert = false;
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
+			if ($insert !== false) {
+				fwrite($file, $insert.",\n");
+			}
 			$result = $db->select(
 				['wiki_points'],
 				['*'],
@@ -104,15 +110,13 @@ class DumpWikiPointsSqlImport extends Maintenance {
 
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$inserts[] = '('.$globalId.', (SELECT id FROM site_key WHERE `key` = \''.$dsSiteKey.'\'), '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].')';
+				$insert = '('.$globalId.', (SELECT id FROM site_key WHERE `key` = \''.$dsSiteKey.'\'), '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
 			}
 		}
-		$sql .= "\n".implode(",\n", $inserts).";\n";
-		if ($folder !== false) {
-			file_put_contents($folder.'/'.$wgDBname.'_wiki_points.sql', $sql);
-		} else {
-			echo $sql;
+		if ($insert !== false) {
+			fwrite($file, $insert.";\n");
 		}
+		fclose($file);
 	}
 }
 
