@@ -52,16 +52,25 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$db = wfGetDB(DB_MASTER);
 
 		$where = [
-			'user_id > 0',
+			'wiki_points.user_id > 0',
 			'article_id > 0',
 			'reason' => 1
 		];
 
 		$result = $db->select(
-			['wiki_points'],
-			['count(*) AS total'],
+			['wiki_points', 'revision', 'user_global'],
+			['count(*) AS total', 'revision.rev_len', 'user_global.global_id'],
 			$where,
-			__METHOD__
+			__METHOD__,
+			[],
+			[
+				'revision' => [
+					'LEFT JOIN', 'revision.rev_id = wiki_points.edit_id'
+				],
+				'user_global' => [
+					'INNER JOIN', 'user_global.user_id = wiki_points.user_id'
+				]
+			]
 		);
 		$total = intval($result->fetchRow()['total']);
 
@@ -74,12 +83,9 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$lookup = \CentralIdLookup::factory();
 		$insert = false;
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
-			if ($insert !== false) {
-				fwrite($file, $insert.",\n");
-			}
 			$result = $db->select(
-				['wiki_points', 'revision'],
-				['wiki_points.*', 'revision.rev_len'],
+				['wiki_points', 'revision', 'user_global'],
+				['wiki_points.*', 'revision.rev_len', 'user_global.global_id'],
 				$where,
 				__METHOD__,
 				[
@@ -90,18 +96,18 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				[
 					'revision' => [
 						'LEFT JOIN', 'revision.rev_id = wiki_points.edit_id'
+					],
+					'user_global' => [
+						'INNER JOIN', 'user_global.user_id = wiki_points.user_id'
 					]
 				]
 			);
 
 			while ($row = $result->fetchRow()) {
-				$userId = intval($row['user_id']);
-				if (isset($userIdGlobalId[$userId])) {
-					$globalId = $userIdGlobalId[$userId];
-				} else {
-					$globalId = HydraAuthUser::globalIdFromUserId($userId);
-					$userIdGlobalId[$userId] = $globalId;
+				if ($insert !== false) {
+					fwrite($file, $insert.",\n");
 				}
+				$globalId = intval($row['global_id']);
 
 				if (!$globalId) {
 					continue;
