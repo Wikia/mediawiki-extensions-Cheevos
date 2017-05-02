@@ -155,7 +155,7 @@ class PointsDisplay {
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()));
+				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName());
 			} else {
 				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
