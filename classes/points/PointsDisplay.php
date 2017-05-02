@@ -120,7 +120,7 @@ class PointsDisplay {
 			'sort_direction'	=> 'desc'
 		];
 
-		if (!$isSitesMode) {
+		if (!$isSitesMode && empty($siteKey)) {
 			$filters['global'] = true;
 		}
 
