@@ -180,8 +180,8 @@ class PointsDisplay {
 				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
 					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userToolsLinks);
 					$userPoints[$key]->userLink = str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userLink);
-					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="/https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace('href="/', 'href="/https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userLink);
+					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userToolsLinks);
+					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userLink);
 				}
 			}
 		}
