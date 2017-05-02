@@ -244,9 +244,10 @@ class PointsDisplay {
 	/**
 	 * Get wiki points for user by month.
 	 *
-	 * @param	integer Global ID
-	 * @param	integer Aggregate months into the past.
-	 * @return	integer Wiki Points
+	 * @param	integer	Global ID
+	 * @param	string	[Optional] Site Key
+	 * @param	integer	[Optional] Aggregate months into the past.
+	 * @return	integer	Wiki Points
 	 */
 	static public function getWikiPointsForRange($globalId, $siteKey = null, $months = null) {
 		if ($globalId < 1) {
@@ -259,6 +260,12 @@ class PointsDisplay {
 			'user_id'	=> $globalId,
 			'global'	=> ($siteKey === null ? true : false)
 		];
+
+		$months = intval($months);
+		if ($months > 0) {
+			$filters['start_time'] = strtotime(date('Y-m-d', strtotime('first day of '.$months.' month ago')).'T00:00:00+00:00');
+			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('last day of '.$months.' month ago')).'T23:59:59+00:00');
+		}
 
 		$statProgress = [];
 		try {
