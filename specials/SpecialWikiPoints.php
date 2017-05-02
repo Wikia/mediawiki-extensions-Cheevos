@@ -60,7 +60,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$lookup = CentralIdLookup::factory();
 
 		$start = $this->wgRequest->getInt('st');
-		$itemsPerPage = 200;
+		$itemsPerPage = 100;
 		$total = 0;
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
@@ -70,7 +70,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
 
 		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($isSitesMode ? '_sites' : '').($isMonthly ? '_monthly' : '')));
-		$this->content = TemplateWikiPoints::getWikiPointsLinks()."<div>{$pagination}</div>".\Cheevos\Points\PointsDisplay::pointsBlockHtml(($isSitesMode ? null : $dsSiteKey), null, 25, 0, $isSitesMode, $isMonthly)."<div>{$pagination}</div>";
+		$this->content = TemplateWikiPoints::getWikiPointsLinks()."<div>{$pagination}</div>".\Cheevos\Points\PointsDisplay::pointsBlockHtml(($isSitesMode ? null : $dsSiteKey), null, $itemsPerPage, $start, $isSitesMode, $isMonthly)."<div>{$pagination}</div>";
 	}
 
 	/**
