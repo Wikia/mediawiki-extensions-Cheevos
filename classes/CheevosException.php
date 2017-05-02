@@ -1,12 +1,12 @@
 <?php
 /**
  * Achievements
- * Cheevos Class
+ * Cheevos Exception Class
  *
  * @author		Cameron Chunn
  * @copyright	(c) 2017 Curse Inc.
  * @license		All Rights Reserved
- * @package		Achievements
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
  **/
@@ -18,11 +18,12 @@ class CheevosException extends \MWException {
 	/**
 	 * Constructor for Exception
 	 *
-	 * @param string $message
-	 * @param int $code
-	 * @param Exception $previous
+	 * @access	public
+	 * @param	string	$message
+	 * @param	integer	$code
+	 * @param	object	Exception $previous
 	 */
-	public function __construct($message, $code = 0, Exception $previous = null) {
+	public function __construct($message, $code = 0, \Exception $previous = null) {
 		parent::__construct($message, $code, $previous);
 	}
 

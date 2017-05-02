@@ -1,12 +1,12 @@
 <?php
 /**
- * Achievements
- * Cheevos Class
+ * Cheevos
+ * Cheevos Helper Functions
  *
  * @author		Cameron Chunn
  * @copyright	(c) 2017 Curse Inc.
  * @license		All Rights Reserved
- * @package		Achievements
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
  **/
