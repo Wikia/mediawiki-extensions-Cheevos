@@ -141,10 +141,11 @@ class PointsDisplay {
 		}
 
 		$userPoints = [];
-		$siteKeys = [];
+		$siteKeys = [$dsSiteKey];
 		foreach ($statProgress as $progress) {
 			$globalId = $progress->getUser_Id();
-			if (isset($userPoints[$globalId])) {
+			$lookupKey = $globalId.'-'.$progress->getSite_Key();
+			if (isset($userPoints[$lookupKey])) {
 				continue;
 			}
 			$user = $lookup->localUserFromCentralId($globalId);
@@ -163,7 +164,7 @@ class PointsDisplay {
 			}
 			$userPointsRow->score = $progress->getCount();
 			$userPointsRow->siteKey = $progress->getSite_Key();
-			$userPoints[$globalId] = $userPointsRow;
+			$userPoints[$lookupKey] = $userPointsRow;
 			if ($isSitesMode) {
 				$siteKeys[] = $progress->getSite_Key();
 			}
@@ -172,7 +173,15 @@ class PointsDisplay {
 
 		$wikis = [];
 		if ($isSitesMode && !empty($siteKeys)) {
+			global $wgServer;
 			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			$localDomain = trim($wgServer, '/');
+			foreach ($userPoints as $key => $userPointsRow) {
+				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
+					str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userToolsLinks);
+					str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userLink);
+				}
+			}
 		}
 
 		switch ($markup) {
