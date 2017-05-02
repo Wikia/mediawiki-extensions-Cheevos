@@ -308,7 +308,10 @@
 			"curse_profile_edit_link_twitter",
 			"curse_profile_edit_link_reddit",
 			"achievement_engagement"
-		]
+		],
+		"NamespacesForEditPoints": [],
+		"CompedSubscriptionThreshold": 250,
+		"CompedSubscriptionMonths": 3
 	},
 	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1

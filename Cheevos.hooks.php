@@ -40,12 +40,17 @@ class CheevosHooks {
 	 * @return	void
 	 */
 	static public function onRegistration() {
-		global $wgDefaultUserOptions, $extSyncServices;
+		global $wgDefaultUserOptions, $extSyncServices, $wgNamespacesForEditPoints;
 
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
 		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$extSyncServices[] = 'CheevosIncrementJob';
+		}
+
+		//Allowed namespaces.
+		if (!isset($wgNamespacesForEditPoints) || empty($wgNamespacesForEditPoints)) {
+			$wgNamespacesForEditPoints = MWNamespace::getContentNamespaces();
 		}
 	}
 
