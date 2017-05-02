@@ -32,26 +32,52 @@ class PointsDisplay {
 	 * @param	Parser	mediawiki Parser reference
 	 * @param	limit	[Optional] Limit results.
 	 * @param	string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
+	 *					Special namespaces are:
+	 *						'all' - Breaks down points per user per wiki.
+	 *						'global' - Breaks down points per user across all wikis.
 	 * @param	string	[optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
 	 * @return	array	generated HTML string as element 0, followed by parser options
 	 */
-	public static function pointsBlock(&$parser, $limit = 25, $wikis = '', $markup = 'table') {
-		global $wgServer;
+	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
+		global $dsSiteKey;
 
 		$limit = intval($limit);
 		if (!$limit || $limit < 0) {
 			$limit = 25;
 		}
 
+		$globalId = null;
+		if (!empty($user)) {
+			$user = \User::newFromName($user);
+			if (!$user || !$user->getId()) {
+				return [
+					wfMessage('user_not_found')->escaped(),
+					'isHTML' => true,
+				];
+			}
+			$lookup = \CentralIdLookup::factory();
+			$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+			if (!$globalId) {
+				return [
+					wfMessage('global_user_not_found')->escaped(),
+					'isHTML' => true,
+				];
+			}
+		}
+
+		$siteKey = null;
+		if ($wikis !== 'all' && $wikis !== 'global') {
+			$siteKey = $dsSiteKey;
+		}
 		$isSitesMode = false;
-		if ($wikis === 'all') {
+		if ($wikis === 'all' && $wikis !== 'global') {
 			$isSitesMode = true;
 		}
 
-		$html = self::pointsBlockHtml($limit, 0, $isSitesMode, $isMonthly, $markup);
+		$html = self::pointsBlockHtml($siteKey, $globalId, $limit, 0, $isSitesMode, $isMonthly, $markup);
 
 		return [
 			$html,
@@ -63,9 +89,11 @@ class PointsDisplay {
 	 * Function Documentation
 	 *
 	 * @access	public
+	 * @param	string	[Optional] Limit by or override the site key used.
+	 * @param	integer	[Optional] Global ID to filter by.
 	 * @param	integer	[Optional] Items Per Page
 	 * @param	integer	[Optional] Offset to start at.
-	 * @param	boolean	[Optional] Including all wikis or not.
+	 * @param	boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
 	 * @param	boolean	[Optional] Showing monthly totals.
 	 * @param	string	[Optional] Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
@@ -73,7 +101,7 @@ class PointsDisplay {
 	 * 					'table' Uses an unstyled HTML table.
 	 * @return	string	HTML
 	 */
-	static public function pointsBlockHtml($itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table') {
+	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table') {
 		global $dsSiteKey;
 
 		$lookup = \CentralIdLookup::factory();
@@ -93,7 +121,16 @@ class PointsDisplay {
 		];
 
 		if (!$isSitesMode) {
-			$filters['site_key'] = $dsSiteKey;
+			$filters['global'] = true;
+		}
+
+		if ($siteKey !== null && !empty($siteKey)) {
+			$isSitesMode = false;
+			$filters['site_key'] = $siteKey;
+		}
+
+		if ($globalId > 0) {
+			$filters['user_id'] = intval($globalId);
 		}
 
 		$statProgress = [];
@@ -200,18 +237,16 @@ class PointsDisplay {
 	 * @param	integer Aggregate months into the past.
 	 * @return	integer Wiki Points
 	 */
-	public static function getWikiPointsForRange($globalId, $months = null) {
+	static public function getWikiPointsForRange($globalId, $siteKey = null, $months = null) {
 		if ($globalId < 1) {
 			return 0;
 		}
 
 		$filters = [
 			'stat'		=> 'wiki_points',
-			'limit'		=> $itemsPerPage,
-			'offset'	=> $start,
-			'site_key'	=> $dsSiteKey,
+			'site_key'	=> $siteKey,
 			'user_id'	=> $globalId,
-			'global'	=> true
+			'global'	=> ($siteKey === null ? true : false)
 		];
 
 		$statProgress = [];
@@ -230,5 +265,30 @@ class PointsDisplay {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Returns the number of points and rank of any given user on any specific wiki (global by default).
+	 * Use WikiPoints::extractDomain($wgServer) to look up points for the local wiki.
+	 *
+	 * @param	integer	Global User ID for a user
+	 * @param	string	[Optional] String indicating a wiki that should be looked up.
+	 * @return	array	Keys for "score" and "rank"
+	 */
+	public static function ppointsForGlobalId($globalId, $wiki = 'all') {
+		$result = [
+			'score' => '0',
+			'rank' => ''
+		];
+
+		//@TODO: Tuesday morning - Combine all of this into one function to get wiki points for a global ID.
+		self::getWikiPointsForRange($globalId);
+
+		if ($redis !== false) {
+			$result['score'] = $redis->zScore($redisKey, $globalId);
+			$result['rank'] = 1 + $redis->zRevRank($redisKey, $globalId);
+		}
+
+		return $result;
 	}
 }

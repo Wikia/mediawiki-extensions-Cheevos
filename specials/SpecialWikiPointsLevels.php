@@ -63,7 +63,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to Screen]
 	 */
 	public function levelsForm() {
-		$levels = pointLevels::getLevels();
+		$levels = \Cheevos\Points\PointLevels::getLevels();
 
 		if ($this->wgRequest->getVal('do') == 'save') {
 			$lids = $this->wgRequest->getArray('lid');
@@ -85,7 +85,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 			}
 
 			if (!count($errors) && is_array($levels)) {
-				$success = pointLevels::saveLevels($levels);
+				$success = \Cheevos\Points\PointLevels::saveLevels($levels);
 			}
 		}
 

@@ -170,6 +170,7 @@
 	"timestamp": "Timestamp",
 	"rev": "Rev",
 	"user_not_found": "A user by that name was not found.",
+	"global_user_not_found": "A global user by that name was not found.",
 	"article_id_number": "Article ID #",
 	"na": "n/a",
 	"user_lookup": "User Lookup",
