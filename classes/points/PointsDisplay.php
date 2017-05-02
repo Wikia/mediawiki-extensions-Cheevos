@@ -267,8 +267,6 @@ class PointsDisplay {
 			throw new \MWException("Encountered Cheevos API error {$e->getMessage()}\n");
 		}
 
-		$userPoints = [];
-		$siteKeys = [];
 		foreach ($statProgress as $progress) {
 			if ($progress->getStat() === 'wiki_points') {
 				return intval($progress->getCount());
