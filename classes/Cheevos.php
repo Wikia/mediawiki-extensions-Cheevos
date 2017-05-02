@@ -525,6 +525,34 @@ class Cheevos {
 	}
 
 	/**
+	 * Return StatMonthlyCount for selected filters.
+	 *
+	 * @access	public
+	 * @param	array	Limit Filters - All filters are optional and can omitted from the array.
+	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 * 		$filters = [
+	 * 			'site_key'	=> 'example', //Limit by site key.
+	 * 			'stat'		=> 'example', //Filter by a specific stat name.
+	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
+	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
+	 * 		];
+	 * @return	mixed
+	 */
+	public static function getStatMonthlyCount($filters = []) {
+		foreach (['limit', 'offset'] as $key) {
+			if (isset($filter[$key]) && !is_int($filter[$key])) {
+				$filter[$key] = intval($filter[$key]);
+			}
+		}
+		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 200);
+
+		$return = self::get('stats/monthly', $filters);
+
+		return self::return($return, 'monthly', 'Cheevos\CheevosStatMonthlyCount');
+	}
+
+	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
 	 * @access	public
@@ -552,7 +580,7 @@ class Cheevos {
 	 * @param	string	Site Key - From DynamicSettings
 	 * @return	mixed
 	 */
-	public static function getUserStatus($globalId, $siteKey = null) {
+	public static function getAchievementStatus($globalId, $siteKey = null) {
 		$return = self::get(
 			'achievements/status',
 			[

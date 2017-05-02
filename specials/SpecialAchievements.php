@@ -104,7 +104,7 @@ class SpecialAchievements extends SpecialPage {
 					Hooks::run('AchievementAwarded', [$earnedAchievement, $globalId]);
 				}
 			}
-			$_statuses = \Cheevos\Cheevos::getUserStatus($globalId, $this->siteKey);
+			$_statuses = \Cheevos\Cheevos::getAchievementStatus($globalId, $this->siteKey);
 			$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
 		} catch (\Cheevos\CheevosException $e) {
 			throw new ErrorPageError('achievements', 'error_cheevos_service', [$e->getMessage()]);
