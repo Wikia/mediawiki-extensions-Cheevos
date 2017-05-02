@@ -64,7 +64,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$total = 0;
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
-		$isSitesMode = in_array('sites', $modifiers);
+		$isSitesMode = in_array('sites', $modifiers) && defined('MASTER_WIKI');
 		$isMonthly = in_array('monthly', $modifiers);
 
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
