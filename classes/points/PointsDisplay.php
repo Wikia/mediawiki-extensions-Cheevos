@@ -156,7 +156,7 @@ class PointsDisplay {
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName());
+				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName(), [], [], ['https']);
 			} else {
 				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
@@ -180,6 +180,8 @@ class PointsDisplay {
 				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
 					str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userToolsLinks);
 					str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userLink);
+					str_replace('href="/', 'https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userToolsLinks);
+					str_replace('href="/', 'https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userLink);
 				}
 			}
 		}
