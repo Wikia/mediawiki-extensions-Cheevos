@@ -724,6 +724,8 @@ class CheevosHooks {
 			$userName = $userPageTitle->getText();
 		} elseif ($userPageTitle instanceof User) {
 			$userName = $userPageTitle->getName();
+		} elseif (is_string($userPageTitle)) {
+			$userName = $userPageTitle
 		}
 
 		$tools[] = Linker::linkKnown(
