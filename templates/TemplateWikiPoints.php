@@ -74,6 +74,8 @@ class TemplateWikiPoints {
 		$links = [
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/global'), wfMessage('top_wiki_editors_global')->escaped()),
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/global/monthly'), wfMessage('top_wiki_editors_global_monthly')->escaped())
 		];
 		if (defined('MASTER_WIKI')) {
 			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites'), wfMessage('top_wiki_editors_sites')->escaped());

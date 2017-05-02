@@ -98,7 +98,7 @@ class PointsDisplay {
 	 * @param	string	[Optional] Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
-	 * 					'table' Uses an unstyled HTML table.
+	 * 					'table' Uses a standard wikitable class HTML table.
 	 * @return	string	HTML
 	 */
 	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table') {
