@@ -264,7 +264,7 @@ class PointsDisplay {
 		$monthsAgo = intval($monthsAgo);
 		if ($monthsAgo > 0) {
 			$filters['start_time'] = strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00');
-			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('last day of '.$monthsAgo.' month ago')).'T23:59:59+00:00');
+			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00');
 		}
 
 		$statProgress = [];
