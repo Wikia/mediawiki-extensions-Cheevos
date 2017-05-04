@@ -19,13 +19,15 @@ class TemplateWikiPoints {
 	 * @access	public
 	 * @param	array	Array of rows of top points
 	 * @param	string	Pagination HTML
+	 * @param	integer	Current starting position.
 	 * @param	array	[Optional] Load wiki information for sites mode.
 	 * @param	boolean	[Optional] Including all wikis or not.
 	 * @param	boolean	[Optional] Showing monthly totals.
 	 * @return	string	Built HTML
 	 */
-	static public function pointsBlockHtml($userPoints, $pagination, $wikis = [], $isSitesMode = false, $isMonthly = false) {
+	static public function pointsBlockHtml($userPoints, $pagination, $start, $wikis = [], $isSitesMode = false, $isMonthly = false) {
 		$html .= "
+		<div>{$pagination}</div>
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -38,7 +40,7 @@ class TemplateWikiPoints {
 			</thead>
 			<tbody>";
 		if (!empty($userPoints)) {
-			$i = 0;
+			$i = $start;
 			foreach ($userPoints as $userPointsRow) {
 				$i++;
 				$html .= "
@@ -59,7 +61,8 @@ class TemplateWikiPoints {
 		}
 		$html .= "
 			</tbody>
-		</table>";
+		</table>
+		<div>{$pagination}</div>";
 
 		return $html;
 	}
@@ -81,6 +84,23 @@ class TemplateWikiPoints {
 			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
 		}
 
-		return implode(' | ', $links);
+		return implode(' | ', $links)."<hr>";
+	}
+
+	/**
+	 * Get simple dumb pagination.
+	 *
+	 * @access	public
+	 * @param	string	URL Destination
+	 * @param	integer	Number of items per page.
+	 * @param	integer	Current starting position.
+	 * @return	string	HTML
+	 */
+	static public function getSimplePagination(Title $title, $itemsPerPage, $start) {
+		$previous = max(0, $start - $itemsPerPage);
+		$next = $start + $itemsPerPage;
+		$previous = "<a href='{$title->getFullUrl(['st' => $previous])}' class='mw-ui-button'>&lt;</a>";
+		$next = "<a href='{$title->getFullUrl(['st' => $next])}' class='mw-ui-button'>&gt;</a>";
+		return $previous.' '.$next;
 	}
 }

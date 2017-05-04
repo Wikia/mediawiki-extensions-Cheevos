@@ -99,9 +99,10 @@ class PointsDisplay {
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
 	 * 					'table' Uses a standard wikitable class HTML table.
+	 * @param	object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
 	 * @return	string	HTML
 	 */
-	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table') {
+	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
 		global $dsSiteKey;
 
 		$lookup = \CentralIdLookup::factory();
@@ -217,7 +218,10 @@ class PointsDisplay {
 				break;
 			case 'table':
 			default:
-				$html = \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $wikis, $isSitesMode, $isMonthly);
+				if ($title !== null) {
+					$pagination = \TemplateWikiPoints::getSimplePagination($title, $itemsPerPage, $start);
+				}
+				$html = \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly);
 				break;
 		}
 
