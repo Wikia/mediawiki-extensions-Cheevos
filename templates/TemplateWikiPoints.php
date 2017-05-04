@@ -47,7 +47,7 @@ class TemplateWikiPoints {
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>".
 					($isSitesMode ? "<td>".(isset($wikis[$userPointsRow->siteKey]) ? $wikis[$userPointsRow->siteKey]->getNameForDisplay() : $userPointsRow->siteKey)."</td>" : "\n")
 					."<td class='score'>{$userPointsRow->score}</td>"
-					.($isMonthly ? "<td class='monthly'>".gmdate('F Y', strtotime($userPointsRow->yyyymm.'01'))."</td>" : '')."
+					.($isMonthly ? "<td class='monthly'>".$userPointsRow->yyyymm."</td>" : '')."
 				</tr>";
 			}
 		} else {

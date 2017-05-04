@@ -167,7 +167,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
 		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], true, true);
 
-		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), \Cheevos\Cheevos::getKnownHooks(), $allAchievements, $return['errors']);
+		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), $allAchievements, $return['errors']);
 	}
 
 	/**

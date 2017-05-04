@@ -101,12 +101,11 @@ class TemplateManageAchievements {
 	* @access	public
 	* @param	array	Array of achievement information.
 	* @param	array	Achievement Categories
-	* @param	array	Known Hooks
 	* @param	array	All Achievements
 	* @param	array	Key name => Error of errors
 	* @return	string	Built HTML
 	*/
-	public function achievementsForm($achievement, $categories, $knownHooks, $allAchievements, $errors) {
+	public function achievementsForm($achievement, $categories, $allAchievements, $errors) {
 		global $wgUser, $wgScriptPath, $wgCheevosStats, $dsSiteKey;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');

@@ -134,12 +134,19 @@ class PointsDisplay {
 		}
 
 		$statProgress = [];
-		try {
-			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-		} catch (\Cheevos\CheevosException $e) {
-			throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+		if ($isMonthly) {
+			try {
+				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
+			} catch (\Cheevos\CheevosException $e) {
+				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+			}
+		} else {
+			try {
+				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+			} catch (\Cheevos\CheevosException $e) {
+				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+			}
 		}
-
 		$userPoints = [];
 		$siteKeys = [$dsSiteKey];
 		foreach ($statProgress as $progress) {
@@ -161,6 +168,9 @@ class PointsDisplay {
 				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
 				$userPointsRow->userLink = '';
+			}
+			if ($isMonthly) {
+				$userPointsRow->yyyymm = gmdate('F Y', $progress->getMonth());
 			}
 			$userPointsRow->score = $progress->getCount();
 			$userPointsRow->siteKey = $progress->getSite_Key();

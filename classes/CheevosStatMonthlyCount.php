@@ -13,7 +13,7 @@
 
 namespace Cheevos;
 
-class StatMonthlyCount extends CheevosModel {
+class CheevosStatMonthlyCount extends CheevosModel {
 	/**
 	 * Constructor
 	 *

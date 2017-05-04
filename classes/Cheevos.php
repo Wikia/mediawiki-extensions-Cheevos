@@ -270,7 +270,7 @@ class Cheevos {
 		}
 
 		$return = [ $return ]; //The return function expects an array of results.
-		return self::return($return, 'achievements', 'Cheevos\CheevosAchievement', true);
+		return self::return($return, 'achievements', '\Cheevos\CheevosAchievement', true);
 	}
 
 	/**
@@ -367,7 +367,7 @@ class Cheevos {
 			$return = unserialize($cache);
 		}
 
-		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory');
+		return self::return($return, 'categories', '\Cheevos\CheevosAchievementCategory');
 	}
 
 	/**
@@ -399,7 +399,7 @@ class Cheevos {
 		}
 
 		$return = [ $return ]; // return expect array of results. fake it.
-		return self::return($return, 'categories', 'Cheevos\CheevosAchievementCategory', true);
+		return self::return($return, 'categories', '\Cheevos\CheevosAchievementCategory', true);
 	}
 
 	/**
@@ -524,7 +524,7 @@ class Cheevos {
 
 		$return = self::get('stats', $filters);
 
-		return self::return($return, 'stats', 'Cheevos\CheevosStatProgress');
+		return self::return($return, 'stats', '\Cheevos\CheevosStatProgress');
 	}
 
 	/**
@@ -552,7 +552,7 @@ class Cheevos {
 
 		$return = self::get('stats/monthly', $filters);
 
-		return self::return($return, 'monthly', 'Cheevos\CheevosStatMonthlyCount');
+		return self::return($return, 'stats', '\Cheevos\CheevosStatMonthlyCount');
 	}
 
 	/**
@@ -593,7 +593,7 @@ class Cheevos {
 			]
 		);
 
-		return self::return($return, 'status', 'Cheevos\CheevosAchievementStatus');
+		return self::return($return, 'status', '\Cheevos\CheevosAchievementStatus');
 	}
 
 	/**
@@ -621,7 +621,7 @@ class Cheevos {
 
 		$return = self::get('achievements/progress', $filters);
 
-		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress');
+		return self::return($return, 'progress', '\Cheevos\CheevosAchievementProgress');
 	}
 
 	/**
@@ -658,7 +658,7 @@ class Cheevos {
 	 */
 	public static function getProgress($id) {
 		$return = [ self::get("achievements/progress/{$id}") ]; // return expect array of results. fake it.
-		return self::return($return, 'progress', 'Cheevos\CheevosAchievementProgress', true);
+		return self::return($return, 'progress', '\Cheevos\CheevosAchievementProgress', true);
 	}
 
 	/**
@@ -708,14 +708,5 @@ class Cheevos {
 	 */
 	public static function createProgress($body) {
 		return self::putProgress($body);
-	}
-
-	/**
-	 * Junk left for legacy compliance. Can possibly be removed.
-	 *
-	 * @return void
-	 */
-	public static function getKnownHooks() {
-		return [];
 	}
 }
