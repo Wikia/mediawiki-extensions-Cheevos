@@ -152,7 +152,7 @@ class PointsDisplay {
 		$siteKeys = [$dsSiteKey];
 		foreach ($statProgress as $progress) {
 			$globalId = $progress->getUser_Id();
-			$lookupKey = $globalId.'-'.$progress->getSite_Key();
+			$lookupKey = $globalId.'-'.$progress->getSite_Key().'-'.($isMonthly ? $progress->getMonth() : null);
 			if (isset($userPoints[$lookupKey])) {
 				continue;
 			}
