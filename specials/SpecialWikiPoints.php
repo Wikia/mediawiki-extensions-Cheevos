@@ -70,7 +70,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 
 		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
 
-		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($isSitesMode ? '_sites' : '').($isMonthly ? '_monthly' : '')));
+		$this->output->setPageTitle(wfMessage('top_wiki_editors'.($isGlobal ? '_global' : '').($isSitesMode ? '_sites' : '').($isMonthly ? '_monthly' : '')));
 		$this->content = TemplateWikiPoints::getWikiPointsLinks()."<div>{$pagination}</div>".\Cheevos\Points\PointsDisplay::pointsBlockHtml(($isSitesMode || $isGlobal ? null : $dsSiteKey), null, $itemsPerPage, $start, $isSitesMode, $isMonthly)."<div>{$pagination}</div>";
 	}
 
