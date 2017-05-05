@@ -39,7 +39,7 @@ class TemplateWikiPointsAdmin {
 			<div class='mw-ui-vform-field'>
 				<input class='submit mw-ui-button mw-ui-constructive' type='submit' value='".wfMessage('lookup')->escaped()."'/>
 			</div>
-			<div class='right'><a href='".$wikiPointsPage->getFullURL()."'>".wfMessage('view_public_points_list')->escaped()."</a> | <a href='".$wikiPointsAdminPage->getFullURL()."?action=recent'>".wfMessage('all_recently_earned')->escaped()."</a></div>
+			<div class='right'><a href='".$wikiPointsPage->getFullURL()."'>".wfMessage('view_public_points_list')->escaped()."</a></div>
 		</form>";
 	}
 
@@ -92,8 +92,8 @@ class TemplateWikiPointsAdmin {
 					<table class='wikitable wikipoints'>
 						<thead>
 							<tr>
-								<th>".wfMessage('article_method_earned')->escaped()."</th>
-								<th>".wfMessage('timestamp')->escaped()."</th>
+								<th>".wfMessage('wpa_reason')->escaped()."</th>
+								<th>".wfMessage('wpa_date')->escaped()."</th>
 								<th title='".wfMessage('char_size')->escaped()."'>".wfMessage('char_size')->escaped()."</th>
 								<th title='".wfMessage('char_diff')->escaped()."'>".wfMessage('char_diff')->escaped()."</th>
 								<th>".wfMessage('score')->escaped()."</th>
@@ -118,8 +118,8 @@ class TemplateWikiPointsAdmin {
 				$html .= "
 								<td>{$link}</td>
 								<td>{$pointRow->getTimestamp()}</td>
-								<td class='numeric'>{$pointRow->getSize()}</td>
-								<td class='numeric'>{$pointRow->getSize_Diff()}</td>
+								<td class='numeric'>".($pointRow->getPage_Id() ? $pointRow->getSize() : wfMessage("n-a")->escaped())."</td>
+								<td class='numeric'>".($pointRow->getPage_Id() ? $pointRow->getSize_Diff() : wfMessage("n-a")->escaped())."</td>
 								<td class='numeric'>{$pointRow->getPoints()}</td>
 							</tr>";
 			}

@@ -93,7 +93,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$pointsLog = [];
 		if ($globalId > 0) {
 			try {
-				$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey]);
+				$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
 			} catch (\Cheevos\CheevosException $e) {
 				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
