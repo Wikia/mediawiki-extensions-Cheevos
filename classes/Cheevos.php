@@ -528,6 +528,54 @@ class Cheevos {
 	}
 
 	/**
+	 * Return WikiPointLog for selected filters.
+	 *
+	 * @access	public
+	 * @param	array	Limit Filters - All filters are optional and can omitted from the array.
+	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 * 		$filters = [
+	 * 			'user_id'			=> 0, //Limit by global user ID.
+	 * 			'site_key'			=> 'example', //Limit by site key.
+	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
+	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
+	 * 		];
+	 * @return	mixed
+	 */
+	public static function getWikiPointLog($filters = []) {
+		foreach (['user_id', 'limit', 'offset'] as $key) {
+			if (isset($filter[$key]) && !is_int($filter[$key])) {
+				$filter[$key] = intval($filter[$key]);
+			}
+		}
+		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 25);
+
+		$return = self::get('points/user', $filters);
+
+		return self::return($return, 'points', '\Cheevos\CheevosWikiPointLog');
+	}
+
+	/**
+	 * Return stats/user_site_count for selected filters.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	string	[Optional] Filter by site key.
+	 * @return	mixed
+	 */
+	public static function getUserPointRank($globalId, $siteKey = null) {
+		$return = self::get(
+			'points/user_rank',
+			[
+				'user_id'	=> $globalId,
+				'site_key'	=> $siteKey
+			]
+		);
+
+		return self::return($return, 'rank');
+	}
+
+	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
 	 * @access	public

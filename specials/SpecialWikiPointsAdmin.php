@@ -46,9 +46,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 
 		switch ($this->wgRequest->getVal('action')) {
 			default:
-			case 'recent':
-				$this->recentPoints();
-				break;
 			case 'lookup':
 				$this->lookUpUser();
 				break;
@@ -70,9 +67,11 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	private function lookUpUser() {
+		global $dsSiteKey;
+
 		$user = new User;
-		$points = [];
 		$form = [];
+		$globalId = false;
 
 		$form['username'] = $this->wgRequest->getVal('user_name');
 		$form['user_id'] = $this->wgRequest->getInt('user_id');
@@ -87,80 +86,25 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		}
 
 		if ($user->getId()) {
-			$result = $this->DB->select(
-				[
-					'wiki_points',
-					'page'
-				],
-				[
-					'wiki_points.*',
-					'page.page_title'
-				],
-				['wiki_points.user_id' => $user->getId()],
-				__METHOD__,
-				[
-					'ORDER BY'	=> 'wiki_points.created DESC',
-					'LIMIT'		=> 250
-				],
-				[
-					'page' => [
-						'LEFT JOIN', 'wiki_points.article_id = page.page_id'
-					]
-				]
-			);
+			$lookup = \CentralIdLookup::factory();
+			$globalId = $lookup->centralIdFromLocalUser($user);
+		}
 
-			while ($row = $result->fetchRow()) {
-				$points[] = $row;
+		$pointsLog = [];
+		if ($globalId > 0) {
+			try {
+				$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey]);
+			} catch (\Cheevos\CheevosException $e) {
+				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 			if (empty($form['username'])) {
 				$form['username'] = $user->getName();
 			}
-		} else {
+		} elseif ($globalId === false) {
 			$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
 		}
 
-		$this->content = TemplateWikiPointsAdmin::lookup($user, $points, $form);
-	}
-
-	/**
-	 * Shows only the recently earned points.
-	 *
-	 * @access	private
-	 * @return	void	[Outputs to screen]
-	 */
-	private function recentPoints() {
-		$result = $this->DB->select(
-			[
-				'wiki_points',
-				'user',
-				'page'
-			],
-			[
-				'wiki_points.*',
-				'user.user_name',
-				'page.page_title'
-			],
-			null,
-			__METHOD__,
-			[
-				'ORDER BY'	=> 'wiki_points.created DESC',
-				'LIMIT'		=> 500
-			],
-			[
-				'user' => [
-					'LEFT JOIN', 'user.user_id = wiki_points.user_id'
-				],
-				'page' => [
-					'LEFT JOIN', 'wiki_points.article_id = page.page_id'
-				]
-			]
-		);
-
-		$pointsData = [];
-		while ($row = $result->fetchRow()) {
-			$pointsData[] = $row;
-		}
-		$this->content = TemplateWikiPointsAdmin::recentTable($pointsData);
+		$this->content = TemplateWikiPointsAdmin::lookup($user, $pointsLog, $form);
 	}
 
 	/**

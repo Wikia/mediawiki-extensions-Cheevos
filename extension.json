@@ -84,6 +84,7 @@
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
+		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
 		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",

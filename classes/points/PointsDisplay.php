@@ -139,13 +139,13 @@ class PointsDisplay {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		} else {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		}
 		$userPoints = [];

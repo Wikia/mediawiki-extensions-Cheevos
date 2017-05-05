@@ -85,7 +85,6 @@ class CheevosStatsAPI extends ApiBase {
 		$progressCountEngaged = Cheevos\Cheevos::getProgressCount(null, $wgCheevosAchievementEngagementId);
 		$totalEarnedAchievementsEngaged = isset($progressCountEngaged['total']) ? $progressCountEngaged['total'] : "N/A";
 
-
 		$customAchievements = [];
 
 		foreach($achievements as $a) {
