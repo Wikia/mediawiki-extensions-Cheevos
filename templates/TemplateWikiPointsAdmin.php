@@ -180,7 +180,7 @@ class TemplateWikiPointsAdmin {
 				$html .= "
 							<tr>";
 
-				if ($pointRow['reason'] == EditPoints::WIKI_EDIT_EARNED) {
+				if ($pointRow['reason'] == 1/*EditPoints::WIKI_EDIT_EARNED*/) {
 					$calcData = json_decode(stripslashes($pointRow['calculation_info']));
 					$title = Title::newFromID($pointRow['article_id']);
 					if ($title) {
@@ -191,7 +191,7 @@ class TemplateWikiPointsAdmin {
 					$html .= "
 								<td>$link</td>
 								<td>{$pointRow['created']}</td>
-								<td class='numeric'>".$calcData->weights->a / WikiPoints::BASE_MULTIPLIER."</td>
+								<td class='numeric'>".$calcData->weights->a / 4/*WikiPoints::BASE_MULTIPLIER*/."</td>
 								<td class='numeric'>{$calcData->weights->Wx}</td>
 								<td class='numeric'>{$calcData->weights->Wy}</td>
 								<td class='numeric'>{$calcData->weights->Wz}</td>
