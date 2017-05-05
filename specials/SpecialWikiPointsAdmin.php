@@ -40,11 +40,9 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	public function execute($subpage) {
 		$this->checkPermissions();
 
-		$this->templateWikiPointsAdmin = new TemplateWikiPointsAdmin;
+		$this->output->addModules(['ext.cheevos.wikiPoints', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button']);
 
 		$this->setHeaders();
-
-		$this->output->addModules('ext.cheevos.wikiPoints');
 
 		switch ($this->wgRequest->getVal('action')) {
 			default:
@@ -59,9 +57,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 				break;
 			case 'revoke':
 				$this->revokePoints();
-				break;
-			case 'retotal':
-				$this->retotalPoints();
 				break;
 		}
 
@@ -124,7 +119,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
 		}
 
-		$this->content = $this->templateWikiPointsAdmin->lookup($user, $points, $form);
+		$this->content = TemplateWikiPointsAdmin::lookup($user, $points, $form);
 	}
 
 	/**
@@ -165,7 +160,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		while ($row = $result->fetchRow()) {
 			$pointsData[] = $row;
 		}
-		$this->content = $this->templateWikiPointsAdmin->recentTable($pointsData);
+		$this->content = TemplateWikiPointsAdmin::recentTable($pointsData);
 	}
 
 	/**

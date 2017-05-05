@@ -14,36 +14,32 @@
 
 class TemplateWikiPointsAdmin {
 	/**
-	 * Output HTML
-	 *
-	 * @var		string
-	 */
-	private $HTML;
-
-	/**
 	 * Initialize form HTML for each page.
 	 *
 	 * @access	public
 	 * @param	array	[Optional] Form data for resubmission.
 	 * @return	string	Built HTML
 	 */
-	private function initHtml($form = []) {
+	static private function initHtml($form = []) {
 		$username = htmlspecialchars($form['username']);
 		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
 		$wikiPointsPage = Title::newFromText('Special:WikiPoints');
 
+		$html = '';
 		if (!empty($form['error'])) {
-			$this->HTML .= "<div class='errorbox'>{$form['error']}</div>";
+			$html .= "<div class='errorbox'>{$form['error']}</div>";
 		}
-		$this->HTML .= "
-		<form id='wikipoints_lookup_form' class='wikipoints' method='get' action='".$wikiPointsAdminPage->getFullURL()."'>
-			<fieldset>
-				<legend>".wfMessage('user_lookup')->escaped()."</legend>
-				<input type='hidden' name='action' value='lookup'/>
-				<input type='text' name='user_name' placeholder='".wfMessage('username')->escaped()."' value='{$username}'/>
-				<input type='submit' value='".wfMessage('lookup')->escaped()."'/>
-				<div class='right'><a href='".$wikiPointsPage->getFullURL()."'>".wfMessage('view_public_points_list')->escaped()."</a> | <a href='".$wikiPointsAdminPage->getFullURL()."?action=recent'>".wfMessage('all_recently_earned')->escaped()."</a></div>
-			</fieldset>
+		return $html .= "
+		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='".$wikiPointsAdminPage->getFullURL()."'>
+			<legend>".wfMessage('user_lookup')->escaped()."</legend>
+			<input type='hidden' name='action' value='lookup'/>
+			<div class='mw-ui-vform-field'>
+				<input type='text' name='user_name' placeholder='".wfMessage('wpa_user')->escaped()."' value='{$username}' class='oo-ui-inputWidget-input'/>
+			</div>
+			<div class='mw-ui-vform-field'>
+				<input class='submit mw-ui-button mw-ui-constructive' type='submit' value='".wfMessage('lookup')->escaped()."'/>
+			</div>
+			<div class='right'><a href='".$wikiPointsPage->getFullURL()."'>".wfMessage('view_public_points_list')->escaped()."</a> | <a href='".$wikiPointsAdminPage->getFullURL()."?action=recent'>".wfMessage('all_recently_earned')->escaped()."</a></div>
 		</form>";
 	}
 
@@ -55,17 +51,17 @@ class TemplateWikiPointsAdmin {
 	 * @return	string	Built HTML
 	 */
 	public function recentTable($userPoints) {
-		$this->initHtml();
+		$html = self::initHtml();
 
 		$thisPage	= Title::newFromText('Special:WikiPointsAdmin');
 
-		$this->HTML .= "
+		$html .= "
 		<h2>".wfMessage('recently_earned_points')->escaped()."</h2>
 		<table class='wikitable wikipoints'>
 			<thead><tr><td class='emptycell' colspan='2'></td><th colspan='4'>".wfMessage('calculation_weights')->escaped()."</th><th colspan='3'>".wfMessage('calculation_inputs')->escaped()."</th></tr>
 				<tr>
-					<th>".wfMessage('article_method_earned')->escaped()."</th>
-					<th>".wfMessage('curse_username')->escaped()."</th>
+					<th>".wfMessage('wpa_reason')->escaped()."</th>
+					<th>".wfMessage('wpa_user')->escaped()."</th>
 					<th title='".wfMessage('multiplier')->escaped()."'>".wfMessage('m')->escaped()."</th>
 					<th title='".wfMessage('pages_edited')->escaped()."'>".wfMessage('wx')->escaped()."</th>
 					<th title='".wfMessage('unique_edit')->escaped()."'>".wfMessage('wy')->escaped()."</th>
@@ -80,10 +76,10 @@ class TemplateWikiPointsAdmin {
 		foreach ($userPoints as $userPointsRow) {
 			$userLink = '<a href="'.$thisPage->getFullURL().'?action=lookup&user_name='.urlencode($userPointsRow['user_name']).'">'.htmlentities($userPointsRow['user_name'], ENT_QUOTES).'</a>';
 
-			if ($userPointsRow['reason'] == EditPoints::WIKI_EDIT_EARNED) {
+			if ($userPointsRow['reason'] == 1/*EditPoints::WIKI_EDIT_EARNED*/) {
 				$calcData = json_decode(stripslashes($userPointsRow['calculation_info']));
 				$calculationCells = "
-					<td class='numeric'>".$calcData->weights->a / WikiPoints::BASE_MULTIPLIER."</td>
+					<td class='numeric'>".$calcData->weights->a / 4/*WikiPoints::BASE_MULTIPLIER*/."</td>
 					<td class='numeric'>{$calcData->weights->Wx}</td>
 					<td class='numeric'>{$calcData->weights->Wy}</td>
 					<td class='numeric'>{$calcData->weights->Wz}</td>
@@ -99,9 +95,9 @@ class TemplateWikiPointsAdmin {
 			} else {
 				$calculationCells = "<td colspan='7' class='numeric'>".wfMessage('na')->escaped()."</td>";
 
-				$articleOrReason = wfMessage(EditPoints::$reasonMessage[$userPointsRow['reason']])->escaped();
+				//$articleOrReason = wfMessage(EditPoints::$reasonMessage[$userPointsRow['reason']])->escaped();
 			}
-			$this->HTML .= "
+			$html .= "
 				<tr>
 					<td>$articleOrReason</td>
 					<td>$userLink</td>
@@ -109,10 +105,10 @@ class TemplateWikiPointsAdmin {
 					<td class='numeric'>{$userPointsRow['score']}</td>
 				</tr>";
 		}
-		$this->HTML .= "
+		$html .= "
 			</tbody>
 		</table>";
-		return $this->HTML;
+		return $html;
 	}
 
 	/**
@@ -127,7 +123,8 @@ class TemplateWikiPointsAdmin {
 	public function lookup($user, $points = [], $form = []) {
 		global $wgRequest;
 
-		$this->initHtml($form);
+		$html = self::initHtml($form);
+
 		$lookup = \CentralIdLookup::factory();
 		$globalId = $lookup->centralIdFromLocalUser($user);
 		if ($globalId) {
@@ -136,32 +133,15 @@ class TemplateWikiPointsAdmin {
 			$pointsAdjusted        = wfMessage('wikipointsaddsubtractsuccess')->escaped();
 
 			if ($wgRequest->getVal('pointsAdjusted')) {
-				$this->HTML .= "
+				$html .= "
 				<div><div class='successbox'>$pointsAdjusted</div></div>";
-			}
-			if (array_key_exists('pointsRetotaled', $_GET)) {
-				if ($wgRequest->getVal('pointsRetotaled')) {
-					$this->HTML .= "
-					<div class='successbox'>".wfMessage('user_points_retotaled', $wgRequest->getVal('user_name'))->escaped()."</div>";
-				} else {
-					$this->HTML .= "
-					<div class='errorbox'>".wfMessage('user_points_retotaled_error')->escaped()."</div>";
-				}
 			}
 
 			$wpaPage = Title::newFromText('Special:WikiPointsAdmin');
 			$escapedUserName = htmlspecialchars($user->getName(), ENT_QUOTES);
-			$this->HTML .= "
+			$html .= "
 			<div id='wpa_user_controls'>
 				<h2>{$escapedUserName}</h2>
-				<form method='post' action='".$wpaPage->getFullURL()."'>
-					<fieldset>
-						<input type='hidden' name='action' value='retotal'>
-						<input type='hidden' name='user_id' value='{$user->getId()}'>
-						<input type='hidden' name='user_name' value='{$escapedUserName}'>
-						<button id='retotalButton' type='submit'>".wfMessage('retotal_user')->escaped()."</button>
-					</fieldset>
-				</form>
 				<form method='post' action='".$wpaPage->getFullURL()."'>
 					<fieldset>
 						<input type='hidden' name='action' value='adjust'>
@@ -197,7 +177,7 @@ class TemplateWikiPointsAdmin {
 						</thead>
 						<tbody>";
 			foreach ($points as $pointRow) {
-				$this->HTML .= "
+				$html .= "
 							<tr>";
 
 				if ($pointRow['reason'] == EditPoints::WIKI_EDIT_EARNED) {
@@ -208,7 +188,7 @@ class TemplateWikiPointsAdmin {
 					} else {
 						$link = '<span title="'.".wfMessage('deleted_article')->escaped().".'">'.wfMessage('article_id_number')->escaped().$userPointsRow['article_id'].'</span>';
 					}
-					$this->HTML .= "
+					$html .= "
 								<td>$link</td>
 								<td>{$pointRow['created']}</td>
 								<td class='numeric'>".$calcData->weights->a / WikiPoints::BASE_MULTIPLIER."</td>
@@ -220,26 +200,26 @@ class TemplateWikiPointsAdmin {
 								<td class='numeric'>{$calcData->inputs->z}</td>";
 				} else {
 					$reason = wfMessage(EditPoints::$reasonMessage[$pointRow['reason']])->escaped();
-					$this->HTML .= "
+					$html .= "
 								<td>$reason</td>
 								<td>{$pointRow['created']}</td>
 								<td colspan='7' class='numeric'>".wfMessage('na')->escaped()."</td>";
 				}
 
-				$this->HTML .= "
+				$html .= "
 								<td class='numeric'>{$pointRow['score']}</td>
 								<td>
 									<input type='hidden' name='revoke_list[{$pointRow['wiki_points_id']}]' value='0'>
 									<input type='checkbox' name='revoke_list[{$pointRow['wiki_points_id']}]' value='1' title='".wfMessage('revoke_points_for')->escaped()."' ".($pointRow['revoked'] ? 'checked' : '')."></td>
 							</tr>";
 			}
-			$this->HTML .= "
+			$html .= "
 						</tbody>
 					</table>
 				</fieldset>
 			</form>";
 		}
 
-		return $this->HTML;
+		return $html;
 	}
 }

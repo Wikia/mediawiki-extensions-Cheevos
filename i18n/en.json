@@ -168,7 +168,6 @@
 	"all_recently_earned": "All Recently Earned Points",
 	"recently_earned_points": "Recently earned points",
 	"article_method_earned": "Article (or method earned)",
-	"curse_username": "Curse Username",
 	"timestamp": "Timestamp",
 	"rev": "Rev",
 	"user_not_found": "A user by that name was not found.",
@@ -238,5 +237,7 @@
 	"automatic_comp_email_subject": "Thanks for being an active editor on Gamepedia!",
 	"automatic_comp_email_body": "Dear $1,<br/>\n<br/>\nThanks for being an active editor on Gamepedia!  We rely on the contributions from community members like yourself to continue growing as the best source of gaming information in the world.<br/>\n<br/>\nWe want to ensure that our best users have the best experience, so we’re providing you with a free subscription to GamepediaPRO.  PRO is our premium service that will allow you to have a first-rate experience on our wikis including the removal of ads, HTTPS connections, and a special flair to show how awesome you are on your profile and other pages where your username is listed.<br/>\n<br/>\nYour free subscription will expire 3 months from today, overwriting any previous free subscription you may have had if it ended prior to that date.  However, if you continue to be active, your free subscription will continue to be renewed each month!<br/>\n<br/>\nIf you have any questions about our Gamepedia editor appreciation PROgram, please feel free to contact us at <a href=\"mailto:community@gamepedia.com\">community@gamepedia.com</a> or reach out to us on <a href=\"http://twitter.com/CurseGamepedia\">Twitter</a> or <a href=\"http://facebook.com/CurseGamepedia\">Facebook</a>!<br/>\n<br/>\nThanks,<br/>\nThe Gamepedia Team",
 	"automatic_comp_email_body_text": "Dear $1,\n\nThanks for being an active editor on Gamepedia!  We rely on the contributions from community members like yourself to continue growing as the best source of gaming information in the world.\n\nWe want to ensure that our best users have the best experience, so we’re providing you with a free subscription to GamepediaPRO.  PRO is our premium service that will allow you to have a first-rate experience on our wikis including the removal of ads, HTTPS connections, and a special flair to show how awesome you are on your profile and other pages where your username is listed.\n\nYour free subscription will expire 3 months from today, overwriting any previous free subscription you may have had if it ended prior to that date.  However, if you continue to be active, your free subscription will continue to be renewed each month!\n\nIf you have any questions about our Gamepedia editor appreciation PROgram, please feel free to contact us at community@gamepedia.com or reach out to us on Twitter or Facebook!\n\nThanks,\nThe Gamepedia Team",
-	"note_about_wikipoints_and_negatives": "Note: It is not possible to manually award negative points. To remove points, check the box in the \"Rev\" column next to the points you wish to revoke and press \"Save revocation\""
+	"note_about_wikipoints_and_negatives": "Note: It is not possible to manually award negative points. To remove points, check the box in the \"Rev\" column next to the points you wish to revoke and press \"Save revocation\"",
+	"wpa_reason": "Reason",
+	"wpa_user": "User"
 }
