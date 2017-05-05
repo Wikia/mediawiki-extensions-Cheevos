@@ -448,7 +448,7 @@ class CheevosHooks {
 	 * @return	boolean	True
 	 */
 	static public function onApiBeforeMain(&$processor) {
-		if ('MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
+		if ('MW_NO_SESSION' === 1 || 'MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered) {
 			return true;
 		}
 
