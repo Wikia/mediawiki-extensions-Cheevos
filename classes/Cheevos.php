@@ -765,7 +765,7 @@ class Cheevos {
 	 * @param 	string	MD5 Hash Site Key
 	 * @return	mixed	Ouput of self::return.
 	 */
-	public static function getPointsPromotions($siteKey = null) {
+	static public function getPointsPromotions($siteKey = null) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ( $siteKey ? $siteKey : 'all' );
@@ -805,7 +805,7 @@ class Cheevos {
 	 * @param 	integer	SiteEditPointsPromotion ID
 	 * @return	mixed	Ouput of self::return.
 	 */
-	public static function getPointsPromotion($id) {
+	static public function getPointsPromotion($id) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
@@ -839,7 +839,7 @@ class Cheevos {
 	 * @param	integer	Global ID
 	 * @return	mixed	Array
 	 */
-	public static function deletePointsPromotion($id) {
+	static public function deletePointsPromotion($id) {
 		$return = self::delete(
 			"points/promotions/{$id}"
 		);
@@ -872,7 +872,7 @@ class Cheevos {
 	 * @param	array	$body
 	 * @return	void
 	 */
-	public static function updatePointsPromotion($id, $body) {
+	static public function updatePointsPromotion($id, $body) {
 		return self::putPointsPromotion($body, $id);
 	}
 
@@ -882,7 +882,29 @@ class Cheevos {
 	 * @param array $body
 	 * @return void
 	 */
-	public static function createPointsPromotion($body) {
+	static public function createPointsPromotion($body) {
 		return self::putPointsPromotion($body);
+	}
+
+	/**
+	 * Revokes edit points for the provided revision IDs related to the page ID.
+	 *
+	 * @access	public
+	 * @param	integer	Page ID
+	 * @param	array	Revision IDs
+	 * @param	string	Site Key
+	 * @return	mixed	Array
+	 */
+	static public function revokeEditPoints($pageId, $revisionIds, $siteKey) {
+		$revisionIds = array_map('intval', $revisionIds);
+		$return = self::post(
+			"points/revoke_revisions",
+			[
+				'page_id'		=> intval($pageId),
+				'revision_ids'	=> $revisionIds,
+				'site_key'		=> $siteKey
+			]
+		);
+		return self::return($return);
 	}
 }

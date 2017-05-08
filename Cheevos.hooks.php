@@ -198,6 +198,11 @@ class CheevosHooks {
 	 * @return	boolean	true
 	 */
 	static public function onArticleRollbackComplete(WikiPage $wikiPage, $user, Revision $revision, Revision $current) {
+		$siteKey = self::getSiteKey();
+		if ($siteKey === false) {
+			return true;
+		}
+
 		$editsToRevoke = [];
 		while ($current && $current->getId() != $revision->getId()) {
 			$editsToRevoke[] = $current->getId();
@@ -207,7 +212,7 @@ class CheevosHooks {
 			'page_id'		=> $wikiPage->getId(),
 			'revision_id'	=> $editsToRevoke
 		];
-		EditPoints::revoke($editsToRevoke);
+		\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
 		return true;
 	}
 
@@ -515,54 +520,6 @@ class CheevosHooks {
 				unset(self::$increments[$globalId]);
 			}
 		}
-	}
-
-	/**
-	 * Handle actions when an achievement is awarded.
-	 *
-	 * @access	public
-	 * @param	object	\Cheevos\CheevosAchievement
-	 * @param	object	Global User ID
-	 * @return	boolean	True
-	 */
-	static public function onAchievementAwarded($achievement, $globalId) {
-		global $dsSiteKey;
-
-		if ($achievement === false || $globalId < 1) {
-			return true;
-		}
-
-		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
-			$points = EditPoints::achievementEarned($globalId, $achievement->getPoints());
-			if ($points->save()) {
-				$points->updatePointTotals();
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Handle actions when an achievement or a mega achievement is unawarded.
-	 *
-	 * @access	public
-	 * @param	object	\Cheevos\CheevosAchievement
-	 * @param	object	Global User ID
-	 * @return	boolean	True
-	 */
-	static public function onAchievementUnawarded($achievement, $globalId) {
-		if ($achievement === false || $globalId < 1) {
-			return true;
-		}
-
-		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
-			$points = EditPoints::achievementRevoked($globalId, ($achievement->getPoints() * -1));
-			if ($points->save()) {
-				$points->updatePointTotals();
-			}
-		}
-
-		return true;
 	}
 
 	/**
