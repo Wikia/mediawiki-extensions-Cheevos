@@ -93,6 +93,7 @@ class TemplateWikiPointsAdmin {
 				$html .= "
 						<tr>";
 
+				$link = wfMessage('manual_adjustment');
 				if ($pointRow->getPage_Id()) {
 					$title = Title::newFromID($pointRow->getPage_Id());
 					if ($title) {
