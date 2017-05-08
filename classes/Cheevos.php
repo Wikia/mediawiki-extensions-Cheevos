@@ -1,6 +1,6 @@
 <?php
 /**
- * Achievements
+ * Cheevos
  * Cheevos Class
  *
  * @author		Cameron Chunn
@@ -172,7 +172,7 @@ class Cheevos {
 		if (!is_array($body)) {
 			$body = json_decode($body, 1);
 			if (is_null($body)) {
-				return false; // cant decode, no valid achievement_category passed.
+				return false;
 			} else {
 				return $body;
 			}
@@ -241,7 +241,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Get all achievement by database ID with caching.
+	 * Get achievement by database ID with caching.
 	 *
 	 * @access	public
 	 * @param 	integer	Achievement ID
@@ -756,5 +756,133 @@ class Cheevos {
 	 */
 	public static function createProgress($body) {
 		return self::putProgress($body);
+	}
+
+	/**
+	 * Get all points promotions with caching.
+	 *
+	 * @access	public
+	 * @param 	string	MD5 Hash Site Key
+	 * @return	mixed	Ouput of self::return.
+	 */
+	public static function getPointsPromotions($siteKey = null) {
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ( $siteKey ? $siteKey : 'all' );
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		$return = unserialize($cache, [false]);
+		if (!$cache || !$return) {
+			$return = self::get(
+				'points/promotions/all',
+				[
+					'site_key' => $siteKey,
+					'limit'	=> 0
+				]
+			);
+
+			try {
+				if (isset($return['promotions'])) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		return self::return($return, 'promotions', '\Cheevos\CheevosSiteEditPointsPromotion');
+	}
+
+	/**
+	 * Get points promotion by database ID with caching.
+	 *
+	 * @access	public
+	 * @param 	integer	SiteEditPointsPromotion ID
+	 * @return	mixed	Ouput of self::return.
+	 */
+	public static function getPointsPromotion($id) {
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache || !unserialize($cache)) {
+			$return = self::get("points/promotions/{$id}");
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
+
+		$return = [ $return ]; //The return function expects an array of results.
+		return self::return($return, 'promotions', '\Cheevos\CheevosSiteEditPointsPromotion', true);
+	}
+
+	/**
+	 * Soft delete an points promotion from the service.
+	 *
+	 * @access	public
+	 * @param	integer	SiteEditPointsPromotion ID
+	 * @param	integer	Global ID
+	 * @return	mixed	Array
+	 */
+	public static function deletePointsPromotion($id) {
+		$return = self::delete(
+			"points/promotions/{$id}"
+		);
+		return self::return($return);
+	}
+
+	/**
+	 * PUT PointsPromotion into Cheevos
+	 *
+	 * @param array $body
+	 * @param int $id
+	 * @return void
+	 */
+	private static function putPointsPromotion($body, $id = null) {
+		$body = self::validateBody($body);
+		if (!$body) {
+			return false;
+		}
+
+		$path = ($id) ? "points/promotions/{$id}" : "points/promotions";
+		$return = self::put($path, $body);
+		return self::return($return);
+	}
+
+	/**
+	 * Update an existing points promotion on the service.
+	 *
+	 * @access	public
+	 * @param	integer	SiteEditPointsPromotion ID
+	 * @param	array	$body
+	 * @return	void
+	 */
+	public static function updatePointsPromotion($id, $body) {
+		return self::putPointsPromotion($body, $id);
+	}
+
+	/**
+	 * Create PointsPromotion
+	 *
+	 * @param array $body
+	 * @return void
+	 */
+	public static function createPointsPromotion($body) {
+		return self::putPointsPromotion($body);
 	}
 }

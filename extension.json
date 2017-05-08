@@ -81,6 +81,7 @@
 		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
 		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
 		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
+		"Cheevos\\CheevosSiteEditPointsPromotion": "classes/CheevosSiteEditPointsPromotion.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
