@@ -110,10 +110,7 @@ class TemplateWikiPointsAdmin {
 					if ($title) {
 						$arguments = [];
 						if ($pointRow->getRevision_Id()) {
-							$revision = Revision::newFromId($pointRow->getRevision_Id());
-							if ($revision !== null) {
-								$arguments['oldid'] = $revision->getTextId();
-							}
+							$arguments['oldid'] = $pointRow->getRevision_Id();
 						}
 						$link = '<a href="'.$title->getInternalURL($arguments).'">'.$title->getText().'</a>';
 					} else {
