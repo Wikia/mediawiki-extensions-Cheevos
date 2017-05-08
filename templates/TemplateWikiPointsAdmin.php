@@ -66,14 +66,12 @@ class TemplateWikiPointsAdmin {
 		$escapedUserName = ($user ? htmlspecialchars($user->getName(), ENT_QUOTES) : '');
 		$html .= "
 		<div id='wpa_user_controls'>
-			<h2>{$escapedUserName}</h2>
 			<form method='post' action='".$wpaPage->getFullURL()."'>
 				<fieldset>
 					<input type='hidden' name='action' value='adjust'>
 					<input type='hidden' name='user_name' value='{$escapedUserName}'>
 					<input type='number' name='amount' placeholder='{$addSubtractTooltip}' id='addSubtractField'> <input type='submit' value='{$addSubtractButtonText}'>
 				</fieldset>
-				<small>".wfMessage('note_about_wikipoints_and_negatives')->escaped()."</small>
 			</form>
 		</div>";
 		if ($user !== null) {

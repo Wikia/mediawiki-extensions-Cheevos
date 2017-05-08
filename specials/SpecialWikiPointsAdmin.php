@@ -52,9 +52,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			case 'adjust':
 				$this->adjustPoints();
 				break;
-			case 'revoke':
-				$this->revokePoints();
-				break;
 		}
 
 		$this->output->addHTML($this->content);
@@ -77,10 +74,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$form['username'] = $this->wgRequest->getVal('user_name');
 
 		if (!empty($form['username'])) {
-			$form['username'] = User::getCanonicalName($form['username'], 'valid');
-			if ($form['username'] !== false) {
-				$user = User::newFromName($form['username']);
-			}
+			$user = User::newFromName($form['username']);
 
 			if ($user->getId()) {
 				$lookup = \CentralIdLookup::factory();
@@ -113,46 +107,21 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	private function adjustPoints() {
-		$amount = $this->wgRequest->getInt('amount');
-		$user_id = $this->wgRequest->getInt('user_id');
-		if ($amount && $user_id) {
-			$credit = EditPoints::arbitraryCredit($user_id, $amount);
-			$credit->save();
-			$credit->updatePointTotals();
-		}
-
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
 		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL()."/Special:WikiPointsAdmin?action=lookup&pointsAdjusted=1&user_name={$userEscaped}");
-	}
+		$userName = $this->wgRequest->getVal('user_name');
+		if ($this->wgRequest->wasPosted()) {
+			$amount = $this->wgRequest->getInt('amount');
+			$user = User::newFromName($userName);
 
-	/**
-	 * Revoke points for selected edits.
-	 *
-	 * @access	private
-	 * @return	void	[Outputs to screen]
-	 */
-	private function revokePoints() {
-		$revokeList = [];
-		$unrevokeList = [];
-		$edit_ids = $this->wgRequest->getArray('revoke_list');
-		foreach ($edit_ids as $id => $revoke) {
-			if ($revoke) {
-				$revokeList[] = intval($id);
-			} else {
-				$unrevokeList[] = intval($id);
+			if ($amount && $user->getId()) {
+				CheevosHooks::increment('wiki_points', intval($amount), $user);
 			}
-		}
-		if (count($revokeList)) {
-			EditPoints::revoke($revokeList);
-		}
-		if (count($unrevokeList)) {
-			EditPoints::unrevoke($unrevokeList);
-		}
 
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
-		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL()."?action=lookup&user_name={$userEscaped}");
+			$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
+			$this->output->redirect($page->getFullURL(['action' => 'lookup', 'user_name' => $userName, 'pointsAdjusted' => 1]));
+		} else {
+			$this->output->redirect($page->getFullURL(['action' => 'lookup', 'user_name' => $userName]));
+		}
 	}
 
 	/**
