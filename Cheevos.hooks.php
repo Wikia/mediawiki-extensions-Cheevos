@@ -208,10 +208,6 @@ class CheevosHooks {
 			$editsToRevoke[] = $current->getId();
 			$current = $current->getPrevious();
 		}
-		$edits[] = [
-			'page_id'		=> $wikiPage->getId(),
-			'revision_id'	=> $editsToRevoke
-		];
 		\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
 		return true;
 	}
