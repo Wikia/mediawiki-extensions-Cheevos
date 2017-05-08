@@ -69,41 +69,40 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	private function lookUpUser() {
 		global $dsSiteKey;
 
-		$user = new User;
+		$user = null;
+		$pointsLog = [];
 		$form = [];
 		$globalId = false;
 
 		$form['username'] = $this->wgRequest->getVal('user_name');
-		$form['user_id'] = $this->wgRequest->getInt('user_id');
 
 		if (!empty($form['username'])) {
 			$form['username'] = User::getCanonicalName($form['username'], 'valid');
 			if ($form['username'] !== false) {
 				$user = User::newFromName($form['username']);
 			}
-		} elseif ($form['user_id'] > 0) {
-			$user = User::newFromId($form['user_id']);
-		}
 
-		if ($user->getId()) {
-			$lookup = \CentralIdLookup::factory();
-			$globalId = $lookup->centralIdFromLocalUser($user);
-		}
-
-		$pointsLog = [];
-		if ($globalId > 0) {
-			try {
-				$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
-			} catch (\Cheevos\CheevosException $e) {
-				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+			if ($user->getId()) {
+				$lookup = \CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($user);
 			}
-			if (empty($form['username'])) {
-				$form['username'] = $user->getName();
+
+			$pointsLog = [];
+			if ($globalId > 0) {
+				try {
+					$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
+				} catch (\Cheevos\CheevosException $e) {
+					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+				}
+				if (empty($form['username'])) {
+					$form['username'] = $user->getName();
+				}
+			} elseif ($globalId === false) {
+				$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
 			}
-		} elseif ($globalId === false) {
-			$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
 		}
 
+		$this->output->setPageTitle(($user ? wfMessage('wiki_points_admin_lookup', $user->getName()) : wfMessage('wikipointsadmin')));
 		$this->content = TemplateWikiPointsAdmin::lookup($user, $pointsLog, $form);
 	}
 
@@ -154,26 +153,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
 		$page = Title::newFromText('Special:WikiPointsAdmin');
 		$this->output->redirect($page->getFullURL()."?action=lookup&user_name={$userEscaped}");
-	}
-
-	/**
-	 * Retotal points this wiki.
-	 *
-	 * @access	private
-	 * @return	void
-	 */
-	private function retotalPoints() {
-		$status = false;
-		if ($this->wgRequest->wasPosted()) {
-			$userId = $this->wgRequest->getInt('user_id');
-			if ($userId) {
-				$status = EditPoints::retotalUser($userId);
-			}
-		}
-
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
-		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL("action=lookup&pointsRetotaled=".intval($status)."&user_name={$userEscaped}"));
 	}
 
 	/**
