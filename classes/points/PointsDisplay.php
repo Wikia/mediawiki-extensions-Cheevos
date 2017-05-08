@@ -277,8 +277,8 @@ class PointsDisplay {
 
 		$monthsAgo = intval($monthsAgo);
 		if ($monthsAgo > 0) {
-			$filters['start_time'] = strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00');
-			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00');
+			$filters['start_time'] = strtotime(date('Y-m-d', strtotime($monthsAgo.' month ago')).'T00:00:00+00:00');
+			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('yesterday')).'T23:59:59+00:00');
 		}
 
 		$statProgress = [];
@@ -295,30 +295,5 @@ class PointsDisplay {
 		}
 
 		return 0;
-	}
-
-	/**
-	 * Returns the number of points and rank of any given user on any specific wiki (global by default).
-	 * Use WikiPoints::extractDomain($wgServer) to look up points for the local wiki.
-	 *
-	 * @param	integer	Global User ID for a user
-	 * @param	string	[Optional] String indicating a wiki that should be looked up.
-	 * @return	array	Keys for "score" and "rank"
-	 */
-	public static function ppointsForGlobalId($globalId, $wiki = 'all') {
-		$result = [
-			'score' => '0',
-			'rank' => ''
-		];
-
-		//@TODO: Tuesday morning - Combine all of this into one function to get wiki points for a global ID.
-		self::getWikiPointsForRange($globalId);
-
-		if ($redis !== false) {
-			$result['score'] = $redis->zScore($redisKey, $globalId);
-			$result['rank'] = 1 + $redis->zRevRank($redisKey, $globalId);
-		}
-
-		return $result;
 	}
 }
