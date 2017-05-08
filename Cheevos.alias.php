@@ -17,7 +17,11 @@ $specialPageAliases = [];
  * English
  */
 $specialPageAliases['en'] = [
-	'Achievements'		=> ['Achievements'],
-	'AwardAchievement'	=> ['AwardAchievement'],
-	'MegaAchievements'	=> ['MegaAchievements']
+	'Achievements'			=> ['Achievements'],
+	'AwardAchievement'		=> ['AwardAchievement'],
+	'MegaAchievements'		=> ['MegaAchievements'],
+	'WikiPoints'			=> ['WikiPoints'],
+	'WikiPointsAdmin'		=> ['WikiPointsAdmin'],
+	'WikiPointsLevels'		=> ['WikiPointsLevels'],
+	'WikiPointsMultipliers'	=> ['WikiPointsMultipliers']
 ];

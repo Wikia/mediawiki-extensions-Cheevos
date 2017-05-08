@@ -76,12 +76,12 @@ class TemplateWikiPoints {
 	static public function getWikiPointsLinks() {
 		$links = [
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/global'), wfMessage('top_wiki_editors_global')->escaped())
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'global'), wfMessage('top_wiki_editors_global')->escaped())
 		];
 		if (defined('MASTER_WIKI')) {
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites'), wfMessage('top_wiki_editors_sites')->escaped());
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
+			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites'), wfMessage('top_wiki_editors_sites')->escaped());
+			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
 		}
 
 		return implode(' | ', $links)."<hr>";
