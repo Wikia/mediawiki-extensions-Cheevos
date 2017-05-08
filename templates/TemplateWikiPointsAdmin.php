@@ -106,18 +106,32 @@ class TemplateWikiPointsAdmin {
 
 				if ($pointRow->getPage_Id()) {
 					$title = Title::newFromID($pointRow->getPage_Id());
+					//@TODO: On Monday - Add oldid to URL link.
 					if ($title) {
-						$link = '<a href="'.$title->getInternalURL().'">'.$title->getText().'</a>';
+						$arguments = [];
+						if ($pointRow->getRevision_Id()) {
+							$revision = Revision::newFromId($pointRow->getRevision_Id());
+							if ($revision !== null) {
+								$arguments['oldid'] = $revision->getTextId();
+							}
+						}
+						$link = '<a href="'.$title->getInternalURL($arguments).'">'.$title->getText().'</a>';
 					} else {
 						$link = '<span title="'.wfMessage('deleted_article')->escaped().'">'.wfMessage('article_id_number')->escaped().$pointRow->getPage_Id().'</span>';
 					}
 				}
 				if ($pointRow->getAchievement_Id()) {
-					$link = '<span>'.wfMessage('achievement_id')->escaped().$pointRow->getAchievement_Id().'</span>';
+					$title = SpecialPage::getTitleFor('Achievements');
+					try {
+						$achievement = \Cheevos\Cheevos::getAchievement($pointRow->getAchievement_Id());
+						$link = '<a href="'.$title->getInternalURL().'#category='.$achievement->getCategory()->getSlug().'&achievement='.$pointRow->getAchievement_Id().'">'.htmlentities($achievement->getName()).'</a>';
+					} catch (\Cheevos\CheevosException $e) {
+						$link = '<a href="'.$title->getInternalURL().'#achievement='.$pointRow->getAchievement_Id().'">'.wfMessage('achievement_id', $pointRow->getAchievement_Id())->escaped().'</a>';
+					}
 				}
 				$html .= "
 								<td>{$link}</td>
-								<td>{$pointRow->getTimestamp()}</td>
+								<td>".date('Y-m-d H:i:s', $pointRow->getTimestamp())."</td>
 								<td class='numeric'>".($pointRow->getPage_Id() ? $pointRow->getSize() : wfMessage("n-a")->escaped())."</td>
 								<td class='numeric'>".($pointRow->getPage_Id() ? $pointRow->getSize_Diff() : wfMessage("n-a")->escaped())."</td>
 								<td class='numeric'>{$pointRow->getPoints()}</td>

@@ -242,5 +242,6 @@
 	"wpa_date": "Date",
 	"cheevos_api_error_title": "Cheevos API Error",
 	"cheevos_api_error": "Encountered Cheevos API error: $1",
-	"n-a": "N/A"
+	"n-a": "N/A",
+	"achievement_id": "Achievement #$1"
 }
