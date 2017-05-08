@@ -52,7 +52,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$db = wfGetDB(DB_MASTER);
 
 		$where = [
-			'reason' => 1
+			'reason'	=> 1,
+			'revoked'	=> 0
 		];
 
 		$result = $db->select(
