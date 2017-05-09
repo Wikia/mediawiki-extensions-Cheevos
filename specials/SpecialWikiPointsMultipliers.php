@@ -41,7 +41,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 		$this->checkPermissions();
 
 		$this->redis = RedisCache::getClient('cache');
-		$this->templateWikiPointsMultipliers = new TemplateWikiPointsMultipliers;
 
 		$this->output->addModules(['ext.cheevos.wikiPoints', 'ext.wikiSelect', 'ext.dynamicSettings']);
 
@@ -70,10 +69,14 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function pointsMultipliersList() {
-		$multipliers = PointsMultiplier::loadAll();
+		try {
+			$promotions = \Cheevos\Cheevos::getPointsPromotions(null, true);
+		} catch (\Cheevos\CheevosException $e) {
+			return false;
+		}
 
 		$this->output->setPageTitle(wfMessage('wikipointsmultipliers'));
-		$this->content = $this->templateWikiPointsMultipliers->pointsMultipliersList($multipliers);
+		$this->content = TemplateWikiPointsMultipliers::pointsMultipliersList($promotions);
 	}
 
 	/**
@@ -83,43 +86,32 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function pointsMultipliersForm() {
+		$this->multiplier = new \Cheevos\CheevosSiteEditPointsPromotion;
 		if ($this->wgRequest->getInt('multiplier_id')) {
 			$multiplierId = $this->wgRequest->getInt('multiplier_id');
 
 			// Time to grab all the promos and wiki sites so we can use them through out all the form stuff
-			$this->multiplier = PointsMultiplier::loadFromId($multiplierId);
+			$this->multiplier = \Cheevos\Points\PointsMultiplier::loadFromId($multiplierId);
+			try {
+				$this->multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
+			} catch (\Cheevos\CheevosException $e) {
+				wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
+			}
 
 			if (!$this->multiplier) {
 				$this->output->showErrorPage('multipliers_error', 'error_no_promo');
 				return;
 			}
-		} else {
-			$this->multiplier = PointsMultiplier::loadFromNew();
 		}
 
 		$errors = $this->pointsMultipliersSave();
 
-		$_wikis = $this->multiplier->getWikis();
-		if (is_array($_wikis) && count($_wikis)) {
-			foreach ($_wikis as $data) {
-				$key = null;
-				if ($data['override'] == 1) {
-					$key = 'added';
-				}
-				if ($data['override'] == -1) {
-					$key = 'removed';
-				}
-
-				$wikis[$key][] = $data['site_key'];
-			}
-		}
-
-		if ($this->multiplier->getDatabaseId()) {
+		if ($this->multiplier->getId()) {
 			$this->output->setPageTitle(wfMessage('edit_multiplier'));
 		} else {
 			$this->output->setPageTitle(wfMessage('add_multiplier'));
 		}
-		$this->content = $this->templateWikiPointsMultipliers->pointsMultipliersForm($this->multiplier, $wikis, $errors);
+		$this->content = TemplateWikiPointsMultipliers::pointsMultipliersForm($this->multiplier, $errors);
 	}
 
 	/**
@@ -129,10 +121,12 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function pointsMultipliersSave() {
-		if ($this->wgRequest->getVal('do') == 'save') {
-			if (!$this->multiplier->setMultiplier($this->wgRequest->getText('multiplier'))) {
-				$errors['multiplier'] = wfMessage('error_invalid_multiplier_name');
+		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
+			$_multiplier = floatval($this->wgRequest->getText('multiplier'));
+			if ($_multiplier < 0.1 || $_multiplier > 100) {
+				$errors['multiplier'] = wfMessage('error_invalid_multiplier_multiplier');
 			}
+			$this->multiplier->setMultiplier($_multiplier);
 
 			$this->multiplier->setBegins($this->wgRequest->getInt('begins'));
 
@@ -141,28 +135,21 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 				$errors['expires'] = wfMessage('error_invalid_multiplier_expires');
 			}
 
-			$this->multiplier->setEnabledEverywhere($this->wgRequest->getCheck('everywhere'));
-
 			$wikis = $this->wgRequest->getVal('wikis');
 			$wikis = @json_decode($wikis, true);
 
-			$this->multiplier->clearWikis();
-			if (is_array($wikis['added']) && count($wikis['added'])) {
-				foreach ($wikis['added'] as $siteKey) {
-					$this->multiplier->addWiki($siteKey, 1);
-				}
-			}
-			if (is_array($wikis['removed']) && count($wikis['removed'])) {
-				foreach ($wikis['removed'] as $siteKey) {
-					$this->multiplier->addWiki($siteKey, -1);
-				}
+			if (isset($wikis['single']) && !empty($wikis['single'])) {
+				$this->multiplier->setSite_Key($wikis['single']);
 			}
 
 			if (!count($errors)) {
-				if ($this->multiplier->save()) {
+				try {
+					\Cheevos\Cheevos::putPointsPromotion($this->multiplier, $this->multiplier->getId());
 					$page = Title::newFromText('Special:WikiPointsMultipliers');
 					$this->output->redirect($page->getFullURL());
 					return;
+			    } catch (\Cheevos\CheevosException $e) {
+					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 				}
 			}
 		}
@@ -184,20 +171,20 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 				return;
 			}
 
-			if ($this->wgRequest->getVal('confirm') == 'true') {
+			if ($this->wgRequest->getVal('confirm') == 'true' && $this->wgRequest->wasPosted()) {
 				$this->DB->delete(
 					'wiki_points_multipliers',
-					['mid' => $multiplier->getDatabaseId()],
+					['mid' => $multiplier->getId()],
 					__METHOD__
 				);
 				$this->DB->delete(
 					'wiki_points_multipliers_sites',
-					['multiplier_id' => $multiplier->getDatabaseId()],
+					['multiplier_id' => $multiplier->getId()],
 					__METHOD__
 				);
 				$this->DB->commit();
 
-				$this->redis->hDel('wikipoints:multiplier:everywhere', $multiplier->getDatabaseId());
+				$this->redis->hDel('wikipoints:multiplier:everywhere', $multiplier->getId());
 
 				foreach ($multiplier->getWikis() as $data) {
 					$this->redis->del('wikipoints:multiplier:'.$data['site_key']);
@@ -208,7 +195,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 			}
 
 			$this->output->setPageTitle(wfMessage('delete_multiplier')->escaped());
-			$this->content = $this->templateWikiPointsMultipliers->pointsMultipliersDelete($multiplier);
+			$this->content = TemplateWikiPointsMultipliers::pointsMultipliersDelete($multiplier);
 		}
 	}
 

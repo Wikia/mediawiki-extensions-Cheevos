@@ -215,7 +215,7 @@
 	"delete_multiplier": "Delete Multiplier",
 	"multiplier_enable_all": "Select All",
 	"multiplier_disable_all": "Unselect All",
-	"error_invalid_multiplier_multiplier": "Please enter a multiplier greater than zero as a float.",
+	"error_invalid_multiplier_multiplier": "Please enter a multiplier from 0.1 to 100.0 as a float.",
 	"error_invalid_multiplier_expires": "Expirations must be greater than the current time and beginning time.",
 	"delete_multiplier_confirm": "Are you sure you wish to delete this multiplier?",
 	"pointsicon-tooltip": "Gamepedia Points",

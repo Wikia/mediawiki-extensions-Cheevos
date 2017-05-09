@@ -88,6 +88,7 @@
 		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
 		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
+		"Cheevos\\Points\\PointsMultiplier": "classes/points/PointsMultiplier.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
 		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",

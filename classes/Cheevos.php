@@ -762,24 +762,27 @@ class Cheevos {
 	 * Get all points promotions with caching.
 	 *
 	 * @access	public
-	 * @param 	string	MD5 Hash Site Key
+	 * @param 	string	[Optional] Site Key
+	 * @param 	boolean	[Optional] Skip Cache Look Up.
 	 * @return	mixed	Ouput of self::return.
 	 */
-	static public function getPointsPromotions($siteKey = null) {
+	static public function getPointsPromotions($siteKey = null, $skipCache = false) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ( $siteKey ? $siteKey : 'all' );
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		if (!$skipCache) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+			$return = unserialize($cache, [false]);
 		}
 
-		$return = unserialize($cache, [false]);
 		if (!$cache || !$return) {
 			$return = self::get(
-				'points/promotions/all',
+				'points/promotions',
 				[
 					'site_key' => $siteKey,
 					'limit'	=> 0
@@ -849,17 +852,18 @@ class Cheevos {
 	/**
 	 * PUT PointsPromotion into Cheevos
 	 *
-	 * @param array $body
-	 * @param int $id
-	 * @return void
+	 * @access	public
+	 * @param	array	$body
+	 * @param	integr	$id
+	 * @return	mixed	Output of self::return.
 	 */
-	private static function putPointsPromotion($body, $id = null) {
+	public static function putPointsPromotion($body, $id = null) {
 		$body = self::validateBody($body);
 		if (!$body) {
 			return false;
 		}
 
-		$path = ($id) ? "points/promotions/{$id}" : "points/promotions";
+		$path = ($id > 0 ? "points/promotions/{$id}" : "points/promotions");
 		$return = self::put($path, $body);
 		return self::return($return);
 	}

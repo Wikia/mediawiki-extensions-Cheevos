@@ -27,7 +27,7 @@ class TemplateWikiPointsMultipliers {
 	 * @param	array	Multidimensional array of multipliers information
 	 * @return	string	Built HTML
 	 */
-	public function pointsMultipliersList($multipliers) {
+	static public function pointsMultipliersList($multipliers) {
 		global $wgOut, $wgUser, $wgRequest, $wgScriptPath;
 
 		$pointsMultipliersPage	= Title::newFromText('Special:WikiPointsMultipliers');
@@ -43,7 +43,7 @@ class TemplateWikiPointsMultipliers {
 						<th>".wfMessage('multiplier_multiplier')->escaped()."</th>
 						<th>".wfMessage('multiplier_begins')->escaped()."</th>
 						<th>".wfMessage('multiplier_expires')->escaped()."</th>
-						<th class='controls wide'>&nbsp;</th>
+						<th class='controls'>&nbsp;</th>
 					</tr>
 				</thead>
 				<tbody>";
@@ -54,9 +54,8 @@ class TemplateWikiPointsMultipliers {
 						<td>".$multiplier->getMultiplier()."</td>
 						<td>".($multiplier->getBegins() ? htmlentities(date('Y-m-d', $multiplier->getBegins()), ENT_QUOTES) : "&nbsp;")."</td>
 						<td>".($multiplier->getExpires() ? htmlentities(date('Y-m-d', $multiplier->getExpires()), ENT_QUOTES) : "&nbsp;")."</td>
-						<td class='controls wide'>
-							<a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getDatabaseId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'><img src='".wfExpandUrl($wgScriptPath."/extensions/DynamicSettings/images/edit.png")."'/></a>
-							<a href='{$pointsMultipliersURL}?section=delete&amp;do=delete&amp;multiplier_id={$multiplier->getDatabaseId()}' title='".wfMessage('delete_multiplier')->escaped()."' class='delete multiplier'><img src='".wfExpandUrl($wgScriptPath."/extensions/DynamicSettings/images/delete.png")."'/></a>
+						<td class='controls'>
+							<a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'>".HydraCore::awesomeIcon('pencil')."</a><a href='{$pointsMultipliersURL}?section=delete&amp;do=delete&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('delete_multiplier')->escaped()."' class='delete multiplier'>".HydraCore::awesomeIcon('minus-circle')."</a>
 						</td>
 					</tr>";
  			}
@@ -82,7 +81,7 @@ class TemplateWikiPointsMultipliers {
 	* @param	array	Key name => Error of errors
 	* @return	string	Built HTML
 	*/
-	public function pointsMultipliersForm($multiplier, $wikis, $errors) {
+	static public function pointsMultipliersForm($multiplier, $errors) {
 		$HTML .= "
 			<form id='multiplier_form' method='post' action='?section=form&do=save'>
 				<fieldset>
@@ -100,14 +99,13 @@ class TemplateWikiPointsMultipliers {
 					<input id='expires_datepicker' data-input='expires' type='text' value=''/>
 					<input id='expires' name='expires' type='hidden' value='".htmlentities($multiplier->getExpires(), ENT_QUOTES)."'/>
 
-					<label for='wiki_search' class='label_above'>".wfMessage('add_or_remove_wikis')->escaped()."</label>
+					<label for='wiki_search' class='label_above'>".wfMessage('limit_to_wiki')->escaped()."</label>
 					<div id='wiki_selection_container'>
-						<input class='wiki_selections' name='wikis' data-select-key='wikipointsmultipliers' data-select-type='addremove' type='hidden' value='".(is_array($wikis) && count($wikis) ? json_encode($wikis) : '[]')."'/>
-						<input type='hidden' class='everywhere' name='everywhere' value='".($multiplier->isEnabledEverywhere() ? 1 : 0)."'>
+						<input class='wiki_selections' name='wikis' data-select-key='wikipointsmultipliers' data-select-type='single' type='hidden' value='".json_encode([$multiplier->getSite_Key()])."'/>
 					</div>
 				</fieldset>
 				<fieldset class='submit'>
-					<input id='multiplier_id' name='multiplier_id' type='hidden' value='{$multiplier->getDatabaseId()}'/>
+					<input id='multiplier_id' name='multiplier_id' type='hidden' value='{$multiplier->getId()}'/>
 					<input id='wiki_submit' name='wiki_submit' type='submit' value='Save'/>
 				</fieldset>
 			</form>";
@@ -122,14 +120,14 @@ class TemplateWikiPointsMultipliers {
 	 * @param	object	PointsMultipler object.
 	 * @return	string	Built HTML
 	 */
-	public function pointsMultipliersDelete($multiplier) {
+	static public function pointsMultipliersDelete($multiplier) {
 		$pointsMultipliersPage	= Title::newFromText('Special:WikiPointsMultipliers');
 		$pointsMultipliersURL	= $pointsMultipliersPage->getFullURL();
 
 		$HTML .= "
 		<div>
 			".wfMessage('delete_multiplier_confirm')."<br/>
-			<a href='{$pointsMultipliersURL}?section=delete&do=delete&multiplier_id={$multiplier->getDatabaseId()}&confirm=true' class='button'>".wfMessage('delete_multiplier')->escaped()."</a>
+			<a href='{$pointsMultipliersURL}?section=delete&do=delete&multiplier_id={$multiplier->getId()}&confirm=true' class='button'>".wfMessage('delete_multiplier')->escaped()."</a>
 		</div>
 		";
 
