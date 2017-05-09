@@ -91,7 +91,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 			$multiplierId = $this->wgRequest->getInt('multiplier_id');
 
 			// Time to grab all the promos and wiki sites so we can use them through out all the form stuff
-			$this->multiplier = \Cheevos\Points\PointsMultiplier::loadFromId($multiplierId);
 			try {
 				$this->multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
 			} catch (\Cheevos\CheevosException $e) {
