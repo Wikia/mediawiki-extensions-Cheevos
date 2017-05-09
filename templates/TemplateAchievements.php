@@ -215,14 +215,15 @@ class TemplateAchievements {
 				}
 				
 			}
-		}
+	
 
-		if (MASTER_WIKI !== true && $achievement->isProtected()) {
-			$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_protected')->escaped()."</div>";
-		}
+			if (MASTER_WIKI !== true && $achievement->isProtected()) {
+				$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_protected')->escaped()."</div>";
+			}
 
-		if (MASTER_WIKI !== true && $achievement->isGlobal()) {
-			$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_global')->escaped()."</div>";
+			if (MASTER_WIKI !== true && $achievement->isGlobal()) {
+				$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_global')->escaped()."</div>";
+			}
 		}
 
 		if ($status !== false && $status->getTotal() > 0 && !$status->isEarned()) {
