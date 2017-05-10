@@ -185,7 +185,22 @@ class PointsDisplay {
 		$wikis = [];
 		if ($isSitesMode && !empty($siteKeys)) {
 			global $wgServer;
-			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			if (class_exists('\DynamicSettings\Wiki')) {
+				$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			} else {
+				$redis = \RedisCache::getClient('cache');
+				foreach ($siteKeys as $siteKey) {
+					if (!empty($siteKey)) {
+						$wiki = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+						if (!empty($wiki)) {
+							foreach ($wiki as $field => $value) {
+								$wiki[$field] = unserialize($value);
+							}
+							$wikis[$siteKey] = $wiki;
+						}
+					}
+				}
+			}
 			$localDomain = trim($wgServer, '/');
 			foreach ($userPoints as $key => $userPointsRow) {
 				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {

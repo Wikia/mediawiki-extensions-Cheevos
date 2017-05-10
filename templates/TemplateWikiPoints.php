@@ -42,12 +42,20 @@ class TemplateWikiPoints {
 		if (!empty($userPoints)) {
 			$i = $start;
 			foreach ($userPoints as $userPointsRow) {
+				$wikiName = $userPointsRow->siteKey;
+				if ($isSitesMode && isset($wikis[$userPointsRow->siteKey])) {
+					if ($wikis[$userPointsRow->siteKey] instanceof \DynamicSettings\Wiki) {
+						$wikiName = $wikis[$userPointsRow->siteKey]->getNameForDisplay();
+					} elseif (isset($wikis[$userPointsRow->siteKey]['wiki_name_display'])) {
+						$wikiName = $wikis[$userPointsRow->siteKey]['wiki_name_display'];
+					}
+				}
 				$i++;
 				$html .= "
 				<tr>
 					<td>{$i}</td>
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>".
-					($isSitesMode ? "<td>".(isset($wikis[$userPointsRow->siteKey]) ? $wikis[$userPointsRow->siteKey]->getNameForDisplay() : $userPointsRow->siteKey)."</td>" : "\n")
+					($isSitesMode ? "<td>{$wikiName}</td>" : "\n")
 					."<td class='score'>{$userPointsRow->score}</td>"
 					.($isMonthly ? "<td class='monthly'>".$userPointsRow->yyyymm."</td>" : '')."
 				</tr>";
