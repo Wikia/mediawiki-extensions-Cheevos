@@ -42,7 +42,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 
 		$this->redis = RedisCache::getClient('cache');
 
-		$this->output->addModules(['ext.cheevos.wikiPoints', 'ext.wikiSelect', 'ext.dynamicSettings']);
+		$this->output->addModules(['ext.cheevos.wikiPoints', 'ext.wikiSelect', 'ext.dynamicSettings', 'mediawiki.ui.input', 'mediawiki.ui.button']);
 
 		switch ($this->wgRequest->getVal('section')) {
 			default:
@@ -90,7 +90,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 		if ($this->wgRequest->getInt('multiplier_id')) {
 			$multiplierId = $this->wgRequest->getInt('multiplier_id');
 
-			// Time to grab all the promos and wiki sites so we can use them through out all the form stuff
 			try {
 				$this->multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
 			} catch (\Cheevos\CheevosException $e) {
@@ -163,30 +162,23 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 */
 	public function pointsMultipliersDelete() {
 		if ($this->wgRequest->getVal('do') == 'delete') {
-			$multiplier = PointsMultiplier::loadFromId($this->wgRequest->getInt('multiplier_id'));
+			$multiplierId = $this->wgRequest->getInt('multiplier_id');
+			try {
+				$multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
+			} catch (\Cheevos\CheevosException $e) {
+				wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
+			}
 
 			if (!$multiplier) {
-				$this->output->showErrorPage('multipliers_error', 'points_not_found');
+				$this->output->showErrorPage('multipliers_error', 'error_no_promo');
 				return;
 			}
 
 			if ($this->wgRequest->getVal('confirm') == 'true' && $this->wgRequest->wasPosted()) {
-				$this->DB->delete(
-					'wiki_points_multipliers',
-					['mid' => $multiplier->getId()],
-					__METHOD__
-				);
-				$this->DB->delete(
-					'wiki_points_multipliers_sites',
-					['multiplier_id' => $multiplier->getId()],
-					__METHOD__
-				);
-				$this->DB->commit();
-
-				$this->redis->hDel('wikipoints:multiplier:everywhere', $multiplier->getId());
-
-				foreach ($multiplier->getWikis() as $data) {
-					$this->redis->del('wikipoints:multiplier:'.$data['site_key']);
+				try {
+					\Cheevos\Cheevos::deletePointsPromotion($multiplierId);
+				} catch (\Cheevos\CheevosException $e) {
+					wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
 				}
 
 				$page = Title::newFromText('Special:WikiPointsMultipliers');

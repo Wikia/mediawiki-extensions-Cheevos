@@ -34,35 +34,38 @@ class TemplateWikiPointsMultipliers {
 		$pointsMultipliersURL	= $pointsMultipliersPage->getFullURL();
 
 		$HTML = "
-			<div class='buttons'>
-				<a href='{$pointsMultipliersURL}?section=form&amp;do=add' class='button'>".wfMessage('add_multiplier')->escaped()."</a>
-			</div>
-			<table id='multiplierlist'>
+			<a href='{$pointsMultipliersURL}?section=form&amp;do=add' class='mw-ui-button mw-ui-constructive'>".wfMessage('add_multiplier')->escaped()."</a>
+			<table class='wikitable'>
 				<thead>
 					<tr>
 						<th>".wfMessage('multiplier_multiplier')->escaped()."</th>
 						<th>".wfMessage('multiplier_begins')->escaped()."</th>
 						<th>".wfMessage('multiplier_expires')->escaped()."</th>
-						<th class='controls'>&nbsp;</th>
+						<th>".wfMessage('wiki')->escaped()."</th>
+						<th colspan='2'>&nbsp;</th>
 					</tr>
 				</thead>
 				<tbody>";
 		if (is_array($multipliers) && count($multipliers)) {
  			foreach ($multipliers as $multiplierId => $multiplier) {
+				$wiki = false;
+				if (!empty($multiplier->getSite_Key())) {
+					$wiki = \DynamicSettings\Wiki::loadFromHash($multiplier->getSite_Key());
+				}
 	  			$HTML .= "
 					<tr data-id='{$multiplierId}'>
 						<td>".$multiplier->getMultiplier()."</td>
 						<td>".($multiplier->getBegins() ? htmlentities(date('Y-m-d', $multiplier->getBegins()), ENT_QUOTES) : "&nbsp;")."</td>
 						<td>".($multiplier->getExpires() ? htmlentities(date('Y-m-d', $multiplier->getExpires()), ENT_QUOTES) : "&nbsp;")."</td>
-						<td class='controls'>
-							<a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'>".HydraCore::awesomeIcon('pencil')."</a><a href='{$pointsMultipliersURL}?section=delete&amp;do=delete&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('delete_multiplier')->escaped()."' class='delete multiplier'>".HydraCore::awesomeIcon('minus-circle')."</a>
-						</td>
+						<td>".($wiki !== false ? $wiki->getNameForDisplay() : '('.wfMessage('all_wikis')->escaped().')')."</td>
+						<td><a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'>".HydraCore::awesomeIcon('pencil')."</a></td>
+						<td><a href='{$pointsMultipliersURL}?section=delete&amp;do=delete&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('delete_multiplier')->escaped()."' class='delete multiplier'>".HydraCore::awesomeIcon('minus-circle')."</a></td>
 					</tr>";
  			}
 		} else {
 			$HTML .= "
 					<tr>
-						<td class='no_multipliers_found' colspan='4'>".wfMessage('no_multipliers_found')->escaped()."</td>
+						<td class='no_multipliers_found' colspan='6'>".wfMessage('no_multipliers_found')->escaped()."</td>
 					</tr>";
 		}
 		$HTML .= "
@@ -127,7 +130,9 @@ class TemplateWikiPointsMultipliers {
 		$HTML .= "
 		<div>
 			".wfMessage('delete_multiplier_confirm')."<br/>
-			<a href='{$pointsMultipliersURL}?section=delete&do=delete&multiplier_id={$multiplier->getId()}&confirm=true' class='button'>".wfMessage('delete_multiplier')->escaped()."</a>
+			<form method='post' action='{$pointsMultipliersURL}?section=delete&do=delete&multiplier_id={$multiplier->getId()}&confirm=true'>
+				<input type='submit' class='mw-ui-button mw-ui-destructive' value='".wfMessage('delete_multiplier')->escaped()."'/>
+			</form>
 		</div>
 		";
 

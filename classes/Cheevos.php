@@ -811,7 +811,7 @@ class Cheevos {
 	static public function getPointsPromotion($id) {
 		$redis = \RedisCache::getClient('cache');
 		$cache = false;
-		$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
+		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
 
 		try {
 			$cache = $redis->get($redisKey);
@@ -843,6 +843,13 @@ class Cheevos {
 	 * @return	mixed	Array
 	 */
 	static public function deletePointsPromotion($id) {
+		$redis = \RedisCache::getClient('cache');
+		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
+		try {
+			$redis->del($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
 		$return = self::delete(
 			"points/promotions/{$id}"
 		);
@@ -854,10 +861,11 @@ class Cheevos {
 	 *
 	 * @access	public
 	 * @param	array	$body
-	 * @param	integr	$id
+	 * @param	integer	$id
 	 * @return	mixed	Output of self::return.
 	 */
 	public static function putPointsPromotion($body, $id = null) {
+		$id = intval($id);
 		$body = self::validateBody($body);
 		if (!$body) {
 			return false;
@@ -865,6 +873,17 @@ class Cheevos {
 
 		$path = ($id > 0 ? "points/promotions/{$id}" : "points/promotions");
 		$return = self::put($path, $body);
+
+		if ($id > 0) {
+			$redis = \RedisCache::getClient('cache');
+			$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
+			try {
+				$redis->del($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
 		return self::return($return);
 	}
 
