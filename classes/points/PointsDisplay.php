@@ -200,6 +200,11 @@ class PointsDisplay {
 		switch ($markup) {
 			case 'badged':
 			case 'raw':
+				if (empty($userPoints)) {
+					$userPointsRow = new \stdClass();
+					$userPointsRow->score = 0;
+					$userPoints[] = $userPointsRow;
+				}
 				foreach ($userPoints as $userPointsRow) {
 					$html = $userPointsRow->score;
 					if ($markup == 'badged') {
