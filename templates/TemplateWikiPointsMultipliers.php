@@ -104,7 +104,7 @@ class TemplateWikiPointsMultipliers {
 
 					<label for='wiki_search' class='label_above'>".wfMessage('limit_to_wiki')->escaped()."</label>
 					<div id='wiki_selection_container'>
-						<input class='wiki_selections' name='wikis' data-select-key='wikipointsmultipliers' data-select-type='single' type='hidden' value='".json_encode([$multiplier->getSite_Key()])."'/>
+						<input class='wiki_selections' name='wikis' data-select-key='wikipointsmultipliers' data-select-type='single' type='hidden' value='".json_encode(['single' => $multiplier->getSite_Key()])."'/>
 					</div>
 				</fieldset>
 				<fieldset class='submit'>
