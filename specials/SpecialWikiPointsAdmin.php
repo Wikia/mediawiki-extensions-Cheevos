@@ -71,7 +71,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$form = [];
 		$globalId = false;
 
-		$form['username'] = $this->wgRequest->getVal('user_name');
+		$form['username'] = $this->wgRequest->getVal('user');
 
 		if (!empty($form['username'])) {
 			$user = User::newFromName($form['username']);
@@ -92,7 +92,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 					$form['username'] = $user->getName();
 				}
 			} elseif ($globalId === false) {
-				$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
+				$form['error'] = wfMessage('error_wikipoints_user_not_found')->escaped();
 			}
 		}
 
@@ -108,7 +108,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 */
 	private function adjustPoints() {
 		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$userName = $this->wgRequest->getVal('user_name');
+		$userName = $this->wgRequest->getVal('user');
 		if ($this->wgRequest->wasPosted()) {
 			$amount = $this->wgRequest->getInt('amount');
 			$user = User::newFromName($userName);
@@ -117,10 +117,10 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 				CheevosHooks::increment('wiki_points', intval($amount), $user);
 			}
 
-			$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
-			$this->output->redirect($page->getFullURL(['action' => 'lookup', 'user_name' => $userName, 'pointsAdjusted' => 1]));
+			$userEscaped = urlencode($this->wgRequest->getVal('user'));
+			$this->output->redirect($page->getFullURL(['user' => $userName, 'pointsAdjusted' => 1]));
 		} else {
-			$this->output->redirect($page->getFullURL(['action' => 'lookup', 'user_name' => $userName]));
+			$this->output->redirect($page->getFullURL(['user' => $userName]));
 		}
 	}
 
