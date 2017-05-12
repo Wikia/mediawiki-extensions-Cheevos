@@ -1,13 +1,13 @@
 <?php
 /**
  * Curse Inc.
- * Wiki Points
+ * Cheevos
  * A contributor scoring system
  *
  * @author		Noah Manneschmidt
  * @copyright	(c) 2014 Curse Inc.
  * @license		All Rights Reserved
- * @package		Wiki Points
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
 **/

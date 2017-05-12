@@ -1,0 +1,17 @@
+CREATE TABLE /*_*/points_comp_report (
+  `id` int(14) NOT NULL,
+  `report_id` int(10) DEFAULT '0',
+  `global_id` int(14) NOT NULL DEFAULT '0',
+  `points` int(8) NOT NULL,
+  `month_start` int(14) NOT NULL DEFAULT '0',
+  `month_end` int(14) NOT NULL DEFAULT '0',
+  `new` tinyint(1) NOT NULL DEFAULT '0',
+  `extended` tinyint(1) NOT NULL DEFAULT '0',
+  `comp_expires` int(14) NOT NULL DEFAULT '0'
+) /*$wgDBTableOptions*/;
+
+ALTER TABLE /*_*/points_comp_report
+ ADD PRIMARY KEY (`id`), ADD KEY `report_id_global_id` (`report_id`,`global_id`), ADD KEY `month_start_month_end` (`month_start`,`month_end`), ADD KEY `comp_expires` (`comp_expires`);
+
+ALTER TABLE /*_*/points_comp_report
+MODIFY `id` int(14) NOT NULL AUTO_INCREMENT;

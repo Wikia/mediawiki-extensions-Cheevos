@@ -710,4 +710,18 @@ class CheevosHooks {
 		$parser->setFunctionHook('wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock');
 		return true;
 	}
+
+	/**
+	 * Setups and Modifies Database Information
+	 *
+	 * @access	public
+	 * @param	object	DatabaseUpdater Object
+	 * @return	boolean	true
+	 */
+	static public function onLoadExtensionSchemaUpdates($updater) {
+		$extDir = __DIR__;
+
+		$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
+		return true;
+	}
 }

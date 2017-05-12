@@ -1,12 +1,17 @@
 <?php
 /**
- * Wiki Points
- * Comp Subscriptions
+ * Curse Inc.
+ * Cheevos
+ * Comp Subscriptions Maintenance Script
  *
- * @license     All Rights Reserved
- * @package     DynamicSettings
+ * @author		Alexia E. Smith
+ * @copyright	(c) 2016 Curse Inc.
+ * @license		All Rights Reserved
+ * @package		Cheevos
+ * @link		http://www.curse.com/
  *
- **/
+**/
+
 require_once(dirname(dirname(dirname(__DIR__))).'/maintenance/Maintenance.php');
 
 class CompSubscriptions extends Maintenance {
@@ -64,120 +69,112 @@ class CompSubscriptions extends Maintenance {
 		$this->output("Point threshold is {$compedSubscriptionThreshold} for {$compedSubscriptionMonths} months of comped subscription.\n");
 		$this->output("...new comped subscriptions will expire ".date('c', $newExpires)."\n\n");
 
+		$monthsAgo = 1;
 		if ($this->hasOption('monthsAgo')) {
 			$monthsAgo = intval($this->getOption('monthsAgo'));
 
-			if (!$monthsAgo) {
+			if ($monthsAgo < 1) {
 				$this->error("Number of monthsAgo is invalid.");
 				exit;
 			}
 		}
 
-		$epochFirst = strtotime('first day of '.($monthsAgo > 0 ? $monthsAgo : 1).' month ago');
-		$lastMonthYYYYMM = gmdate('Ym', $epochFirst);
-
-		$where = [
-			'yyyymm' => $lastMonthYYYYMM
+		$filters = [
+			'stat'				=> 'wiki_points',
+			'limit'				=> 0,
+			'sort_direction'	=> 'desc',
+			'global'			=> true,
+			'start_time'		=> strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00'),
+			'end_time'			=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
 		];
 
-		$result = $db->select(
-			['wiki_points_site_monthly_totals'],
-			['count(*) AS total', 'SUM(score) as global_monthly_points'],
-			$where,
-			__METHOD__,
-			[
-				'GROUP BY'	=> 'user_id, yyyymm',
-				'HAVING'	=> 'global_monthly_points >= '.intval($compedSubscriptionThreshold)
-			]
-		);
-		$total = $result->fetchRow();
-		$total = intval($total['total']);
+		try {
+			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+		} catch (\Cheevos\CheevosException $e) {
+			throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+		}
+
+		$report = new \Cheevos\Points\PointsCompReport();
+		$report->setPointThreshold($compedSubscriptionThreshold);
+		$report->setMonthStart($filters['start_time']);
+		$report->setMonthEnd($filters['end_time']);
 
 		$totalCompsGiven = 0;
 		$totalCompsSkipped = 0;
 		$totalPaidSkipped = 0;
 		$totalCompsFailed = 0;
-		for ($i = 0; $i <= $total; $i = $i + 1000) {
-			$result = $db->select(
-				['wiki_points_site_monthly_totals'],
-				['*', 'SUM(score) as global_monthly_points'],
-				$where,
-				__METHOD__,
-				[
-					'GROUP BY'	=> 'user_id, yyyymm',
-					'OFFSET'	=> $i,
-					'LIMIT'		=> 1000,
-					'HAVING'	=> 'global_monthly_points >= '.intval($compedSubscriptionThreshold)
-				]
-			);
 
-			foreach ($result as $pointData) {
-				if ($pointData->global_monthly_points < $compedSubscriptionThreshold) {
+		foreach ($statProgress as $progress) {
+			$isNew = false;
+			$isExtended = false;
+
+			if ($progress->getCount() < $compedSubscriptionThreshold) {
+				continue;
+			}
+
+			$globalId = $progress->getUser_Id();
+			if ($globalId < 1) {
+				continue;
+			}
+
+			$this->output("{$globalId} has {$progress->getCount()} points for {$filters['start_time']}-{$filters['end_time']}...");
+
+			$success = false;
+
+			$subscription = $gamepediaPro->getSubscription($globalId);
+			$expires = false;
+			if ($subscription !== false && is_array($subscription)) {
+				if ($subscription['plan_id'] !== 'complimentary') {
+					//TODO: Have this mark the person in a table for a future comped subscription when the paid subscription expires since the billing system does not support having a paid subscription and comped subscription at the same time.
+					$this->output("\n...paid subscription expiring ".date('c', $subscription['expires']->getTimestamp(TS_UNIX)).".\n");
+					$totalPaidSkipped++;
 					continue;
 				}
+				$expires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
 
-				$user = User::newFromId($pointData->user_id);
-				if (empty($user) || !$user->getId()) {
-					continue;
-				}
-
-				$lookup = \CentralIdLookup::factory();
-				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
-
-				if ($globalId < 1) {
-					continue;
-				}
-
-				$this->output("{$user->getName()} ({$globalId}) has {$pointData->global_monthly_points} points for {$pointData->yyyymm}...");
-
-				$success = false;
-
-				$subscription = $gamepediaPro->getSubscription($globalId);
-				if ($subscription !== false && is_array($subscription)) {
-					if ($subscription['plan_id'] !== 'complimentary') {
-						//TODO: Have this mark the person in a table for a future comped subscription when the paid subscription expires since the billing system does not support having a paid subscription and comped subscription at the same time.
-						$this->output("\n...paid subscription expiring ".date('c', $subscription['expires']->getTimestamp(TS_UNIX)).".\n");
-						$totalPaidSkipped++;
-						continue;
-					}
-					$expires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
-
-					if ($newExpires > $expires) {
-						$this->output("\n...new comp expires later than old comp, extending from ".date('c', $expires)." to ".date('c', $newExpires));
-						if ($this->hasOption('final')) {
-							$gamepediaPro->cancelCompedSubscription($globalId);
-						}
-					} else {
-						$this->output("\n...already has a valid longer comp expiring ".date('c', $expires).".\n");
-						$totalCompsSkipped++;
-						continue;
-					}
-				}
-
-				if ($this->hasOption('final')) {
-					$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
-
-					if ($comp !== false) {
-						$success = true;
-						$body = [
-							'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
-							'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
-						];
-						$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
+				if ($newExpires > $expires) {
+					$isExtended = true;
+					$this->output("\n...new comp expires later than old comp, extending from ".date('c', $expires)." to ".date('c', $newExpires));
+					$expires = $newExpires;
+					if ($this->hasOption('final')) {
+						$gamepediaPro->cancelCompedSubscription($globalId);
 					}
 				} else {
-					$success = true;
-				}
-
-				if ($success) {
-					$this->output("\n...comped!\n");
-					$totalCompsGiven++;
-				} else {
-					$totalCompsFailed++;
-					$this->output("\n...failed!\n");
+					$this->output("\n...already has a valid longer comp expiring ".date('c', $expires).".\n");
+					$totalCompsSkipped++;
+					continue;
 				}
 			}
+
+			if ($this->hasOption('final')) {
+				if (!$isExtended) {
+					$isNew = true;
+				}
+
+				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
+
+				if ($comp !== false) {
+					$success = true;
+					$body = [
+						'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
+						'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
+					];
+					$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
+				}
+			} else {
+				$success = true;
+			}
+
+			if ($success) {
+				$report->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $expires);
+				$this->output("\n...comped!\n");
+				$totalCompsGiven++;
+			} else {
+				$totalCompsFailed++;
+				$this->output("\n...failed!\n");
+			}
 		}
+		$report->save();
 
 		$this->output("\n{$totalCompsGiven} comps given.\n");
 		$this->output("{$totalCompsSkipped} comps skipped.\n");
