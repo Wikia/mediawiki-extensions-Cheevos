@@ -90,11 +90,6 @@ class CompSubscriptions extends Maintenance {
 		$report->setMonthStart($filters['start_time']);
 		$report->setMonthEnd($filters['end_time']);
 
-		$totalCompsGiven = 0;
-		$totalCompsSkipped = 0;
-		$totalPaidSkipped = 0;
-		$totalCompsFailed = 0;
-
 		foreach ($statProgress as $progress) {
 			$isNew = false;
 			$isExtended = false;
@@ -114,8 +109,6 @@ class CompSubscriptions extends Maintenance {
 			$expires = false;
 			if ($subscription !== false && is_array($subscription)) {
 				if ($subscription['plan_id'] !== 'complimentary') {
-					//TODO: Have this mark the person in a table for a future comped subscription when the paid subscription expires since the billing system does not support having a paid subscription and comped subscription at the same time.
-					$totalPaidSkipped++;
 					continue;
 				}
 				$expires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
@@ -127,7 +120,6 @@ class CompSubscriptions extends Maintenance {
 						$gamepediaPro->cancelCompedSubscription($globalId);
 					}
 				} else {
-					$totalCompsSkipped++;
 					continue;
 				}
 			}
@@ -153,9 +145,6 @@ class CompSubscriptions extends Maintenance {
 
 			if ($success) {
 				$report->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $expires);
-				$totalCompsGiven++;
-			} else {
-				$totalCompsFailed++;
 			}
 		}
 		$report->save();
