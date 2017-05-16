@@ -49,12 +49,6 @@ class CompSubscriptions extends Maintenance {
 
 		$db = wfGetDB(DB_MASTER);
 
-		if (!$this->hasOption('final')) {
-			$this->output("=================================\n");
-			$this->output("TEST RUN - NO COMPS WILL BE GIVEN\n");
-			$this->output("=================================\n\n");
-		}
-
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
@@ -65,9 +59,6 @@ class CompSubscriptions extends Maintenance {
 
 		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
 		\Hydra\Subscription::skipCache(true);
-
-		$this->output("Point threshold is {$compedSubscriptionThreshold} for {$compedSubscriptionMonths} months of comped subscription.\n");
-		$this->output("...new comped subscriptions will expire ".date('c', $newExpires)."\n\n");
 
 		$monthsAgo = 1;
 		if ($this->hasOption('monthsAgo')) {
@@ -117,8 +108,6 @@ class CompSubscriptions extends Maintenance {
 				continue;
 			}
 
-			$this->output("{$globalId} has {$progress->getCount()} points for {$filters['start_time']}-{$filters['end_time']}...");
-
 			$success = false;
 
 			$subscription = $gamepediaPro->getSubscription($globalId);
@@ -126,7 +115,6 @@ class CompSubscriptions extends Maintenance {
 			if ($subscription !== false && is_array($subscription)) {
 				if ($subscription['plan_id'] !== 'complimentary') {
 					//TODO: Have this mark the person in a table for a future comped subscription when the paid subscription expires since the billing system does not support having a paid subscription and comped subscription at the same time.
-					$this->output("\n...paid subscription expiring ".date('c', $subscription['expires']->getTimestamp(TS_UNIX)).".\n");
 					$totalPaidSkipped++;
 					continue;
 				}
@@ -134,13 +122,11 @@ class CompSubscriptions extends Maintenance {
 
 				if ($newExpires > $expires) {
 					$isExtended = true;
-					$this->output("\n...new comp expires later than old comp, extending from ".date('c', $expires)." to ".date('c', $newExpires));
 					$expires = $newExpires;
 					if ($this->hasOption('final')) {
 						$gamepediaPro->cancelCompedSubscription($globalId);
 					}
 				} else {
-					$this->output("\n...already has a valid longer comp expiring ".date('c', $expires).".\n");
 					$totalCompsSkipped++;
 					continue;
 				}
@@ -167,19 +153,12 @@ class CompSubscriptions extends Maintenance {
 
 			if ($success) {
 				$report->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $expires);
-				$this->output("\n...comped!\n");
 				$totalCompsGiven++;
 			} else {
 				$totalCompsFailed++;
-				$this->output("\n...failed!\n");
 			}
 		}
 		$report->save();
-
-		$this->output("\n{$totalCompsGiven} comps given.\n");
-		$this->output("{$totalCompsSkipped} comps skipped.\n");
-		$this->output("{$totalPaidSkipped} users with paid subscriptions skipped.\n");
-		$this->output("{$totalCompsFailed} comps failed.\n");
 	}
 }
 
