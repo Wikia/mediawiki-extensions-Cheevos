@@ -153,7 +153,7 @@ class CheevosHooks {
 	 *
 	 * @param	object	Article
 	 * @param	object	Revision
-	 * @param	mixed	ID of revision this new edit started with.  May also be 0 or false for no prevision revision.
+	 * @param	mixed	[Do Not Use, Unreliable] ID of revision this new edit started with.  May also be 0 or false for no previous revision.
 	 * @param	object	User that performed the action.
 	 * @return	boolean	true
 	 */
@@ -167,7 +167,7 @@ class CheevosHooks {
 
 		$isBot = $user->isAllowed('bot');
 
-		if (!$baseRevId) {
+		if (!$revision->getParentId()) {
 			self::increment('article_create', 1, $user);
 		}
 
