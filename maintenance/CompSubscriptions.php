@@ -26,8 +26,9 @@ class CompSubscriptions extends Maintenance {
 
 		$this->mDescription = "Comp subscriptions to those who hit a monthly configured point value.  Requires Extension:Subscription to be installed.";
 
-		$this->addOption('monthsAgo', 'How many months to look into the past, defaults to 1 month.');
-		$this->addOption('final', 'Finalize, do not do a test run.');
+		$this->addOption('monthsAgo', 'How many months to look into the past, defaults to 1 month.', false, true);
+		$this->addOption('threshold', 'Override the default point threshold.', false, true);
+		$this->addOption('final', 'Finalize, do not do a test run.', false, false);
 	}
 
 	/**
@@ -45,15 +46,17 @@ class CompSubscriptions extends Maintenance {
 		$db = wfGetDB(DB_MASTER);
 
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+
 		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		if ($this->hasOption('threshold')) {
+			if ($this->getOption('threshold') > 0) {
+				$compedSubscriptionThreshold = intval($this->getOption('threshold'));
+			} else {
+				throw new MWException(__METHOD__.': Invalid threshold provided.');
+			}
+		}
+
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-
-		//$epochFirst = strtotime(date('Y-m-d', strtotime('first day of 0 month ago')).'T00:00:00+00:00');
-		//$epochLast = strtotime(date('Y-m-d', strtotime('last day of +2 months')).'T23:59:59+00:00');
-		$newExpires = strtotime(date('Y-m-d', strtotime('last day of +'.($compedSubscriptionMonths - 1).' months')).'T23:59:59+00:00'); //Get the last day of two months from now, fix the hours:minutes:seconds, and then get the corrected epoch.
-
-		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
-		\Hydra\Subscription::skipCache(true);
 
 		$monthsAgo = 1;
 		if ($this->hasOption('monthsAgo')) {
@@ -65,84 +68,8 @@ class CompSubscriptions extends Maintenance {
 			}
 		}
 
-		$filters = [
-			'stat'				=> 'wiki_points',
-			'limit'				=> 0,
-			'sort_direction'	=> 'desc',
-			'global'			=> true,
-			'start_time'		=> strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00'),
-			'end_time'			=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
-		];
-
-		try {
-			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-		} catch (\Cheevos\CheevosException $e) {
-			throw new \MWException(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
-		}
-
 		$report = new \Cheevos\Points\PointsCompReport();
-		$report->setPointThreshold($compedSubscriptionThreshold);
-		$report->setMonthStart($filters['start_time']);
-		$report->setMonthEnd($filters['end_time']);
-
-		foreach ($statProgress as $progress) {
-			$isNew = false;
-			$isExtended = false;
-
-			if ($progress->getCount() < $compedSubscriptionThreshold) {
-				continue;
-			}
-
-			$globalId = $progress->getUser_Id();
-			if ($globalId < 1) {
-				continue;
-			}
-
-			$success = false;
-
-			$subscription = $gamepediaPro->getSubscription($globalId);
-			$expires = false;
-			if ($subscription !== false && is_array($subscription)) {
-				if ($subscription['plan_id'] !== 'complimentary') {
-					continue;
-				}
-				$expires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
-
-				if ($newExpires > $expires) {
-					$isExtended = true;
-					$expires = $newExpires;
-					if ($this->hasOption('final')) {
-						$gamepediaPro->cancelCompedSubscription($globalId);
-					}
-				} else {
-					continue;
-				}
-			}
-
-			if (!$isExtended) {
-				$isNew = true;
-			}
-
-			if ($this->hasOption('final')) {
-				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
-
-				if ($comp !== false) {
-					$success = true;
-					$body = [
-						'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
-						'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
-					];
-					$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
-				}
-			} else {
-				$success = true;
-			}
-
-			if ($success) {
-				$report->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $expires);
-			}
-		}
-		$report->save();
+		$report->run($this->getOption('threshold'), $monthsAgo, $this->hasOption('final'));
 	}
 }
 

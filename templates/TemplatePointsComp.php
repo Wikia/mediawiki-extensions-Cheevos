@@ -29,6 +29,9 @@ class TemplatePointsComp {
 					<th>".wfMessage('month_end')->escaped()."</th>
 					<th>".wfMessage('total_new')->escaped()."</th>
 					<th>".wfMessage('total_extended')->escaped()."</th>
+					<th>".wfMessage('total_failed')->escaped()."</th>
+					<th>".wfMessage('total_performed')->escaped()."</th>
+					<th>".wfMessage('total_emailed')->escaped()."</th>
 				</tr>
 			</thead>
 			<tbody>";
@@ -42,6 +45,9 @@ class TemplatePointsComp {
 					<td>".gmdate('Y-m-d', $report->getMonthEnd())."</td>
 					<td>{$report->getTotalNew()}</td>
 					<td>{$report->getTotalExtended()}</td>
+					<td>{$report->getTotalFailed()}</td>
+					<td>{$report->getTotalPerformed()}</td>
+					<td>{$report->getTotalEmailed()}</td>
 				</tr>";
 			}
 		}
@@ -66,7 +72,16 @@ class TemplatePointsComp {
 			<dt>".wfMessage('month_end')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthEnd())."</dd>
 			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd>
 			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd>
+			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd>
+			<dt>".wfMessage('total_performed')->escaped()."</dt><dd>{$report->getTotalPerformed()}</dd>
+			<dt>".wfMessage('total_emailed')->escaped()."</dt><dd>{$report->getTotalEmailed()}</dd>
 		</dl>
+		<form method='post' action='?do=run'>
+			<input name='report_id' type='hidden' value='{$report->getReportId()}'/>
+			<input name='report_id' type='button' value='".wfMessage('give_all_comps')->escaped()."'/>
+			<input name='report_id' type='button' value='".wfMessage('email_users')->escaped()."'/>
+			<input name='report_id' type='button' value='".wfMessage('give_all_comps_and_email')->escaped()."'/>
+		</form>
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -74,7 +89,10 @@ class TemplatePointsComp {
 					<th>".wfMessage('comp_points')->escaped()."</th>
 					<th>".wfMessage('comp_new')->escaped()."</th>
 					<th>".wfMessage('comp_extended')->escaped()."</th>
+					<th>".wfMessage('comp_failed')->escaped()."</th>
 					<th>".wfMessage('comp_expires')->escaped()."</th>
+					<th>".wfMessage('comp_done')->escaped()."</th>
+					<th>".wfMessage('emailed')->escaped()."</th>
 				</tr>
 			</thead>
 			<tbody>";
@@ -85,9 +103,12 @@ class TemplatePointsComp {
 				<tr>
 					<td>".($user ? $user->getName() : 'GID: '.$reportRow['global_id'])."</td>
 					<td>{$reportRow['points']}</td>
-					<td>{$reportRow['new']}</td>
-					<td>{$reportRow['extended']}</td>
+					<td>{$reportRow['comp_new']}</td>
+					<td>{$reportRow['comp_extended']}</td>
+					<td>{$reportRow['comp_failed']}</td>
 					<td>".($reportRow['comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['comp_expires']) : '&nbsp;')."</td>
+					<td>".($reportRow['comp_performed'] ? '✓' : 'DO IT BUTTON')."</td>
+					<td>".($reportRow['email_sent'] ? '✓' : 'DO IT BUTTON')."</td>
 				</tr>";
 		}
 		$html .= "

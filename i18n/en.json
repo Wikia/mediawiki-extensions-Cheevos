@@ -252,12 +252,18 @@
 	"month_end": "Month End",
 	"total_new": "New",
 	"total_extended": "Extended",
+	"total_failed": "Failed",
+	"total_performed": "Performed",
+	"total_emailed": "Emailed",
 	"poiints_comp_report_error": "Points Comp Report Error",
 	"report_does_not_exist": "That report number does not exist.",
 	"comp_points": "Points",
 	"comp_new": "New",
 	"comp_extended": "Extended",
+	"comp_failed": "Failed",
 	"comp_expires": "Comp Expires",
 	"pointscomp_detail": "Comp Report #$1",
-	"comp_report_link": "#$1"
+	"comp_report_link": "#$1",
+	"comp_done": "Comp Done?",
+	"emailed": "Emailed?"
 }
