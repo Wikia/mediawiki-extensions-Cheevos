@@ -119,11 +119,11 @@ class CompSubscriptions extends Maintenance {
 				}
 			}
 
-			if ($this->hasOption('final')) {
-				if (!$isExtended) {
-					$isNew = true;
-				}
+			if (!$isExtended) {
+				$isNew = true;
+			}
 
+			if ($this->hasOption('final')) {
 				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
 
 				if ($comp !== false) {

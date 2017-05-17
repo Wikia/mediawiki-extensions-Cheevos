@@ -84,14 +84,14 @@ class PointsCompReport {
 	 *
 	 * @access	public
 	 * @param	integer	Report ID
-	 * @return	object	PointsCompReport
+	 * @return	mixed	PointsCompReport object or null if it does not exist.
 	 */
 	public static function newFromId($id) {
 		$report = new self($id);
 
-		$report->load();
+		$success = $report->load();
 
-		return $report;
+		return ($success ? $report : null);
 	}
 
 	/**
@@ -117,7 +117,7 @@ class PointsCompReport {
 	 * Load information from the database.
 	 *
 	 * @access	private
-	 * @return	void
+	 * @return	boolean	Sucess
 	 */
 	private function load() {
 		$db = wfGetDB(DB_MASTER);
@@ -137,6 +137,7 @@ class PointsCompReport {
 		}
 		while ($row = $result->fetchRow()) {
 			if ($row['global_id'] == 0 && $row['id'] == $row['report_id']) {
+				$this->reportId = $row['report_id'];
 				$this->pointThreshold = $row['points'];
 				$this->monthStart = $row['month_start'];
 				$this->monthEnd = $row['month_end'];
@@ -149,6 +150,8 @@ class PointsCompReport {
 
 			$this->reportData[$row['global_id']] = $row;
 		}
+
+		return boolval($this->reportId);
 	}
 
 	/**
@@ -371,5 +374,17 @@ class PointsCompReport {
 		$this->totalExtended += $data['extended'];
 
 		$this->reportData[$globalId] = $data;
+	}
+
+	/**
+	 * Get the next row in the report data.
+	 *
+	 * @access	public
+	 * @return	mixed	Report row data or false for no more values.
+	 */
+	public function getNextRow() {
+		$return = current($this->reportData);
+		next($this->reportData);
+		return $return;
 	}
 }

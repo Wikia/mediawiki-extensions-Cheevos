@@ -246,10 +246,18 @@
 	"n-a": "N/A",
 	"achievement_id": "Achievement #$1",
 	"manual_adjustment": "Manual Adjustment",
-	"pointscomp": "Points Compensation Reports",
+	"pointscomp": "Points Comp Reports",
 	"point_threshold": "Point Threshold",
 	"month_start": "Month Start",
 	"month_end": "Month End",
 	"total_new": "New",
-	"total_extended": "Extended"
+	"total_extended": "Extended",
+	"poiints_comp_report_error": "Points Comp Report Error",
+	"report_does_not_exist": "That report number does not exist.",
+	"comp_points": "Points",
+	"comp_new": "New",
+	"comp_extended": "Extended",
+	"comp_expires": "Comp Expires",
+	"pointscomp_detail": "Comp Report #$1",
+	"comp_report_link": "#$1"
 }
