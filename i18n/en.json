@@ -203,7 +203,7 @@
 	"levels_explanation": "Add levels in any point order.\tThey will be reordered for display purposes.  The level text can be anything, but should maintain a consistent theme.",
 	"wikipointslevels": "WikiPoints Levels",
 	"view_public_points_list": "View Public Wiki Points List",
-	"error_wikipoints_admin_user_not_found": "No users were found with the provided user name or user ID.",
+	"error_wikipoints_user_not_found": "No users were found with the provided user name.",
 	"error_maximum_points": "Integers larger than 9,223,372,036,854,775,807 or smaller than -9,223,372,036,854,775,807 are not supported.",
 	"wikipointsmultipliers": "WikiPoints Multipliers",
 	"multiplier_multiplier": "Multiplier",
