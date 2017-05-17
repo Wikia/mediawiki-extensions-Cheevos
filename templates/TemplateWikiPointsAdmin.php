@@ -17,12 +17,12 @@ class TemplateWikiPointsAdmin {
 	 * Initialize form HTML for each page.
 	 *
 	 * @access	public
+	 * @param	object	Title for special page.
 	 * @param	array	[Optional] Form data for resubmission.
 	 * @return	string	Built HTML
 	 */
-	static private function initHtml($form = []) {
+	static public function userSearch(Title $title, $form = []) {
 		$username = htmlspecialchars($form['username']);
-		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
 		$wikiPointsPage = Title::newFromText('Special:WikiPoints');
 
 		$html = '';
@@ -30,10 +30,9 @@ class TemplateWikiPointsAdmin {
 			$html .= "<div class='errorbox'>{$form['error']}</div>";
 		}
 		return $html .= "
-		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='".$wikiPointsAdminPage->getFullURL()."'>
-			<input type='hidden' name='action' value='lookup'/>
+		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='".$title->getFullURL()."'>
 			<div class='mw-ui-vform-field'>
-				<input type='text' name='user_name' placeholder='".wfMessage('wpa_user')->escaped()."' value='{$username}' class='oo-ui-inputWidget-input'/>
+				<input type='text' name='user' placeholder='".wfMessage('wpa_user')->escaped()."' value='{$username}' class='oo-ui-inputWidget-input'/>
 				<input class='submit' type='submit' value='".wfMessage('lookup')->escaped()."'/>
 			</div>
 		</form>";
@@ -51,7 +50,8 @@ class TemplateWikiPointsAdmin {
 	static public function lookup($user, $points = [], $form = []) {
 		global $wgRequest;
 
-		$html = self::initHtml($form);
+		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
+		$html = self::userSearch($wikiPointsAdminPage, $form);
 
 		$addSubtractButtonText = wfMessage('wikipointsaddsubtractbutton')->escaped();
 		$addSubtractTooltip    = wfMessage('wikipointsaddsubtracttooltip')->escaped();
@@ -69,7 +69,7 @@ class TemplateWikiPointsAdmin {
 			<form method='post' action='".$wpaPage->getFullURL()."'>
 				<fieldset>
 					<input type='hidden' name='action' value='adjust'>
-					<input type='hidden' name='user_name' value='{$escapedUserName}'>
+					<input type='hidden' name='user' value='{$escapedUserName}'>
 					<input type='number' name='amount' placeholder='{$addSubtractTooltip}' id='addSubtractField'> <input type='submit' value='{$addSubtractButtonText}'>
 				</fieldset>
 			</form>
