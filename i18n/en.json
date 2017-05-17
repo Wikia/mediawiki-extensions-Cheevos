@@ -246,5 +246,10 @@
 	"n-a": "N/A",
 	"achievement_id": "Achievement #$1",
 	"manual_adjustment": "Manual Adjustment",
-	"pointscomp": "Points Compensation Reports"
+	"pointscomp": "Points Compensation Reports",
+	"point_threshold": "Point Threshold",
+	"month_start": "Month Start",
+	"month_end": "Month End",
+	"total_new": "New",
+	"total_extended": "Extended"
 }

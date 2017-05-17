@@ -23,9 +23,11 @@ class TemplatePointsComp {
 		<table class='wikitable'>
 			<thead>
 				<tr>
-					<th>".wfMessage('threshold')->escaped()."</th>
+					<th>".wfMessage('point_threshold')->escaped()."</th>
 					<th>".wfMessage('month_start')->escaped()."</th>
 					<th>".wfMessage('month_end')->escaped()."</th>
+					<th>".wfMessage('total_new')->escaped()."</th>
+					<th>".wfMessage('total_extended')->escaped()."</th>
 				</tr>
 			</thead>
 			<tbody>";
@@ -34,8 +36,10 @@ class TemplatePointsComp {
 				$html .= "
 				<tr>
 					<td>{$report->getPointThreshold()}</td>
-					<td>{$report->getMonthStart()}</td>
-					<td>{$report->getMonthEnd()}</td>
+					<td>".gmdate('Y-m-d', $report->getMonthStart())."</td>
+					<td>".gmdate('Y-m-d', $report->getMonthEnd())."</td>
+					<td>{$report->getTotalNew()}</td>
+					<td>{$report->getTotalExtended()}</td>
 				</tr>";
 			}
 		}

@@ -55,10 +55,10 @@ class SpecialPointsComp extends SpecialPage {
 		$start = $this->getRequest()->getInt('st');
 		$itemsPerPage = 50;
 
-		$reports = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
+		$reportData = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
 
-		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start);
-		$this->content = $pagination.TemplatePointsComp::pointsCompReports($reports).$pagination;
+		$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
+		$this->content = $pagination.TemplatePointsComp::pointsCompReports($reportData['reports']).$pagination;
 	}
 
 	/**

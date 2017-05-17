@@ -47,6 +47,20 @@ class PointsCompReport {
 	private $monthEnd = 0;
 
 	/**
+	 * Total new comps.
+	 *
+	 * @var		integer
+	 */
+	private $totalNew = 0;
+
+	/**
+	 * Total extended comps.
+	 *
+	 * @var		integer
+	 */
+	private $totalExtended = 0;
+
+	/**
 	 * Report Data
 	 * [$globalId => {database row}]
 	 *
@@ -93,6 +107,8 @@ class PointsCompReport {
 		$report->pointThreshold = $row['points'];
 		$report->monthStart = $row['month_start'];
 		$report->monthEnd = $row['month_end'];
+		$report->totalNew = $row['new'];
+		$report->totalExtended = $row['extended'];
 
 		return $report;
 	}
@@ -124,6 +140,8 @@ class PointsCompReport {
 				$this->pointThreshold = $row['points'];
 				$this->monthStart = $row['month_start'];
 				$this->monthEnd = $row['month_end'];
+				$this->totalNew = $row['new'];
+				$this->totalExtended = $row['extended'];
 				continue;
 			} elseif ($row['global_id'] == 0) {
 				continue;
@@ -148,7 +166,9 @@ class PointsCompReport {
 				[
 					'points'		=> $this->pointThreshold,
 					'month_start'	=> $this->monthStart,
-					'month_end'		=> $this->monthEnd
+					'month_end'		=> $this->monthEnd,
+					'new'			=> $this->totalNew,
+					'extended'		=> $this->totalExtended
 				],
 				__METHOD__
 			);
@@ -186,7 +206,7 @@ class PointsCompReport {
 	 * @access	private
 	 * @param	integer	Start Position
 	 * @param	integer	Maximum Items to Return
-	 * @return	array	Multidimensional array of [$reportId => [{reportData}]
+	 * @return	array	Multidimensional array of ['total' => $total, $reportId => [{reportData}]]
 	 */
 	static public function getReportsList($start = 0, $itemsPerPage = 50) {
 		$db = wfGetDB(DB_MASTER);
@@ -200,7 +220,9 @@ class PointsCompReport {
 			],
 			__METHOD__,
 			[
-				'ORDER BY'	=> 'id DESC'
+				'ORDER BY'	=> 'id DESC',
+				'OFFSET'	=> $start,
+				'LIMIT'		=> $itemsPerPage
 			]
 		);
 
@@ -208,7 +230,23 @@ class PointsCompReport {
 		while ($row = $result->fetchRow()) {
 			$reports[$row['id']] = self::newFromRow($row);
 		}
-		return $reports;
+
+		$result = $db->select(
+			['points_comp_report'],
+			['count(*) as total'],
+			[
+				'report_id = id',
+				'global_id' => 0
+			],
+			__METHOD__,
+			[
+				'ORDER BY'	=> 'id DESC'
+			]
+		);
+		$total = $result->fetchRow();
+		$total = intval($total['total']);
+
+		return ['total' => $total, 'reports' => $reports];
 	}
 
 	/**
@@ -285,6 +323,26 @@ class PointsCompReport {
 	}
 
 	/**
+	 * Return the total new comps.
+	 *
+	 * @access	public
+	 * @return	integer	Total new comps.
+	 */
+	public function getTotalNew() {
+		return intval($this->totalNew);
+	}
+
+	/**
+	 * Return the total extended comps.
+	 *
+	 * @access	public
+	 * @return	integer	Total extended comps.
+	 */
+	public function getTotalExtended() {
+		return intval($this->totalExtended);
+	}
+
+	/**
 	 * Add new report row.
 	 * Will overwrite existing rows with the same global ID.
 	 *
@@ -308,6 +366,9 @@ class PointsCompReport {
 		if (empty($data['global_id'])) {
 			throw new MWException(__METHOD__.': Invalid global user ID provided.');
 		}
+
+		$this->totalNew += $data['new'];
+		$this->totalExtended += $data['extended'];
 
 		$this->reportData[$globalId] = $data;
 	}
