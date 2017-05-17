@@ -696,7 +696,7 @@ class CheevosHooks {
 			[],
 			[
 				'action'	=> 'lookup',
-				'user_name'	=> $userName
+				'user'		=> $userName
 			]
 		);
 
