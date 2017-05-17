@@ -479,7 +479,7 @@ class PointsCompReport {
 			if ($threshold > 0) {
 				$compedSubscriptionThreshold = $threshold;
 			} else {
-				throw new \WException(__METHOD__.': Invalid threshold provided.');
+				throw new \MWException(__METHOD__.': Invalid threshold provided.');
 			}
 		}
 
@@ -488,7 +488,7 @@ class PointsCompReport {
 
 		$monthsAgo = intval($monthsAgo);
 		if ($monthsAgo < 1) {
-			throw new \MWException(__METHOD__.'Number of monthsAgo is invalid.');
+			throw new \MWException(__METHOD__.': Number of monthsAgo is invalid.');
 		}
 
 		//$epochFirst = strtotime(date('Y-m-d', strtotime('first day of 0 month ago')).'T00:00:00+00:00');

@@ -52,7 +52,7 @@ class CompSubscriptions extends Maintenance {
 			if ($this->getOption('threshold') > 0) {
 				$compedSubscriptionThreshold = intval($this->getOption('threshold'));
 			} else {
-				throw new MWException(__METHOD__.': Invalid threshold provided.');
+				$this->error('Invalid threshold provided.', 1);
 			}
 		}
 
@@ -63,8 +63,7 @@ class CompSubscriptions extends Maintenance {
 			$monthsAgo = intval($this->getOption('monthsAgo'));
 
 			if ($monthsAgo < 1) {
-				$this->error("Number of monthsAgo is invalid.");
-				exit;
+				$this->error("Number of monthsAgo is invalid.", 1);
 			}
 		}
 
