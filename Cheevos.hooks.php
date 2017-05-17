@@ -663,7 +663,7 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Add a link to WikiPoints on the contributions special page.
+	 * Add a link to WikiPoints on contribution and edit tool links.
 	 *
 	 * @access	public
 	 * @param	integer	User ID
@@ -673,6 +673,10 @@ class CheevosHooks {
 	 */
 	static public function onContributionsToolLinks($userId, $userPageTitle, &$tools) {
 		global $wgUser;
+
+		if (!$userId) {
+			return true;
+		}
 
 		if (!$wgUser->isAllowed('wiki_points_admin')) {
 			return true;
