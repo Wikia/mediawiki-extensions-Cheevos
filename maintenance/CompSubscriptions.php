@@ -68,7 +68,7 @@ class CompSubscriptions extends Maintenance {
 		}
 
 		$report = new \Cheevos\Points\PointsCompReport();
-		$report->run($this->getOption('threshold'), $monthsAgo, $this->hasOption('final'));
+		$report->run($this->getOption('threshold'), strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00'), strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00'), $this->hasOption('final'));
 	}
 }
 

@@ -460,11 +460,12 @@ class PointsCompReport {
 	 *
 	 * @access	public
 	 * @param	integer	Point Threshold
-	 * @param	integer	Number of months into the past to look.
+	 * @param	integer	Unix timestamp of the start time.
+	 * @param	integer	Unix timestamp of the end time.
 	 * @param	integer	Actually run comps.
 	 * @return	void
 	 */
-	public function run($threshold = null, $monthsAgo = 1, $final = false) {
+	public function run($threshold = null, $timeStart = 0, $timeEnd = 0, $final = false) {
 		if (!\ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
 			throw new \MWException(__METHOD__.": Extension:Subscription must be loaded for this functionality.");
 		}
@@ -486,9 +487,10 @@ class PointsCompReport {
 		//Number of complimentary months someone is given.
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 
-		$monthsAgo = intval($monthsAgo);
-		if ($monthsAgo < 1) {
-			throw new \MWException(__METHOD__.': Number of monthsAgo is invalid.');
+		$timeStart = intval($timeStart);
+		$timeEnd = intval($timeEnd);
+		if ($timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0) {
+			throw new \MWException(__METHOD__.': The time range is invalid.');
 		}
 
 		//$epochFirst = strtotime(date('Y-m-d', strtotime('first day of 0 month ago')).'T00:00:00+00:00');
@@ -503,8 +505,8 @@ class PointsCompReport {
 			'limit'				=> 0,
 			'sort_direction'	=> 'desc',
 			'global'			=> true,
-			'start_time'		=> strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00'),
-			'end_time'			=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
+			'start_time'		=> $timeStart,
+			'end_time'			=> $timeEnd
 		];
 
 		try {
