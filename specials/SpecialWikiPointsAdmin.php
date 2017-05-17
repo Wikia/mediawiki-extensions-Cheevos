@@ -76,7 +76,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		if (!empty($form['username'])) {
 			$user = User::newFromName($form['username']);
 
-			if ($user->getId()) {
+			if ($user !== false && $user->getId()) {
 				$lookup = \CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($user);
 			}
