@@ -502,7 +502,7 @@ class SpecialManageAchievements extends SpecialPage {
 		return;
 	}
 
-	  /**
+	/**
 	 * Hides special page from SpecialPages special page.
 	 *
 	 * @access	public

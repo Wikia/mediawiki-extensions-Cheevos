@@ -37,11 +37,6 @@ class CompSubscriptions extends Maintenance {
 	 * @return	void
 	 */
 	public function execute() {
-		if (MASTER_WIKI !== true) {
-			$this->error("Subscription comps can only be run against the master wiki.");
-			exit;
-		}
-
 		if (!ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
 			$this->error("Extension:Subscription must be loaded for this functionality.");
 			exit;
@@ -82,7 +77,7 @@ class CompSubscriptions extends Maintenance {
 		try {
 			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
 		} catch (\Cheevos\CheevosException $e) {
-			throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+			throw new \MWException(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 		}
 
 		$report = new \Cheevos\Points\PointsCompReport();

@@ -51,7 +51,7 @@ class SpecialAchievements extends SpecialPage {
 	}
 
 	/**
-	 * Cheevos List
+	 * Achievements List
 	 *
 	 * @access	public
 	 * @param	mixed	Passed subpage parameter to be intval()'ed for a Global ID.

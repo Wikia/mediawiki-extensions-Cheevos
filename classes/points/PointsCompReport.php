@@ -81,6 +81,23 @@ class PointsCompReport {
 	}
 
 	/**
+	 * Load a new report object from a database row.
+	 *
+	 * @access	public
+	 * @param	array	Report Row from the Database
+	 * @return	object	PointsCompReport
+	 */
+	private static function newFromRow($row) {
+		$report = new self($row['id']);
+
+		$report->pointThreshold = $row['points'];
+		$report->monthStart = $row['month_start'];
+		$report->monthEnd = $row['month_end'];
+
+		return $report;
+	}
+
+	/**
 	 * Load information from the database.
 	 *
 	 * @access	private
@@ -161,6 +178,37 @@ class PointsCompReport {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Load a list of basic report information.
+	 *
+	 * @access	private
+	 * @param	integer	Start Position
+	 * @param	integer	Maximum Items to Return
+	 * @return	array	Multidimensional array of [$reportId => [{reportData}]
+	 */
+	static public function getReportsList($start = 0, $itemsPerPage = 50) {
+		$db = wfGetDB(DB_MASTER);
+
+		$result = $db->select(
+			['points_comp_report'],
+			['*'],
+			[
+				'report_id = id',
+				'global_id' => 0
+			],
+			__METHOD__,
+			[
+				'ORDER BY'	=> 'id DESC'
+			]
+		);
+
+		$reports = [];
+		while ($row = $result->fetchRow()) {
+			$reports[$row['id']] = self::newFromRow($row);
+		}
+		return $reports;
 	}
 
 	/**

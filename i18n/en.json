@@ -245,5 +245,6 @@
 	"cheevos_api_error": "Encountered Cheevos API error: $1",
 	"n-a": "N/A",
 	"achievement_id": "Achievement #$1",
-	"manual_adjustment": "Manual Adjustment"
+	"manual_adjustment": "Manual Adjustment",
+	"pointscomp": "Points Compensation Reports"
 }
