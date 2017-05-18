@@ -415,19 +415,23 @@ class PointsCompReport {
 	 * @param	boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
 	 * @param	boolean	Is this an extended comp from a previous one?
 	 * @param	boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
-	 * @param	integer	Unix timestamp for when the comp expires.
+	 * @param	integer	Unix timestamp for when the current comp expires.
+	 * @param	integer	Unix timestamp for when the new comp expires.(If applicable.)
+	 * @param	boolean	Was the new comp actually performed?
+	 * @param	boolean	User emailed to let them know about their comp?
 	 * @return	void
 	 */
-	public function addRow($globalId, $points, $compNew, $compExtended, $compFailed, $compExpires, $compPerformed = false, $emailSent = false) {
+	public function addRow($globalId, $points, $compNew, $compExtended, $compFailed, $currentCompExpires, $newCompExpires, $compPerformed = false, $emailSent = false) {
 		$data = [
-			'global_id'			=> intval($globalId),
-			'points'			=> intval($points),
-			'comp_new'			=> boolval($compNew),
-			'comp_extended'		=> boolval($compExtended),
-			'comp_failed'		=> boolval($compFailed),
-			'comp_expires'		=> intval($compExpires),
-			'comp_performed'	=> boolval($compPerformed),
-			'email_sent'		=> boolval($emailSent)
+			'global_id'				=> intval($globalId),
+			'points'				=> intval($points),
+			'comp_new'				=> boolval($compNew),
+			'comp_extended'			=> boolval($compExtended),
+			'comp_failed'			=> boolval($compFailed),
+			'current_comp_expires'	=> intval($currentCompExpires),
+			'new_comp_expires'		=> intval($newCompExpires),
+			'comp_performed'		=> boolval($compPerformed),
+			'email_sent'			=> boolval($emailSent)
 		];
 
 		if (empty($data['global_id'])) {
@@ -523,6 +527,7 @@ class PointsCompReport {
 			$isNew = false;
 			$isExtended = false;
 			$isFailed = false;
+			$currentExpires = 0; //$newExpires is set outside of the loop up above.
 
 			if ($progress->getCount() < $compedSubscriptionThreshold) {
 				continue;
@@ -536,16 +541,15 @@ class PointsCompReport {
 			$success = false;
 
 			$subscription = $gamepediaPro->getSubscription($globalId);
-			$expires = false;
+			$currentExpires = false;
 			if ($subscription !== false && is_array($subscription)) {
 				if ($subscription['plan_id'] !== 'complimentary') {
 					continue;
 				}
-				$expires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
+				$currentExpires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
 
-				if ($newExpires > $expires) {
+				if ($newExpires > $currentExpires) {
 					$isExtended = true;
-					$expires = $newExpires;
 					if ($final) {
 						$gamepediaPro->cancelCompedSubscription($globalId);
 					}
@@ -574,7 +578,7 @@ class PointsCompReport {
 			if (!$success) {
 				$isFailed = true;
 			}
-			$this->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $isFailed, $expires);
+			$this->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $isFailed, $currentExpires, $newExpires);
 		}
 		$this->save();
 	}

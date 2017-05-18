@@ -90,7 +90,8 @@ class TemplatePointsComp {
 					<th>".wfMessage('comp_new')->escaped()."</th>
 					<th>".wfMessage('comp_extended')->escaped()."</th>
 					<th>".wfMessage('comp_failed')->escaped()."</th>
-					<th>".wfMessage('comp_expires')->escaped()."</th>
+					<th>".wfMessage('current_comp_expires')->escaped()."</th>
+					<th>".wfMessage('new_comp_expires')->escaped()."</th>
 					<th>".wfMessage('comp_done')->escaped()."</th>
 					<th>".wfMessage('emailed')->escaped()."</th>
 				</tr>
@@ -106,7 +107,8 @@ class TemplatePointsComp {
 					<td>{$reportRow['comp_new']}</td>
 					<td>{$reportRow['comp_extended']}</td>
 					<td>{$reportRow['comp_failed']}</td>
-					<td>".($reportRow['comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['comp_expires']) : '&nbsp;')."</td>
+					<td>".($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;')."</td>
+					<td>".($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;')."</td>
 					<td>".($reportRow['comp_performed'] ? '✓' : 'DO IT BUTTON')."</td>
 					<td>".($reportRow['email_sent'] ? '✓' : 'DO IT BUTTON')."</td>
 				</tr>";
