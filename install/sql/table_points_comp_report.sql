@@ -15,6 +15,6 @@ CREATE TABLE /*_*/points_comp_report (
   `email_sent` tinyint(1) NOT NULL DEFAULT '0'
 ) /*$wgDBTableOptions*/;
 
-ALTER TABLE /*_*/points_comp_report ADD PRIMARY KEY (`id`), ADD KEY `report_id_global_id` (`report_id`,`global_id`), ADD KEY `month_start_month_end` (`month_start`,`month_end`), ADD KEY `current_comp_expires` (`current_comp_expires`);
+ALTER TABLE /*_*/points_comp_report ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `report_id_global_id` (`report_id`,`global_id`), ADD KEY `month_start_month_end` (`month_start`,`month_end`), ADD KEY `current_comp_expires` (`current_comp_expires`);
 
 ALTER TABLE /*_*/points_comp_report MODIFY `id` int(14) NOT NULL AUTO_INCREMENT;

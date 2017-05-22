@@ -45,7 +45,8 @@ class CheevosHooks {
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
 		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
-			$wgSyncServices[] = 'CheevosIncrementJob';
+			$wgSyncServices[] = 'Cheevos\Job\CheevosIncrementJob';
+			$wgSyncServices[] = 'Cheevos\Job\PointsCompJob';
 		}
 
 		//Allowed namespaces.

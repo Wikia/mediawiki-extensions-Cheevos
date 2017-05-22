@@ -236,9 +236,17 @@ class PointsCompReport {
 			$data['run_time'] = $this->runTime;
 			$data['month_start'] = $this->monthStart;
 			$data['month_end'] = $this->monthEnd;
-			$db->insert(
+			$db->upsert(
 				'points_comp_report',
 				$data,
+				['report_id_global_id'],
+				[
+					'comp_new'			=> $data['comp_new'],
+					'comp_extended'		=> $data['comp_extended'],
+					'comp_failed'		=> $data['comp_failed'],
+					'comp_performed'	=> $data['comp_performed'],
+					'email_sent'		=> $data['email_sent']
+				],
 				__METHOD__
 			);
 		}
@@ -483,17 +491,25 @@ class PointsCompReport {
 
 	/**
 	 * Run the report.
+	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
 	 *
 	 * @access	public
-	 * @param	integer	Point Threshold
-	 * @param	integer	Unix timestamp of the start time.
-	 * @param	integer	Unix timestamp of the end time.
-	 * @param	integer	Actually run comps.
+	 * @param	integer	[Optional] Point Threshold
+	 * @param	integer	[Optional] Unix timestamp of the start time.
+	 * @param	integer	[Optional] Unix timestamp of the end time.
+	 * @param	integer	[Optional] Actually run comps.
+	 * @param	integer	[Optional] Send email to affected users.
 	 * @return	void
 	 */
-	public function run($threshold = null, $timeStart = 0, $timeEnd = 0, $final = false) {
+	public function run($threshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
 		if (!\ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
 			throw new \MWException(__METHOD__.": Extension:Subscription must be loaded for this functionality.");
+		}
+
+		if ($this->reportId > 0) {
+			$threshold = $this->getPointThreshold();
+			$timeStart = $this->getMonthStart();
+			$timeEnd = $this->getMonthEnd();
 		}
 
 		$db = wfGetDB(DB_MASTER);
@@ -589,11 +605,13 @@ class PointsCompReport {
 
 				if ($comp !== false) {
 					$success = true;
-					/*$body = [
-						'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
-						'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
-					];
-					$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);*/
+					if ($email) {
+						$body = [
+							'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
+							'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
+						];
+						$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
+					}
 				}
 			}
 

@@ -267,5 +267,15 @@
 	"pointscomp_detail": "Comp Report #$1 - $2",
 	"comp_report_link": "#$1 - $2",
 	"comp_done": "Comp Done?",
-	"emailed": "Emailed?"
+	"emailed": "Emailed?",
+	"grant_all_comps": "Grant All Comps",
+	"email_comped_users": "Email All Comped Users",
+	"grant_all_comps_and_email": "Grant All Comps and Send Email",
+	"grant_comp": "Grant Comp",
+	"send_comp_email": "Send Email",
+	"run_new_report": "Run New Report",
+	"start_time": "From Date:",
+	"end_time": "To Date:",
+	"threshold": "Point Threshold:",
+	"run_new_report": "Run New Report"
 }

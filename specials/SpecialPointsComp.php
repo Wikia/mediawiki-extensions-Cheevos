@@ -52,9 +52,10 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function pointsCompReports($subpage = null) {
-			$start = $this->getRequest()->getInt('st');
-			$itemsPerPage = 50;
+		$start = $this->getRequest()->getInt('st');
+		$itemsPerPage = 50;
 		$reportId = intval($subpage);
+		$messages = $this->runReport();
 		if ($reportId > 0) {
 			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
 			if (!$report) {
@@ -69,6 +70,47 @@ class SpecialPointsComp extends SpecialPage {
 			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp')->escaped());
 			$this->content = TemplatePointsComp::pointsCompReports($reportData['reports'], $pagination);
+		}
+	}
+
+	/**
+	 * Run a report into the job queue.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function runReport() {
+		if ($this->getRequest()->wasPosted()) {
+			$final = false;
+			$email = false;
+
+			$do = $this->getRequest()->getVal('do');
+			if ($do === 'grantAll' || $do === 'grantAndEmailAll') {
+				$final = true;
+			}
+
+			if ($do === 'emailAll' || $do === 'grantAndEmailAll') {
+				$email = true;
+			}
+
+			$reportId = $this->getRequest()->getInt('report_id');
+			if ($reportId > 0) {
+				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
+				if (!$report) {
+					throw new ErrorPageError('poiints_comp_report_error', 'report_does_not_exist');
+				}
+			}
+
+			$success = \Cheevos\Job\PointsCompJob::queue(
+				[
+					'threshold'		=> $this->getRequest()->getInt('threshold'),
+					'start_time'	=> $this->getRequest()->getInt('start_time'),
+					'end_time'		=> $this->getRequest()->getInt('end_time'),
+					'report_id'		=> $reportId,
+					'final'			=> $final,
+					'email'			=> $email
+				]
+			);
 		}
 	}
 

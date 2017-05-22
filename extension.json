@@ -70,23 +70,25 @@
 		"cheevosstats": "CheevosStatsAPI"
 	},
 	"AutoloadClasses": {
-		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosAPI": "Cheevos.api.php",
+		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
-		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
-		"Cheevos\\CheevosException": "classes/CheevosException.php",
-		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
 		"Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
 		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
 		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
 		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
 		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
+		"Cheevos\\CheevosException": "classes/CheevosException.php",
+		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
+		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
 		"Cheevos\\CheevosSiteEditPointsPromotion": "classes/CheevosSiteEditPointsPromotion.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
 		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
+		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
+		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",
 		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
 		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
@@ -105,8 +107,8 @@
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
 		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
 		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
-		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php",
-		"CheevosIncrementJob": "jobs/CheevosIncrementJob.php"
+		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
+
 	},
 	"ResourceModules": {
 		"ext.cheevos.resumable.js": {

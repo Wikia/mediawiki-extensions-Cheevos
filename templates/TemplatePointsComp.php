@@ -21,8 +21,11 @@ class TemplatePointsComp {
 	 * @return	string	HTML
 	 */
 	static public function pointsCompReports($reports = [], $pagination = '') {
+		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
+		$pointsCompURL	= $pointsCompPage->getFullURL();
+
 		$html .= "
-		<form>
+		<form method='post' action='{$pointsCompURL}'>
 			<fieldset>
 				<legend>".wfMessage('run_new_report')->escaped()."</legend>
 				".($errors['start_time'] ? '<span class="error">'.$errors['start_time'].'</span>' : '')."
@@ -37,6 +40,7 @@ class TemplatePointsComp {
 
 				<label for='threshold'>".wfMessage('threshold')->escaped()."</label>
 				<input id='threshold' name='threshold' type='text' value=''/>
+				<input type='submit' value='".wfMessage('run_new_report')->escaped()."'/>
 			</fieldset>
 		</form>
 		{$pagination}
@@ -86,23 +90,26 @@ class TemplatePointsComp {
 	 * @return	string	HTML
 	 */
 	static public function pointsCompReportDetail($report) {
+		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $report->getReportId());
+		$pointsCompURL	= $pointsCompPage->getFullURL();
+
 		$html .= "
-		<dl>
-			<dt>".wfMessage('run_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getRunTime())."</dd>
-			<dt>".wfMessage('point_threshold')->escaped()."</dt><dd>{$report->getPointThreshold()}</dd>
-			<dt>".wfMessage('month_start')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthStart())."</dd>
-			<dt>".wfMessage('month_end')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthEnd())."</dd>
-			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd>
-			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd>
-			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd>
-			<dt>".wfMessage('total_performed')->escaped()."</dt><dd>{$report->getTotalPerformed()}</dd>
+		<dl class='collapse_dl'>
+			<dt>".wfMessage('run_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getRunTime())."</dd><br/>
+			<dt>".wfMessage('point_threshold')->escaped()."</dt><dd>{$report->getPointThreshold()}</dd><br/>
+			<dt>".wfMessage('month_start')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthStart())."</dd><br/>
+			<dt>".wfMessage('month_end')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthEnd())."</dd><br/>
+			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd><br/>
+			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd><br/>
+			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd><br/>
+			<dt>".wfMessage('total_performed')->escaped()."</dt><dd>{$report->getTotalPerformed()}</dd><br/>
 			<dt>".wfMessage('total_emailed')->escaped()."</dt><dd>{$report->getTotalEmailed()}</dd>
 		</dl>
-		<form method='post' action='?do=run'>
+		<form method='post' action='{$pointsCompURL}'>
 			<input name='report_id' type='hidden' value='{$report->getReportId()}'/>
-			<input name='report_id' type='button' value='".wfMessage('give_all_comps')->escaped()."'/>
-			<input name='report_id' type='button' value='".wfMessage('email_users')->escaped()."'/>
-			<input name='report_id' type='button' value='".wfMessage('give_all_comps_and_email')->escaped()."'/>
+			<button name='do' type='submit' value='grantAll'>".wfMessage('grant_all_comps')->escaped()."</button>
+			<button name='do' type='submit' value='emailAll'/>".wfMessage('email_comped_users')->escaped()."</button>
+			<button name='do' type='submit' value='grantAndEmailAll'/>".wfMessage('grant_all_comps_and_email')->escaped()."</button>
 		</form>
 		<table class='wikitable'>
 			<thead>
@@ -131,8 +138,8 @@ class TemplatePointsComp {
 					<td>{$reportRow['comp_failed']}</td>
 					<td>".($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;')."</td>
 					<td>".($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;')."</td>
-					<td>".($reportRow['comp_performed'] ? '✓' : 'DO IT BUTTON')."</td>
-					<td>".($reportRow['email_sent'] ? '✓' : 'DO IT BUTTON')."</td>
+					<td>".($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('grant_comp')->escaped()."</button>")."</td>
+					<td>".($reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('send_comp_email')->escaped()."</button>")."</td>
 				</tr>";
 		}
 		$html .= "
