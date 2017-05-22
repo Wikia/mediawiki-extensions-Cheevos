@@ -16,10 +16,30 @@ class TemplatePointsComp {
 	 * Points Comp Reports List
 	 *
 	 * @access	public
+	 * @param	array	Reports
+	 * @param	string	Pagination HTML
 	 * @return	string	HTML
 	 */
-	static public function pointsCompReports($reports = []) {
+	static public function pointsCompReports($reports = [], $pagination = '') {
 		$html .= "
+		<form>
+			<fieldset>
+				<legend>".wfMessage('run_new_report')->escaped()."</legend>
+				".($errors['start_time'] ? '<span class="error">'.$errors['start_time'].'</span>' : '')."
+				<label for='start_time'>".wfMessage('start_time')->escaped()."</label>
+				<input id='start_time_datepicker' data-input='start_time' type='text' value=''/>
+				<input id='start_time' name='start_time' type='hidden' value=''/>
+
+				".($errors['end_time'] ? '<span class="error">'.$errors['end_time'].'</span>' : '')."
+				<label for='end_time'>".wfMessage('end_time')->escaped()."</label>
+				<input id='end_time_datepicker' data-input='end_time' type='text' value=''/>
+				<input id='end_time' name='end_time' type='hidden' value=''/>
+
+				<label for='threshold'>".wfMessage('threshold')->escaped()."</label>
+				<input id='threshold' name='threshold' type='text' value=''/>
+			</fieldset>
+		</form>
+		{$pagination}
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -39,7 +59,7 @@ class TemplatePointsComp {
 			foreach ($reports as $report) {
 				$html .= "
 				<tr>
-					<td>".Linker::linkKnown(SpecialPage::getTitleFor('PointsComp', $report->getReportId()), wfMessage('comp_report_link', $report->getReportId())->escaped())."</td>
+					<td>".Linker::linkKnown(SpecialPage::getTitleFor('PointsComp', $report->getReportId()), wfMessage('comp_report_link', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped())."</td>
 					<td>{$report->getPointThreshold()}</td>
 					<td>".gmdate('Y-m-d', $report->getMonthStart())."</td>
 					<td>".gmdate('Y-m-d', $report->getMonthEnd())."</td>
@@ -53,7 +73,8 @@ class TemplatePointsComp {
 		}
 		$html .= "
 			</tbody>
-		</table>";
+		</table>
+		{$pagination}";
 
 		return $html;
 	}
@@ -67,6 +88,7 @@ class TemplatePointsComp {
 	static public function pointsCompReportDetail($report) {
 		$html .= "
 		<dl>
+			<dt>".wfMessage('run_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getRunTime())."</dd>
 			<dt>".wfMessage('point_threshold')->escaped()."</dt><dd>{$report->getPointThreshold()}</dd>
 			<dt>".wfMessage('month_start')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthStart())."</dd>
 			<dt>".wfMessage('month_end')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthEnd())."</dd>

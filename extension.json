@@ -247,6 +247,16 @@
 				"ext.hydraCore.pagination"
 			],
 			"position": "top"
+		},
+		"ext.cheevos.pointsComp.js": {
+			"scripts": [
+				"js/cheevos.pointscomp.js"
+			],
+			"dependencies": [
+				"jquery.ui.datepicker",
+				"ext.hydraCore.pagination"
+			],
+			"position": "top"
 		}
 	},
 	"ResourceFileModulePaths": {

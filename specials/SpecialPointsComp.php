@@ -38,7 +38,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.js']);
+		$this->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
 		$this->setHeaders();
 		$this->pointsCompReports($subpage);
 		$this->getOutput()->addHTML($this->content);
@@ -61,14 +61,14 @@ class SpecialPointsComp extends SpecialPage {
 				throw new ErrorPageError('poiints_comp_report_error', 'report_does_not_exist');
 			}
 			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
-			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $reportId)->escaped());
+			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped());
 			$this->content = $pagination.TemplatePointsComp::pointsCompReportDetail($report).$pagination;
 		} else {
 			$reportData = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
 
 			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp')->escaped());
-			$this->content = $pagination.TemplatePointsComp::pointsCompReports($reportData['reports']).$pagination;
+			$this->content = TemplatePointsComp::pointsCompReports($reportData['reports'], $pagination);
 		}
 	}
 

@@ -2,6 +2,7 @@ CREATE TABLE /*_*/points_comp_report (
   `id` int(14) NOT NULL,
   `report_id` int(10) DEFAULT '0',
   `global_id` int(14) NOT NULL DEFAULT '0',
+  `run_time` int(14) NOT NULL DEFAULT '0',
   `points` int(8) NOT NULL,
   `month_start` int(14) NOT NULL DEFAULT '0',
   `month_end` int(14) NOT NULL DEFAULT '0',

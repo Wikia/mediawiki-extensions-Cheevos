@@ -26,6 +26,13 @@ class PointsCompReport {
 	private $reportId;
 
 	/**
+	 * Report Run Timestamp - When this report was generated.
+	 *
+	 * @var		integer
+	 */
+	private $runTime = 0;
+
+	/**
 	 * Point Threshold
 	 *
 	 * @var		integer
@@ -125,6 +132,7 @@ class PointsCompReport {
 	private static function newFromRow($row) {
 		$report = new self($row['id']);
 
+		$report->runTime = $row['run_time'];
 		$report->pointThreshold = $row['points'];
 		$report->monthStart = $row['month_start'];
 		$report->monthEnd = $row['month_end'];
@@ -162,6 +170,7 @@ class PointsCompReport {
 		while ($row = $result->fetchRow()) {
 			if ($row['global_id'] == 0 && $row['id'] == $row['report_id']) {
 				$this->reportId = $row['report_id'];
+				$this->runTime = $row['run_time'];
 				$this->pointThreshold = $row['points'];
 				$this->monthStart = $row['month_start'];
 				$this->monthEnd = $row['month_end'];
@@ -191,9 +200,11 @@ class PointsCompReport {
 		$db = wfGetDB(DB_MASTER);
 
 		if (!$this->reportId) {
+			$this->runTime = time();
 			$success = $db->insert(
 				'points_comp_report',
 				[
+					'run_time'			=> $this->runTime,
 					'points'			=> $this->pointThreshold,
 					'month_start'		=> $this->monthStart,
 					'month_end'			=> $this->monthEnd,
@@ -222,6 +233,7 @@ class PointsCompReport {
 
 		foreach ($this->reportData as $globalId => $data) {
 			$data['report_id'] = $this->reportId;
+			$data['run_time'] = $this->runTime;
 			$data['month_start'] = $this->monthStart;
 			$data['month_end'] = $this->monthEnd;
 			$db->insert(
@@ -290,6 +302,16 @@ class PointsCompReport {
 	 */
 	public function getReportId() {
 		return $this->reportId;
+	}
+
+	/**
+	 * Get when this reported was generated.
+	 *
+	 * @access	public
+	 * @return	integer	Run time Unix timestamp.
+	 */
+	public function getRunTime() {
+		return $this->runTime;
 	}
 
 	/**

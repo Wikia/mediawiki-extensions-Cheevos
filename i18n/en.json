@@ -247,6 +247,7 @@
 	"achievement_id": "Achievement #$1",
 	"manual_adjustment": "Manual Adjustment",
 	"pointscomp": "Points Comp Reports",
+	"run_time": "Run Time",
 	"point_threshold": "Point Threshold",
 	"month_start": "Month Start",
 	"month_end": "Month End",
@@ -263,8 +264,8 @@
 	"comp_failed": "Failed",
 	"current_comp_expires": "Current Comp Expires",
 	"new_comp_expires": "New Comp Expires",
-	"pointscomp_detail": "Comp Report #$1",
-	"comp_report_link": "#$1",
+	"pointscomp_detail": "Comp Report #$1 - $2",
+	"comp_report_link": "#$1 - $2",
 	"comp_done": "Comp Done?",
 	"emailed": "Emailed?"
 }
