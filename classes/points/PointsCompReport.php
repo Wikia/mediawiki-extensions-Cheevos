@@ -562,9 +562,7 @@ class PointsCompReport {
 		$this->setMonthEnd($filters['end_time']);
 
 		foreach ($statProgress as $progress) {
-			$isNew = false;
 			$isExtended = false;
-			$isFailed = false;
 			$currentExpires = 0; //$newExpires is set outside of the loop up above.
 
 			if ($progress->getCount() < $compedSubscriptionThreshold) {
@@ -596,30 +594,57 @@ class PointsCompReport {
 				}
 			}
 
-			if (!$isExtended) {
-				$isNew = true;
-			}
-
 			if ($final) {
 				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
 
 				if ($comp !== false) {
 					$success = true;
 					if ($email) {
-						$body = [
-							'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
-							'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
-						];
-						$user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
+						$emailSent = self::sendUserEmail($user);
 					}
 				}
 			}
 
-			if (!$success) {
-				$isFailed = true;
-			}
-			$this->addRow($globalId, $progress->getCount(), $isNew, $isExtended, $isFailed, $currentExpires, $newExpires);
+			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, $currentExpires, $newExpires, $success, $emailSent);
 		}
 		$this->save();
+	}
+
+	/**
+	 * Create a subscription compensation in the billing service.
+	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	integer	Number of months into the future to compensate.
+	 * @return	boolean	Success
+	 */
+	public function compSubscription($globalId, $numberOfMonths) {
+		$subscription = $gamepediaPro->getSubscription($globalId);
+
+		$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
+
+		if ($comp !== false) {
+			
+		}
+	}
+
+	/**
+	 * Send user comp email.
+	 *
+	 * @access	public
+	 * @param	object	User
+	 * @return	boolean	Success
+	 */
+	static public function sendUserEmail($user) {
+		$body = [
+			'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
+			'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
+		];
+		$status = $user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
+		if ($status->isGood()) {
+			return true;
+		}
+		return false;
 	}
 }

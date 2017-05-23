@@ -59,7 +59,7 @@ class SpecialPointsComp extends SpecialPage {
 		if ($reportId > 0) {
 			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
 			if (!$report) {
-				throw new ErrorPageError('poiints_comp_report_error', 'report_does_not_exist');
+				throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 			}
 			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped());
@@ -81,6 +81,23 @@ class SpecialPointsComp extends SpecialPage {
 	 */
 	public function runReport() {
 		if ($this->getRequest()->wasPosted()) {
+			$lookup = CentralIdLookup::factory();
+
+			$doCompUser = $this->getRequest()->getInt('compUser');
+			$doEmailUser = $this->getRequest()->getVal('emailUser');
+			if ($doCompUser > 0 || $doEmailUser > 0) {
+				if ($doCompUser > 0) {
+					
+				}
+				if ($doEmailUser > 0) {
+					$user = $lookup->localUserFromCentralId($doEmailUser);
+					if ($user !== null) {
+						\Cheevos\Points\PointsCompReport::sendUserEmail($user);
+					}
+				}
+				return;
+			}
+
 			$final = false;
 			$email = false;
 
@@ -97,15 +114,20 @@ class SpecialPointsComp extends SpecialPage {
 			if ($reportId > 0) {
 				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
 				if (!$report) {
-					throw new ErrorPageError('poiints_comp_report_error', 'report_does_not_exist');
+					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 				}
 			}
+
+			$startTime = $this->getRequest()->getInt('start_time');
+			$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
+			$endTime = $this->getRequest()->getInt('end_time');
+			$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
 
 			$success = \Cheevos\Job\PointsCompJob::queue(
 				[
 					'threshold'		=> $this->getRequest()->getInt('threshold'),
-					'start_time'	=> $this->getRequest()->getInt('start_time'),
-					'end_time'		=> $this->getRequest()->getInt('end_time'),
+					'start_time'	=> $startTime,
+					'end_time'		=> $endTime,
 					'report_id'		=> $reportId,
 					'final'			=> $final,
 					'email'			=> $email

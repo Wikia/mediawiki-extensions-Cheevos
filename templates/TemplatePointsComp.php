@@ -110,41 +110,41 @@ class TemplatePointsComp {
 			<button name='do' type='submit' value='grantAll'>".wfMessage('grant_all_comps')->escaped()."</button>
 			<button name='do' type='submit' value='emailAll'/>".wfMessage('email_comped_users')->escaped()."</button>
 			<button name='do' type='submit' value='grantAndEmailAll'/>".wfMessage('grant_all_comps_and_email')->escaped()."</button>
-		</form>
-		<table class='wikitable'>
-			<thead>
-				<tr>
-					<th>".wfMessage('wpa_user')->escaped()."</th>
-					<th>".wfMessage('comp_points')->escaped()."</th>
-					<th>".wfMessage('comp_new')->escaped()."</th>
-					<th>".wfMessage('comp_extended')->escaped()."</th>
-					<th>".wfMessage('comp_failed')->escaped()."</th>
-					<th>".wfMessage('current_comp_expires')->escaped()."</th>
-					<th>".wfMessage('new_comp_expires')->escaped()."</th>
-					<th>".wfMessage('comp_done')->escaped()."</th>
-					<th>".wfMessage('emailed')->escaped()."</th>
-				</tr>
-			</thead>
-			<tbody>";
+			<table class='wikitable'>
+				<thead>
+					<tr>
+						<th>".wfMessage('wpa_user')->escaped()."</th>
+						<th>".wfMessage('comp_points')->escaped()."</th>
+						<th>".wfMessage('comp_new')->escaped()."</th>
+						<th>".wfMessage('comp_extended')->escaped()."</th>
+						<th>".wfMessage('comp_failed')->escaped()."</th>
+						<th>".wfMessage('current_comp_expires')->escaped()."</th>
+						<th>".wfMessage('new_comp_expires')->escaped()."</th>
+						<th>".wfMessage('comp_done')->escaped()."</th>
+						<th>".wfMessage('emailed')->escaped()."</th>
+					</tr>
+				</thead>
+				<tbody>";
 		$lookup = CentralIdLookup::factory();
 		while (($reportRow = $report->getNextRow()) !== false) {
 			$user = $lookup->localUserFromCentralId($reportRow['global_id']);
 			$html .= "
-				<tr>
-					<td>".($user ? $user->getName() : 'GID: '.$reportRow['global_id'])."</td>
-					<td>{$reportRow['points']}</td>
-					<td>{$reportRow['comp_new']}</td>
-					<td>{$reportRow['comp_extended']}</td>
-					<td>{$reportRow['comp_failed']}</td>
-					<td>".($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;')."</td>
-					<td>".($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;')."</td>
-					<td>".($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('grant_comp')->escaped()."</button>")."</td>
-					<td>".($reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('send_comp_email')->escaped()."</button>")."</td>
-				</tr>";
+					<tr>
+						<td>".($user ? $user->getName() : 'GID: '.$reportRow['global_id'])."</td>
+						<td>{$reportRow['points']}</td>
+						<td>{$reportRow['comp_new']}</td>
+						<td>{$reportRow['comp_extended']}</td>
+						<td>{$reportRow['comp_failed']}</td>
+						<td>".($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;')."</td>
+						<td>".($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;')."</td>
+						<td>".($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('grant_comp')->escaped()."</button>")."</td>
+						<td>".($reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('send_comp_email')->escaped()."</button>")."</td>
+					</tr>";
 		}
 		$html .= "
-			</tbody>
-		</table>";
+				</tbody>
+			</table>
+		</form>";
 
 		return $html;
 	}

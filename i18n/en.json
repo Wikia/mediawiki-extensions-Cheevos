@@ -256,7 +256,7 @@
 	"total_failed": "Failed",
 	"total_performed": "Performed",
 	"total_emailed": "Emailed",
-	"poiints_comp_report_error": "Points Comp Report Error",
+	"points_comp_report_error": "Points Comp Report Error",
 	"report_does_not_exist": "That report number does not exist.",
 	"comp_points": "Points",
 	"comp_new": "New",
