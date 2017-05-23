@@ -133,6 +133,9 @@ class SpecialPointsComp extends SpecialPage {
 					'email'			=> $email
 				]
 			);
+			$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
+			$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
+			return;
 		}
 	}
 

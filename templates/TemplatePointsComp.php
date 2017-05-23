@@ -21,8 +21,17 @@ class TemplatePointsComp {
 	 * @return	string	HTML
 	 */
 	static public function pointsCompReports($reports = [], $pagination = '') {
+		global $wgRequest;
+
 		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
 		$pointsCompURL	= $pointsCompPage->getFullURL();
+
+		$html = '';
+
+		if ($wgRequest->getInt('queued')) {
+			$html .= "
+			<div><div class='successbox'>".wfMessage('points_comp_report_queued')->escaped()."</div></div>";
+		}
 
 		$html .= "
 		<form method='post' action='{$pointsCompURL}'>

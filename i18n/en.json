@@ -277,5 +277,6 @@
 	"start_time": "From Date:",
 	"end_time": "To Date:",
 	"threshold": "Point Threshold:",
-	"run_new_report": "Run New Report"
+	"run_new_report": "Run New Report",
+	"points_comp_report_queued": "The requested report should finish in about ten minutes or less.  Please refresh this page or come back later to check its progress."
 }
