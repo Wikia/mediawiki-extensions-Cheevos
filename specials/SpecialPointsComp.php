@@ -125,12 +125,13 @@ class SpecialPointsComp extends SpecialPage {
 
 			$success = \Cheevos\Job\PointsCompJob::queue(
 				[
-					'threshold'		=> $this->getRequest()->getInt('threshold'),
-					'start_time'	=> $startTime,
-					'end_time'		=> $endTime,
-					'report_id'		=> $reportId,
-					'final'			=> $final,
-					'email'			=> $email
+					'min_point_threshold'	=> $this->getRequest()->getInt('min_point_threshold'),
+					'max_point_threshold'	=> $this->getRequest()->getInt('max_point_threshold'),
+					'start_time'			=> $startTime,
+					'end_time'				=> $endTime,
+					'report_id'				=> $reportId,
+					'final'					=> $final,
+					'email'					=> $email
 				]
 			);
 			$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');

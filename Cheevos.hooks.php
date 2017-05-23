@@ -727,6 +727,7 @@ class CheevosHooks {
 		$extDir = __DIR__;
 
 		$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
+		$updater->addExtensionUpdate(['addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true]);
 		return true;
 	}
 }

@@ -77,7 +77,7 @@ class CompSubscriptions extends Maintenance {
 		}
 
 		$report = new \Cheevos\Points\PointsCompReport();
-		$report->run($this->getOption('threshold'), $startTime, $endTime, $this->hasOption('final'));
+		$report->run(0, $this->getOption('threshold'), $startTime, $endTime, $this->hasOption('final'));
 	}
 }
 

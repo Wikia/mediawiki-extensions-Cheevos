@@ -26,6 +26,8 @@ class TemplatePointsComp {
 		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
 		$pointsCompURL	= $pointsCompPage->getFullURL();
 
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+
 		$html = '';
 
 		if ($wgRequest->getInt('queued')) {
@@ -47,8 +49,12 @@ class TemplatePointsComp {
 				<input id='end_time_datepicker' data-input='end_time' type='text' value=''/>
 				<input id='end_time' name='end_time' type='hidden' value=''/>
 
-				<label for='threshold'>".wfMessage('threshold')->escaped()."</label>
-				<input id='threshold' name='threshold' type='text' value=''/>
+				<label for='min_point_threshold'>".wfMessage('min_point_threshold')->escaped()."</label>
+				<input id='min_point_threshold' name='min_point_threshold' type='text' value='0'/>
+
+				<label for='max_point_threshold'>".wfMessage('max_point_threshold')->escaped()."</label>
+				<input id='max_point_threshold' name='max_point_threshold' type='text' value='".intval($config->get('CompedSubscriptionThreshold'))."'/>
+
 				<input type='submit' value='".wfMessage('run_new_report')->escaped()."'/>
 			</fieldset>
 		</form>
@@ -57,9 +63,10 @@ class TemplatePointsComp {
 			<thead>
 				<tr>
 					<th>&nbsp;</th>
-					<th>".wfMessage('point_threshold')->escaped()."</th>
-					<th>".wfMessage('month_start')->escaped()."</th>
-					<th>".wfMessage('month_end')->escaped()."</th>
+					<th>".wfMessage('min_point_threshold')->escaped()."</th>
+					<th>".wfMessage('max_point_threshold')->escaped()."</th>
+					<th>".wfMessage('start_time')->escaped()."</th>
+					<th>".wfMessage('end_time')->escaped()."</th>
 					<th>".wfMessage('total_new')->escaped()."</th>
 					<th>".wfMessage('total_extended')->escaped()."</th>
 					<th>".wfMessage('total_failed')->escaped()."</th>
@@ -73,9 +80,10 @@ class TemplatePointsComp {
 				$html .= "
 				<tr>
 					<td>".Linker::linkKnown(SpecialPage::getTitleFor('PointsComp', $report->getReportId()), wfMessage('comp_report_link', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped())."</td>
-					<td>{$report->getPointThreshold()}</td>
-					<td>".gmdate('Y-m-d', $report->getMonthStart())."</td>
-					<td>".gmdate('Y-m-d', $report->getMonthEnd())."</td>
+					<td>{$report->getMinPointThreshold()}</td>
+					<td>{$report->getMaxPointThreshold()}</td>
+					<td>".gmdate('Y-m-d', $report->getStartTime())."</td>
+					<td>".gmdate('Y-m-d', $report->getEndTime())."</td>
 					<td>{$report->getTotalNew()}</td>
 					<td>{$report->getTotalExtended()}</td>
 					<td>{$report->getTotalFailed()}</td>
@@ -105,9 +113,10 @@ class TemplatePointsComp {
 		$html .= "
 		<dl class='collapse_dl'>
 			<dt>".wfMessage('run_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getRunTime())."</dd><br/>
-			<dt>".wfMessage('point_threshold')->escaped()."</dt><dd>{$report->getPointThreshold()}</dd><br/>
-			<dt>".wfMessage('month_start')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthStart())."</dd><br/>
-			<dt>".wfMessage('month_end')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getMonthEnd())."</dd><br/>
+			<dt>".wfMessage('min_point_threshold')->escaped()."</dt><dd>{$report->getMinPointThreshold()}</dd><br/>
+			<dt>".wfMessage('max_point_threshold')->escaped()."</dt><dd>{$report->getMaxPointThreshold()}</dd><br/>
+			<dt>".wfMessage('start_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getStartTime())."</dd><br/>
+			<dt>".wfMessage('end_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getEndTime())."</dd><br/>
 			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd><br/>
 			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd><br/>
 			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd><br/>

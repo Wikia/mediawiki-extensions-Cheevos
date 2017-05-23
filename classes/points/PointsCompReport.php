@@ -19,82 +19,20 @@ namespace Cheevos\Points;
  */
 class PointsCompReport {
 	/**
-	 * Report ID
-	 *
-	 * @var		integer
-	 */
-	private $reportId;
-
-	/**
-	 * Report Run Timestamp - When this report was generated.
-	 *
-	 * @var		integer
-	 */
-	private $runTime = 0;
-
-	/**
-	 * Point Threshold
-	 *
-	 * @var		integer
-	 */
-	private $pointThreshold = 0;
-
-	/**
-	 * Month Start
-	 *
-	 * @var		integer
-	 */
-	private $monthStart = 0;
-
-	/**
-	 * Month End
-	 *
-	 * @var		integer
-	 */
-	private $monthEnd = 0;
-
-	/**
-	 * Total new comps.
-	 *
-	 * @var		integer
-	 */
-	private $totalNew = 0;
-
-	/**
-	 * Total extended comps.
-	 *
-	 * @var		integer
-	 */
-	private $totalExtended = 0;
-
-	/**
-	 * Total failed comps.
-	 *
-	 * @var		integer
-	 */
-	private $totalFailed = 0;
-
-	/**
-	 * Total comps actually performed.
-	 *
-	 * @var		integer
-	 */
-	private $totalPerformed = 0;
-
-	/**
-	 * Total users emailed to inform them.
-	 *
-	 * @var		integer
-	 */
-	private $totalEmailed = 0;
-
-	/**
 	 * Report Data
-	 * [$globalId => {database row}]
+	 * [{database row}]
 	 *
 	 * @var		array
 	 */
 	private $reportData = [];
+
+	/**
+	 * Report User Data
+	 * [$globalId => {database row}]
+	 *
+	 * @var		array
+	 */
+	private $reportUser = [];
 
 	/**
 	 * Main Constructor
@@ -104,7 +42,7 @@ class PointsCompReport {
 	 * @return	void
 	 */
 	public function __construct($reportId = 0) {
-		$this->reportId = intval($reportId);
+		$this->reportData['report_id'] = intval($reportId);
 	}
 
 	/**
@@ -130,17 +68,8 @@ class PointsCompReport {
 	 * @return	object	PointsCompReport
 	 */
 	private static function newFromRow($row) {
-		$report = new self($row['id']);
-
-		$report->runTime = $row['run_time'];
-		$report->pointThreshold = $row['points'];
-		$report->monthStart = $row['month_start'];
-		$report->monthEnd = $row['month_end'];
-		$report->totalNew = $row['comp_new'];
-		$report->totalExtended = $row['comp_extended'];
-		$report->totalFailed = $row['comp_failed'];
-		$report->totalPerformed = $row['comp_performed'];
-		$report->totalEmailed = $row['email_sent'];
+		$report = new self($row['report_id']);
+		$report->reportData = $row;
 
 		return $report;
 	}
@@ -157,37 +86,37 @@ class PointsCompReport {
 		$result = $db->select(
 			['points_comp_report'],
 			['*'],
-			['report_id' => $this->reportId],
+			['report_id' => $this->reportData['report_id']],
+			__METHOD__
+		);
+		$report = $result->fetchRow();
+		if (empty($report)) {
+			return false;
+		}
+		$this->reportData = $report;
+
+		$result = $db->select(
+			['points_comp_report_user'],
+			['*'],
+			['report_id' => $this->reportData['report_id']],
 			__METHOD__,
 			[
 				'ORDER BY'	=> 'global_id ASC'
 			]
 		);
 
-		if (!empty($this->reportData)) {
-			$this->reportData = [];
+		if (!empty($this->reportUser)) {
+			$this->reportUser = [];
 		}
 		while ($row = $result->fetchRow()) {
-			if ($row['global_id'] == 0 && $row['id'] == $row['report_id']) {
-				$this->reportId = $row['report_id'];
-				$this->runTime = $row['run_time'];
-				$this->pointThreshold = $row['points'];
-				$this->monthStart = $row['month_start'];
-				$this->monthEnd = $row['month_end'];
-				$this->totalNew = $row['comp_new'];
-				$this->totalExtended = $row['comp_extended'];
-				$this->totalFailed = $row['comp_failed'];
-				$this->totalPerformed = $row['comp_performed'];
-				$this->totalEmailed = $row['email_sent'];
-				continue;
-			} elseif ($row['global_id'] == 0) {
+			if ($row['global_id'] == 0) {
 				continue;
 			}
 
-			$this->reportData[$row['global_id']] = $row;
+			$this->reportUser[$row['global_id']] = $row;
 		}
 
-		return boolval($this->reportId);
+		return boolval($this->reportData['report_id']);
 	}
 
 	/**
@@ -199,45 +128,32 @@ class PointsCompReport {
 	public function save() {
 		$db = wfGetDB(DB_MASTER);
 
-		if (!$this->reportId) {
-			$this->runTime = time();
+		if ($this->reportData['report_id'] < 1) {
+			$this->reportData['run_time'] = time();
 			$success = $db->insert(
 				'points_comp_report',
 				[
-					'run_time'			=> $this->runTime,
-					'points'			=> $this->pointThreshold,
-					'month_start'		=> $this->monthStart,
-					'month_end'			=> $this->monthEnd,
-					'comp_new'			=> $this->totalNew,
-					'comp_extended'		=> $this->totalExtended,
-					'comp_failed'		=> $this->totalFailed,
-					'comp_performed'	=> $this->totalPerformed,
-					'email_sent'		=> $this->totalEmailed
+					'run_time'			=> $this->reportData['run_time'],
+					'min_points'		=> $this->reportData['min_points'],
+					'max_points'		=> $this->reportData['max_points'],
+					'start_time'		=> $this->reportData['start_time'],
+					'end_time'			=> $this->reportData['end_time']
 				],
 				__METHOD__
 			);
 
-			$reportId = $db->insertId();
-			if ($success && $reportId > 0) {
-				$db->update(
-					'points_comp_report',
-					['report_id' => $reportId],
-					['id' => $reportId],
-					__METHOD__
-				);
-				$this->reportId = $reportId;
-			} else {
+			$this->reportData['report_id'] = intval($db->insertId());
+			if (!$success || !$this->reportData['report_id']) {
 				throw new MWException(__METHOD__.': Could not get a new report ID.');
 			}
 		}
 
-		foreach ($this->reportData as $globalId => $data) {
-			$data['report_id'] = $this->reportId;
-			$data['run_time'] = $this->runTime;
-			$data['month_start'] = $this->monthStart;
-			$data['month_end'] = $this->monthEnd;
+		foreach ($this->reportUser as $globalId => $data) {
+			$data['report_id'] = $this->reportData['report_id'];
+			$data['start_time'] = $this->reportData['start_time'];
+			$data['end_time'] = $this->reportData['end_time'];
 			$db->upsert(
-				'points_comp_report',
+				'points_comp_report_user',
 				$data,
 				['report_id_global_id'],
 				[
@@ -250,7 +166,35 @@ class PointsCompReport {
 				__METHOD__
 			);
 		}
+		$this->updateStats();
 		return true;
+	}
+
+	/**
+	 * Update the report statistics into the database.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function updateStats() {
+		$db = wfGetDB(DB_MASTER);
+
+		foreach (['comp_new', 'comp_extended', 'comp_failed', 'comp_performed', 'email_sent'] as $stat) {
+			$result = $db->select(
+				['points_comp_report_user'],
+				['count('.$stat.') as total'],
+				[$stat => 1],
+				__METHOD__
+			);
+			$total = $result->fetchRow();
+			$data[$stat] = intval($total['total']);
+		}
+		$db->update(
+			'points_comp_report',
+			$data,
+			['report_id' => $this->reportData['report_id']],
+			__METHOD__
+		);
 	}
 
 	/**
@@ -259,7 +203,7 @@ class PointsCompReport {
 	 * @access	private
 	 * @param	integer	Start Position
 	 * @param	integer	Maximum Items to Return
-	 * @return	array	Multidimensional array of ['total' => $total, $reportId => [{reportData}]]
+	 * @return	array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
 	static public function getReportsList($start = 0, $itemsPerPage = 50) {
 		$db = wfGetDB(DB_MASTER);
@@ -267,13 +211,10 @@ class PointsCompReport {
 		$result = $db->select(
 			['points_comp_report'],
 			['*'],
-			[
-				'report_id = id',
-				'global_id' => 0
-			],
+			[],
 			__METHOD__,
 			[
-				'ORDER BY'	=> 'id DESC',
+				'ORDER BY'	=> 'report_id DESC',
 				'OFFSET'	=> $start,
 				'LIMIT'		=> $itemsPerPage
 			]
@@ -281,19 +222,16 @@ class PointsCompReport {
 
 		$reports = [];
 		while ($row = $result->fetchRow()) {
-			$reports[$row['id']] = self::newFromRow($row);
+			$reports[$row['report_id']] = self::newFromRow($row);
 		}
 
 		$result = $db->select(
 			['points_comp_report'],
 			['count(*) as total'],
-			[
-				'report_id = id',
-				'global_id' => 0
-			],
+			[],
 			__METHOD__,
 			[
-				'ORDER BY'	=> 'id DESC'
+				'ORDER BY'	=> 'report_id DESC'
 			]
 		);
 		$total = $result->fetchRow();
@@ -309,7 +247,7 @@ class PointsCompReport {
 	 * @return	integer	This report ID.
 	 */
 	public function getReportId() {
-		return $this->reportId;
+		return $this->reportData['report_id'];
 	}
 
 	/**
@@ -319,70 +257,91 @@ class PointsCompReport {
 	 * @return	integer	Run time Unix timestamp.
 	 */
 	public function getRunTime() {
-		return $this->runTime;
+		return $this->reportData['run_time'];
 	}
 
 	/**
-	 * Get the point threshold for this report.
+	 * Get the minimum point threshold for this report.
 	 *
 	 * @access	public
-	 * @return	integer	Unix timestamp for month beginning.
+	 * @return	integer	Minimum point threshold.
 	 */
-	public function getPointThreshold() {
-		return $this->pointThreshold;
+	public function getMinPointThreshold() {
+		return intval($this->reportData['min_points']);
 	}
 
 	/**
-	 * Set the point threshold for this report.
+	 * Set the minimum point threshold for this report.
 	 *
 	 * @access	public
-	 * @param	integer	Point threshold for this report.
+	 * @param	integer	Minimum point threshold for this report.
 	 * @return	void
 	 */
-	public function setPointThreshold($pointThreshold) {
-		$this->pointThreshold = intval($pointThreshold);
+	public function setMinPointThreshold($minPointThreshold) {
+		$this->reportData['min_points'] = intval($minPointThreshold);
 	}
 
 	/**
-	 * Get the month start timestamp.
+	 * Get the maximum point threshold for this report.
 	 *
 	 * @access	public
-	 * @return	integer	Unix timestamp for month beginning.
+	 * @return	integer	Maximum point threshold.
 	 */
-	public function getMonthStart() {
-		return $this->monthStart;
+	public function getMaxPointThreshold() {
+		return intval($this->reportData['max_points']);
 	}
 
 	/**
-	 * Set the month start timestamp.
+	 * Set the maximum point threshold for this report.
 	 *
 	 * @access	public
-	 * @param	integer	Unix timestamp for month beginning.
+	 * @param	integer	Maximum point threshold for this report.
 	 * @return	void
 	 */
-	public function setMonthStart($monthStart) {
-		$this->monthStart = intval($monthStart);
+	public function setMaxPointThreshold($maxPointThreshold) {
+		$this->reportData['max_points'] = intval($maxPointThreshold);
 	}
 
 	/**
-	 * Get the month end timestamp.
+	 * Get the time period start timestamp.
 	 *
 	 * @access	public
-	 * @return	integer	Unix timestamp for month ending.
+	 * @return	integer	Unix timestamp for the time period start.
 	 */
-	public function getMonthEnd() {
-		return $this->monthEnd;
+	public function getStartTime() {
+		return intval($this->reportData['start_time']);
 	}
 
 	/**
-	 * Set the month end timestamp.
+	 * Set the time period start timestamp.
 	 *
 	 * @access	public
-	 * @param	integer	Unix timestamp for month ending.
+	 * @param	integer	Unix timestamp for the time period start.
 	 * @return	void
 	 */
-	public function setMonthEnd($monthEnd) {
-		$this->monthEnd = intval($monthEnd);
+	public function setStartTime($startTime) {
+		$this->reportData['start_time'] = intval($startTime);
+	}
+
+	/**
+	 * Get the time period end timestamp.
+	 *
+	 * @access	public
+	 * @return	integer	Unix timestamp for the time period end.
+	 */
+	public function getEndTime() {
+		return intval($this->reportData['end_time']);
+	}
+
+	/**
+	 * Set the time period end timestamp.
+	 *
+	 * @access	public
+	 * @param	integer	Unix timestamp for the time period end.
+	 * @return	void
+	 */
+	public function setEndTime($endTime) {
+		$this->reportData['end_time'] = intval($endTime);
 	}
 
 	/**
@@ -392,7 +351,7 @@ class PointsCompReport {
 	 * @return	integer	Total new comps.
 	 */
 	public function getTotalNew() {
-		return intval($this->totalNew);
+		return intval($this->reportData['comp_new']);
 	}
 
 	/**
@@ -402,7 +361,7 @@ class PointsCompReport {
 	 * @return	integer	Total extended comps.
 	 */
 	public function getTotalExtended() {
-		return intval($this->totalExtended);
+		return intval($this->reportData['comp_extended']);
 	}
 
 	/**
@@ -412,7 +371,7 @@ class PointsCompReport {
 	 * @return	integer	Total failed comps.
 	 */
 	public function getTotalFailed() {
-		return intval($this->totalFailed);
+		return intval($this->reportData['comp_failed']);
 	}
 
 	/**
@@ -422,7 +381,7 @@ class PointsCompReport {
 	 * @return	integer	Total comps actually performed.
 	 */
 	public function getTotalPerformed() {
-		return intval($this->totalPerformed);
+		return intval($this->reportData['comp_performed']);
 	}
 
 	/**
@@ -432,7 +391,7 @@ class PointsCompReport {
 	 * @return	integer	Total users emailed.
 	 */
 	public function getTotalEmailed() {
-		return intval($this->totalEmailed);
+		return intval($this->reportData['email_sent']);
 	}
 
 	/**
@@ -468,13 +427,7 @@ class PointsCompReport {
 			throw new MWException(__METHOD__.': Invalid global user ID provided.');
 		}
 
-		$this->totalNew += $data['comp_new'];
-		$this->totalExtended += $data['comp_extended'];
-		$this->totalFailed += $data['comp_failed'];
-		$this->totalPerformed += $data['comp_performed'];
-		$this->totalEmailed += $data['email_sent'];
-
-		$this->reportData[$globalId] = $data;
+		$this->reportUser[$globalId] = $data;
 	}
 
 	/**
@@ -484,8 +437,8 @@ class PointsCompReport {
 	 * @return	mixed	Report row data or false for no more values.
 	 */
 	public function getNextRow() {
-		$return = current($this->reportData);
-		next($this->reportData);
+		$return = current($this->reportUser);
+		next($this->reportUser);
 		return $return;
 	}
 
@@ -501,29 +454,38 @@ class PointsCompReport {
 	 * @param	integer	[Optional] Send email to affected users.
 	 * @return	void
 	 */
-	public function run($threshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
+	public function run($minPointThreshold = null, $maxPointThreshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
 		if (!\ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
 			throw new \MWException(__METHOD__.": Extension:Subscription must be loaded for this functionality.");
 		}
 
-		if ($this->reportId > 0) {
-			$threshold = $this->getPointThreshold();
-			$timeStart = $this->getMonthStart();
-			$timeEnd = $this->getMonthEnd();
+		if ($this->reportData['report_id'] > 0) {
+			$minPointThreshold = $this->getMinPointThreshold();
+			$maxPointThreshold = $this->getMaxPointThreshold();
+			$timeStart = $this->getStartTime();
+			$timeEnd = $this->getEndTime();
 		}
 
 		$db = wfGetDB(DB_MASTER);
 
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 
-		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
-		if ($threshold !== null) {
-			$threshold = intval($threshold);
-			if ($threshold > 0) {
-				$compedSubscriptionThreshold = $threshold;
-			} else {
-				throw new \MWException(__METHOD__.': Invalid threshold provided.');
+		if ($minPointThreshold !== null) {
+			$minPointThreshold = intval($minPointThreshold);
+			if ($minPointThreshold < 0 || $minPointThreshold > $maxPointThreshold) {
+				throw new \MWException(__METHOD__.': Invalid minimum point threshold provided.');
 			}
+		} else {
+			$minPointThreshold = 0;
+		}
+
+		if ($maxPointThreshold !== null) {
+			$maxPointThreshold = intval($maxPointThreshold);
+			if ($maxPointThreshold < $minPointThreshold) {
+				throw new \MWException(__METHOD__.': Invalid maximum point threshold provided.');
+			}
+		} else {
+			$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		}
 
 		//Number of complimentary months someone is given.
@@ -557,15 +519,16 @@ class PointsCompReport {
 			throw new \MWException($e->getMessage());
 		}
 
-		$this->setPointThreshold($compedSubscriptionThreshold);
-		$this->setMonthStart($filters['start_time']);
-		$this->setMonthEnd($filters['end_time']);
+		$this->setMinPointThreshold($minPointThreshold);
+		$this->setMaxPointThreshold($maxPointThreshold);
+		$this->setStartTime($filters['start_time']);
+		$this->setEndTime($filters['end_time']);
 
 		foreach ($statProgress as $progress) {
 			$isExtended = false;
 			$currentExpires = 0; //$newExpires is set outside of the loop up above.
 
-			if ($progress->getCount() < $compedSubscriptionThreshold) {
+			if ($progress->getCount() < $maxPointThreshold) {
 				continue;
 			}
 

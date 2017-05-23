@@ -29,7 +29,8 @@ class PointsCompJob extends \SyncService\Job {
 	 * @return	integer	Exit value for this thread.
 	 */
 	public function execute($args = []) {
-		$threshold = (isset($args['threshold']) ? intval($args['threshold']) : null);
+		$minPointThreshold = (isset($args['min_point_threshold']) ? intval($args['min_point_threshold']) : null);
+		$maxPointThreshold = (isset($args['max_point_threshold']) ? intval($args['max_point_threshold']) : null);
 		$startTime = intval($args['start_time']);
 		$endTime = intval($args['end_time']);
 		$final = boolval($args['final']);
@@ -47,7 +48,7 @@ class PointsCompJob extends \SyncService\Job {
 		}
 
 		try {
-			$report->run($threshold, $startTime, $endTime, $final, $email);
+			$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
 		} catch (\MWException $e) {
 			$this->outputLine(__METHOD__.": Failed to run report due to: ".$e->getMessage(), time());
 			return 1;
