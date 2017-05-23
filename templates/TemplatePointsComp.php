@@ -67,6 +67,7 @@ class TemplatePointsComp {
 					<th>".wfMessage('max_point_threshold')->escaped()."</th>
 					<th>".wfMessage('start_time')->escaped()."</th>
 					<th>".wfMessage('end_time')->escaped()."</th>
+					<th>".wfMessage('total_users')->escaped()."</th>
 					<th>".wfMessage('total_new')->escaped()."</th>
 					<th>".wfMessage('total_extended')->escaped()."</th>
 					<th>".wfMessage('total_failed')->escaped()."</th>
@@ -84,6 +85,7 @@ class TemplatePointsComp {
 					<td>{$report->getMaxPointThreshold()}</td>
 					<td>".gmdate('Y-m-d', $report->getStartTime())."</td>
 					<td>".gmdate('Y-m-d', $report->getEndTime())."</td>
+					<td>".($report->getTotalNew() + $report->getTotalExtended())."</td>
 					<td>{$report->getTotalNew()}</td>
 					<td>{$report->getTotalExtended()}</td>
 					<td>{$report->getTotalFailed()}</td>
@@ -117,6 +119,7 @@ class TemplatePointsComp {
 			<dt>".wfMessage('max_point_threshold')->escaped()."</dt><dd>{$report->getMaxPointThreshold()}</dd><br/>
 			<dt>".wfMessage('start_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getStartTime())."</dd><br/>
 			<dt>".wfMessage('end_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getEndTime())."</dd><br/>
+			<dt>".wfMessage('total_users')->escaped()."</dt><dd>".($report->getTotalNew() + $report->getTotalExtended())."</dd><br/>
 			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd><br/>
 			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd><br/>
 			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd><br/>
