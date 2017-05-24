@@ -86,13 +86,20 @@ class SpecialPointsComp extends SpecialPage {
 			$doCompUser = $this->getRequest()->getInt('compUser');
 			$doEmailUser = $this->getRequest()->getVal('emailUser');
 			if ($doCompUser > 0 || $doEmailUser > 0) {
+				$userReportId = $this->getRequest()->getInt('report_id');
+				if ($userReportId > 0) {
+					$userReport = \Cheevos\Points\PointsCompReport::newFromId($userReportId);
+					if (!$userReport) {
+						throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
+					}
+				}
+
 				if ($doCompUser > 0) {
 					
 				}
 				if ($doEmailUser > 0) {
-					$user = $lookup->localUserFromCentralId($doEmailUser);
 					if ($user !== null) {
-						\Cheevos\Points\PointsCompReport::sendUserEmail($user);
+						$emailSent = $userReport->sendUserEmail($doEmailUser);
 					}
 				}
 				return;

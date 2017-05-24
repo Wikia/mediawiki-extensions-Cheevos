@@ -669,18 +669,39 @@ class PointsCompReport {
 	 * Send user comp email.
 	 *
 	 * @access	public
-	 * @param	object	User
+	 * @param	integer	Global ID
 	 * @return	boolean	Success
 	 */
-	static public function sendUserEmail($user) {
+	public function sendUserEmail($globalId) {
+		$success = false;
+
+		$user = $lookup->localUserFromCentralId($globalId);
+		if (!$user) {
+			$success = false;
+		}
+
 		$body = [
 			'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
 			'html' => wfMessage('automatic_comp_email_body', $user->getName())->text()
 		];
 		$status = $user->sendMail(wfMessage('automatic_comp_email_subject')->parse(), $body);
 		if ($status->isGood()) {
-			return true;
+			$success = true;
 		}
+
+		if ($success) {
+			$db = wfGetDB(DB_MASTER);
+			$success = $db->update(
+				'points_comp_report_user',
+				['email_sent' => 1],
+				[
+					'report_id'	=> $this->reportData['report_id'],
+					'global_id'	=> $globalId
+				],
+				__METHOD__
+			);
+		}
+
 		return false;
 	}
 }
