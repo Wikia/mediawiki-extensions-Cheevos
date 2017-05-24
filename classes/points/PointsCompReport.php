@@ -670,6 +670,8 @@ class PointsCompReport {
 	 * @return	boolean	Success
 	 */
 	public function compSubscription($globalId, $numberOfMonths) {
+		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
+
 		$subscription = $this->getSubscription($globalId, $gamepediaPro);
 		if ($subscription === true) {
 			//Do not mess with paid subscriptions.
