@@ -681,6 +681,16 @@ class PointsCompReport {
 		$comp = $gamepediaPro->createCompedSubscription($globalId, $numberOfMonths);
 
 		if ($comp !== false) {
+			$db = wfGetDB(DB_MASTER);
+			$success = $db->update(
+				'points_comp_report_user',
+				['comp_performed' => 1],
+				[
+					'report_id'	=> $this->reportData['report_id'],
+					'global_id'	=> $globalId
+				],
+				__METHOD__
+			);
 			return true;
 		}
 		return false;
