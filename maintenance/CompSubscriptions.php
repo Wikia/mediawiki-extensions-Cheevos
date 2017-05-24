@@ -57,8 +57,6 @@ class CompSubscriptions extends Maintenance {
 			$this->error($status->getMessage()->plain(), 1);
 		}
 
-		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-
 		$monthsAgo = 1;
 		if ($this->hasOption('monthsAgo')) {
 			$monthsAgo = intval($this->getOption('monthsAgo'));

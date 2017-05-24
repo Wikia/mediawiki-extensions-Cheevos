@@ -91,14 +91,14 @@ class SpecialPointsComp extends SpecialPage {
 						throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 					}
 
+					$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
 					if ($doCompUser > 0) {
-
-						$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
+						$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
+						$userComped = $userReport->compSubscription($doCompUser, $compedSubscriptionMonths);
 						$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
 					}
 					if ($doEmailUser > 0) {
 						$emailSent = $userReport->sendUserEmail($doEmailUser);
-						$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
 						$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
 					}
 					return;

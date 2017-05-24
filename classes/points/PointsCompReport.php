@@ -670,13 +670,20 @@ class PointsCompReport {
 	 * @return	boolean	Success
 	 */
 	public function compSubscription($globalId, $numberOfMonths) {
-		$subscription = $gamepediaPro->getSubscription($globalId);
+		$subscription = $this->getSubscription($globalId, $gamepediaPro);
+		if ($subscription === true) {
+			//Do not mess with paid subscriptions.
+			return false;
+		} elseif ($subscription > 1 && $newExpires > $subscription) {
+			$gamepediaPro->cancelCompedSubscription($globalId);
+		}
 
-		$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
+		$comp = $gamepediaPro->createCompedSubscription($globalId, $numberOfMonths);
 
 		if ($comp !== false) {
-			
+			return true;
 		}
+		return false;
 	}
 
 	/**
