@@ -569,9 +569,9 @@ class PointsCompReport {
 			throw new \MWException(__METHOD__.': The time range is invalid.');
 		}
 
-		//$epochFirst = strtotime(date('Y-m-d', strtotime('first day of 0 month ago')).'T00:00:00+00:00');
-		//$epochLast = strtotime(date('Y-m-d', strtotime('last day of +2 months')).'T23:59:59+00:00');
-		$newExpires = strtotime(date('Y-m-d', strtotime('last day of +'.($compedSubscriptionMonths - 1).' months')).'T23:59:59+00:00'); //Get the last day of two months from now, fix the hours:minutes:seconds, and then get the corrected epoch.
+		$newExpiresDT = new \DateTime('now');
+		$newExpiresDT->add(new \DateInterval('P'.$compedSubscriptionMonths.'M'));
+		$newExpires = $newExpiresDT->getTimestamp();
 
 		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
 		\Hydra\Subscription::skipCache(true);
@@ -633,7 +633,7 @@ class PointsCompReport {
 				}
 			}
 
-			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, $currentExpires, $newExpires, $success, $emailSent);
+			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, intval($subscription), $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();
@@ -672,6 +672,10 @@ class PointsCompReport {
 	public function compSubscription($globalId, $numberOfMonths) {
 		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
 
+		$newExpiresDT = new \DateTime('now');
+		$newExpiresDT->add(new \DateInterval('P'.$numberOfMonths.'M'));
+		$newExpires = $newExpiresDT->getTimestamp();
+
 		$subscription = $this->getSubscription($globalId, $gamepediaPro);
 		if ($subscription === true) {
 			//Do not mess with paid subscriptions.
@@ -686,7 +690,10 @@ class PointsCompReport {
 			$db = wfGetDB(DB_MASTER);
 			$success = $db->update(
 				'points_comp_report_user',
-				['comp_performed' => 1],
+				[
+					'comp_failed'		=> 0,
+					'comp_performed'	=> 1
+				],
 				[
 					'report_id'	=> $this->reportData['report_id'],
 					'global_id'	=> $globalId
