@@ -693,6 +693,7 @@ class PointsCompReport {
 				],
 				__METHOD__
 			);
+			$this->updateStats();
 			return true;
 		}
 		return false;
@@ -735,6 +736,7 @@ class PointsCompReport {
 				],
 				__METHOD__
 			);
+			$this->updateStats();
 		}
 
 		return $success;
