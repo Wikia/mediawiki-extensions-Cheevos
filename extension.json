@@ -23,7 +23,8 @@
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
-			"wiki_points_admin": true
+			"wiki_points_admin": true,
+			"points_comp_reports": true
 
 		},
 		"hydra_admin": {
@@ -33,7 +34,8 @@
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
-			"wiki_points_admin": true
+			"wiki_points_admin": true,
+			"points_comp_reports": true
 
 		}
 	},

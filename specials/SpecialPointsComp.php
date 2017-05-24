@@ -26,8 +26,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	void
 	 */
 	public function __construct() {
-		parent::__construct('PointsComp');
-
+		parent::__construct('PointsComp', 'points_comp_reports');
 	}
 
 	/**
@@ -39,6 +38,7 @@ class SpecialPointsComp extends SpecialPage {
 	 */
 	public function execute($subpage) {
 		$this->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
+		$this->checkPermissions();
 		$this->setHeaders();
 		$this->pointsCompReports($subpage);
 		$this->getOutput()->addHTML($this->content);
@@ -171,7 +171,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	boolean
 	 */
 	public function isListed() {
-		if ($this->wgUser->isAllowed('achievement_admin')) {
+		if (MASTER_WIKI === true && $this->wgUser->isAllowed('points_comp_reports')) {
 			return true;
 		}
 		return false;
