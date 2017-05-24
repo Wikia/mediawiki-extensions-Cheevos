@@ -81,8 +81,6 @@ class SpecialPointsComp extends SpecialPage {
 	 */
 	public function runReport() {
 		if ($this->getRequest()->wasPosted()) {
-			$lookup = CentralIdLookup::factory();
-
 			$doCompUser = $this->getRequest()->getInt('compUser');
 			$doEmailUser = $this->getRequest()->getVal('emailUser');
 			if ($doCompUser > 0 || $doEmailUser > 0) {
@@ -92,17 +90,19 @@ class SpecialPointsComp extends SpecialPage {
 					if (!$userReport) {
 						throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 					}
-				}
 
-				if ($doCompUser > 0) {
-					
-				}
-				if ($doEmailUser > 0) {
-					if ($user !== null) {
-						$emailSent = $userReport->sendUserEmail($doEmailUser);
+					if ($doCompUser > 0) {
+
+						$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
+						$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
 					}
+					if ($doEmailUser > 0) {
+						$emailSent = $userReport->sendUserEmail($doEmailUser);
+						$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
+						$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
+					}
+					return;
 				}
-				return;
 			}
 
 			$final = false;

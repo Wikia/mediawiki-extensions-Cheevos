@@ -111,8 +111,24 @@ class TemplatePointsComp {
 	 * @return	string	HTML
 	 */
 	static public function pointsCompReportDetail($report) {
+		global $wgRequest;
+
 		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $report->getReportId());
 		$pointsCompURL	= $pointsCompPage->getFullURL();
+
+		$html = '';
+
+		if (isset($_GET['userComped'])) {
+			$successText = ($wgRequest->getInt('userComped') ? 'success' : 'error');
+			$html .= "
+			<div><div class='".$successText."box'>".wfMessage('points_comp_report_user_comp_'.$successText)->escaped()."</div></div>";
+		}
+
+		if (isset($_GET['emailSent'])) {
+			$successText = ($wgRequest->getInt('emailSent') ? 'success' : 'error');
+			$html .= "
+			<div><div class='".$successText."box'>".wfMessage('points_comp_report_email_'.$successText)->escaped()."</div></div>";
+		}
 
 		$html .= "
 		<dl class='collapse_dl'>

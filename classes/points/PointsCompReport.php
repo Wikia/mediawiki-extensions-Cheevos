@@ -611,25 +611,18 @@ class PointsCompReport {
 
 			$success = false;
 
-			$subscription = $gamepediaPro->getSubscription($globalId);
-			$currentExpires = false;
-			if ($subscription !== false && is_array($subscription)) {
-				if ($subscription['plan_id'] !== 'complimentary') {
-					continue;
-				}
-				$currentExpires = ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
-
-				if ($newExpires > $currentExpires) {
-					$isExtended = true;
-					if ($final) {
-						$gamepediaPro->cancelCompedSubscription($globalId);
-					}
-				} else {
-					continue;
-				}
+			$subscription = $this->getSubscription($globalId, $gamepediaPro);
+			if ($subscription === true) {
+				//Do not mess with paid subscriptions.
+				continue;
+			} elseif ($subscription > 1 && $newExpires > $subscription) {
+				$isExtended = true;
 			}
 
 			if ($final) {
+				if ($isExtended) {
+					$gamepediaPro->cancelCompedSubscription($globalId);
+				}
 				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
 
 				if ($comp !== false) {
@@ -644,6 +637,27 @@ class PointsCompReport {
 		}
 		$this->setFinished(true);
 		$this->save();
+	}
+
+	/**
+	 * Get current subscription status.
+	 *
+	 * @access	public
+	 * @param	integer	User Global Id
+	 * @param	object	Subscription Provider
+	 * @return	mixed	Boolean false for no subscription, true for paid subscription.  Integer expiration for a comped subscription.
+	 */
+	public function getSubscription($globalId, \Hydra\SubscriptionProvider $provider) {
+		$status = false;
+		$subscription = $provider->getSubscription($globalId);
+		if ($subscription !== false && is_array($subscription)) {
+			if ($subscription['plan_id'] !== 'complimentary') {
+				$status = true;
+			} else {
+				$status = intval($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
+			}
+		}
+		return $status;
 	}
 
 	/**
@@ -675,9 +689,11 @@ class PointsCompReport {
 	public function sendUserEmail($globalId) {
 		$success = false;
 
+		$lookup = \CentralIdLookup::factory();
 		$user = $lookup->localUserFromCentralId($globalId);
 		if (!$user) {
 			$success = false;
+			return false;
 		}
 
 		$body = [
@@ -702,6 +718,6 @@ class PointsCompReport {
 			);
 		}
 
-		return false;
+		return $success;
 	}
 }
