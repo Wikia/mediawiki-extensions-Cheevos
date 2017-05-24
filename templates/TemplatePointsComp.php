@@ -73,6 +73,7 @@ class TemplatePointsComp {
 					<th>".wfMessage('total_failed')->escaped()."</th>
 					<th>".wfMessage('total_performed')->escaped()."</th>
 					<th>".wfMessage('total_emailed')->escaped()."</th>
+					<th>".wfMessage('report_finished')->escaped()."</th>
 				</tr>
 			</thead>
 			<tbody>";
@@ -91,6 +92,7 @@ class TemplatePointsComp {
 					<td>{$report->getTotalFailed()}</td>
 					<td>{$report->getTotalPerformed()}</td>
 					<td>{$report->getTotalEmailed()}</td>
+					<td>".($report->isFinished() ? '✓' : '&nbsp;')."</td>
 				</tr>";
 			}
 		}
@@ -124,7 +126,8 @@ class TemplatePointsComp {
 			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd><br/>
 			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd><br/>
 			<dt>".wfMessage('total_performed')->escaped()."</dt><dd>{$report->getTotalPerformed()}</dd><br/>
-			<dt>".wfMessage('total_emailed')->escaped()."</dt><dd>{$report->getTotalEmailed()}</dd>
+			<dt>".wfMessage('total_emailed')->escaped()."</dt><dd>{$report->getTotalEmailed()}</dd><br/>
+			<dt>".wfMessage('report_finished')->escaped()."</dt><dd>".($report->isFinished() ? '✓' : '&nbsp;')."</dd>
 		</dl>
 		<form method='post' action='{$pointsCompURL}'>
 			<input name='report_id' type='hidden' value='{$report->getReportId()}'/>

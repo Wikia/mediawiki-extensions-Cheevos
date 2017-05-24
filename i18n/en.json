@@ -257,6 +257,7 @@
 	"total_failed": "Failed",
 	"total_performed": "Performed",
 	"total_emailed": "Emailed",
+	"report_finished": "Finished",
 	"points_comp_report_error": "Points Comp Report Error",
 	"report_does_not_exist": "That report number does not exist.",
 	"comp_points": "Points",
@@ -275,5 +276,9 @@
 	"grant_comp": "Grant Comp",
 	"send_comp_email": "Send Email",
 	"run_new_report": "Run New Report",
-	"points_comp_report_queued": "The requested report should finish in about ten minutes or less.  Please refresh this page or come back later to check its progress."
+	"points_comp_report_queued": "The requested report should finish in about ten minutes or less.  Please refresh this page or come back later to check its progress.",
+	"invalid_minimum_threshold": "Invalid minimum point threshold provided.",
+	"invalid_maximum_threshold": "Invalid maximum point threshold provided.",
+	"invalid_start_time": "Invalid start time provided.",
+	"invalid_end_time": "Invalid end time provided"
 }

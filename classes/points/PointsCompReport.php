@@ -128,17 +128,13 @@ class PointsCompReport {
 	public function save() {
 		$db = wfGetDB(DB_MASTER);
 
+		$this->reportData['run_time'] = time();
+		$reportData = $this->reportData;
+		unset($reportData['report_id']);
 		if ($this->reportData['report_id'] < 1) {
-			$this->reportData['run_time'] = time();
 			$success = $db->insert(
 				'points_comp_report',
-				[
-					'run_time'			=> $this->reportData['run_time'],
-					'min_points'		=> $this->reportData['min_points'],
-					'max_points'		=> $this->reportData['max_points'],
-					'start_time'		=> $this->reportData['start_time'],
-					'end_time'			=> $this->reportData['end_time']
-				],
+				$reportData,
 				__METHOD__
 			);
 
@@ -146,6 +142,13 @@ class PointsCompReport {
 			if (!$success || !$this->reportData['report_id']) {
 				throw new MWException(__METHOD__.': Could not get a new report ID.');
 			}
+		} else {
+			$success = $db->update(
+				'points_comp_report',
+				$reportData,
+				['report_id' => $this->reportData['report_id']],
+				__METHOD__
+			);
 		}
 
 		foreach ($this->reportUser as $globalId => $data) {
@@ -183,7 +186,10 @@ class PointsCompReport {
 			$result = $db->select(
 				['points_comp_report_user'],
 				['count('.$stat.') as total'],
-				[$stat => 1],
+				[
+					$stat => 1,
+					'report_id' => $this->reportData['report_id']
+				],
 				__METHOD__
 			);
 			$total = $result->fetchRow();
@@ -303,6 +309,29 @@ class PointsCompReport {
 	}
 
 	/**
+	 * Validate point thresholds.
+	 *
+	 * @access	public
+	 * @param	integer	Minimum Point Threshold
+	 * @param	integer	Maximum Point Threshold
+	 * @return	object	Status
+	 */
+	static public function validatePointThresholds($minPointThreshold, $maxPointThreshold) {
+		$minPointThreshold = intval($minPointThreshold);
+		$maxPointThreshold = intval($maxPointThreshold);
+
+		if ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold) {
+			return \Status::newFatal('invalid_maximum_threshold');
+		}
+
+		if ($minPointThreshold < 0) {
+			return \Status::newFatal('invalid_minimum_threshold');
+		}
+
+		return \Status::newGood();
+	}
+
+	/**
 	 * Get the time period start timestamp.
 	 *
 	 * @access	public
@@ -342,6 +371,30 @@ class PointsCompReport {
 	 */
 	public function setEndTime($endTime) {
 		$this->reportData['end_time'] = intval($endTime);
+	}
+
+	/**
+	 * Validate time range.
+	 *
+	 * @access	public
+	 * @param	integer	Start Timestamp
+	 * @param	integer	End Timestamp
+	 * @return	object	Status
+	 */
+	static public function validateTimeRange($startTime, $endTime) {
+		$startTime = intval($startTime);
+		$endTime = intval($endTime);
+
+		if ($endTime <= 0 || $endTime < $startTime) {
+			return \Status::newFatal('invalid_end_time');
+		}
+
+		if ($startTime < 0) {
+			//Yes, nothing before 1970 exists.
+			return \Status::newFatal('invalid_start_time');
+		}
+
+		return \Status::newGood();
 	}
 
 	/**
@@ -392,6 +445,27 @@ class PointsCompReport {
 	 */
 	public function getTotalEmailed() {
 		return intval($this->reportData['email_sent']);
+	}
+
+	/**
+	 * Is this report finished running?
+	 *
+	 * @access	public
+	 * @return	boolean	Report Finished
+	 */
+	public function isFinished() {
+		return boolval($this->reportData['finished']);
+	}
+
+	/**
+	 * Set if the report is finished running.
+	 *
+	 * @access	public
+	 * @param	boolean	Report Finished
+	 * @return	void
+	 */
+	public function setFinished($finished = false) {
+		$this->reportData['finished'] = intval(boolval($finished));
 	}
 
 	/**
@@ -472,20 +546,18 @@ class PointsCompReport {
 
 		if ($minPointThreshold !== null) {
 			$minPointThreshold = intval($minPointThreshold);
-			if ($minPointThreshold < 0 || $minPointThreshold > $maxPointThreshold) {
-				throw new \MWException(__METHOD__.': Invalid minimum point threshold provided.');
-			}
 		} else {
 			$minPointThreshold = 0;
 		}
 
 		if ($maxPointThreshold !== null) {
 			$maxPointThreshold = intval($maxPointThreshold);
-			if ($maxPointThreshold < $minPointThreshold) {
-				throw new \MWException(__METHOD__.': Invalid maximum point threshold provided.');
-			}
 		} else {
 			$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		}
+		$status = self::validatePointThresholds($minPointThreshold, $maxPointThreshold);
+		if (!$status->isGood()) {
+			throw new \MWException(__METHOD__.': '.$status->getMessage());
 		}
 
 		//Number of complimentary months someone is given.
@@ -570,6 +642,7 @@ class PointsCompReport {
 
 			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, $currentExpires, $newExpires, $success, $emailSent);
 		}
+		$this->setFinished(true);
 		$this->save();
 	}
 

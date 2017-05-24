@@ -48,13 +48,13 @@ class CompSubscriptions extends Maintenance {
 
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 
-		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		if ($this->hasOption('threshold')) {
-			if ($this->getOption('threshold') > 0) {
-				$compedSubscriptionThreshold = intval($this->getOption('threshold'));
-			} else {
-				$this->error('Invalid threshold provided.', 1);
-			}
+			$maxPointThreshold = intval($this->getOption('threshold'));
+		}
+		$status = \Cheevos\Points\PointsCompReport::validatePointThresholds(0, $maxPointThreshold);
+		if (!$status->isGood()) {
+			$this->error($status->getMessage()->plain(), 1);
 		}
 
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
@@ -75,9 +75,13 @@ class CompSubscriptions extends Maintenance {
 			$startTime = intval($_startTime);
 			$endTime = intval($_endTime);
 		}
+		$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
+		if (!$status->isGood()) {
+			$this->error($status->getMessage()->plain(), 1);
+		}
 
 		$report = new \Cheevos\Points\PointsCompReport();
-		$report->run(0, $this->getOption('threshold'), $startTime, $endTime, $this->hasOption('final'));
+		$report->run(0, $maxPointThreshold, $startTime, $endTime, $this->hasOption('final'));
 	}
 }
 

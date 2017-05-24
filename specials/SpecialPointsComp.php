@@ -110,30 +110,46 @@ class SpecialPointsComp extends SpecialPage {
 				$email = true;
 			}
 
+			$startTime = $this->getRequest()->getInt('start_time');
+			$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
+			$endTime = $this->getRequest()->getInt('end_time');
+			$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
+			$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
+			if (!$status->isGood()) {
+				throw new ErrorPageError('points_comp_report_error', $status->getMessage());
+			}
+
+			$minPointThreshold = $this->getRequest()->getInt('min_point_threshold');
+			$maxPointThreshold = $this->getRequest()->getInt('max_point_threshold');
+			$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
+			if (!$status->isGood()) {
+				throw new ErrorPageError('points_comp_report_error', $status->getMessage());
+			}
+
 			$reportId = $this->getRequest()->getInt('report_id');
 			if ($reportId > 0) {
 				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
 				if (!$report) {
 					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 				}
+			} else {
+				$report = new \Cheevos\Points\PointsCompReport();
+				$report->setMinPointThreshold($minPointThreshold);
+				$report->setMaxPointThreshold($maxPointThreshold);
+				$report->setStartTime($startTime);
+				$report->setEndTime($endTime);
+				$report->save();
+				$reportId = $report->getReportId();
 			}
-
-			$startTime = $this->getRequest()->getInt('start_time');
-			$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
-			$endTime = $this->getRequest()->getInt('end_time');
-			$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
 
 			$success = \Cheevos\Job\PointsCompJob::queue(
 				[
-					'min_point_threshold'	=> $this->getRequest()->getInt('min_point_threshold'),
-					'max_point_threshold'	=> $this->getRequest()->getInt('max_point_threshold'),
-					'start_time'			=> $startTime,
-					'end_time'				=> $endTime,
 					'report_id'				=> $reportId,
 					'final'					=> $final,
 					'email'					=> $email
 				]
 			);
+
 			$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
 			$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
 			return;
