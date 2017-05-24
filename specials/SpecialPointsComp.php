@@ -93,6 +93,7 @@ class SpecialPointsComp extends SpecialPage {
 
 					$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
 					if ($doCompUser > 0) {
+						$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 						$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 						$userComped = $userReport->compSubscription($doCompUser, $compedSubscriptionMonths);
 						$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
