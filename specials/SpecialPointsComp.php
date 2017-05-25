@@ -171,7 +171,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	boolean
 	 */
 	public function isListed() {
-		if (MASTER_WIKI === true && $this->wgUser->isAllowed('points_comp_reports')) {
+		if (MASTER_WIKI === true && $this->getUser()->isAllowed('points_comp_reports')) {
 			return true;
 		}
 		return false;
