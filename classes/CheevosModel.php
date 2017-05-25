@@ -30,11 +30,15 @@ class CheevosModel implements ArrayAccess {
 	private $readOnly = false;
 
 	/**
-	 * Call method
+	 * Magic call method for:
+	 * $this->get{Property}()
+	 * $this->set{Property}(mixed value)
+	 * $this->get{Property}()
+	 * $this->has{Property}()
 	 *
-	 * @param string $name
-	 * @param array $arguments
-	 * @return void
+	 * @param	string	$name
+	 * @param	array	$arguments
+	 * @return	void
 	 */
 	public function __call($name, $arguments) {
 		// Getter and Setter
@@ -47,13 +51,13 @@ class CheevosModel implements ArrayAccess {
 				} else {
 					$value = $arguments[0];
 					if (gettype($value) !== gettype($this->container[$prop])) {
-						throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The type ".gettype($value)." is not valid for ".gettype($this->container[$prop]).".");
+						throw new CheevosException("[".get_class($this)."->{$act}{$prop}()] The type ".gettype($value)." is not valid for ".gettype($this->container[$prop]).".");
 					}
 					$this->container[$prop] = $value;
 					return;
 				}
 			} else {
-				throw new CheevosException("[".get_class($this)."->{$act}{$getProp}()] The property {$prop} is not a valid property for this class.");
+				throw new CheevosException("[".get_class($this)."->{$act}{$prop}()] The property {$prop} is not a valid property for this class.");
 			}
 		} elseif (substr($name, 0, 2) == "is") {
 			$prop = $this->snipPropName($name, 2);
@@ -66,7 +70,7 @@ class CheevosModel implements ArrayAccess {
 					return false;
 				}
 			} else {
-				throw new CheevosException("[".get_class($this)."->is{$getProp}()] The property {$prop} is not a valid property for this class.");
+				throw new CheevosException("[".get_class($this)."->is{$prop}()] The property {$prop} is not a valid property for this class.");
 			}
 		} elseif (substr($name, 0, 3) == "has") {
 			$prop = $this->snipPropName($name, 3);

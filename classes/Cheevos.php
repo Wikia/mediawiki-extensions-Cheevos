@@ -1,6 +1,6 @@
 <?php
 /**
- * Achievements
+ * Cheevos
  * Cheevos Class
  *
  * @author		Cameron Chunn
@@ -172,7 +172,7 @@ class Cheevos {
 		if (!is_array($body)) {
 			$body = json_decode($body, 1);
 			if (is_null($body)) {
-				return false; // cant decode, no valid achievement_category passed.
+				return false;
 			} else {
 				return $body;
 			}
@@ -241,7 +241,7 @@ class Cheevos {
 	}
 
 	/**
-	 * Get all achievement by database ID with caching.
+	 * Get achievement by database ID with caching.
 	 *
 	 * @access	public
 	 * @param 	integer	Achievement ID
@@ -528,6 +528,54 @@ class Cheevos {
 	}
 
 	/**
+	 * Return WikiPointLog for selected filters.
+	 *
+	 * @access	public
+	 * @param	array	Limit Filters - All filters are optional and can omitted from the array.
+	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 * 		$filters = [
+	 * 			'user_id'			=> 0, //Limit by global user ID.
+	 * 			'site_key'			=> 'example', //Limit by site key.
+	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
+	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
+	 * 		];
+	 * @return	mixed
+	 */
+	public static function getWikiPointLog($filters = []) {
+		foreach (['user_id', 'limit', 'offset'] as $key) {
+			if (isset($filter[$key]) && !is_int($filter[$key])) {
+				$filter[$key] = intval($filter[$key]);
+			}
+		}
+		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 25);
+
+		$return = self::get('points/user', $filters);
+
+		return self::return($return, 'points', '\Cheevos\CheevosWikiPointLog');
+	}
+
+	/**
+	 * Return stats/user_site_count for selected filters.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	string	[Optional] Filter by site key.
+	 * @return	mixed
+	 */
+	public static function getUserPointRank($globalId, $siteKey = null) {
+		$return = self::get(
+			'points/user_rank',
+			[
+				'user_id'	=> $globalId,
+				'site_key'	=> $siteKey
+			]
+		);
+
+		return self::return($return, 'rank');
+	}
+
+	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
 	 * @access	public
@@ -708,5 +756,178 @@ class Cheevos {
 	 */
 	public static function createProgress($body) {
 		return self::putProgress($body);
+	}
+
+	/**
+	 * Get all points promotions with caching.
+	 *
+	 * @access	public
+	 * @param 	string	[Optional] Site Key
+	 * @param 	boolean	[Optional] Skip Cache Look Up.
+	 * @return	mixed	Ouput of self::return.
+	 */
+	static public function getPointsPromotions($siteKey = null, $skipCache = false) {
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ( $siteKey ? $siteKey : 'all' );
+
+		if (!$skipCache) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+			$return = unserialize($cache, [false]);
+		}
+
+		if (!$cache || !$return) {
+			$return = self::get(
+				'points/promotions',
+				[
+					'site_key' => $siteKey,
+					'limit'	=> 0
+				]
+			);
+
+			try {
+				if (isset($return['promotions'])) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		return self::return($return, 'promotions', '\Cheevos\CheevosSiteEditPointsPromotion');
+	}
+
+	/**
+	 * Get points promotion by database ID with caching.
+	 *
+	 * @access	public
+	 * @param 	integer	SiteEditPointsPromotion ID
+	 * @return	mixed	Ouput of self::return.
+	 */
+	static public function getPointsPromotion($id) {
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
+
+		try {
+			$cache = $redis->get($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+
+		if (!$cache || !unserialize($cache)) {
+			$return = self::get("points/promotions/{$id}");
+			try {
+				$redis->setEx($redisKey, 300, serialize($return));
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
+
+		$return = [ $return ]; //The return function expects an array of results.
+		return self::return($return, 'promotions', '\Cheevos\CheevosSiteEditPointsPromotion', true);
+	}
+
+	/**
+	 * Soft delete an points promotion from the service.
+	 *
+	 * @access	public
+	 * @param	integer	SiteEditPointsPromotion ID
+	 * @param	integer	Global ID
+	 * @return	mixed	Array
+	 */
+	static public function deletePointsPromotion($id) {
+		$redis = \RedisCache::getClient('cache');
+		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
+		try {
+			$redis->del($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		}
+		$return = self::delete(
+			"points/promotions/{$id}"
+		);
+		return self::return($return);
+	}
+
+	/**
+	 * PUT PointsPromotion into Cheevos
+	 *
+	 * @access	public
+	 * @param	array	$body
+	 * @param	integer	$id
+	 * @return	mixed	Output of self::return.
+	 */
+	public static function putPointsPromotion($body, $id = null) {
+		$id = intval($id);
+		$body = self::validateBody($body);
+		if (!$body) {
+			return false;
+		}
+
+		$path = ($id > 0 ? "points/promotions/{$id}" : "points/promotions");
+		$return = self::put($path, $body);
+
+		if ($id > 0) {
+			$redis = \RedisCache::getClient('cache');
+			$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
+			try {
+				$redis->del($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		return self::return($return);
+	}
+
+	/**
+	 * Update an existing points promotion on the service.
+	 *
+	 * @access	public
+	 * @param	integer	SiteEditPointsPromotion ID
+	 * @param	array	$body
+	 * @return	void
+	 */
+	static public function updatePointsPromotion($id, $body) {
+		return self::putPointsPromotion($body, $id);
+	}
+
+	/**
+	 * Create PointsPromotion
+	 *
+	 * @param array $body
+	 * @return void
+	 */
+	static public function createPointsPromotion($body) {
+		return self::putPointsPromotion($body);
+	}
+
+	/**
+	 * Revokes edit points for the provided revision IDs related to the page ID.
+	 *
+	 * @access	public
+	 * @param	integer	Page ID
+	 * @param	array	Revision IDs
+	 * @param	string	Site Key
+	 * @return	mixed	Array
+	 */
+	static public function revokeEditPoints($pageId, $revisionIds, $siteKey) {
+		$revisionIds = array_map('intval', $revisionIds);
+		$return = self::post(
+			"points/revoke_revisions",
+			[
+				'page_id'		=> intval($pageId),
+				'revision_ids'	=> $revisionIds,
+				'site_key'		=> $siteKey
+			]
+		);
+		return self::return($return);
 	}
 }

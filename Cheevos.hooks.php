@@ -40,12 +40,13 @@ class CheevosHooks {
 	 * @return	void
 	 */
 	static public function onRegistration() {
-		global $wgDefaultUserOptions, $extSyncServices, $wgNamespacesForEditPoints;
+		global $wgDefaultUserOptions, $wgSyncServices, $wgNamespacesForEditPoints;
 
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
 		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
-			$extSyncServices[] = 'CheevosIncrementJob';
+			$wgSyncServices[] = 'Cheevos\Job\CheevosIncrementJob';
+			$wgSyncServices[] = 'Cheevos\Job\PointsCompJob';
 		}
 
 		//Allowed namespaces.
@@ -153,7 +154,7 @@ class CheevosHooks {
 	 *
 	 * @param	object	Article
 	 * @param	object	Revision
-	 * @param	mixed	ID of revision this new edit started with.  May also be 0 or false for no prevision revision.
+	 * @param	mixed	[Do Not Use, Unreliable] ID of revision this new edit started with.  May also be 0 or false for no previous revision.
 	 * @param	object	User that performed the action.
 	 * @return	boolean	true
 	 */
@@ -167,7 +168,7 @@ class CheevosHooks {
 
 		$isBot = $user->isAllowed('bot');
 
-		if (!$baseRevId) {
+		if (!$revision->getParentId()) {
 			self::increment('article_create', 1, $user);
 		}
 
@@ -198,16 +199,17 @@ class CheevosHooks {
 	 * @return	boolean	true
 	 */
 	static public function onArticleRollbackComplete(WikiPage $wikiPage, $user, Revision $revision, Revision $current) {
+		$siteKey = self::getSiteKey();
+		if ($siteKey === false) {
+			return true;
+		}
+
 		$editsToRevoke = [];
 		while ($current && $current->getId() != $revision->getId()) {
 			$editsToRevoke[] = $current->getId();
 			$current = $current->getPrevious();
 		}
-		$edits[] = [
-			'page_id'		=> $wikiPage->getId(),
-			'revision_id'	=> $editsToRevoke
-		];
-		EditPoints::revoke($editsToRevoke);
+		\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
 		return true;
 	}
 
@@ -518,54 +520,6 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Handle actions when an achievement is awarded.
-	 *
-	 * @access	public
-	 * @param	object	\Cheevos\CheevosAchievement
-	 * @param	object	Global User ID
-	 * @return	boolean	True
-	 */
-	static public function onAchievementAwarded($achievement, $globalId) {
-		global $dsSiteKey;
-
-		if ($achievement === false || $globalId < 1) {
-			return true;
-		}
-
-		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
-			$points = EditPoints::achievementEarned($globalId, $achievement->getPoints());
-			if ($points->save()) {
-				$points->updatePointTotals();
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Handle actions when an achievement or a mega achievement is unawarded.
-	 *
-	 * @access	public
-	 * @param	object	\Cheevos\CheevosAchievement
-	 * @param	object	Global User ID
-	 * @return	boolean	True
-	 */
-	static public function onAchievementUnawarded($achievement, $globalId) {
-		if ($achievement === false || $globalId < 1) {
-			return true;
-		}
-
-		if (class_exists('\EditPoints') && $achievement->getPoints() > 0) {
-			$points = EditPoints::achievementRevoked($globalId, ($achievement->getPoints() * -1));
-			if ($points->save()) {
-				$points->updatePointTotals();
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Adds achievement display HTML to page output.
 	 *
 	 * @access	public
@@ -710,7 +664,7 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Add a link to WikiPoints on the contributions special page.
+	 * Add a link to WikiPoints on contribution and edit tool links.
 	 *
 	 * @access	public
 	 * @param	integer	User ID
@@ -720,6 +674,10 @@ class CheevosHooks {
 	 */
 	static public function onContributionsToolLinks($userId, $userPageTitle, &$tools) {
 		global $wgUser;
+
+		if (!$userId) {
+			return true;
+		}
 
 		if (!$wgUser->isAllowed('wiki_points_admin')) {
 			return true;
@@ -739,7 +697,7 @@ class CheevosHooks {
 			[],
 			[
 				'action'	=> 'lookup',
-				'user_name'	=> $userName
+				'user'		=> $userName
 			]
 		);
 
@@ -755,6 +713,24 @@ class CheevosHooks {
 	 */
 	public static function onParserFirstCallInit(Parser &$parser) {
 		$parser->setFunctionHook('wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock');
+		return true;
+	}
+
+	/**
+	 * Setups and Modifies Database Information
+	 *
+	 * @access	public
+	 * @param	object	DatabaseUpdater Object
+	 * @return	boolean	true
+	 */
+	static public function onLoadExtensionSchemaUpdates($updater) {
+		$extDir = __DIR__;
+
+		if (MASTER_WIKI === true) {
+			$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
+			$updater->addExtensionUpdate(['addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true]);
+		}
+
 		return true;
 	}
 }

@@ -788,3 +788,15 @@ div#image_upload img {
 	margin: 5px 0;
 	vertical-align: middle;
 }
+
+.collapse_dl dt, .collapse_dl dd {
+	display: inline-block;
+}
+
+.collapse_dl dt::after {
+	content: ":";
+}
+
+.collapse_dl dd {
+	margin-left: 0.5em;
+}

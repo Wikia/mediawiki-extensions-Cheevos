@@ -23,7 +23,8 @@
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
-			"wiki_points_admin": true
+			"wiki_points_admin": true,
+			"points_comp_reports": true
 
 		},
 		"hydra_admin": {
@@ -33,7 +34,8 @@
 			"edit_achievements": true,
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
-			"wiki_points_admin": true
+			"wiki_points_admin": true,
+			"points_comp_reports": true
 
 		}
 	},
@@ -50,6 +52,7 @@
 		"Achievements": "SpecialAchievements",
 		"AchievementStats": "SpecialAchievementStats",
 		"ManageAchievements": "SpecialManageAchievements",
+		"PointsComp": "SpecialPointsComp",
 		"WikiPoints": "SpecialWikiPoints",
 		"WikiPointsAdmin": "SpecialWikiPointsAdmin",
 		"WikiPointsLevels": "SpecialWikiPointsLevels",
@@ -69,26 +72,32 @@
 		"cheevosstats": "CheevosStatsAPI"
 	},
 	"AutoloadClasses": {
-		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosAPI": "Cheevos.api.php",
+		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
-		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
-		"Cheevos\\CheevosException": "classes/CheevosException.php",
-		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
 		"Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
 		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
 		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
 		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
 		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
+		"Cheevos\\CheevosException": "classes/CheevosException.php",
+		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
+		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
+		"Cheevos\\CheevosSiteEditPointsPromotion": "classes/CheevosSiteEditPointsPromotion.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
+		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
+		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
+		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",
 		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
+		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
 		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
+		"SpecialPointsComp": "specials/SpecialPointsComp.php",
 		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
 		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
 		"SpecialWikiPointsLevels": "specials/SpecialWikiPointsLevels.php",
@@ -96,11 +105,12 @@
 		"TemplateAchievements": "templates/TemplateAchievements.php",
 		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
+		"TemplatePointsComp": "templates/TemplatePointsComp.php",
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
 		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
 		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
-		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php",
-		"CheevosIncrementJob": "jobs/CheevosIncrementJob.php"
+		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
+
 	},
 	"ResourceModules": {
 		"ext.cheevos.resumable.js": {
@@ -241,6 +251,16 @@
 				"ext.hydraCore.pagination"
 			],
 			"position": "top"
+		},
+		"ext.cheevos.pointsComp.js": {
+			"scripts": [
+				"js/cheevos.pointscomp.js"
+			],
+			"dependencies": [
+				"jquery.ui.datepicker",
+				"ext.hydraCore.pagination"
+			],
+			"position": "top"
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -248,12 +268,11 @@
 		"remoteExtPath": "Cheevos"
 	},
 	"Hooks": {
-		"AchievementAwarded": "CheevosHooks::onAchievementAwarded",
-		"AchievementUnawarded": "CheevosHooks::onAchievementUnawarded",
 		"ApiBeforeMain":"CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
+		"ArticleRollbackComplete": "CheevosHooks::onArticleRollbackComplete",
 		"BeforeInitialize":"CheevosHooks::onBeforeInitialize",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
@@ -263,6 +282,7 @@
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
 		"GetPreferences": "CheevosHooks::onGetPreferences",
+		"LoadExtensionSchemaUpdates": "CheevosHooks::onLoadExtensionSchemaUpdates",
 		"LocalUserCreated": "CheevosHooks::onLocalUserCreated",
 		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
 		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",

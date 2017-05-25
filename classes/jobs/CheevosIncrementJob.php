@@ -11,7 +11,9 @@
  *
  **/
 
-class CheevosIncrementJob extends SyncService\Job {
+namespace Cheevos\Job;
+
+class CheevosIncrementJob extends \SyncService\Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
 	 * @var		int		sets the priority at which this service will run
@@ -44,13 +46,13 @@ class CheevosIncrementJob extends SyncService\Job {
 	 */
 	public function execute($increment) {
 		try {
-			$lookup = CentralIdLookup::factory();
+			$lookup = \CentralIdLookup::factory();
 			$return = \Cheevos\Cheevos::increment($increment);
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
 					$achievement = new \Cheevos\CheevosAchievement($achievement);
 					\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
-					Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
+					\Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 				}
 			}
 			return ($return === false ? false : true);

@@ -1,13 +1,13 @@
 <?php
 /**
  * Curse Inc.
- * Wiki Points
+ * Cheevos
  * A contributor scoring system
  *
  * @author		Noah Manneschmidt
  * @copyright	(c) 2014 Curse Inc.
  * @license		All Rights Reserved
- * @package		Wiki Points
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
 **/
@@ -40,28 +40,17 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	public function execute($subpage) {
 		$this->checkPermissions();
 
-		$this->templateWikiPointsAdmin = new TemplateWikiPointsAdmin;
+		$this->output->addModules(['ext.cheevos.wikiPoints', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button']);
 
 		$this->setHeaders();
 
-		$this->output->addModules('ext.cheevos.wikiPoints');
-
 		switch ($this->wgRequest->getVal('action')) {
 			default:
-			case 'recent':
-				$this->recentPoints();
-				break;
 			case 'lookup':
 				$this->lookUpUser();
 				break;
 			case 'adjust':
 				$this->adjustPoints();
-				break;
-			case 'revoke':
-				$this->revokePoints();
-				break;
-			case 'retotal':
-				$this->retotalPoints();
 				break;
 		}
 
@@ -75,97 +64,40 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	private function lookUpUser() {
-		$user = new User;
-		$points = [];
-		$form = [];
+		global $dsSiteKey;
 
-		$form['username'] = $this->wgRequest->getVal('user_name');
-		$form['user_id'] = $this->wgRequest->getInt('user_id');
+		$user = null;
+		$pointsLog = [];
+		$form = [];
+		$globalId = false;
+
+		$form['username'] = $this->wgRequest->getVal('user');
 
 		if (!empty($form['username'])) {
-			$form['username'] = User::getCanonicalName($form['username'], 'valid');
-			if ($form['username'] !== false) {
-				$user = User::newFromName($form['username']);
+			$user = User::newFromName($form['username']);
+
+			if ($user !== false && $user->getId()) {
+				$lookup = \CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($user);
 			}
-		} elseif ($form['user_id'] > 0) {
-			$user = User::newFromId($form['user_id']);
+
+			$pointsLog = [];
+			if ($globalId > 0) {
+				try {
+					$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
+				} catch (\Cheevos\CheevosException $e) {
+					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+				}
+				if (empty($form['username'])) {
+					$form['username'] = $user->getName();
+				}
+			} elseif ($globalId === false) {
+				$form['error'] = wfMessage('error_wikipoints_user_not_found')->escaped();
+			}
 		}
 
-		if ($user->getId()) {
-			$result = $this->DB->select(
-				[
-					'wiki_points',
-					'page'
-				],
-				[
-					'wiki_points.*',
-					'page.page_title'
-				],
-				['wiki_points.user_id' => $user->getId()],
-				__METHOD__,
-				[
-					'ORDER BY'	=> 'wiki_points.created DESC',
-					'LIMIT'		=> 250
-				],
-				[
-					'page' => [
-						'LEFT JOIN', 'wiki_points.article_id = page.page_id'
-					]
-				]
-			);
-
-			while ($row = $result->fetchRow()) {
-				$points[] = $row;
-			}
-			if (empty($form['username'])) {
-				$form['username'] = $user->getName();
-			}
-		} else {
-			$form['error'] = wfMessage('error_wikipoints_admin_user_not_found')->escaped();
-		}
-
-		$this->content = $this->templateWikiPointsAdmin->lookup($user, $points, $form);
-	}
-
-	/**
-	 * Shows only the recently earned points.
-	 *
-	 * @access	private
-	 * @return	void	[Outputs to screen]
-	 */
-	private function recentPoints() {
-		$result = $this->DB->select(
-			[
-				'wiki_points',
-				'user',
-				'page'
-			],
-			[
-				'wiki_points.*',
-				'user.user_name',
-				'page.page_title'
-			],
-			null,
-			__METHOD__,
-			[
-				'ORDER BY'	=> 'wiki_points.created DESC',
-				'LIMIT'		=> 500
-			],
-			[
-				'user' => [
-					'LEFT JOIN', 'user.user_id = wiki_points.user_id'
-				],
-				'page' => [
-					'LEFT JOIN', 'wiki_points.article_id = page.page_id'
-				]
-			]
-		);
-
-		$pointsData = [];
-		while ($row = $result->fetchRow()) {
-			$pointsData[] = $row;
-		}
-		$this->content = $this->templateWikiPointsAdmin->recentTable($pointsData);
+		$this->output->setPageTitle(($user ? wfMessage('wiki_points_admin_lookup', $user->getName()) : wfMessage('wikipointsadmin')));
+		$this->content = TemplateWikiPointsAdmin::lookup($user, $pointsLog, $form);
 	}
 
 	/**
@@ -175,66 +107,21 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	private function adjustPoints() {
-		$amount = $this->wgRequest->getInt('amount');
-		$user_id = $this->wgRequest->getInt('user_id');
-		if ($amount && $user_id) {
-			$credit = EditPoints::arbitraryCredit($user_id, $amount);
-			$credit->save();
-			$credit->updatePointTotals();
-		}
-
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
 		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL()."/Special:WikiPointsAdmin?action=lookup&pointsAdjusted=1&user_name={$userEscaped}");
-	}
-
-	/**
-	 * Revoke points for selected edits.
-	 *
-	 * @access	private
-	 * @return	void	[Outputs to screen]
-	 */
-	private function revokePoints() {
-		$revokeList = [];
-		$unrevokeList = [];
-		$edit_ids = $this->wgRequest->getArray('revoke_list');
-		foreach ($edit_ids as $id => $revoke) {
-			if ($revoke) {
-				$revokeList[] = intval($id);
-			} else {
-				$unrevokeList[] = intval($id);
-			}
-		}
-		if (count($revokeList)) {
-			EditPoints::revoke($revokeList);
-		}
-		if (count($unrevokeList)) {
-			EditPoints::unrevoke($unrevokeList);
-		}
-
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
-		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL()."?action=lookup&user_name={$userEscaped}");
-	}
-
-	/**
-	 * Retotal points this wiki.
-	 *
-	 * @access	private
-	 * @return	void
-	 */
-	private function retotalPoints() {
-		$status = false;
+		$userName = $this->wgRequest->getVal('user');
 		if ($this->wgRequest->wasPosted()) {
-			$userId = $this->wgRequest->getInt('user_id');
-			if ($userId) {
-				$status = EditPoints::retotalUser($userId);
-			}
-		}
+			$amount = $this->wgRequest->getInt('amount');
+			$user = User::newFromName($userName);
 
-		$userEscaped = urlencode($this->wgRequest->getVal('user_name'));
-		$page = Title::newFromText('Special:WikiPointsAdmin');
-		$this->output->redirect($page->getFullURL("action=lookup&pointsRetotaled=".intval($status)."&user_name={$userEscaped}"));
+			if ($amount && $user->getId()) {
+				CheevosHooks::increment('wiki_points', intval($amount), $user);
+			}
+
+			$userEscaped = urlencode($this->wgRequest->getVal('user'));
+			$this->output->redirect($page->getFullURL(['user' => $userName, 'pointsAdjusted' => 1]));
+		} else {
+			$this->output->redirect($page->getFullURL(['user' => $userName]));
+		}
 	}
 
 	/**

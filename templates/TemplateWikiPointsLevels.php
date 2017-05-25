@@ -1,13 +1,13 @@
 <?php
 /**
  * Curse Inc.
- * Wiki Points
+ * Cheevos
  * Wiki Points Levels Template
  *
  * @author		Alexia E. Smith
  * @copyright	(c) 2014 Curse Inc.
  * @license		All Rights Reserved
- * @package		Wiki Points
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
 **/

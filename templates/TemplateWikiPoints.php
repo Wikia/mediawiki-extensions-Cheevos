@@ -1,13 +1,13 @@
 <?php
 /**
  * Curse Inc.
- * Wiki Points
+ * Cheevos
  * A contributor scoring system
  *
  * @author		Noah Manneschmidt
  * @copyright	(c) 2014 Curse Inc.
  * @license		All Rights Reserved
- * @package		Wiki Points
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
 **/
@@ -42,12 +42,20 @@ class TemplateWikiPoints {
 		if (!empty($userPoints)) {
 			$i = $start;
 			foreach ($userPoints as $userPointsRow) {
+				$wikiName = $userPointsRow->siteKey;
+				if ($isSitesMode && isset($wikis[$userPointsRow->siteKey])) {
+					if ($wikis[$userPointsRow->siteKey] instanceof \DynamicSettings\Wiki) {
+						$wikiName = $wikis[$userPointsRow->siteKey]->getNameForDisplay();
+					} elseif (isset($wikis[$userPointsRow->siteKey]['wiki_name_display'])) {
+						$wikiName = $wikis[$userPointsRow->siteKey]['wiki_name_display'];
+					}
+				}
 				$i++;
 				$html .= "
 				<tr>
 					<td>{$i}</td>
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>".
-					($isSitesMode ? "<td>".(isset($wikis[$userPointsRow->siteKey]) ? $wikis[$userPointsRow->siteKey]->getNameForDisplay() : $userPointsRow->siteKey)."</td>" : "\n")
+					($isSitesMode ? "<td>{$wikiName}</td>" : "\n")
 					."<td class='score'>{$userPointsRow->score}</td>"
 					.($isMonthly ? "<td class='monthly'>".$userPointsRow->yyyymm."</td>" : '')."
 				</tr>";
@@ -76,12 +84,12 @@ class TemplateWikiPoints {
 	static public function getWikiPointsLinks() {
 		$links = [
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/global'), wfMessage('top_wiki_editors_global')->escaped())
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
+			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'global'), wfMessage('top_wiki_editors_global')->escaped())
 		];
 		if (defined('MASTER_WIKI')) {
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites'), wfMessage('top_wiki_editors_sites')->escaped());
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints/sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
+			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites'), wfMessage('top_wiki_editors_sites')->escaped());
+			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
 		}
 
 		return implode(' | ', $links)."<hr>";

@@ -1,13 +1,13 @@
 <?php
 /**
  * Curse Inc.
- * Wiki Points
- * A contributor scoring system
+ * Cheevos
+ * Points Display
  *
  * @author		Noah Manneschmidt
  * @copyright	(c) 2014 Curse Inc.
  * @license		All Rights Reserved
- * @package		Wiki Points
+ * @package		Cheevos
  * @link		http://www.curse.com/
  *
 **/
@@ -139,13 +139,13 @@ class PointsDisplay {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		} else {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				throw new \ErrorPageError("Encountered Cheevos API error {$e->getMessage()}\n");
+				throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		}
 		$userPoints = [];
@@ -185,14 +185,35 @@ class PointsDisplay {
 		$wikis = [];
 		if ($isSitesMode && !empty($siteKeys)) {
 			global $wgServer;
-			$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			if (class_exists('\DynamicSettings\Wiki')) {
+				$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			} else {
+				$redis = \RedisCache::getClient('cache');
+				foreach ($siteKeys as $siteKey) {
+					if (!empty($siteKey)) {
+						$wiki = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+						if (!empty($wiki)) {
+							foreach ($wiki as $field => $value) {
+								$wiki[$field] = unserialize($value);
+							}
+							$wikis[$siteKey] = $wiki;
+						}
+					}
+				}
+			}
+
 			$localDomain = trim($wgServer, '/');
 			foreach ($userPoints as $key => $userPointsRow) {
 				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
-					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace($localDomain, $wikis[$userPointsRow->siteKey]->getDomains()->getDomain(), $userPoints[$key]->userLink);
-					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://'.$wikis[$userPointsRow->siteKey]->getDomains()->getDomain().'/', $userPoints[$key]->userLink);
+					if (is_array($wikis[$userPointsRow->siteKey])) {
+						$domain = $wikis[$userPointsRow->siteKey]['wiki_domain'];
+					} else {
+						$domain = $wikis[$userPointsRow->siteKey]->getDomains()->getDomain();
+					}
+					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $domain, $userPoints[$key]->userToolsLinks);
+					$userPoints[$key]->userLink = str_replace($localDomain, $domain, $userPoints[$key]->userLink);
+					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://'.$domain.'/', $userPoints[$key]->userToolsLinks);
+					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://'.$domain.'/', $userPoints[$key]->userLink);
 				}
 			}
 		}
@@ -200,6 +221,11 @@ class PointsDisplay {
 		switch ($markup) {
 			case 'badged':
 			case 'raw':
+				if (empty($userPoints)) {
+					$userPointsRow = new \stdClass();
+					$userPointsRow->score = 0;
+					$userPoints[] = $userPointsRow;
+				}
 				foreach ($userPoints as $userPointsRow) {
 					$html = $userPointsRow->score;
 					if ($markup == 'badged') {
@@ -277,8 +303,8 @@ class PointsDisplay {
 
 		$monthsAgo = intval($monthsAgo);
 		if ($monthsAgo > 0) {
-			$filters['start_time'] = strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00');
-			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00');
+			$filters['start_time'] = strtotime(date('Y-m-d', strtotime($monthsAgo.' month ago')).'T00:00:00+00:00');
+			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('yesterday')).'T23:59:59+00:00');
 		}
 
 		$statProgress = [];
@@ -295,30 +321,5 @@ class PointsDisplay {
 		}
 
 		return 0;
-	}
-
-	/**
-	 * Returns the number of points and rank of any given user on any specific wiki (global by default).
-	 * Use WikiPoints::extractDomain($wgServer) to look up points for the local wiki.
-	 *
-	 * @param	integer	Global User ID for a user
-	 * @param	string	[Optional] String indicating a wiki that should be looked up.
-	 * @return	array	Keys for "score" and "rank"
-	 */
-	public static function ppointsForGlobalId($globalId, $wiki = 'all') {
-		$result = [
-			'score' => '0',
-			'rank' => ''
-		];
-
-		//@TODO: Tuesday morning - Combine all of this into one function to get wiki points for a global ID.
-		self::getWikiPointsForRange($globalId);
-
-		if ($redis !== false) {
-			$result['score'] = $redis->zScore($redisKey, $globalId);
-			$result['rank'] = 1 + $redis->zRevRank($redisKey, $globalId);
-		}
-
-		return $result;
 	}
 }
