@@ -332,7 +332,12 @@
 		],
 		"NamespacesForEditPoints": [],
 		"CompedSubscriptionThreshold": 250,
-		"CompedSubscriptionMonths": 3
+		"CompedSubscriptionMonths": 3,
+		"SyncServices": {
+			"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
+			"PointsCompJob": "Cheevos\\Job\\PointsCompJob",
+			"_merge_strategy": "array_plus"
+		}
 	},
 	"callback": "CheevosHooks::onRegistration",
 	"manifest_version": 1
