@@ -336,7 +336,7 @@
 		"SyncServices": {
 			"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
 			"PointsCompJob": "Cheevos\\Job\\PointsCompJob",
-			"_merge_strategy": "array_plus"
+			"_merge_strategy": "array_merge"
 		}
 	},
 	"callback": "CheevosHooks::onRegistration",
