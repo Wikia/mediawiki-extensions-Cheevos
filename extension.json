@@ -25,7 +25,6 @@
 			"restore_achievements": true,
 			"wiki_points_admin": true,
 			"points_comp_reports": true
-
 		},
 		"hydra_admin": {
 			"achievement_admin": true,
@@ -36,7 +35,6 @@
 			"restore_achievements": true,
 			"wiki_points_admin": true,
 			"points_comp_reports": true
-
 		}
 	},
 	"AvailableRights": [
@@ -110,7 +108,6 @@
 		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
 		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
 		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
-
 	},
 	"ResourceModules": {
 		"ext.cheevos.resumable.js": {
@@ -268,12 +265,12 @@
 		"remoteExtPath": "Cheevos"
 	},
 	"Hooks": {
-		"ApiBeforeMain":"CheevosHooks::onApiBeforeMain",
+		"ApiBeforeMain": "CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
 		"ArticleRollbackComplete": "CheevosHooks::onArticleRollbackComplete",
-		"BeforeInitialize":"CheevosHooks::onBeforeInitialize",
+		"BeforeInitialize": "CheevosHooks::onBeforeInitialize",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
 		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
@@ -297,48 +294,98 @@
 		"WikiPointsSave": "CheevosHooks::onWikiPointsSave"
 	},
 	"config": {
-		"CheevosHost": "",
-		"CheevosClientId": "",
-		"AchPointAbbreviation": "<img src=\"/extensions/WikiPoints/images/gp30.png\"/>",
-		"CheevosAchievementEngagementId": 97,
-		"CheevosMasterAchievementId": 96,
-		"CheevosStats": [
-			"visit",
-			"article_edit",
-			"article_watch",
-			"article_create",
-			"article_delete",
-			"article_move",
-			"article_merge",
-			"article_protect",
-			"admin_block_ip",
-			"admin_patrol",
-			"curse_profile_comment",
-			"curse_profile_add_friend",
-			"curse_profile_accept_friend",
-			"curse_profile_edit",
-			"send_email",
-			"file_upload",
-			"wiki_points",
-			"curse_profile_edit_fav_wiki",
-			"curse_profile_comment_reply",
-			"curse_profile_edit_link_xbl",
-			"curse_profile_edit_link_psn",
-			"curse_profile_edit_link_steam",
-			"curse_profile_edit_link_facebook",
-			"curse_profile_edit_link_twitter",
-			"curse_profile_edit_link_reddit",
-			"achievement_engagement"
-		],
-		"NamespacesForEditPoints": [],
-		"CompedSubscriptionThreshold": 250,
-		"CompedSubscriptionMonths": 3,
+		"CheevosHost": {
+			"value": "",
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevoshost",
+			"public": false
+		},
+		"CheevosClientId": {
+			"value": "",
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosclientid",
+			"public": false
+		},
+		"AchPointAbbreviation": {
+			"value": "<img src=\"/extensions/WikiPoints/images/gp30.png\"/>",
+			"path": false,
+			"descriptionmsg": "cheevos-config-achpointabbreviation",
+			"public": false
+		},
+		"CheevosAchievementEngagementId": {
+			"value": 97,
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosachievementengagementid",
+			"public": false
+		},
+		"CheevosMasterAchievementId": {
+			"value": 96,
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosmasterachievementid",
+			"public": false
+		},
+		"CheevosStats": {
+			"value": [
+				"visit",
+				"article_edit",
+				"article_watch",
+				"article_create",
+				"article_delete",
+				"article_move",
+				"article_merge",
+				"article_protect",
+				"admin_block_ip",
+				"admin_patrol",
+				"curse_profile_comment",
+				"curse_profile_add_friend",
+				"curse_profile_accept_friend",
+				"curse_profile_edit",
+				"send_email",
+				"file_upload",
+				"wiki_points",
+				"curse_profile_edit_fav_wiki",
+				"curse_profile_comment_reply",
+				"curse_profile_edit_link_xbl",
+				"curse_profile_edit_link_psn",
+				"curse_profile_edit_link_steam",
+				"curse_profile_edit_link_facebook",
+				"curse_profile_edit_link_twitter",
+				"curse_profile_edit_link_reddit",
+				"achievement_engagement"
+			],
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosstats",
+			"public": false
+		},
+		"NamespacesForEditPoints": {
+			"value": [],
+			"path": false,
+			"descriptionmsg": "cheevos-config-namespacesforeditpoints",
+			"public": false
+		},
+		"CompedSubscriptionThreshold": {
+			"value": 250,
+			"path": false,
+			"descriptionmsg": "cheevos-config-compedsubscriptionthreshold",
+			"public": false
+		},
+		"CompedSubscriptionMonths": {
+			"value": 3,
+			"path": false,
+			"descriptionmsg": "cheevos-config-compedsubscriptionmonths",
+			"public": false
+		},
 		"SyncServices": {
-			"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
-			"PointsCompJob": "Cheevos\\Job\\PointsCompJob",
-			"_merge_strategy": "array_merge"
+			"value": {
+				"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
+				"PointsCompJob": "Cheevos\\Job\\PointsCompJob"
+			},
+			"path": false,
+			"descriptionmsg": "cheevos-config-syncservices",
+			"public": false,
+			"merge_strategy": "array_merge"
 		}
 	},
 	"callback": "CheevosHooks::onRegistration",
-	"manifest_version": 1
+	"manifest_version": 2
 }
