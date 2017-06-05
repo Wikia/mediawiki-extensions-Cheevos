@@ -48,7 +48,7 @@ class SyncWikiPoints extends Maintenance {
 			__METHOD__
 		);
 		$total = intval($result->fetchRow()['total']);
-		$this->output("Adjusting wiki points totals for ${total} users in Cheevos...\n");
+		$this->output("Adjusting wiki points totals for {$total} users in Cheevos...\n");
 
 		for ($i = 0; $i <= $total; $i = $i + 1000) {
 			$this->output("Iteration start {$i}\n");
