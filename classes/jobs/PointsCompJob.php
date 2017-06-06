@@ -16,6 +16,13 @@ namespace Cheevos\Job;
 
 class PointsCompJob extends \SyncService\Job {
 	/**
+	 * Periodic schedule to run like a cron job.  Leave as false to not have a schedule.
+	 *
+	 * @var		array
+	 */
+	static public $schedule = [];
+
+	/**
 	 * Runs points compensation reports and grants through the command line maintenance script.
 	 *
 	 * @access	public
@@ -55,5 +62,31 @@ class PointsCompJob extends \SyncService\Job {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Return cron schedule if applicable.
+	 *
+	 * @access	public
+	 * @return	mixed	False for no schedule or an array of schedule information.
+	 */
+	static public function getSchedule() {
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		return [
+			[
+				'minutes' => 56,
+				'hours' => 20,
+				'days' => 6,
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 0,
+					'max_point_threshold'	=> $maxPointThreshold,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('first day of 1 month ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
+				]
+			]
+		];
 	}
 }
