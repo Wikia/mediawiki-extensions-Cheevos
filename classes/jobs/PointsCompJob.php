@@ -75,9 +75,9 @@ class PointsCompJob extends \SyncService\Job {
 		$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		return [
 			[
-				'minutes' => 56,
-				'hours' => 20,
-				'days' => 6,
+				'minutes' => 0,
+				'hours' => 8,
+				'days' => 2,
 				'months' => '*',
 				'weekdays' => '*',
 				'arguments' => [
