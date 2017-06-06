@@ -81,29 +81,29 @@ class SpecialPointsComp extends SpecialPage {
 	 */
 	public function runReport() {
 		if ($this->getRequest()->wasPosted()) {
+			$reportId = $this->getRequest()->getInt('report_id');
+			if ($reportId > 0) {
+				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
+				if (!$report) {
+					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
+				}
+			}
+
 			$doCompUser = $this->getRequest()->getInt('compUser');
 			$doEmailUser = $this->getRequest()->getVal('emailUser');
-			if ($doCompUser > 0 || $doEmailUser > 0) {
-				$userReportId = $this->getRequest()->getInt('report_id');
-				if ($userReportId > 0) {
-					$userReport = \Cheevos\Points\PointsCompReport::newFromId($userReportId);
-					if (!$userReport) {
-						throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
-					}
-
-					$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $userReportId);
-					if ($doCompUser > 0) {
-						$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-						$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-						$userComped = $userReport->compSubscription($doCompUser, $compedSubscriptionMonths);
-						$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
-					}
-					if ($doEmailUser > 0) {
-						$emailSent = $userReport->sendUserEmail($doEmailUser);
-						$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
-					}
-					return;
+			if (($doCompUser > 0 || $doEmailUser > 0) && $report !== null) {
+				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $reportId);
+				if ($doCompUser > 0) {
+					$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+					$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
+					$userComped = $report->compSubscription($doCompUser, $compedSubscriptionMonths);
+					$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
 				}
+				if ($doEmailUser > 0) {
+					$emailSent = $report->sendUserEmail($doEmailUser);
+					$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
+				}
+				return;
 			}
 
 			$final = false;
@@ -118,29 +118,23 @@ class SpecialPointsComp extends SpecialPage {
 				$email = true;
 			}
 
-			$startTime = $this->getRequest()->getInt('start_time');
-			$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
-			$endTime = $this->getRequest()->getInt('end_time');
-			$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
-			$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
-			if (!$status->isGood()) {
-				throw new ErrorPageError('points_comp_report_error', $status->getMessage());
-			}
-
-			$minPointThreshold = $this->getRequest()->getInt('min_point_threshold');
-			$maxPointThreshold = $this->getRequest()->getInt('max_point_threshold');
-			$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
-			if (!$status->isGood()) {
-				throw new ErrorPageError('points_comp_report_error', $status->getMessage());
-			}
-
-			$reportId = $this->getRequest()->getInt('report_id');
-			if ($reportId > 0) {
-				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
-				if (!$report) {
-					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
+			if (!$report) {
+				$startTime = $this->getRequest()->getInt('start_time');
+				$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
+				$endTime = $this->getRequest()->getInt('end_time');
+				$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
+				$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
+				if (!$status->isGood()) {
+					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
 				}
-			} else {
+
+				$minPointThreshold = $this->getRequest()->getInt('min_point_threshold');
+				$maxPointThreshold = $this->getRequest()->getInt('max_point_threshold');
+				$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
+				if (!$status->isGood()) {
+					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
+				}
+
 				$report = new \Cheevos\Points\PointsCompReport();
 				$report->setMinPointThreshold($minPointThreshold);
 				$report->setMaxPointThreshold($maxPointThreshold);
