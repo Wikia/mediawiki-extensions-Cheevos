@@ -55,7 +55,13 @@ class PointsCompJob extends \SyncService\Job {
 		}
 
 		try {
-			$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
+			if (isset($args['grantAll']) && $args['grantAll'] = true) {
+				$report->compAllSubscriptions();
+			} elseif (isset($args['grantAll']) && $args['grantAll'] = true) {
+				$report->sendAllEmails();
+			} else {
+				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
+			}
 		} catch (\MWException $e) {
 			$this->outputLine(__METHOD__.": Failed to run report due to: ".$e->getMessage(), time());
 			return 1;

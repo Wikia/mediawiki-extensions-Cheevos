@@ -117,6 +117,18 @@ class SpecialPointsComp extends SpecialPage {
 			if ($do === 'emailAll' || $do === 'grantAndEmailAll') {
 				$email = true;
 			}
+			if (($do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll') && $report !== null) {
+				$success = \Cheevos\Job\PointsCompJob::queue(
+					[
+						'report_id'	=> $reportId,
+						'grantAll'	=> $final,
+						'emailAll'	=> $email
+					]
+				);
+				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
+				$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
+				return;
+			}
 
 			if (!$report) {
 				$startTime = $this->getRequest()->getInt('start_time');
@@ -146,9 +158,9 @@ class SpecialPointsComp extends SpecialPage {
 
 			$success = \Cheevos\Job\PointsCompJob::queue(
 				[
-					'report_id'				=> $reportId,
-					'final'					=> $final,
-					'email'					=> $email
+					'report_id'	=> $reportId,
+					'final'		=> $final,
+					'email'		=> $email
 				]
 			);
 

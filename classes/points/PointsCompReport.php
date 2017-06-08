@@ -501,7 +501,11 @@ class PointsCompReport {
 			throw new MWException(__METHOD__.': Invalid global user ID provided.');
 		}
 
-		$this->reportUser[$globalId] = $data;
+		if (isset($this->reportUser[$globalId])) {
+			$this->reportUser[$globalId] = array_merge($this->reportUser[$globalId], $data);
+		} else {
+			$this->reportUser[$globalId] = $data;
+		}
 	}
 
 	/**
@@ -661,6 +665,20 @@ class PointsCompReport {
 	}
 
 	/**
+	 * Run through all users and comp subscriptions.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function compAllSubscriptions() {
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
+		foreach ($this->reportUser as $globalId => $data) {
+			$this->compSubscription($globalId, $compedSubscriptionMonths);
+		}
+	}
+
+	/**
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
@@ -704,6 +722,18 @@ class PointsCompReport {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Run through all users and send emails.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function sendAllEmails() {
+		foreach ($this->reportUser as $globalId => $data) {
+			$this->sendUserEmail($globalId);
+		}
 	}
 
 	/**
