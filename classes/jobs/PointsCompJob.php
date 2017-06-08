@@ -55,11 +55,17 @@ class PointsCompJob extends \SyncService\Job {
 		}
 
 		try {
+			$skipReport = false;
 			if (isset($args['grantAll']) && $args['grantAll'] = true) {
 				$report->compAllSubscriptions();
-			} elseif (isset($args['grantAll']) && $args['grantAll'] = true) {
+				$skipReport = true;
+			}
+			if (isset($args['emailAll']) && $args['emailAll'] = true) {
 				$report->sendAllEmails();
-			} else {
+				$skipReport = true;
+			}
+
+			if (!$skipReport) {
 				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
 			}
 		} catch (\MWException $e) {
