@@ -137,10 +137,16 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$this->output->addModules(['ext.achievements.triggerBuilder.js']);
 
+		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
+		$allAchievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($allAchievements);
+		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], true, true);
+
 		if ($this->wgRequest->getInt('aid')) {
 			$achievementId = $this->wgRequest->getInt('aid');
-
-			$this->achievement = Cheevos\Cheevos::getAchievement($achievementId);
+			$this->achievement = false;
+			if (isset($allAchievements[$achievementId])) {
+				$this->achievement = $allAchievements[$achievementId];
+			}
 
 			if ($this->achievement === false || $achievementId != $this->achievement->getId()) {
 				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
@@ -162,12 +168,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped());
 		}
 
-		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
-		$allAchievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($allAchievements);
-		$achievement = array_pop(\Cheevos\CheevosAchievement::correctCriteriaChildAchievements([$this->achievement]));
-		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], true, true);
-
-		$this->content = $this->templates->achievementsForm($achievement, \Cheevos\Cheevos::getCategories(), $allAchievements, $return['errors']);
+		$this->content = $this->templates->achievementsForm($this->achievement, \Cheevos\Cheevos::getCategories(), $allAchievements, $return['errors']);
 	}
 
 	/**
