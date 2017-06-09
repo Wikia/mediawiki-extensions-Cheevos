@@ -303,7 +303,7 @@ class CheevosAchievement extends CheevosModel {
 				}
 			}
 			foreach ($_achievements as $id => $achievement) {
-				if ($removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0 && !array_key_exists($achievement->getId(), $preserveAchs) && !array_key_exists($achievement->getParent_Id(), $preserveAchs)) {
+				if ($removeParents && $achievement->getParent_Id() > 0 && $achievement->getDeleted_At() == 0 && !array_key_exists($achievement->getParent_Id(), $preserveAchs)) {
 					unset($_achievements[$achievement->getParent_Id()]);
 				}
 
