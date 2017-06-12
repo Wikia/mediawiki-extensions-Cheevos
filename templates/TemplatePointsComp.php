@@ -36,6 +36,11 @@ class TemplatePointsComp {
 		}
 
 		$html .= "
+		<div>
+			<dl class='collapse_dl'>
+				<dt>".wfMessage('current_active_comps')->escaped()."</dt><dd>".\Cheevos\Points\PointsCompReport::getNumberOfActiveSubscriptions()."</dd>
+			</dl>
+		</div>
 		<form method='post' action='{$pointsCompURL}'>
 			<fieldset>
 				<legend>".wfMessage('run_new_report')->escaped()."</legend>

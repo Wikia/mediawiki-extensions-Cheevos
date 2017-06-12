@@ -796,4 +796,31 @@ class PointsCompReport {
 
 		return $success;
 	}
+
+	/**
+	 * Get the number of active subscriptions.
+	 *
+	 * @access	public
+	 * @return	integer	Number of active subscriptions.
+	 */
+	static public function getNumberOfActiveSubscriptions() {
+		$db = wfGetDB(DB_MASTER);
+		$result = $db->select(
+			['points_comp_report_user'],
+			['global_id'],
+			[
+				'comp_performed' => 1,
+				"current_comp_expires > ".time()." OR new_comp_expires > ".time()
+			],
+			__METHOD__,
+			[
+				'GROUP BY'	=> 'global_id',
+				'SQL_CALC_FOUND_ROWS'
+			]
+		);
+
+		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount;');
+		$total = $db->fetchRow($calcRowsResult);
+		return intval($total['rowcount']);
+	}
 }
