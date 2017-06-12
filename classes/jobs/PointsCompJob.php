@@ -98,6 +98,84 @@ class PointsCompJob extends \SyncService\Job {
 					'start_time'			=> strtotime(date('Y-m-d', strtotime('first day of 1 month ago')).'T00:00:00+00:00'),
 					'end_time'				=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
 				]
+			],
+			[
+				'minutes' => 0,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 1,
+					'max_point_threshold'	=> 99,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
+			],
+			[
+				'minutes' => 10,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 100,
+					'max_point_threshold'	=> 249,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
+			],
+			[
+				'minutes' => 20,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 250,
+					'max_point_threshold'	=> 499,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
+			],
+			[
+				'minutes' => 30,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 500,
+					'max_point_threshold'	=> 999,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
+			],
+			[
+				'minutes' => 40,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 1000,
+					'max_point_threshold'	=> 4999,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
+			],
+			[
+				'minutes' => 50,
+				'hours' => 7,
+				'days' => '*',
+				'months' => '*',
+				'weekdays' => '*',
+				'arguments' => [
+					'min_point_threshold'	=> 5000,
+					'max_point_threshold'	=> 9999,
+					'start_time'			=> strtotime(date('Y-m-d', strtotime('30 days ago')).'T00:00:00+00:00'),
+					'end_time'				=> strtotime(date('Y-m-d', strtotime('today')).'T23:59:59+00:00')
+				]
 			]
 		];
 	}
