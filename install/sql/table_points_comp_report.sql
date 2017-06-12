@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS /*_*/points_comp_report (
   `end_time` int(14) NOT NULL DEFAULT '0',
   `comp_new` int(10) NOT NULL DEFAULT '0',
   `comp_extended` int(10) NOT NULL DEFAULT '0',
-  `comp_failed` int(10) NOT NULL,
-  `comp_performed` tinyint(1) NOT NULL DEFAULT '0',
-  `email_sent` tinyint(1) NOT NULL DEFAULT '0',
+  `comp_failed` int(10) NOT NULL DEFAULT '0',
+  `comp_skipped` int(10) NOT NULL DEFAULT '0',
+  `comp_performed` int(10) NOT NULL DEFAULT '0',
+  `email_sent` int(10) NOT NULL DEFAULT '0',
   `finished` tinyint(1) NOT NULL DEFAULT '0'
 ) /*$wgDBTableOptions*/;
 

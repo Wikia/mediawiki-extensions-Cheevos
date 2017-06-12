@@ -724,6 +724,11 @@ class CheevosHooks {
 		if (MASTER_WIKI === true) {
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true]);
+
+			$updater->addExtensionUpdate(['addField', 'points_comp_report', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql", true]);
+			$updater->addExtensionUpdate(['modifyField', 'points_comp_report', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql", true]);
+			$updater->addExtensionUpdate(['addField', 'points_comp_report_user', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql", true]);
+			$updater->addExtensionUpdate(['modifyField', 'points_comp_report_user', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql", true]);
 		}
 
 		return true;

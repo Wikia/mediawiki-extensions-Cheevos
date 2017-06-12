@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/points_comp_report ADD `comp_skipped` INT(10) NOT NULL DEFAULT '0' AFTER `comp_failed`;
