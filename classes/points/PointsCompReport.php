@@ -163,6 +163,7 @@ class PointsCompReport {
 					'comp_new'			=> $data['comp_new'],
 					'comp_extended'		=> $data['comp_extended'],
 					'comp_failed'		=> $data['comp_failed'],
+					'comp_skipped'		=> $data['comp_skipped'],
 					'comp_performed'	=> $data['comp_performed'],
 					'email_sent'		=> $data['email_sent']
 				],
@@ -182,7 +183,7 @@ class PointsCompReport {
 	public function updateStats() {
 		$db = wfGetDB(DB_MASTER);
 
-		foreach (['comp_new', 'comp_extended', 'comp_failed', 'comp_performed', 'email_sent'] as $stat) {
+		foreach (['comp_new', 'comp_extended', 'comp_failed', 'comp_skipped', 'comp_performed', 'email_sent'] as $stat) {
 			$result = $db->select(
 				['points_comp_report_user'],
 				['count('.$stat.') as total'],
@@ -428,6 +429,16 @@ class PointsCompReport {
 	}
 
 	/**
+	 * Return the total skipped comps.
+	 *
+	 * @access	public
+	 * @return	integer	Total skipped comps.
+	 */
+	public function getTotalSkipped() {
+		return intval($this->reportData['comp_skipped']);
+	}
+
+	/**
 	 * Return the total comps actually performed.
 	 *
 	 * @access	public
@@ -616,10 +627,11 @@ class PointsCompReport {
 			$success = false;
 
 			$subscription = $this->getSubscription($globalId, $gamepediaPro);
-			if ($subscription === true) {
+			if ($subscription['paid']) {
 				//Do not mess with paid subscriptions.
+				$this->addRow($globalId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
 				continue;
-			} elseif ($subscription > 1 && $newExpires > $subscription) {
+			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 				$isExtended = true;
 			}
 
@@ -637,7 +649,7 @@ class PointsCompReport {
 				}
 			}
 
-			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, intval($subscription), $newExpires, $success, $emailSent);
+			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();
@@ -649,19 +661,25 @@ class PointsCompReport {
 	 * @access	public
 	 * @param	integer	User Global Id
 	 * @param	object	Subscription Provider
-	 * @return	mixed	Boolean false for no subscription, true for paid subscription.  Integer expiration for a comped subscription.
+	 * @return	array	Array of boolean status flags.
 	 */
 	public function getSubscription($globalId, \Hydra\SubscriptionProvider $provider) {
-		$status = false;
+		$hasSubscription = false;
+		$paid = false;
+		$expires = null;
 		$subscription = $provider->getSubscription($globalId);
 		if ($subscription !== false && is_array($subscription)) {
+			$hasSubscription = true;
+			$expires = intval($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
 			if ($subscription['plan_id'] !== 'complimentary') {
-				$status = true;
-			} else {
-				$status = intval($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
+				$paid = true;
 			}
 		}
-		return $status;
+		return [
+			'hasSubscription'	=> $hasSubscription,
+			'paid'				=> $paid,
+			'expires'			=> $status
+		];
 	}
 
 	/**
