@@ -508,7 +508,7 @@ class CheevosHooks {
 			}
 		} catch (\Cheevos\CheevosException $e) {
 			foreach (self::$increments as $globalId => $increment) {
-				\Cheevos\CheevosIncrementJob::queue($increment);
+				\Cheevos\Job\CheevosIncrementJob::queue($increment);
 				unset(self::$increments[$globalId]);
 			}
 		}
