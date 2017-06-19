@@ -3,6 +3,8 @@
 		"authors": []
 	},
 	"achievements": "Achievements",
+	"achievements-title": "Achievements",
+	"achievements-title-for": "Achievements for $1",
 	"achievements_description": "Awards achievements to editors for varying levels of accomplishments.",
 	"no_achievements_found": "No achievements were found.",
 	"no_achievements_found_help": "To create achievements click the 'Add Achievement' button in the upper right.  If this message has been reached in error please contact an administrator for assistance.",
@@ -255,6 +257,7 @@
 	"total_new": "New",
 	"total_extended": "Extended",
 	"total_failed": "Failed",
+	"total_skipped": "Skipped",
 	"total_performed": "Performed",
 	"total_emailed": "Emailed",
 	"report_finished": "Finished",
@@ -264,6 +267,7 @@
 	"comp_new": "New",
 	"comp_extended": "Extended",
 	"comp_failed": "Failed",
+	"comp_skipped": "Skipped",
 	"current_comp_expires": "Current Comp Expires",
 	"new_comp_expires": "New Comp Expires",
 	"pointscomp_detail": "Comp Report #$1 - $2",
@@ -285,5 +289,6 @@
 	"invalid_maximum_threshold": "Invalid maximum point threshold provided.",
 	"invalid_start_time": "Invalid start time provided.",
 	"invalid_end_time": "Invalid end time provided",
-	"action-points_comp_reports": "generate points comp reports"
+	"action-points_comp_reports": "generate points comp reports",
+	"current_active_comps": "Current Active Comps"
 }

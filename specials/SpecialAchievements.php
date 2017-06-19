@@ -119,9 +119,10 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		$title = wfMessage('achievements')->escaped();
 		if ($user) {
-			$title .= " for {$user->getName()}";
+			$title = wfMessage('achievements-title-for', $user->getName())->escaped();
+		} else {
+			$title = wfMessage('achievements-title')->escaped();
 		}
 
 		//Fix requires achievement child IDs for display purposes.

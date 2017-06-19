@@ -43,13 +43,17 @@ class Cheevos {
 		];
 
 		$ch = curl_init();
-		curl_setopt_array($ch, array(
-			CURLOPT_RETURNTRANSFER		=> 1,
-			CURLOPT_URL					=> $url,
-			CURLOPT_SSL_VERIFYHOST		=> false,
-			CURLOPT_SSL_VERIFYPEER		=> false,
-			CURLOPT_CUSTOMREQUEST		=> $type
-		));
+		curl_setopt_array(
+			$ch,
+			[
+				CURLOPT_RETURNTRANSFER		=> 1,
+				CURLOPT_URL					=> $url,
+				CURLOPT_SSL_VERIFYHOST		=> false,
+				CURLOPT_SSL_VERIFYPEER		=> false,
+				CURLOPT_CUSTOMREQUEST		=> $type,
+				CURLOPT_CONNECTTIMEOUT		=> 2
+			]
+		);
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
 			$url = $url . "/?" . http_build_query($data);
 		} else {

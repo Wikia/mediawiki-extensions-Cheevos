@@ -36,6 +36,11 @@ class TemplatePointsComp {
 		}
 
 		$html .= "
+		<div>
+			<dl class='collapse_dl'>
+				<dt>".wfMessage('current_active_comps')->escaped()."</dt><dd>".\Cheevos\Points\PointsCompReport::getNumberOfActiveSubscriptions()."</dd>
+			</dl>
+		</div>
 		<form method='post' action='{$pointsCompURL}'>
 			<fieldset>
 				<legend>".wfMessage('run_new_report')->escaped()."</legend>
@@ -71,6 +76,7 @@ class TemplatePointsComp {
 					<th>".wfMessage('total_new')->escaped()."</th>
 					<th>".wfMessage('total_extended')->escaped()."</th>
 					<th>".wfMessage('total_failed')->escaped()."</th>
+					<th>".wfMessage('total_skipped')->escaped()."</th>
 					<th>".wfMessage('total_performed')->escaped()."</th>
 					<th>".wfMessage('total_emailed')->escaped()."</th>
 					<th>".wfMessage('report_finished')->escaped()."</th>
@@ -90,6 +96,7 @@ class TemplatePointsComp {
 					<td>{$report->getTotalNew()}</td>
 					<td>{$report->getTotalExtended()}</td>
 					<td>{$report->getTotalFailed()}</td>
+					<td>{$report->getTotalSkipped()}</td>
 					<td>{$report->getTotalPerformed()}</td>
 					<td>{$report->getTotalEmailed()}</td>
 					<td>".($report->isFinished() ? '✓' : '&nbsp;')."</td>
@@ -141,6 +148,7 @@ class TemplatePointsComp {
 			<dt>".wfMessage('total_new')->escaped()."</dt><dd>{$report->getTotalNew()}</dd><br/>
 			<dt>".wfMessage('total_extended')->escaped()."</dt><dd>{$report->getTotalExtended()}</dd><br/>
 			<dt>".wfMessage('total_failed')->escaped()."</dt><dd>{$report->getTotalFailed()}</dd><br/>
+			<dt>".wfMessage('total_skipped')->escaped()."</dt><dd>{$report->getTotalSkipped()}</dd><br/>
 			<dt>".wfMessage('total_performed')->escaped()."</dt><dd>{$report->getTotalPerformed()}</dd><br/>
 			<dt>".wfMessage('total_emailed')->escaped()."</dt><dd>{$report->getTotalEmailed()}</dd><br/>
 			<dt>".wfMessage('report_finished')->escaped()."</dt><dd>".($report->isFinished() ? '✓' : '&nbsp;')."</dd>
@@ -158,6 +166,7 @@ class TemplatePointsComp {
 						<th>".wfMessage('comp_new')->escaped()."</th>
 						<th>".wfMessage('comp_extended')->escaped()."</th>
 						<th>".wfMessage('comp_failed')->escaped()."</th>
+						<th>".wfMessage('comp_skipped')->escaped()."</th>
 						<th>".wfMessage('current_comp_expires')->escaped()."</th>
 						<th>".wfMessage('new_comp_expires')->escaped()."</th>
 						<th>".wfMessage('comp_done')->escaped()."</th>
@@ -175,6 +184,7 @@ class TemplatePointsComp {
 						<td>{$reportRow['comp_new']}</td>
 						<td>{$reportRow['comp_extended']}</td>
 						<td>{$reportRow['comp_failed']}</td>
+						<td>{$reportRow['comp_skipped']}</td>
 						<td>".($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;')."</td>
 						<td>".($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;')."</td>
 						<td>".($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$reportRow['global_id']}'/>".wfMessage('grant_comp')->escaped()."</button>")."</td>
