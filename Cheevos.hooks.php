@@ -103,11 +103,8 @@ class CheevosHooks {
 			$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 		}
 
-		if (!$globalId) {
-			return false;
-		}
-
 		self::$increments[$globalId]['user_id'] = $globalId;
+		self::$increments[$globalId]['user_name'] = $user->getName();
 		self::$increments[$globalId]['site_key'] = $siteKey;
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 		self::$increments[$globalId]['timestamp'] = time();
