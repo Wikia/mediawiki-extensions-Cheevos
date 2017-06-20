@@ -153,11 +153,6 @@ class CheevosHooks {
 	static public function onNewRevisionFromEditComplete(WikiPage $wikiPage, Revision $revision, $baseRevId, User $user) {
 		global $wgNamespacesForEditPoints;
 
-		if (!$user->getId()) {
-			//We do not gather statistics for logged out users.
-			return true;
-		}
-
 		$isBot = $user->isAllowed('bot');
 
 		if (!$revision->getParentId()) {
