@@ -466,6 +466,7 @@ class CheevosHooks {
 		}
 
 		global $wgUser;
+		//Do not track anonymous users for visits.  The Cheevos database can not handle it.
 		if (!defined('MW_API') && $wgUser->getId() > 0) {
 			self::increment('visit', 1, $wgUser);
 		}
