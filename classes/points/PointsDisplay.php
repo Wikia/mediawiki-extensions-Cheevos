@@ -77,7 +77,7 @@ class PointsDisplay {
 			$isSitesMode = true;
 		}
 
-		$html = self::pointsBlockHtml($siteKey, $globalId, $limit, 0, $isSitesMode, $isMonthly, $markup);
+		$html = self::pointsBlockHtml($siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup);
 
 		return [
 			$html,
