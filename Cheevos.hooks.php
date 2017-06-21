@@ -150,6 +150,37 @@ class CheevosHooks {
 			self::increment('article_create', 1, $user);
 		}
 
+		if ($isBot) {
+			self::increment('article_edit_is_bot', 1, $user);
+		}
+		if ($user->getId()) {
+			self::increment('article_edit_is_logged_in', 1, $user);
+		} else {
+			self::increment('article_edit_is_logged_out', 1, $user);
+		}
+
+		$isType = [];
+		//Note: Reordering this code will cause differently named statistics.
+		if (class_exists('MobileContext')) {
+			$mobileContext = MobileContext::singleton();
+			if ($mobileContext->shouldDisplayMobileView()) {
+				$isType[] = 'is_mobile';
+			} else {
+				$isType[] = 'is_desktop';
+			}
+		}
+
+		$context = RequestContext::getMain();
+		if ($context->getRequest()->getVal('veaction') === 'edit') {
+			$isType[] = 'is_visual';
+		} else {
+			$isType[] = 'is_source';
+		}
+		foreach ($isType as $type) {
+			self::increment('article_edit_'.$type, 1, $user);
+		}
+		self::increment('article_edit_'.implode('_', $isType), 1, $user);
+
 		$edits = [];
 		if (!$isBot && in_array($wikiPage->getTitle()->getNamespace(), $wgNamespacesForEditPoints)) {
 			$prevSize = $revision->getPrevious() ? $revision->getPrevious()->getSize() : 0;
