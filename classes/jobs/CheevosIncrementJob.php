@@ -55,10 +55,12 @@ class CheevosIncrementJob extends \SyncService\Job {
 					\Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 				}
 			}
-			return ($return === false ? false : true);
+			return ($return === false ? 1 : 0);
 		} catch (\Cheevos\CheevosException $e) {
-			self::queue($increment); //Requeue in case of unintended failure.
-			return false;
+			if ($e->getCode() != 409) {
+				self::queue($increment); //Requeue in case of unintended failure.
+				return 1;
+			}
 		}
 	}
 }

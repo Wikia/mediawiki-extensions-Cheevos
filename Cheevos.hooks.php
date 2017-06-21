@@ -81,33 +81,21 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	string	Stat Name
 	 * @param	integer	Stat Delta
-	 * @param	mixed	Local User object or global ID having a stat incremented.
+	 * @param	object	Local User object.
 	 * @param	array	Array of edit information for article_create or article_edit statistics.
 	 * @return	mixed	Array of return status including earned achievements or false on error.
 	 */
-	public static function increment($stat, $delta, $user = null, $edits = []) {
+	public static function increment($stat, $delta, User $user, $edits = []) {
 		$siteKey = self::getSiteKey();
 		if ($siteKey === false) {
 			return false;
 		}
 
-		if (!$user) {
-			global $wgUser;
-			$user = $wgUser;
-		}
-
-		if (is_numeric($user)) {
-			$globalId = intval($user);
-		} else {
-			$lookup = CentralIdLookup::factory();
-			$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
-		}
-
-		if (!$globalId) {
-			return false;
-		}
+		$lookup = CentralIdLookup::factory();
+		$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 
 		self::$increments[$globalId]['user_id'] = $globalId;
+		self::$increments[$globalId]['user_name'] = $user->getName();
 		self::$increments[$globalId]['site_key'] = $siteKey;
 		self::$increments[$globalId]['deltas'][] = ['stat' => $stat, 'delta' => $delta];
 		self::$increments[$globalId]['timestamp'] = time();
@@ -136,7 +124,7 @@ class CheevosHooks {
 	 * @param	integer	$id: id of the article that was deleted (added in 1.13)
 	 * @param	object	$content: the content of the deleted article, or null in case of an error (added in 1.21)
 	 * @param	object	$logEntry: the log entry used to record the deletion (added in 1.21)
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onArticleDeleteComplete(WikiPage &$article, User &$user, $reason, $id, Content $content = null, LogEntry $logEntry) {
 		self::increment('article_delete', 1, $user);
@@ -155,11 +143,6 @@ class CheevosHooks {
 	 */
 	static public function onNewRevisionFromEditComplete(WikiPage $wikiPage, Revision $revision, $baseRevId, User $user) {
 		global $wgNamespacesForEditPoints;
-
-		if (!$user->getId()) {
-			//We do not gather statistics for logged out users.
-			return true;
-		}
 
 		$isBot = $user->isAllowed('bot');
 
@@ -214,10 +197,12 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	object	Source Title
 	 * @param	object	Destination Title
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onArticleMergeComplete(Article $targetTitle, Article $destTitle) {
-		self::increment('article_merge', 1);
+		global $wgUser;
+
+		self::increment('article_merge', 1, $wgUser);
 		return true;
 	}
 
@@ -229,7 +214,7 @@ class CheevosHooks {
 	 * @param	object	User object who did the protection.
 	 * @param	array	Protection limits being added.
 	 * @param	string	$reason: Reason for protect
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onArticleProtectComplete(WikiPage &$wikiPage, User &$user, $limit, $reason) {
 		self::increment('article_protect', 1, $user);
@@ -247,7 +232,7 @@ class CheevosHooks {
 	 * @param	integer	New Page ID
 	 * @param	string	$reason: Reason for protect
 	 * @param	object	Revision created by the move.
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onTitleMoveComplete(Title &$title, Title &$newTitle, User $user, $oldid, $newid, $reason, Revision $revision) {
 		self::increment('article_move', 1, $user);
@@ -260,7 +245,7 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	object	Block
 	 * @param	object	User object of who performed the block.
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onBlockIpComplete(Block $block, User $user) {
 		self::increment('admin_block_ip', 1, $user);
@@ -275,9 +260,9 @@ class CheevosHooks {
 	 * @param	object	User of the profile being commented on.
 	 * @param	integer	Parent ID of the comment.
 	 * @param	string	The comment text.
-	 * @return	True
+	 * @return	boolean	True
 	 */
-	static public function onCurseProfileAddComment($fromUser, $userId, $inReplyTo, $commentText) {
+	static public function onCurseProfileAddComment(User $fromUser, User $toUser, $inReplyTo, $commentText) {
 		self::increment('curse_profile_comment', 1, $fromUser);
 		return true;
 	}
@@ -286,25 +271,25 @@ class CheevosHooks {
 	 * Handle CurseProfile friend addition increment.
 	 *
 	 * @access	public
-	 * @param	integer	Global ID of the user adding a friend.
-	 * @param	integer	Global ID of the friend being added.
-	 * @return	True
+	 * @param	object	User object of the user requesting to add a friend.
+	 * @param	object	User object of the user being requested as a friend.
+	 * @return	boolean	True
 	 */
-	static public function onCurseProfileAddFriend($fromGlobalId, $toGlobalId) {
-		self::increment('curse_profile_add_friend', 1, $fromGlobalId);
+	static public function onCurseProfileAddFriend(User $fromUser, User $toUser) {
+		self::increment('curse_profile_add_friend', 1, $fromUser);
 		return true;
 	}
 
 	/**
-	 * Handle CurseProfile friend addition increment.
+	 * Handle CurseProfile friend accept increment.
 	 *
 	 * @access	public
-	 * @param	integer	Global ID of the user adding a friend.
-	 * @param	integer	Global ID of the friend being added.
-	 * @return	True
+	 * @param	object	User object of the user accepting a friend request.
+	 * @param	object	User object of the user that initiated the friend request.
+	 * @return	boolean	True
 	 */
-	static public function onCurseProfileAcceptFriend($fromGlobalId, $toGlobalId) {
-		self::increment('curse_profile_accept_friend', 1, $fromGlobalId);
+	static public function onCurseProfileAcceptFriend(User $fromUser, User $toUser) {
+		self::increment('curse_profile_accept_friend', 1, $fromUser);
 		return true;
 	}
 
@@ -316,9 +301,9 @@ class CheevosHooks {
 	 * @param	string	Field being edited.
 	 * @param	string	Field Value
 	 * @param	string	The comment text.
-	 * @return	True
+	 * @return	boolean	True
 	 */
-	static public function onCurseProfileEdited($user, $field, $value) {
+	static public function onCurseProfileEdited(User $user, $field, $value) {
 		self::increment('curse_profile_edit', 1, $user);
 		if (!empty($value)) {
 			switch ($field) {
@@ -356,10 +341,12 @@ class CheevosHooks {
 	 * @param	object	MailAddress $from: address of sending user
 	 * @param	string	$subject: subject of the mail
 	 * @param	string	$text: text of the mail
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onEmailUserComplete(&$address, &$from, &$subject, &$text) {
-		self::increment('send_email', 1);
+		global $wgUser;
+
+		self::increment('send_email', 1, $wgUser);
 		return true;
 	}
 
@@ -370,9 +357,9 @@ class CheevosHooks {
 	 * @param	integer	Recent Change Primary ID that was marked as patrolled.
 	 * @param	object	User that marked the change as patrolled.
 	 * @param	boolean	Automatically Patrolled
-	 * @return	True
+	 * @return	boolean	True
 	 */
-	static public function onMarkPatrolledComplete($rcid, $user, $automatic) {
+	static public function onMarkPatrolledComplete($rcid, User $user, $automatic) {
 		self::increment('admin_patrol', 1, $user);
 		return true;
 	}
@@ -382,10 +369,12 @@ class CheevosHooks {
 	 *
 	 * @access	public
 	 * @param	object	UploadBase or child of UploadBase
-	 * @return	True
+	 * @return	boolean	True
 	 */
 	static public function onUploadComplete(&$image) {
-		self::increment('file_upload', 1);
+		global $wgUser;
+
+		self::increment('file_upload', 1, $wgUser);
 		return true;
 	}
 
@@ -395,9 +384,9 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	object	User watching the article.
 	 * @param	object	Article being watched by the user.
-	 * @return	True
+	 * @return	boolean	True
 	 */
-	static public function onWatchArticleComplete($user, $article) {
+	static public function onWatchArticleComplete(User $user, $article) {
 		self::increment('article_watch', 1, $user);
 		return true;
 	}
@@ -408,9 +397,9 @@ class CheevosHooks {
 	 * @access	public
 	 * @param	object	User created.
 	 * @param	boolean	Automatic Creation
-	 * @return	True
+	 * @return	boolean	True
 	 */
-	static public function onLocalUserCreated($user, $autoCreated) {
+	static public function onLocalUserCreated(User $user, $autoCreated) {
 		self::increment('account_create', 1, $user);
 		return true;
 	}
@@ -474,7 +463,8 @@ class CheevosHooks {
 		}
 
 		global $wgUser;
-		if (!defined('MW_API')) {
+		//Do not track anonymous users for visits.  The Cheevos database can not handle it.
+		if (!defined('MW_API') && $wgUser->getId() > 0) {
 			self::increment('visit', 1, $wgUser);
 		}
 
