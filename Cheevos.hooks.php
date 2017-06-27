@@ -171,7 +171,7 @@ class CheevosHooks {
 		}
 
 		$context = RequestContext::getMain();
-		if ($context->getRequest()->getVal('veaction') === 'edit') {
+		if ($context->getRequest()->getVal('veaction') === 'edit' || $context->getRequest()->getVal('action') === 'visualeditoredit') {
 			$isType[] = 'is_visual';
 		} else {
 			$isType[] = 'is_source';
