@@ -685,7 +685,7 @@ class PointsCompReport {
 		return [
 			'hasSubscription'	=> $hasSubscription,
 			'paid'				=> $paid,
-			'expires'			=> $status
+			'expires'			=> $expires
 		];
 	}
 
@@ -720,10 +720,10 @@ class PointsCompReport {
 		$newExpires = $newExpiresDT->getTimestamp();
 
 		$subscription = $this->getSubscription($globalId, $gamepediaPro);
-		if ($subscription === true) {
+		if ($subscription['paid'] === true) {
 			//Do not mess with paid subscriptions.
 			return false;
-		} elseif ($subscription > 1 && $newExpires > $subscription) {
+		} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 			$gamepediaPro->cancelCompedSubscription($globalId);
 		}
 
