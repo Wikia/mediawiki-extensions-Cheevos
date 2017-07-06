@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/points_comp_report CHANGE `max_points` `max_points` INT(8) NULL DEFAULT NULL;
