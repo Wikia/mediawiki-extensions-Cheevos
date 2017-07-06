@@ -81,6 +81,7 @@ class SpecialPointsComp extends SpecialPage {
 	 */
 	public function runReport() {
 		if ($this->getRequest()->wasPosted()) {
+			$report = false;
 			$reportId = $this->getRequest()->getInt('report_id');
 			if ($reportId > 0) {
 				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
@@ -130,7 +131,7 @@ class SpecialPointsComp extends SpecialPage {
 				return;
 			}
 
-			if (!$report) {
+			if ($report === false) {
 				$startTime = $this->getRequest()->getInt('start_time');
 				$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
 				$endTime = $this->getRequest()->getInt('end_time');
@@ -141,7 +142,12 @@ class SpecialPointsComp extends SpecialPage {
 				}
 
 				$minPointThreshold = $this->getRequest()->getInt('min_point_threshold');
-				$maxPointThreshold = $this->getRequest()->getInt('max_point_threshold');
+				$maxPointThreshold = $this->getRequest()->getVal('max_point_threshold');
+				if ($maxPointThreshold !== '0' && empty($maxPointThreshold)) {
+					$maxPointThreshold = null;
+				} else {
+					$maxPointThreshold = intval($maxPointThreshold);
+				}
 				$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 				if (!$status->isGood()) {
 					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
