@@ -48,11 +48,11 @@ class CompSubscriptions extends Maintenance {
 
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 
-		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		if ($this->hasOption('threshold')) {
-			$compedSubscriptionThreshold = intval($this->getOption('threshold'));
+			$maxPointThreshold = intval($this->getOption('threshold'));
 		}
-		$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($compedSubscriptionThreshold);
+		$status = \Cheevos\Points\PointsCompReport::validatePointThresholds(0, $maxPointThreshold);
 		if (!$status->isGood()) {
 			$this->error($status->getMessage()->plain(), 1);
 		}
@@ -79,7 +79,7 @@ class CompSubscriptions extends Maintenance {
 		}
 
 		$report = new \Cheevos\Points\PointsCompReport();
-		$report->run($compedSubscriptionThreshold, null, $startTime, $endTime, $this->hasOption('final'));
+		$report->run(0, $maxPointThreshold, $startTime, $endTime, $this->hasOption('final'));
 	}
 }
 

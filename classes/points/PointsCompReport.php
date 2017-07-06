@@ -295,18 +295,18 @@ class PointsCompReport {
 	 * @return	integer	Maximum point threshold.
 	 */
 	public function getMaxPointThreshold() {
-		return ($this->reportData['max_points'] === null ? null : intval($this->reportData['max_points']));
+		return intval($this->reportData['max_points']);
 	}
 
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
 	 * @access	public
-	 * @param	mixed	Maximum point threshold for this report or null for no maximum.
+	 * @param	integer	Maximum point threshold for this report.
 	 * @return	void
 	 */
-	public function setMaxPointThreshold($maxPointThreshold = null) {
-		$this->reportData['max_points'] = ($maxPointThreshold === null ? null : intval($maxPointThreshold));
+	public function setMaxPointThreshold($maxPointThreshold) {
+		$this->reportData['max_points'] = intval($maxPointThreshold);
 	}
 
 	/**
@@ -314,14 +314,14 @@ class PointsCompReport {
 	 *
 	 * @access	public
 	 * @param	integer	Minimum Point Threshold
-	 * @param	integer	[Optional] Maximum Point Threshold
+	 * @param	integer	Maximum Point Threshold
 	 * @return	object	Status
 	 */
-	static public function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
+	static public function validatePointThresholds($minPointThreshold, $maxPointThreshold) {
 		$minPointThreshold = intval($minPointThreshold);
 		$maxPointThreshold = intval($maxPointThreshold);
 
-		if ($maxPointThreshold !== null && ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold)) {
+		if ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold) {
 			return \Status::newFatal('invalid_maximum_threshold');
 		}
 
@@ -562,11 +562,13 @@ class PointsCompReport {
 		if ($minPointThreshold !== null) {
 			$minPointThreshold = intval($minPointThreshold);
 		} else {
-			$minPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
+			$minPointThreshold = 0;
 		}
 
 		if ($maxPointThreshold !== null) {
 			$maxPointThreshold = intval($maxPointThreshold);
+		} else {
+			$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		}
 		$status = self::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 		if (!$status->isGood()) {
@@ -613,10 +615,7 @@ class PointsCompReport {
 			$isExtended = false;
 			$currentExpires = 0; //$newExpires is set outside of the loop up above.
 
-			if ($progress->getCount() < $minPointThreshold) {
-				continue;
-			}
-			if ($maxPointThreshold !== null && $progress->getCount() > $maxPointThreshold) {
+			if ($progress->getCount() < $maxPointThreshold) {
 				continue;
 			}
 

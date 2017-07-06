@@ -84,7 +84,7 @@ class PointsCompJob extends \SyncService\Job {
 	 */
 	static public function getSchedule() {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
+		$maxPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		return [
 			[
 				'minutes' => 0,
@@ -93,8 +93,8 @@ class PointsCompJob extends \SyncService\Job {
 				'months' => '*',
 				'weekdays' => '*',
 				'arguments' => [
-					'min_point_threshold'	=> $compedSubscriptionThreshold,
-					'max_point_threshold'	=> null,
+					'min_point_threshold'	=> 0,
+					'max_point_threshold'	=> $maxPointThreshold,
 					'start_time'			=> strtotime(date('Y-m-d', strtotime('first day of 1 month ago')).'T00:00:00+00:00'),
 					'end_time'				=> strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00')
 				]

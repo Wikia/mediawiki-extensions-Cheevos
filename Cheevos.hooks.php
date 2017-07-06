@@ -748,7 +748,6 @@ class CheevosHooks {
 
 			$updater->addExtensionUpdate(['addField', 'points_comp_report', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql", true]);
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql", true]);
-			$updater->addExtensionUpdate(['modifyField', 'points_comp_report', 'max_points', "{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql", true]);
 			$updater->addExtensionUpdate(['addField', 'points_comp_report_user', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql", true]);
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report_user', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql", true]);
 		}
