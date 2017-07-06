@@ -319,10 +319,12 @@ class PointsCompReport {
 	 */
 	static public function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
 		$minPointThreshold = intval($minPointThreshold);
-		$maxPointThreshold = intval($maxPointThreshold);
 
-		if ($maxPointThreshold !== null && ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold)) {
-			return \Status::newFatal('invalid_maximum_threshold');
+		if ($maxPointThreshold !== null) {
+			$maxPointThreshold = intval($maxPointThreshold);
+			if ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold) {
+				return \Status::newFatal('invalid_maximum_threshold');
+			}
 		}
 
 		if ($minPointThreshold < 0) {
@@ -393,6 +395,10 @@ class PointsCompReport {
 		if ($startTime < 0) {
 			//Yes, nothing before 1970 exists.
 			return \Status::newFatal('invalid_start_time');
+		}
+
+		if ($startTime == $endTime) {
+			return \Status::newFatal('invalid_start_end_time_equal');
 		}
 
 		return \Status::newGood();

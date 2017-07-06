@@ -44,21 +44,19 @@ class TemplatePointsComp {
 		<form method='post' action='{$pointsCompURL}'>
 			<fieldset>
 				<legend>".wfMessage('run_new_report')->escaped()."</legend>
-				".($errors['start_time'] ? '<span class="error">'.$errors['start_time'].'</span>' : '')."
 				<label for='start_time'>".wfMessage('start_time')->escaped()."</label>
 				<input id='start_time_datepicker' data-input='start_time' type='text' value=''/>
 				<input id='start_time' name='start_time' type='hidden' value=''/>
 
-				".($errors['end_time'] ? '<span class="error">'.$errors['end_time'].'</span>' : '')."
 				<label for='end_time'>".wfMessage('end_time')->escaped()."</label>
 				<input id='end_time_datepicker' data-input='end_time' type='text' value=''/>
 				<input id='end_time' name='end_time' type='hidden' value=''/>
 
 				<label for='min_point_threshold'>".wfMessage('min_point_threshold')->escaped()."</label>
-				<input id='min_point_threshold' name='min_point_threshold' type='text' value='0'/>
+				<input id='min_point_threshold' name='min_point_threshold' type='text' value='".intval($config->get('CompedSubscriptionThreshold'))."'/>
 
 				<label for='max_point_threshold'>".wfMessage('max_point_threshold')->escaped()."</label>
-				<input id='max_point_threshold' name='max_point_threshold' type='text' value='".intval($config->get('CompedSubscriptionThreshold'))."'/>
+				<input id='max_point_threshold' name='max_point_threshold' type='text' value=''/>
 
 				<input type='submit' value='".wfMessage('run_new_report')->escaped()."'/>
 			</fieldset>

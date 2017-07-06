@@ -289,6 +289,7 @@
 	"invalid_maximum_threshold": "Invalid maximum point threshold provided.",
 	"invalid_start_time": "Invalid start time provided.",
 	"invalid_end_time": "Invalid end time provided",
+	"invalid_start_end_time_equal": "Start and end time can not be equal to each other.",
 	"action-points_comp_reports": "generate points comp reports",
 	"current_active_comps": "Current Active Comps"
 }
