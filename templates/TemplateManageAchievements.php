@@ -319,7 +319,7 @@ class TemplateManageAchievements {
 					}
 				}
 				$HTML .= "<label for='offset'>".wfMessage('local_username')->escaped()."</label>
-				<textarea id='username_list' name='username' placeholder='Single username, or comma delimited list of usernames.'>".$form['save']['username']."</textarea>";
+				<textarea id='username_list' name='username' placeholder='Single username, or comma delimited list of usernames.'>".(isset($form['save']['username']) ? $form['save']['username'] : '')."</textarea>";
 		if (is_array($achievements) && count($achievements)) {
 			$HTML .= "
 				".(isset($form['errors']['achievement_id']) ? '<span class="error">'.$form['errors']['achievement_id'].'</span><br/>' : '')."

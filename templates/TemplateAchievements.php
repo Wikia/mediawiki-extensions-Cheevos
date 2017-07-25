@@ -157,6 +157,7 @@ class TemplateAchievements {
 					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
+			$_rbInnerHtml = '';
 			foreach ($achievement->getRequiredBy() as $requiredByAid) {
 				if (!isset($achievements[$requiredByAid])) {
 					continue;

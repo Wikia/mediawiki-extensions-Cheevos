@@ -573,7 +573,51 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Used to shoved displayed achievements CSS and JS into the page.
+	 * See: self::onSkinAfterBottomScripts
+	 *
+	 * @access	public
+	 * @param	array	Array of commonly requested page titles.
+	 * @param	object	Skin Object
+	 * @return	boolean True
+	 */
+	static public function onSkinPreloadExistence(&$titles, $skin) {
+		global $wgUser;
+
+		if (!$wgUser->getOption('cheevos-popup-notification')) {
+			return true;
+		}
+
+		$templates = new TemplateAchievements;
+		$redis = RedisCache::getClient('cache');
+
+		$lookup = CentralIdLookup::factory();
+		$globalId = $lookup->centralIdFromLocalUser($wgUser, CentralIdLookup::AUDIENCE_RAW);
+
+		if (!$globalId) {
+			return true;
+		}
+
+		try {
+			//Using a global key.
+			$redisKey = 'cheevos:display:'.$globalId;
+			$displays = $redis->hGetAll($redisKey);
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			return true;
+		}
+
+		if (is_array($displays) && count($displays)) {
+			$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
+			$skin->getOutput()->enableClientCache(false);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Used to shoved displayed achievements into the page for Javascript to handle.
+	 * See: self::onSkinPreloadExistence
 	 *
 	 * @access	public
 	 * @param	object	Skin Object
@@ -609,8 +653,6 @@ class CheevosHooks {
 					$displays = array_slice($displays, 0, 3);
 				}
 				// If use wants to recieve these notifications, lets place them on screen
-				$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
-				$skin->getOutput()->enableClientCache(false);
 				$text .= $templates->achievementDisplay(implode("\n", $displays));
 			} else {
 				// If not, lets delete them so that they don't sit around and flood in if this setting ever changes.'

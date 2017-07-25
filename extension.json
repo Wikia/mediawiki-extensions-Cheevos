@@ -287,6 +287,7 @@
 		"ParserFirstCallInit": "CheevosHooks::onParserFirstCallInit",
 		"PersonalUrls": "CheevosHooks::onPersonalUrls",
 		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
+		"SkinPreloadExistence": "CheevosHooks::onSkinPreloadExistence",
 		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"UserToolLinksEdit": "CheevosHooks::onContributionsToolLinks",
