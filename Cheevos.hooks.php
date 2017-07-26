@@ -374,7 +374,7 @@ class CheevosHooks {
 	 * @param	string	$text: text of the mail
 	 * @return	boolean	True
 	 */
-	static public function onEmailUserComplete(&$address, &$from, &$subject, &$text) {
+	static public function onEmailUserComplete($address, $from, $subject, $text) {
 		global $wgUser;
 
 		self::increment('send_email', 1, $wgUser);
