@@ -13,43 +13,12 @@
 
 class CheevosAPI extends ApiBase {
 	/**
-	 * API Initialized
-	 *
-	 * @var		boolean
-	 */
-	private $initialized = false;
-
-	/**
-	 * Initiates some needed classes.
-	 *
-	 * @access	public
-	 * @return	void
-	 */
-	private function init() {
-		if (!$this->initialized) {
-			global $wgUser, $wgRequest;
-			$this->wgUser		= $wgUser;
-			$this->wgRequest	= $wgRequest;
-			$this->language		= $this->getLanguage();
-			$this->redis = RedisCache::getClient('cache');
-			$this->initialized = true;
-		}
-	}
-
-	/**
 	 * Main Executor
 	 *
 	 * @access	public
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute() {
-		$this->init();
-
-		parent::$messageMap['invalidcurseid'] = [
-			'code'	=> 'invalidcurseid',
-			'info'	=> 'Could not find an user by Curse ID "$1"'
-		];
-
 		$this->params = $this->extractRequestParams();
 
 		switch ($this->params['do']) {
@@ -78,14 +47,6 @@ class CheevosAPI extends ApiBase {
 				ApiBase::PARAM_TYPE		=> 'string',
 				ApiBase::PARAM_REQUIRED => true
 			],
-			'curse_id' => [
-				ApiBase::PARAM_TYPE		=> 'integer',
-				ApiBase::PARAM_REQUIRED => false
-			],
-			'limit' => [
-				ApiBase::PARAM_TYPE		=> 'integer',
-				ApiBase::PARAM_REQUIRED => false
-			],
 			'hashes' => [
 				ApiBase::PARAM_TYPE		=> 'string', //Actually a JSON string of a single dimensional array.
 				ApiBase::PARAM_REQUIRED => false
@@ -102,37 +63,37 @@ class CheevosAPI extends ApiBase {
 	public function getParamDescription() {
 		return [
 			'do'		=> 'Action to take.',
-			'curse_id'	=> 'Curse ID of the user in the database for data retrieval.',
-			'limit'		=> 'Limit the number of achievements return.',
 			'hashes'	=> 'Hashes to acknowledge awards for.'
 		];
 	}
 
 	/**
-	 * Get information on an user by Curse ID.
+	 * Acknowledge achievement awards.
 	 *
 	 * @access	public
 	 * @return	array
 	 */
 	public function acknowledgeAwards() {
-		global $wgServer;
-
 		$success = false;
 
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
-		if ($this->wgUser->getId() < 1 || User::isIP($this->wgUser->getName()) || !$globalId) {
-			$this->dieUsageMsg(['notloggedin', $this->params['do']]);
-		}
+		$redis = RedisCache::getClient('cache');
 
-		$redisKey = 'cheevos:display:'.$globalId;
-		$hashes = $this->wgRequest->getVal('hashes');
-		$hashes = @json_decode($hashes, true);
+		if ($redis !== false) {
+			$lookup = CentralIdLookup::factory();
+			$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
+			if ($this->getUser()->getId() < 1 || User::isIP($this->getUser()->getName()) || !$globalId) {
+				$this->dieUsageMsg(['notloggedin', $this->params['do']]);
+			}
 
-		if (count($hashes)) {
-			array_unshift($hashes, $redisKey);
+			$redisKey = 'cheevos:display:'.$globalId;
+			$hashes = $this->getRequest()->getVal('hashes');
+			$hashes = @json_decode($hashes, true);
 
-			$success = (bool) call_user_func_array([$this->redis, 'hDel'], $hashes);
+			if (count($hashes)) {
+				array_unshift($hashes, $redisKey);
+
+				$success = (bool) call_user_func_array([$redis, 'hDel'], $hashes);
+			}
 		}
 
 		return ['success' => $success];
