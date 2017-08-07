@@ -179,12 +179,11 @@
 				"js/cheevos.notice.js"
 			],
 			"dependencies": [
-				"jquery.effects.core",
-				"jquery.effects.pulsate",
 				"mediawiki.api"
 			],
 			"targets": [
-				"desktop"
+				"desktop",
+				"mobile"
 			],
 			"position": "top"
 		},
