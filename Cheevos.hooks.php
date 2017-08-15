@@ -230,7 +230,7 @@ class CheevosHooks {
 	 * @param	object	Destination Title
 	 * @return	boolean	True
 	 */
-	static public function onArticleMergeComplete(Article $targetTitle, Article $destTitle) {
+	static public function onArticleMergeComplete($targetTitle, $destTitle) {
 		global $wgUser;
 
 		self::increment('article_merge', 1, $wgUser);
