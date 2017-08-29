@@ -133,13 +133,11 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function achievementsForm() {
-		$side_id = 0;
-
 		$this->output->addModules(['ext.achievements.triggerBuilder.js']);
 
 		$allAchievements = \Cheevos\Cheevos::getAchievements($this->siteKey);
 		$allAchievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($allAchievements);
-		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], true, true);
+		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$allAchievements, []], false, true);
 
 		if ($this->wgRequest->getInt('aid')) {
 			$achievementId = $this->wgRequest->getInt('aid');
