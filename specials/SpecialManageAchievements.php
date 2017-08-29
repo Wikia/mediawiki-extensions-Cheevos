@@ -178,6 +178,8 @@ class SpecialManageAchievements extends SpecialPage {
 	private function acheivementsSave() {
 		global $achImageDomainWhiteList, $dsSiteKey;
 
+		$save = [];
+		$errors = [];
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
 			$forceCreate = false;
 			if (!empty($this->siteKey) && empty($this->achievement->getSite_Key()) && $this->achievement->getId() > 0) {

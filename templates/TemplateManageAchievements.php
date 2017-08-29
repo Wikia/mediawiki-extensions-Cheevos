@@ -119,15 +119,15 @@ class TemplateManageAchievements {
 		$HTML .= "
 			<form id='achievement_form' class=\"pure-form pure-form-stacked\" method='post' action='{$achievementsURL}/admin?do=save'>
 				<fieldset>
-					".($errors['name'] ? '<span class="error">'.$errors['name'].'</span>' : '')."
+					".(isset($errors['name']) ? '<span class="error">'.$errors['name'].'</span>' : '')."
 					<label for='name' class='label_above'>".wfMessage('achievement_name')->escaped()."</label>
 					<input id='name' name='name' type='text' maxlength='50' placeholder='".wfMessage('achievement_name_helper')->escaped()."' value='".htmlentities($achievement->getName(), ENT_QUOTES)."' />
 
-					".($errors['description'] ? '<span class="error">'.$errors['description'].'</span>' : '')."
+					".(isset($errors['description']) ? '<span class="error">'.$errors['description'].'</span>' : '')."
 					<label for='description' class='label_above'>".wfMessage('achievement_description')->escaped()."</label>
 					<input id='description' name='description' type='text' maxlength='150' placeholder='".wfMessage('achievement_description_helper')->escaped()."' value='".htmlentities($achievement->getDescription(), ENT_QUOTES)."' />
 
-					".($errors['category'] ? '<span class="error">'.$errors['category'].'</span>' : '')."
+					".(isset($errors['category']) ? '<span class="error">'.$errors['category'].'</span>' : '')."
 					<label for='category' class='label_above'>".wfMessage('achievement_category')->escaped()."</label>
 					<input id='category_id' name='category_id' type='hidden' value='".$category->getId()."'/>
 					<input id='category' name='category' type='text' maxlength='30' placeholder='".wfMessage('achievement_category_helper')->escaped()."' value='".$category->getName()."'/>";
@@ -143,7 +143,7 @@ class TemplateManageAchievements {
 
 					}
 
-		$HTML .= ($errors['image'] ? '<span class="error">'.$errors['image'].'</span>' : '')."
+		$HTML .= (isset($errors['image']) ? '<span class="error">'.$errors['image'].'</span>' : '')."
 			<div id='image_upload'>
 				<img id='image_loading' src='".wfExpandUrl($wgScriptPath."/extensions/Achievements/images/loading.gif")."'/>
 				<p class='image_hint'>".wfMessage('image_hint')->escaped()."</p>
@@ -151,7 +151,7 @@ class TemplateManageAchievements {
 			<label for='image' class='label_above'>".wfMessage('achievement_image')->escaped()."<div class='helper_mark'><span>".wfMessage('image_upload_help')."</span></div></label>
 			<input id='image' name='image' type='text' value='".htmlentities($achievement->getImage(), ENT_QUOTES)."' />
 
-			".($errors['points'] ? '<span class="error">'.$errors['points'].'</span>' : '')."
+			".(isset($errors['points']) ? '<span class="error">'.$errors['points'].'</span>' : '')."
 			<label for='points' class='label_above'>".wfMessage('achievement_points')->escaped()."<div class='helper_mark'><span>".wfMessage('points_help')."</span></div></label>
 			<input id='points' name='points' type='text' value='".htmlentities($achievement->getPoints(), ENT_QUOTES)."' /><br/>
 
