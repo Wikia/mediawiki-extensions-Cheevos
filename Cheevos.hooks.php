@@ -793,6 +793,25 @@ class CheevosHooks {
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report', 'max_points', "{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql", true]);
 			$updater->addExtensionUpdate(['addField', 'points_comp_report_user', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql", true]);
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report_user', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql", true]);
+
+			$updater->addExtensionUpdate(['dropTable', 'achievement', $extDir."/upgrade/sql/drop_table_achievement.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'achievement_category', $extDir."/upgrade/sql/drop_table_achievement_category.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'achievement_earned', $extDir."/upgrade/sql/drop_table_achievement_earned.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'achievement_hook', $extDir."/upgrade/sql/drop_table_achievement_hook.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'achievement_link', $extDir."/upgrade/sql/drop_table_achievement_link.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'achievement_site_mega', $extDir."/upgrade/sql/drop_table_achievement_site_mega.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'dataminer_user_global_totals', $extDir."/upgrade/sql/drop_table_dataminer_user_global_totals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'dataminer_user_wiki_periodicals', $extDir."/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'dataminer_user_wiki_totals', $extDir."/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'display_names', $extDir."/upgrade/sql/drop_table_display_names.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points', $extDir."/upgrade/sql/drop_table_wiki_points.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_levels', $extDir."/upgrade/sql/drop_table_wiki_points_levels.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_monthly_totals', $extDir."/upgrade/sql/drop_table_wiki_points_monthly_totals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_multipliers', $extDir."/upgrade/sql/drop_table_wiki_points_multipliers.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_multipliers_sites', $extDir."/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_site_monthly_totals', $extDir."/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_site_totals', $extDir."/upgrade/sql/drop_table_wiki_points_site_totals.sql", true]);
+			$updater->addExtensionUpdate(['dropTable', 'wiki_points_totals', $extDir."/upgrade/sql/drop_table_wiki_points_totals.sql", true]);
 		}
 
 		return true;

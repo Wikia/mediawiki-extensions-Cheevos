@@ -1,0 +1,1 @@
+DROP TABLE /*_*/dataminer_user_global_totals;
