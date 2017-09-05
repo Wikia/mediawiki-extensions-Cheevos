@@ -805,10 +805,7 @@ class CheevosHooks {
 			$updater->addExtensionUpdate(['dropTable', 'dataminer_user_wiki_totals', $extDir."/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'display_names', $extDir."/upgrade/sql/drop_table_display_names.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'wiki_points', $extDir."/upgrade/sql/drop_table_wiki_points.sql", true]);
-			$updater->addExtensionUpdate(['dropTable', 'wiki_points_levels', $extDir."/upgrade/sql/drop_table_wiki_points_levels.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'wiki_points_monthly_totals', $extDir."/upgrade/sql/drop_table_wiki_points_monthly_totals.sql", true]);
-			$updater->addExtensionUpdate(['dropTable', 'wiki_points_multipliers', $extDir."/upgrade/sql/drop_table_wiki_points_multipliers.sql", true]);
-			$updater->addExtensionUpdate(['dropTable', 'wiki_points_multipliers_sites', $extDir."/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'wiki_points_site_monthly_totals', $extDir."/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'wiki_points_site_totals', $extDir."/upgrade/sql/drop_table_wiki_points_site_totals.sql", true]);
 			$updater->addExtensionUpdate(['dropTable', 'wiki_points_totals', $extDir."/upgrade/sql/drop_table_wiki_points_totals.sql", true]);
