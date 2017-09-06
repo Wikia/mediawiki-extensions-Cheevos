@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$('.add_level').click(function() {
 		var fieldset = $(this).parent().parent();
-		var delImg = $('<img>').attr('src', mw.config.get('wgScriptPath')+'/extensions/WikiPoints/images/delete.png').addClass('delete_level');
+		var delImg = $('<img>').attr('src', mw.config.get('wgScriptPath')+'/extensions/Cheevos/images/delete.png').addClass('delete_level');
 		var levelLids = $('<input>').attr('name', 'lid[]').attr('type', 'hidden');
 		var levelPoints = $('<input>').attr('name', 'points[]').attr('type', 'text');
 		var levelTexts = $('<input>').attr('name', 'text[]').attr('type', 'text');

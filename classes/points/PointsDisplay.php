@@ -232,7 +232,7 @@ class PointsDisplay {
 						$html .= ' '.\Html::element(
 							'img',
 							[
-								'src' => '/extensions/WikiPoints/images/gp30.png',
+								'src' => '/extensions/Cheevos/images/gp30.png',
 								'alt' => 'GP',
 								'class' => 'GP-brand',
 								'title' => wfMessage('pointsicon-tooltip')
