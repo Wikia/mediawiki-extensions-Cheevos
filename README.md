@@ -31,7 +31,7 @@ Default:
 	$wgAchPointAbbreviation
 The achievement point abbreviation that appears after points display.  This can be any valid HTML.
 Default:
-	'<img src="/extensions/WikiPoints/images/gp30.png"/>'
+	'<img src="/extensions/Cheevos/images/gp30.png"/>'
 
 	$achMegaNameTemplate
 When generating a default mega achievement this template is used to format the name for the mega achievement.  It should accept one variable for string formatting which the given variable will be the wiki name.

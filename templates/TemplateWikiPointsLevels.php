@@ -40,7 +40,7 @@ class TemplateWikiPointsLevels {
 				".($errors['level'] ? '<span class="error">'.$errors['level'].'</span>' : '');
 		if (is_array($levels) and count($levels)) {
 			foreach ($levels as $lid => $level) {
-				$HTML .= "<div class='level'><input name='lid[]' value='{$level['lid']}' type='hidden'/><input name='points[]' value='{$level['points']}' type='text'/><input name='text[]' value='".htmlentities($level['text'], ENT_QUOTES)."' type='text'/><input name='image_icon[]' value='".htmlentities($level['image_icon'], ENT_QUOTES)."' type='text'/><input name='image_large[]' value='".htmlentities($level['image_large'], ENT_QUOTES)."' type='text'/><img src='".wfExpandUrl("{$wgScriptPath}/extensions/WikiPoints/images/delete.png")."' class='delete_level'></div>";
+				$HTML .= "<div class='level'><input name='lid[]' value='{$level['lid']}' type='hidden'/><input name='points[]' value='{$level['points']}' type='text'/><input name='text[]' value='".htmlentities($level['text'], ENT_QUOTES)."' type='text'/><input name='image_icon[]' value='".htmlentities($level['image_icon'], ENT_QUOTES)."' type='text'/><input name='image_large[]' value='".htmlentities($level['image_large'], ENT_QUOTES)."' type='text'/><img src='".wfExpandUrl("{$wgScriptPath}/extensions/Cheevos/images/delete.png")."' class='delete_level'></div>";
 			}
 		}
 
