@@ -354,7 +354,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			$this->output->setPageTitle(wfMessage($action.'_achievement_title')->escaped().' - '.$achievement->getName());
-			$this->content = $this->templates->achievementsDelete($achievement,$action);
+			$this->content = $this->templates->achievementsDelete($achievement, $action);
 		}
 	}
 

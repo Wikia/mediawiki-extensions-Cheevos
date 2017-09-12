@@ -251,22 +251,26 @@ class TemplateManageAchievements {
 		$achievementsURL	= $achievementsPage->getFullURL();
 
 		if ($achievement->isDeleted()) {
-			$HTML = "
-			<div>
-				".wfMessage('restore_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/restore?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button'>".wfMessage('restore_achievement')."</a>
-			</div>
-			";
+			$action = Title::newFromText('Special:ManageAchievements/restore');
+			$html = "
+			<form method='post' action='".$action->getFullUrl()."'>
+				".wfMessage('restore_achievement_confirm')->escaped()."<br/>
+				<input type='hidden' name='confirm' value='true'/>
+				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
+				<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage('restore_achievement')->escaped()."</button>
+			</form>";
 		} else {
-			$HTML = "
-			<div>
-				".wfMessage($action.'_achievement_confirm')."<br/>
-				<a href='{$achievementsURL}/delete?aid={$achievement->getId()}&amp;confirm=true' class='mw-ui-button mw-ui-destructive'>".wfMessage($action.'_achievement')."</a>
-			</div>
-			";
+			$action = Title::newFromText('Special:ManageAchievements/delete');
+			$html = "
+			<form method='post' action='".$action->getFullUrl()."'>
+				".wfMessage($action.'_achievement_confirm')->escaped()."<br/>
+				<input type='hidden' name='confirm' value='true'/>
+				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
+				<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage($action.'_achievement')->escaped()."</button>
+			</form>";
 		}
 
-		return $HTML;
+		return $html;
 	}
 
 
