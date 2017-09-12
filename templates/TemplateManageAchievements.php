@@ -247,22 +247,19 @@ class TemplateManageAchievements {
 	 * @return	string	Built HTML
 	 */
 	public function achievementsDelete($achievement, $action) {
-		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
-		$achievementsURL	= $achievementsPage->getFullURL();
-
 		if ($achievement->isDeleted()) {
-			$action = Title::newFromText('Special:ManageAchievements/restore');
+			$target = Title::newFromText('Special:ManageAchievements/restore');
 			$html = "
-			<form method='post' action='".$action->getFullUrl()."'>
+			<form method='post' action='".$target->getFullUrl()."'>
 				".wfMessage('restore_achievement_confirm')->escaped()."<br/>
 				<input type='hidden' name='confirm' value='true'/>
 				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
 				<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage('restore_achievement')->escaped()."</button>
 			</form>";
 		} else {
-			$action = Title::newFromText('Special:ManageAchievements/delete');
+			$target = Title::newFromText('Special:ManageAchievements/delete');
 			$html = "
-			<form method='post' action='".$action->getFullUrl()."'>
+			<form method='post' action='".$target->getFullUrl()."'>
 				".wfMessage($action.'_achievement_confirm')->escaped()."<br/>
 				<input type='hidden' name='confirm' value='true'/>
 				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
