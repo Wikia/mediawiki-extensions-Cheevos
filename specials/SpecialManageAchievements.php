@@ -326,16 +326,17 @@ class SpecialManageAchievements extends SpecialPage {
 				}
 			}
 
-			if ($this->wgRequest->getVal('confirm') == 'true') {
+			if ($this->wgRequest->getVal('confirm') == 'true' && $this->wgRequest->wasPosted()) {
 				$lookup = CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
 				if (!$globalId) {
 					throw new MWException('Could not obtain the global ID for the user attempting to delete an achievement.');
 				}
 				$forceCreate = false;
-				if (empty($achievement->getSite_Key()) && $achievement->getId() > 0 && !$this->isMaster) {
+				if (!$achievement->getParent_Id() && !$this->isMaster) {
 					$forceCreate = true;
 					$achievement->setParent_Id($achievement->getId());
+					$achievement->setId(0);
 				}
 				$achievement->setSite_Key($this->siteKey);
 				$achievement->setDeleted_At(($subpage == 'restore' ? 0 : time()));

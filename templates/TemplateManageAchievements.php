@@ -62,10 +62,6 @@ class TemplateManageAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					if ($achievement->isDeleted() && $achievement->isChild()) {
-						// Don't show restore, show the default.
-						continue;
-					}
 					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, [], $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
