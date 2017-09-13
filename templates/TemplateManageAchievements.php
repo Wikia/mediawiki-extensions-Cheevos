@@ -217,12 +217,14 @@ class TemplateManageAchievements {
 			</div>
 			<div class='criteria_container'>";
 			if (count($allAchievements)) {
+				$seenIds = [];
 				foreach ($allAchievements as $aid => $info) {
-					if ($info->getId() == $achievement->getId()) {
+					$id = ($info->getParent_Id() ? $info->getParent_Id() : $info->getId());
+					if ($info->getId() == $achievement->getId() || isset($seenIds[$id])) {
 						continue;
 					}
-					$id = ($info->getParent_Id() ? $info->getParent_Id() : $info->getId());
 					$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$id}'".(in_array($info->getId(), $criteria['achievement_ids']) || in_array($info->getParent_Id(), $criteria['achievement_ids']) ? " checked='checked'" : null)."/>{$info->getName()}</label>";
+					$seenIds[$id] = true;
 				}
 			}
 			$HTML .= "</div>";
@@ -240,32 +242,21 @@ class TemplateManageAchievements {
 	}
 
 	/**
-	 * Achievements Deletion Form
+	 * Achievement Delete/Restore/Revert Form
 	 *
 	 * @access	public
 	 * @param	array	Achievement information.
 	 * @return	string	Built HTML
 	 */
-	public function achievementsDelete($achievement, $action) {
-		if ($achievement->isDeleted()) {
-			$target = Title::newFromText('Special:ManageAchievements/restore');
-			$html = "
-			<form method='post' action='".$target->getFullUrl()."'>
-				".wfMessage('restore_achievement_confirm')->escaped()."<br/>
-				<input type='hidden' name='confirm' value='true'/>
-				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
-				<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage('restore_achievement')->escaped()."</button>
-			</form>";
-		} else {
-			$target = Title::newFromText('Special:ManageAchievements/delete');
-			$html = "
-			<form method='post' action='".$target->getFullUrl()."'>
-				".wfMessage($action.'_achievement_confirm')->escaped()."<br/>
-				<input type='hidden' name='confirm' value='true'/>
-				<input type='hidden' name='aid' value='{$achievement->getId()}'/>
-				<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage($action.'_achievement')->escaped()."</button>
-			</form>";
-		}
+	public function achievementStateChange($achievement, $action) {
+		$target = Title::newFromText('Special:ManageAchievements/'.$action);
+		$html = "
+		<form method='post' action='".$target->getFullUrl()."'>
+			".wfMessage($action.'_achievement_confirm')->escaped()."<br/>
+			<input type='hidden' name='confirm' value='true'/>
+			<input type='hidden' name='aid' value='{$achievement->getId()}'/>
+			<button type='submit' class='mw-ui-button mw-ui-destructive'>".wfMessage($action.'_achievement')->escaped()."</button>
+		</form>";
 
 		return $html;
 	}

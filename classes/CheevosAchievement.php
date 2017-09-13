@@ -232,11 +232,22 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
-	// quick fix for legacy code calls for now.
+	/**
+	 * Is this achievement deleted?
+	 *
+	 * @access	public
+	 * @return	boolean	Is Deleted
+	 */
 	public function isDeleted() {
 		return boolval($this->container['deleted_at']);
 	}
 
+	/**
+	 * Is this achievement child of a parent achievement?
+	 *
+	 * @access	public
+	 * @return	boolean	Is Child
+	 */
 	public function isChild() {
 		return boolval($this->container['parent_id']);
 	}

@@ -76,9 +76,11 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->achievementsForm();
 				break;
 			case 'delete':
-			case 'revert':
 			case 'restore':
 				$this->achievementsDelete($subpage);
+				break;
+			case 'revert':
+				$this->achievementsRevert();
 				break;
 			case 'award':
 				$this->awardForm();
@@ -295,23 +297,76 @@ class SpecialManageAchievements extends SpecialPage {
 	}
 
 	/**
-	 * Achievements Delete
+	 * Achievements Revert
+	 *
+	 * @access	public
+	 * @return	void	[Outputs to screen]
+	 */
+	public function achievementsRevert() {
+		$achievementId = $this->wgRequest->getInt('aid');
+
+		if ($achievementId) {
+			$achievement = \Cheevos\Cheevos::getAchievement($achievementId);
+
+			if ($achievement === false || $achievementId != $achievement->getId()) {
+				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
+				return;
+			}
+		}
+
+		if ($achievement->isDeleted() && !$this->getUser()->isAllowed('restore_achievements')) {
+			throw new PermissionsError('restore_achievements');
+		}
+
+		if (!$achievement->getParent_Id()) {
+			$this->output->showErrorPage('achievements_error', 'error_achievement_unrevertable');
+		}
+
+		$parentAch = \Cheevos\Cheevos::getAchievement($achievement->getParent_Id());
+
+		if ($parentAch === false || $achievement->getParent_Id() != $parentAch->getId()) {
+			$this->output->showErrorPage('achievements_error', 'error_bad_achievement_parent_id');
+			return;
+		}
+
+		if ($this->wgRequest->getVal('confirm') == 'true' && $this->wgRequest->wasPosted()) {
+			$lookup = CentralIdLookup::factory();
+			$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+			if (!$globalId) {
+				throw new MWException('Could not obtain the global ID for the user attempting to revert an achievement.');
+			}
+
+			foreach (['name', 'description', 'image', 'category', 'points', 'global', 'protected', 'secret', 'special', 'show_on_all_sites', 'created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by', 'deleted_by', 'criteria'] as $field) {
+				$achievement[$field] = $parentAch[$field];
+			}
+
+			$success = $achievement->save(false);
+
+			if ($success['code'] == 200) {
+				\Cheevos\Cheevos::invalidateCache();
+			}
+
+			$page = Title::newFromText('Special:ManageAchievements');
+			$this->output->redirect($page->getFullURL());
+			return;
+		}
+
+		$this->output->setPageTitle(wfMessage('revert_achievement_title')->escaped().' - '.$achievement->getName());
+		$this->content = $this->templates->achievementStateChange($achievement, 'revert');
+	}
+
+	/**
+	 * Achievements Delete/Restore
 	 *
 	 * @access	public
 	 * @param	string	Delete or Restore action take.
 	 * @return	void	[Outputs to screen]
 	 */
-	public function achievementsDelete($subpage) {
-		$action = $subpage; // saving original intent for language strings.
-		if ($subpage == "revert") {
-			// a revert is a delete on a child. This will be fine.
-			$subpage = "delete";
-		}
-
-		if ($subpage == 'delete' && !$this->wgUser->isAllowed('delete_achievements')) {
+	public function achievementsDelete($action) {
+		if ($action == 'delete' && !$this->wgUser->isAllowed('delete_achievements')) {
 			throw new PermissionsError('delete_achievements');
 		}
-		if ($subpage == 'restore' && !$this->wgUser->isAllowed('restore_achievements')) {
+		if ($action == 'restore' && !$this->wgUser->isAllowed('restore_achievements')) {
 			throw new PermissionsError('restore_achievements');
 		}
 		if ($this->wgUser->isAllowed('delete_achievements') || $this->wgUser->isAllowed('restore_achievements')) {
@@ -330,7 +385,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$lookup = CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
 				if (!$globalId) {
-					throw new MWException('Could not obtain the global ID for the user attempting to delete an achievement.');
+					throw new MWException('Could not obtain the global ID for the user attempting to '.$action.' an achievement.');
 				}
 				$forceCreate = false;
 				if (!$achievement->getParent_Id() && !$this->isMaster) {
@@ -339,8 +394,8 @@ class SpecialManageAchievements extends SpecialPage {
 					$achievement->setId(0);
 				}
 				$achievement->setSite_Key($this->siteKey);
-				$achievement->setDeleted_At(($subpage == 'restore' ? 0 : time()));
-				$achievement->setDeleted_By(($subpage == 'restore' ? 0 : $globalId));
+				$achievement->setDeleted_At(($action == 'restore' ? 0 : time()));
+				$achievement->setDeleted_By(($action == 'restore' ? 0 : $globalId));
 
 				$success = $achievement->save($forceCreate);
 
@@ -354,7 +409,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			$this->output->setPageTitle(wfMessage($action.'_achievement_title')->escaped().' - '.$achievement->getName());
-			$this->content = $this->templates->achievementsDelete($achievement, $action);
+			$this->content = $this->templates->achievementStateChange($achievement, $action);
 		}
 	}
 
