@@ -18,12 +18,10 @@ class TemplateManageAchievements {
 	 * @access	public
 	 * @param	array	Array of Achievement Object
 	 * @param	array	Array of Category Information
-	 * @param	object	Progress object for loaded user if applicable.
-	 * @param	array	Hidden Options
-	 * @param	string	Search Term
+	 * @param	array	Array of achievements that can be reverted.  All child achievements can be reverted, but this hides the button if the child achievement is effectively the same as the parent.
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories) {
+	public function achievementsList($achievements, $categories, $revertHints) {
 		global $wgOut, $wgRequest, $wgUser;
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
@@ -62,7 +60,7 @@ class TemplateManageAchievements {
 					if ($achievement->getCategoryId() != $categoryId) {
 						continue;
 					}
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, [], $achievements);
+					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, true, [], $achievements, false, isset($revertHints[$achievementId]));
 				}
 				if (!empty($categoryHTML[$categoryId])) {
 					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";

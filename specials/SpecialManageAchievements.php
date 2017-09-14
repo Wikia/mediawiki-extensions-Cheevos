@@ -119,13 +119,23 @@ class SpecialManageAchievements extends SpecialPage {
 			// Make it easy on the display logic side?
 		}
 
+		$revertHints = [];
+		foreach ($achievements as $achievement) {
+			if (!$achievement->getParent_Id() || !isset($achievements[$achievement->getParent_Id()])) {
+				continue;
+			}
+			if (!$achievement->sameAs($achievements[$achievement->getParent_Id()])) {
+				$revertHints[$achievement->getId()] = true;
+			}
+		}
+
 		//Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		//Remove achievements that should not be shown in this context.
 		list($achievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, []], true, false);
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
-		$this->content = $this->templates->achievementsList($achievements, $categories);
+		$this->content = $this->templates->achievementsList($achievements, $categories, $revertHints);
 	}
 
 	/**

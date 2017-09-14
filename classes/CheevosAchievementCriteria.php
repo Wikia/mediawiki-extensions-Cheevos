@@ -33,4 +33,26 @@ class CheevosAchievementCriteria extends CheevosModel {
 		$this->container['category_id'] = isset($data['category_id']) && is_int($data['category_id']) ? $data['category_id'] : 0;
 		$this->container['achievement_ids'] = isset($data['achievement_ids']) && is_array($data['achievement_ids']) ? $data['achievement_ids'] : [];
 	}
+
+	/**
+	 * Does this criteria roughly equal another criteria?
+	 *
+	 * @access	public
+	 * @param	object	CheevosAchievementCriteria
+	 * @return	boolean
+	 */
+	public function sameAs($criteria) {
+		foreach (['stats', 'value', 'streak', 'streak_progress_required', 'streak_reset_to_zero', 'per_site_progress_maximum', 'date_range_start', 'date_range_end', 'category_id', 'achievement_ids'] as $field) {
+			if ($this->container[$field] instanceof CheevosModel) {
+				if (!$this->container[$field]->sameAs($criteria[$field])) {
+					return false;
+				}
+				continue;
+			}
+			if ($this->container[$field] !== $criteria[$field]) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

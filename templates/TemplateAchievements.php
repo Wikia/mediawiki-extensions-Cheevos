@@ -136,9 +136,10 @@ class TemplateAchievements {
 	 * @param	array	[Optional] AchievementStatus Objects
 	 * @param	array	[Optional] All loaded achievements for showing required criteria.
 	 * @param	boolean	[Optional] Show Required By even if hidden by secret.
+	 * @param	boolean	[Optional] Show revert button.
 	 * @return	string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false) {
+	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
 		global $wgUser, $wgAchPointAbbreviation;
 
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
@@ -205,7 +206,8 @@ class TemplateAchievements {
 				if (!$achievement->isDeleted()) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
-						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/".($achievement->isChild() ? 'revert' : 'delete')."?aid={$achievement->getId()}' class='mw-ui-button".($achievement->isChild() ? '' : ' mw-ui-destructive')."'>".wfMessage(($achievement->isChild() ? 'revert_custom_achievement' : 'delete_achievement'))->escaped()."</a></span>
+						".($showRevert ? "<span class='p-achievement-revert'><a href='{$manageAchievementsURL}/revert?aid={$achievement->getId()}' class='mw-ui-button'>".wfMessage('revert_custom_achievement')->escaped()."</a></span>" : '')."
+						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='mw-ui-button mw-ui-destructive'>".wfMessage('delete_achievement')->escaped()."</a></span>
 						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='mw-ui-button mw-ui-constructive'>".wfMessage('edit_achievement')->escaped()."</a></span>
 					</div>";
 				} elseif ($achievement->isDeleted() && $wgUser->isAllowed('restore_achievements')) {

@@ -224,4 +224,32 @@ class CheevosModel implements ArrayAccess {
 	public function setReadOnly() {
 		$this->readOnly = true;
 	}
+
+	/**
+	 * Does this model roughly equal another model?
+	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
+	 *
+	 * @access	public
+	 * @param	object	CheevosModel
+	 * @return	boolean
+	 */
+	public function sameAs($model) {
+		if (get_class($this) != get_class($model)) {
+			return false;
+		}
+
+		foreach ($this->container as $field) {
+			if ($this->container[$field] instanceof CheevosModel) {
+				if (!$this->container[$field]->sameAs($criteria[$field])) {
+					return false;
+				}
+				continue;
+			}
+			if ($this->container[$field] !== $model[$field]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

@@ -253,6 +253,29 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	/**
+	 * Does this achievement roughly equal another achievement?
+	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
+	 *
+	 * @access	public
+	 * @param	object	CheevosAchievement
+	 * @return	boolean
+	 */
+	public function sameAs($achievement) {
+		foreach (['name', 'description', 'image', 'category', 'points', 'global', 'protected', 'secret', 'special', 'show_on_all_sites', 'deleted_at', 'deleted_by', 'criteria'] as $field) {
+			if ($this->container[$field] instanceof CheevosModel) {
+				if (!$this->container[$field]->sameAs($achievement[$field])) {
+					return false;
+				}
+				continue;
+			}
+			if ($this->container[$field] !== $achievement[$field]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Removes achievements that should not be used or shown in the context they are called from.
 	 *
 	 * @access	public

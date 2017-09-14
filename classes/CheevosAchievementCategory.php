@@ -147,4 +147,26 @@ class CheevosAchievementCategory extends CheevosModel {
 
 		return $text;
 	}
+
+	/**
+	 * Does this category roughly equal another category?
+	 *
+	 * @access	public
+	 * @param	object	CheevosAchievementCategory
+	 * @return	boolean
+	 */
+	public function sameAs($category) {
+		foreach (['name', 'slug', 'deleted_at', 'deleted_by'] as $field) {
+			if ($this->container[$field] instanceof CheevosModel) {
+				if (!$this->container[$field]->sameAs($category[$field])) {
+					return false;
+				}
+				continue;
+			}
+			if ($this->container[$field] !== $category[$field]) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
