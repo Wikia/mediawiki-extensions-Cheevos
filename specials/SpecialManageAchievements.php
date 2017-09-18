@@ -201,7 +201,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 			$this->achievement->setSite_Key($this->siteKey);
 
-			$criteria = new \Cheevos\CheevosAchievementCriteria($criteria);
+			$criteria = new \Cheevos\CheevosAchievementCriteria($this->achievement->getCriteria()->toArray());
 			$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
 			$criteria->setValue($this->wgRequest->getInt("criteria_value"));
 			$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
@@ -210,8 +210,8 @@ class SpecialManageAchievements extends SpecialPage {
 			if ($dsSiteKey === 'master') {
 				$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
 			}
-			//$criteria->setDate_Range_Start();
-			//$criteria->setDate_Range_End();
+			$criteria->setDate_Range_Start($this->wgRequest->getInt("date_range_start"));
+			$criteria->setDate_Range_End($this->wgRequest->getInt("date_range_end"));
 			$criteria->setCategory_Id($this->wgRequest->getInt("criteria_category_id"));
 			$criteria->setAchievement_Ids($this->wgRequest->getIntArray("criteria_achievement_ids", []));
 			$this->achievement->setCriteria($criteria);

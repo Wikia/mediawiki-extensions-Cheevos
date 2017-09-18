@@ -119,6 +119,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function pointsMultipliersSave() {
+		$errors = [];
 		if ($this->wgRequest->getVal('do') == 'save' && $this->wgRequest->wasPosted()) {
 			$_multiplier = floatval($this->wgRequest->getText('multiplier'));
 			if ($_multiplier < 0.1 || $_multiplier > 100) {

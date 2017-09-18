@@ -128,7 +128,7 @@ class TemplateManageAchievements {
 
 					if (is_array($categories) && count($categories)) {
 						$HTML .= "<select id='achievement_category_select'>
-									<option value='0'>&nbsp;</option>\n";
+									<option value='0'></option>\n";
 						foreach ($categories as $gid => $category) {
 							$acid = $category->getId();
 							$HTML .= "<option value='{$acid}'".($achievement->getCategoryId() == $acid ? " selected='selected'" : null).">".htmlentities($category->getTitle(), ENT_QUOTES)."</option>\n";
@@ -161,13 +161,11 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('edit_meta_achievements')) {
 			$criteria = $achievement->getCriteria();
-			$stats = ( isset($criteria['stats']) && is_array($criteria['stats']) ) ? $criteria['stats'] : [];
-
-			
+			$stats = (isset($criteria['stats']) && is_array($criteria['stats'])) ? $criteria['stats'] : [];
 
 			$streakEnum = ['none','hourly', 'daily', 'weekly', 'monthly', 'yearly'];
 
-			$HTML .= "<h2>Criteria</h2>
+			$HTML .= "<h2>".wfMessage('critera')->escaped()."</h2>
 
 			<label class='label_above'>".wfMessage('criteria_stats')->escaped()."<div class='helper_mark'><span>".wfMessage('criteria_stats_help')."</span></div></label>
 			<div class='criteria_container'>";
@@ -193,7 +191,18 @@ class TemplateManageAchievements {
 				<select name='criteria_streak_reset_to_zero'>
 					<option value='0' ".(isset($criteria['streak_reset_to_zero']) && !$criteria['streak_reset_to_zero'] ? "selected" : '').">False</option>
 					<option value='1' ".(isset($criteria['streak_reset_to_zero']) && $criteria['streak_reset_to_zero'] ? "selected" : '').">True</option>
-				</select>";
+				</select>
+
+				".(isset($errors['date_range_start']) ? '<span class="error">'.$errors['date_range_start'].'</span>' : '')."
+				<label for='date_range_start' class='label_above'>".wfMessage('criteria_not_before')->escaped()."</label>
+				<input id='date_range_start_datepicker' data-input='date_range_start' type='text' value=''/>
+				<input id='date_range_start' name='date_range_start' type='hidden' value='".htmlentities($criteria['date_range_start'], ENT_QUOTES)."'/>
+
+				".(isset($errors['date_range_end']) ? '<span class="error">'.$errors['date_range_end'].'</span>' : '')."
+				<label for='date_range_end' class='label_above'>".wfMessage('criteria_not_after')->escaped()."</label>
+				<input id='date_range_end_datepicker' data-input='date_range_end' type='text' value=''/>
+				<input id='date_range_end' name='date_range_end' type='hidden' value='".htmlentities($criteria['date_range_end'], ENT_QUOTES)."'/>
+				";
 
 			if ($dsSiteKey === 'master') {
 				$HTML .= "

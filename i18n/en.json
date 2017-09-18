@@ -293,5 +293,8 @@
 	"invalid_end_time": "Invalid end time provided",
 	"invalid_start_end_time_equal": "Start and end time can not be equal to each other.",
 	"action-points_comp_reports": "generate points comp reports",
-	"current_active_comps": "Current Active Comps"
+	"current_active_comps": "Current Active Comps",
+	"critera": "Criteria",
+	"criteria_not_before": "Can not earn before: (UTC)",
+	"criteria_not_after": "Can not earn after: (UTC)"
 }

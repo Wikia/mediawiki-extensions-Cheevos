@@ -85,19 +85,19 @@ class TemplateWikiPointsMultipliers {
 	* @return	string	Built HTML
 	*/
 	static public function pointsMultipliersForm($multiplier, $errors) {
-		$HTML .= "
+		$html = "
 			<form id='multiplier_form' method='post' action='?section=form&do=save'>
 				<fieldset>
-					".($errors['multiplier'] ? '<span class="error">'.$errors['multiplier'].'</span>' : '')."
+					".(isset($errors['multiplier']) ? '<span class="error">'.$errors['multiplier'].'</span>' : '')."
 					<label for='multiplier' class='label_above'>".wfMessage('multiplier_multiplier')->escaped()."</label>
 					<input id='multiplier' name='multiplier' type='text' value='".htmlentities($multiplier->getMultiplier(), ENT_QUOTES)."' />
 
-					".($errors['begins'] ? '<span class="error">'.$errors['begins'].'</span>' : '')."
+					".(isset($errors['begins']) ? '<span class="error">'.$errors['begins'].'</span>' : '')."
 					<label for='begins' class='label_above'>".wfMessage('multiplier_begins')->escaped()."</label>
 					<input id='begins_datepicker' data-input='begins' type='text' value=''/>
 					<input id='begins' name='begins' type='hidden' value='".htmlentities($multiplier->getBegins(), ENT_QUOTES)."'/>
 
-					".($errors['expires'] ? '<span class="error">'.$errors['expires'].'</span>' : '')."
+					".(isset($errors['expires']) ? '<span class="error">'.$errors['expires'].'</span>' : '')."
 					<label for='expires' class='label_above'>".wfMessage('multiplier_expires')->escaped()."</label>
 					<input id='expires_datepicker' data-input='expires' type='text' value=''/>
 					<input id='expires' name='expires' type='hidden' value='".htmlentities($multiplier->getExpires(), ENT_QUOTES)."'/>
@@ -113,7 +113,7 @@ class TemplateWikiPointsMultipliers {
 				</fieldset>
 			</form>";
 
-	return $HTML;
+		return $html;
 	}
 
 	/**

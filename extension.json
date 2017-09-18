@@ -110,16 +110,6 @@
 		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
 	},
 	"ResourceModules": {
-		"ext.cheevos.resumable.js": {
-			"scripts": [
-				"js/cheevos.resumable.js"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
-			],
-			"position": "top"
-		},
 		"ext.cheevos.styles": {
 			"styles": [
 				"css/cheevos.css"
@@ -141,7 +131,18 @@
 				"js/cheevos.js"
 			],
 			"dependencies": [
-				"ext.cheevos.resumable.js"
+				"ext.cheevos.resumable.js",
+				"jquery.ui.datepicker"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.resumable.js": {
+			"scripts": [
+				"js/cheevos.resumable.js"
 			],
 			"targets": [
 				"desktop",

@@ -301,4 +301,26 @@ $(document).ready(function() {
 			});
 		});
 	}
+
+	var setupCriteriaDatepickers = function() {
+		$("input#date_range_start_datepicker, input#date_range_end_datepicker").datepicker(
+			{
+				dateFormat: "yy-mm-dd",
+				constrainInput: true,
+				onSelect: function(dateText) {
+					var epochInput = '#'+$(this).attr('data-input');
+					$(epochInput).val(epochDate(this));
+				}
+			}
+		);
+	}
+	setupCriteriaDatepickers();
+
+	var epochDate = function(dateField) {
+		var time = $(dateField).datepicker("getDate");
+		var offset = time.getTimezoneOffset() * 60;
+		var epoch = time.getTime() / 1000 - offset;
+
+		return epoch;
+	}
 });

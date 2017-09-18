@@ -103,7 +103,7 @@ class CheevosAchievementCategory extends CheevosModel {
 		} else {
 			$this->container['name'][$code] = $name;
 		}
-		if (!isset($this->container['slug']) || empty($this->container['slug'])) {
+		if (empty($this->container['slug'])) {
 			$this->container['slug'] = $this->makeCanonicalTitle($name);
 		}
 	}

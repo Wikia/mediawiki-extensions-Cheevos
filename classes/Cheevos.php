@@ -345,9 +345,9 @@ class Cheevos {
 	static public function getCategories($skipCache = false) {
 		$cache = false;
 		$redis = \RedisCache::getClient('cache');
-		if (!$skipCache) {
-			$redisKey = 'cheevos:apicache:getCategories';
+		$redisKey = 'cheevos:apicache:getCategories';
 
+		if (!$skipCache) {
 			try {
 				$cache = $redis->get($redisKey);
 			} catch (RedisException $e) {
