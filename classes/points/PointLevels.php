@@ -69,7 +69,7 @@ class PointLevels {
 	 * @return	void
 	 */
 	static private function loadLevels() {
-		if (MASTER_WIKI === true) {
+		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$db = wfGetDB(DB_MASTER);
 			$result = $db->select(
 				['wiki_points_levels'],

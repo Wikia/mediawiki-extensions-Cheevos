@@ -35,7 +35,7 @@ class SyncFriendStat extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
-		if (MASTER_WIKI !== true) {
+		if (!defined('MASTER_WIKI') || MASTER_WIKI !== true) {
 			throw new MWException('This script is intended to be ran from the master wiki.');
 		}
 

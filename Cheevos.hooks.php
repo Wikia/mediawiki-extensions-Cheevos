@@ -784,7 +784,7 @@ class CheevosHooks {
 	static public function onLoadExtensionSchemaUpdates($updater) {
 		$extDir = __DIR__;
 
-		if (MASTER_WIKI === true) {
+		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true]);
 
