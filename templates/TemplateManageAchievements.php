@@ -195,12 +195,12 @@ class TemplateManageAchievements {
 
 				".(isset($errors['date_range_start']) ? '<span class="error">'.$errors['date_range_start'].'</span>' : '')."
 				<label for='date_range_start' class='label_above'>".wfMessage('criteria_not_before')->escaped()."</label>
-				<input id='date_range_start_datepicker' data-input='date_range_start' type='text' value=''/>
+				<input id='date_range_start_datepicker' data-input='date_range_start' type='text' value='".(isset($criteria['date_range_start']) && $criteria['date_range_start'] > 0 ? htmlentities(gmdate('Y-m-d', $criteria['date_range_start']), ENT_QUOTES) : '')."'/>
 				<input id='date_range_start' name='date_range_start' type='hidden' value='".htmlentities($criteria['date_range_start'], ENT_QUOTES)."'/>
 
 				".(isset($errors['date_range_end']) ? '<span class="error">'.$errors['date_range_end'].'</span>' : '')."
 				<label for='date_range_end' class='label_above'>".wfMessage('criteria_not_after')->escaped()."</label>
-				<input id='date_range_end_datepicker' data-input='date_range_end' type='text' value=''/>
+				<input id='date_range_end_datepicker' data-input='date_range_end' type='text' value='".(isset($criteria['date_range_end']) && $criteria['date_range_end'] > 0 ? htmlentities(gmdate('Y-m-d', $criteria['date_range_end']), ENT_QUOTES) : '')."'/>
 				<input id='date_range_end' name='date_range_end' type='hidden' value='".htmlentities($criteria['date_range_end'], ENT_QUOTES)."'/>
 				";
 
