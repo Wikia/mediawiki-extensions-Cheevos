@@ -311,7 +311,7 @@ class PointsDisplay {
 		try {
 			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
 		} catch (\Cheevos\CheevosException $e) {
-			throw new \MWException("Encountered Cheevos API error {$e->getMessage()}\n");
+			wfDebug("Encountered Cheevos API error {$e->getMessage()}\n");
 		}
 
 		foreach ($statProgress as $progress) {
