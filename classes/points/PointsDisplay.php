@@ -103,7 +103,7 @@ class PointsDisplay {
 	 * @return	string	HTML
 	 */
 	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
-		global $dsSiteKey;
+		global $dsSiteKey, $wgUser;
 
 		$lookup = \CentralIdLookup::factory();
 
@@ -156,15 +156,18 @@ class PointsDisplay {
 			if (isset($userPoints[$lookupKey])) {
 				continue;
 			}
+
 			$user = $lookup->localUserFromCentralId($globalId);
 			if ($globalId < 1) {
 				continue;
 			}
+
 			$userPointsRow = new \stdClass();
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
 				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName(), [], [], ['https']);
+				$userPointsRow->adminUrl = \Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
 			} else {
 				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
@@ -227,7 +230,7 @@ class PointsDisplay {
 					$userPoints[] = $userPointsRow;
 				}
 				foreach ($userPoints as $userPointsRow) {
-					$html = $userPointsRow->score;
+					$html = (isset($userPointsRow->adminUrl) && $wgUser->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>": $userPointsRow->score);
 					if ($markup == 'badged') {
 						$html .= ' '.\Html::element(
 							'img',
