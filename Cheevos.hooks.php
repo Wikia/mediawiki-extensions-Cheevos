@@ -591,6 +591,10 @@ class CheevosHooks {
 		$templates = new TemplateAchievements;
 		$redis = RedisCache::getClient('cache');
 
+		if ($redis === false) {
+			return true;
+		}
+
 		$lookup = CentralIdLookup::factory();
 		$globalId = $lookup->centralIdFromLocalUser($wgUser, CentralIdLookup::AUDIENCE_RAW);
 
