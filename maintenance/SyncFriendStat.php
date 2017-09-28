@@ -44,11 +44,16 @@ class SyncFriendStat extends Maintenance {
 		$db = wfGetDB(DB_MASTER);
 
 		$redis = \RedisCache::getClient('cache');
+		if ($redis !== false) {
+			throw new Exception("Redis is required to be working to use this maintenance script.");
+		}
+
 		try {
 			$relationships = $redis->keys('friendlist:*');
 		} catch (\Throwable $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
+
 		$total = count($relationships);
 		$this->output("Updating friendship for {$total} users in Cheevos...\n");
 
