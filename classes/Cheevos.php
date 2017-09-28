@@ -172,7 +172,7 @@ class Cheevos {
 	 * @param array $body
 	 * @return void
 	 */
-	private static function validateBody($body) {
+	static private function validateBody($body) {
 		if (!is_array($body)) {
 			$body = json_decode($body, 1);
 			if (is_null($body)) {
@@ -185,10 +185,21 @@ class Cheevos {
 		}
 	}
 
-	public static function invalidateCache() {
+	/**
+	 * Invalid API Cache
+	 *
+	 * @access	public
+	 * @return	boolean	Success
+	 */
+	static public function invalidateCache() {
 		global $wgRedisServers;
 
 		$redis = \RedisCache::getClient('cache');
+
+		if ($redis === false) {
+			return false;
+		}
+
 		$cache = false;
 		$redisKey = 'cheevos:apicache:*';
 		$prefix = isset( $wgRedisServers['cache']['options']['prefix'] ) ?  $wgRedisServers['cache']['options']['prefix'] : "";
@@ -201,7 +212,10 @@ class Cheevos {
 			}
 		} catch (RedisException $e) {
 			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -216,10 +230,12 @@ class Cheevos {
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievements:' . ( $siteKey ? $siteKey : 'all' );
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		if ($redis !== false) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		$return = unserialize($cache, [false]);
@@ -233,7 +249,7 @@ class Cheevos {
 			);
 
 			try {
-				if (isset($return['achievements'])) {
+				if ($redis !== false && isset($return['achievements'])) {
 					$redis->setEx($redisKey, 300, serialize($return));
 				}
 			} catch (RedisException $e) {
@@ -256,16 +272,20 @@ class Cheevos {
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievement:' . $id;
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		if ($redis !== false) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		if (!$cache || !unserialize($cache)) {
 			$return = self::get("achievement/{$id}");
 			try {
-				$redis->setEx($redisKey, 300, serialize($return));
+				if ($redis !== false) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
@@ -347,7 +367,7 @@ class Cheevos {
 		$redis = \RedisCache::getClient('cache');
 		$redisKey = 'cheevos:apicache:getCategories';
 
-		if (!$skipCache) {
+		if (!$skipCache && $redis !== false) {
 			try {
 				$cache = $redis->get($redisKey);
 			} catch (RedisException $e) {
@@ -363,7 +383,9 @@ class Cheevos {
 				]
 			);
 			try {
-				$redis->setEx($redisKey, 300, serialize($return));
+				if ($redis !== false) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
@@ -385,16 +407,20 @@ class Cheevos {
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getCategory:' . $id;
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		if ($redis !== false) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		if (!$cache || !unserialize($cache)) {
 			$return = self::get("achievement_category/{$id}");
 			try {
-				$redis->setEx($redisKey, 300, serialize($return));
+				if ($redis !== false) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
@@ -775,7 +801,7 @@ class Cheevos {
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ( $siteKey ? $siteKey : 'all' );
 
-		if (!$skipCache) {
+		if (!$skipCache && $redis !== false) {
 			try {
 				$cache = $redis->get($redisKey);
 			} catch (RedisException $e) {
@@ -794,7 +820,7 @@ class Cheevos {
 			);
 
 			try {
-				if (isset($return['promotions'])) {
+				if ($redis !== false && isset($return['promotions'])) {
 					$redis->setEx($redisKey, 300, serialize($return));
 				}
 			} catch (RedisException $e) {
@@ -817,16 +843,20 @@ class Cheevos {
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
 
-		try {
-			$cache = $redis->get($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+		if ($redis !== false) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
 
 		if (!$cache || !unserialize($cache)) {
 			$return = self::get("points/promotions/{$id}");
 			try {
-				$redis->setEx($redisKey, 300, serialize($return));
+				if ($redis !== false) {
+					$redis->setEx($redisKey, 300, serialize($return));
+				}
 			} catch (RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
@@ -849,11 +879,15 @@ class Cheevos {
 	static public function deletePointsPromotion($id) {
 		$redis = \RedisCache::getClient('cache');
 		$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
-		try {
-			$redis->del($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+
+		if ($redis !== false) {
+			try {
+				$redis->del($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
 		}
+
 		$return = self::delete(
 			"points/promotions/{$id}"
 		);
@@ -881,10 +915,12 @@ class Cheevos {
 		if ($id > 0) {
 			$redis = \RedisCache::getClient('cache');
 			$redisKey = 'cheevos:apicache:getPointsPromotion:'.$id;
-			try {
-				$redis->del($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			if ($redis !== false) {
+				try {
+					$redis->del($redisKey);
+				} catch (RedisException $e) {
+					wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+				}
 			}
 		}
 

@@ -121,7 +121,9 @@ class PointLevels {
 				$db->insert('wiki_points_levels', $level, __METHOD__);
 			}
 			$db->commit(__METHOD__);
-			$redis->set(self::$redisCacheKey, serialize($levels));
+			if ($redis !== false) {
+				$redis->set(self::$redisCacheKey, serialize($levels));
+			}
 		} catch (\Exception $e) {
 			$db->rollback(__METHOD__);
 			return false;

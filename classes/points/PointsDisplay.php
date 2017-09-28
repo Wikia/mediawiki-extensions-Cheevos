@@ -192,14 +192,16 @@ class PointsDisplay {
 				$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
 			} else {
 				$redis = \RedisCache::getClient('cache');
-				foreach ($siteKeys as $siteKey) {
-					if (!empty($siteKey)) {
-						$wiki = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
-						if (!empty($wiki)) {
-							foreach ($wiki as $field => $value) {
-								$wiki[$field] = unserialize($value);
+				if ($redis !== false) {
+					foreach ($siteKeys as $siteKey) {
+						if (!empty($siteKey)) {
+							$wiki = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+							if (!empty($wiki)) {
+								foreach ($wiki as $field => $value) {
+									$wiki[$field] = unserialize($value);
+								}
+								$wikis[$siteKey] = $wiki;
 							}
-							$wikis[$siteKey] = $wiki;
 						}
 					}
 				}

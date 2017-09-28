@@ -79,13 +79,15 @@ class CheevosHelper {
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
 			try {
 				$redis = \RedisCache::getClient('cache');
-				$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
-				if (!empty($info)) {
-					foreach ($info as $field => $value) {
-						$info[$field] = unserialize($value);
+				if ($redis !== false) {
+					$info = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+					if (!empty($info)) {
+						foreach ($info as $field => $value) {
+							$info[$field] = unserialize($value);
+						}
 					}
+					$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
 				}
-				$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
 			} catch (\RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 			}
