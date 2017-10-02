@@ -51,7 +51,8 @@ class Cheevos {
 				CURLOPT_SSL_VERIFYHOST		=> false,
 				CURLOPT_SSL_VERIFYPEER		=> false,
 				CURLOPT_CUSTOMREQUEST		=> $type,
-				CURLOPT_CONNECTTIMEOUT		=> 2
+				CURLOPT_CONNECTTIMEOUT		=> 1,
+				CURLOPT_TIMEOUT				=> 6
 			]
 		);
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
