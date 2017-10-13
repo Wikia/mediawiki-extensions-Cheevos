@@ -42,7 +42,6 @@ class Cheevos {
 			'Client-ID: '.$wgCheevosClientId
 		];
 
-
 		$ch = curl_init();
 		curl_setopt_array(
 			$ch,
