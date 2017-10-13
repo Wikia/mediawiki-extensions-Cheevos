@@ -288,8 +288,6 @@ class Cheevos {
 		return self::removeFriend($user1, $user2);
 	}
 
-
-
 	/**
 	 * Get all achievements with caching.
 	 *
