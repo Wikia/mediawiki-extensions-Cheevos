@@ -220,6 +220,77 @@ class Cheevos {
 	}
 
 	/**
+	 * Returns all relationships for a user by global id
+	 *
+	 * @param int $globalId
+	 * @return array
+	 */
+	public static function getFriends($globalId) {
+		$return = self::get("friends/{$globalId}");
+		return self::return($return);
+	}
+
+	/**
+	 * Return friendship status
+	 *
+	 * @param from user, int $user1
+	 * @param to user, int $user2
+	 * @return array
+	 */
+	public static function getFriendStatus($user1, $user2) {
+		$return = self::get("friends/{$user1}/{$user2}");
+		return self::return($return);
+	}
+
+	/**
+	 * Create a frienship request
+	 *
+	 * @param from user, int $user1
+	 * @param to user, int $user2
+	 * @return array
+	 */
+	public static function createFriendRequest($user1, $user2) {
+		$return = self::put("friends/{$user1}/{$user2}");
+		return self::return($return);
+	}
+
+	/**
+	 * Accept a friendship request (by creating a request the oposite direction!)
+	 *
+	 * @param from user, int $user1
+	 * @param to user, int $user2
+	 * @return array
+	 */
+	public static function acceptFriendRequest($user1, $user2) {
+		return self::createFriendRequest($user2, $user1);
+	}
+
+	/**
+	 * Remove a friendship association between 2 users.
+	 *
+	 * @param from user, int $user1
+	 * @param to user, int $user2
+	 * @return array
+	 */
+	public static function removeFriend($user1, $user2) {
+		$return = self::delete("friends/{$user1}/{$user2}");
+		return self::return($return);
+	}
+
+	/**
+	 * Cancel friend request by removing assosiation.
+	 *
+	 * @param from user, int $user1
+	 * @param to user, int $user2
+	 * @return array
+	 */
+	public static function cancelFriendRequest($user1, $user2) {
+		return self::removeFriend($user1, $user2);
+	}
+
+
+
+	/**
 	 * Get all achievements with caching.
 	 *
 	 * @access	public
