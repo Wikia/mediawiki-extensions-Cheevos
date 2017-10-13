@@ -42,32 +42,33 @@ class Cheevos {
 			'Client-ID: '.$wgCheevosClientId
 		];
 
+
+		$ch = curl_init();
+		curl_setopt_array(
+			$ch,
+			[
+				CURLOPT_RETURNTRANSFER		=> 1,
+				CURLOPT_URL					=> $url,
+				CURLOPT_SSL_VERIFYHOST		=> false,
+				CURLOPT_SSL_VERIFYPEER		=> false,
+				CURLOPT_CUSTOMREQUEST		=> $type,
+				CURLOPT_CONNECTTIMEOUT		=> 1,
+				CURLOPT_TIMEOUT				=> 6
+			]
+		);
+		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
+			$url = $url . "/?" . http_build_query($data);
+		} else {
+			$postData = json_encode($data);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+			$headers[] = 'Content-Length: ' . strlen($postData);
+		}
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
 		try {
-			$ch = curl_init();
-			curl_setopt_array(
-				$ch,
-				[
-					CURLOPT_RETURNTRANSFER		=> 1,
-					CURLOPT_URL					=> $url,
-					CURLOPT_SSL_VERIFYHOST		=> false,
-					CURLOPT_SSL_VERIFYPEER		=> false,
-					CURLOPT_CUSTOMREQUEST		=> $type,
-					CURLOPT_CONNECTTIMEOUT		=> 1,
-					CURLOPT_TIMEOUT				=> 6
-				]
-			);
-			if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
-				$url = $url . "/?" . http_build_query($data);
-			} else {
-				$postData = json_encode($data);
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-				$headers[] = 'Content-Length: ' . strlen($postData);
-			}
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$result = curl_exec($ch);
 			curl_close($ch);
-
 			$result = json_decode($result, true);
 		} catch (Exception $e) {
 			// don't fail hard on hard failures.
