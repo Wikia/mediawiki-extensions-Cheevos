@@ -66,14 +66,9 @@ class Cheevos {
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-		try {
-			$result = curl_exec($ch);
-			curl_close($ch);
-			$result = json_decode($result, true);
-		} catch (Exception $e) {
-			// don't fail hard on hard failures.
-			$result = null;
-		}
+		$result = curl_exec($ch);
+		curl_close($ch);
+		$result = json_decode($result, true);
 
 		return $result;
 	}
