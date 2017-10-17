@@ -86,6 +86,7 @@
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
 		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
+		"Cheevos\\CheevosUserOptions": "classes/CheevosUserOptions.php",
 		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
 		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
 		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",

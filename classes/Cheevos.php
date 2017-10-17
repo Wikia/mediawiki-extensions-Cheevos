@@ -456,7 +456,9 @@ class Cheevos {
 	 */
 	private static function putCategory($body, $id = null) {
 		$body = self::validateBody($body);
-		if (!$body) return false;
+		if (!$body) {
+			return false;
+		}
 
 		$path = ($id) ? "achievement_category/{$id}" : "achievement_category";
 		$return = self::put($path, $body);
@@ -761,7 +763,9 @@ class Cheevos {
 	 */
 	public static function putProgress($body, $id = null) {
 		$body = self::validateBody($body);
-		if (!$body) return false;
+		if (!$body) {
+			return false;
+		}
 
 		$path = ($id) ? "achievements/progress/{$id}" : "achievements/progress";
 		$return = self::put($path, $body);
@@ -787,6 +791,38 @@ class Cheevos {
 	 */
 	public static function createProgress($body) {
 		return self::putProgress($body);
+	}
+
+	/**
+	 * Return user_options/{id} for selected filters.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @return	mixed
+	 */
+	static public function getUserOptions($globalId) {
+		$return = self::get('user_options/'.intval($globalId));
+
+		return self::return($return, 'useroptions');
+	}
+
+	/**
+	 * Put user options up to Cheevos.
+	 *
+	 * @access	public
+	 * @param	integer	Global User ID
+	 * @param	array	POST Body
+	 * @return	mixed
+	 */
+	static public function putUserOptions($body) {
+		$body = self::validateBody($body);
+		if (!$body) {
+			return false;
+		}
+
+		$path = "user_options/".$body['user_id'];
+		$return = self::put($path, $body);
+		return self::return($return);
 	}
 
 	/**
