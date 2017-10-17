@@ -814,7 +814,7 @@ class Cheevos {
 	 * @param	array	POST Body
 	 * @return	mixed
 	 */
-	static public function putUserOptions($body) {
+	static public function setUserOptions($body) {
 		$body = self::validateBody($body);
 		if (!$body) {
 			return false;
