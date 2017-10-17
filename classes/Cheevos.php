@@ -262,7 +262,7 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function acceptFriendRequest($user1, $user2) {
-		return self::createFriendRequest($user2, $user1);
+		return self::createFriendRequest($user1, $user2);
 	}
 
 	/**
