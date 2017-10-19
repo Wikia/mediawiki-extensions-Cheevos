@@ -276,6 +276,7 @@
 		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
 		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
+		"CurseProfileAddCommentReply": "CheevosHooks::onCurseProfileAddCommentReply",
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",

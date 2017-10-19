@@ -298,6 +298,21 @@ class CheevosHooks {
 		return true;
 	}
 
+		/**
+	 * Handle CurseProfile comment increment.
+	 *
+	 * @access	public
+	 * @param	object	User making the comment.
+	 * @param	object	User of the profile being commented on.
+	 * @param	integer	Parent ID of the comment.
+	 * @param	string	The comment text.
+	 * @return	boolean	True
+	 */
+	static public function onCurseProfileAddCommentReply(User $fromUser, User $toUser, $inReplyTo, $commentText) {
+		self::increment('curse_profile_comment_reply', 1, $fromUser);
+		return true;
+	}
+
 	/**
 	 * Handle CurseProfile friend addition increment.
 	 *
