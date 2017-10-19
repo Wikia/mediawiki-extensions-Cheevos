@@ -298,8 +298,8 @@ class CheevosHooks {
 		return true;
 	}
 
-		/**
-	 * Handle CurseProfile comment increment.
+	/**
+	 * Handle CurseProfile comment reply increment.
 	 *
 	 * @access	public
 	 * @param	object	User making the comment.
