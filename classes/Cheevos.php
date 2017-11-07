@@ -52,7 +52,8 @@ class Cheevos {
 				CURLOPT_SSL_VERIFYPEER		=> false,
 				CURLOPT_CUSTOMREQUEST		=> $type,
 				CURLOPT_CONNECTTIMEOUT		=> 1,
-				CURLOPT_TIMEOUT				=> 6
+				CURLOPT_TIMEOUT				=> 6,
+				CURLOPT_ENCODING			=> 'gzip'
 			]
 		);
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
@@ -870,7 +871,30 @@ class Cheevos {
 	 * @return	mixed
 	 */
 	static public function getUserOptions($globalId) {
-		$return = self::get('user_options/'.intval($globalId));
+		$redis = \RedisCache::getClient('cache');
+		$cache = false;
+		$redisKey = 'cheevos:apicache:useroptions:'.$globalId;
+
+		if ($redis !== false) {
+			try {
+				$cache = $redis->get($redisKey);
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		}
+
+		if (!$cache || !unserialize($cache)) {
+			$return = self::get('user_options/'.intval($globalId));
+			try {
+				if ($redis !== false) {
+					$redis->setEx($redisKey, 86400, serialize($return));
+				}
+			} catch (RedisException $e) {
+				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			}
+		} else {
+			$return = unserialize($cache);
+		}
 
 		return self::return($return, 'useroptions');
 	}
@@ -887,6 +911,16 @@ class Cheevos {
 		$body = self::validateBody($body);
 		if (!$body) {
 			return false;
+		}
+
+		$redis = \RedisCache::getClient('cache');
+		$redisKey = 'cheevos:apicache:useroptions:'.$body['user_id'];
+		try {
+			if ($redis !== false) {
+				$redis->del($redisKey);
+			}
+		} catch (RedisException $e) {
+			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
 		}
 
 		$path = "user_options/".$body['user_id'];
