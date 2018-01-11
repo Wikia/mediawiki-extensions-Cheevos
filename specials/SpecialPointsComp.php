@@ -61,13 +61,13 @@ class SpecialPointsComp extends SpecialPage {
 			if (!$report) {
 				throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 			}
-			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
+			$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped());
 			$this->content = $pagination.TemplatePointsComp::pointsCompReportDetail($report).$pagination;
 		} else {
 			$reportData = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
 
-			$pagination = HydraCore::generatePaginationHtml($reportData['total'], $itemsPerPage, $start);
+			$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp')->escaped());
 			$this->content = TemplatePointsComp::pointsCompReports($reportData['reports'], $pagination);
 		}
