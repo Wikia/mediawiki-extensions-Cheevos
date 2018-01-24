@@ -28,7 +28,7 @@ class SpecialAchievementStats extends SpecialPage {
 	public function __construct() {
 		global $dsSiteKey;
 
-		parent::__construct('AchievementStats', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
+		parent::__construct('AchievementStats', 'achievement_admin', ($this->getUser()->isAllowed('achievement_admin') && defined('MASTER_WIKI') && MASTER_WIKI === true));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -88,19 +88,6 @@ class SpecialAchievementStats extends SpecialPage {
 
 		$this->output->setPageTitle(wfMessage('achievement_stats')->escaped());
 		$this->content = $this->templates->achievementsStats($sites);
-	}
-
-	/**
-	 * Hides special page from SpecialPages special page.
-	 *
-	 * @access	  public
-	 * @return	  boolean
-	 */
-	public function isListed() {
-		if ($this->wgUser->isAllowed('achievement_admin')) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
