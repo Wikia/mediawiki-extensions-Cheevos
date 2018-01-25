@@ -356,8 +356,8 @@ class CheevosHooks {
 				case 'profile-favwiki':
 					self::increment('curse_profile_edit_fav_wiki', 1, $user);
 					break;
-				case 'profile-link-xbl':
-					self::increment('curse_profile_edit_link_xbl', 1, $user);
+				case 'profile-link-facebook':
+					self::increment('curse_profile_edit_link_facebook', 1, $user);
 					break;
 				case 'profile-link-psn':
 					self::increment('curse_profile_edit_link_psn', 1, $user);
@@ -365,14 +365,20 @@ class CheevosHooks {
 				case 'profile-link-steam':
 					self::increment('curse_profile_edit_link_steam', 1, $user);
 					break;
-				case 'profile-link-facebook':
-					self::increment('curse_profile_edit_link_facebook', 1, $user);
+				case 'profile-link-reddit':
+					self::increment('curse_profile_edit_link_reddit', 1, $user);
+					break;
+				case 'profile-link-twitch':
+					self::increment('curse_profile_edit_link_twitch', 1, $user);
 					break;
 				case 'profile-link-twitter':
 					self::increment('curse_profile_edit_link_twitter', 1, $user);
 					break;
-				case 'profile-link-reddit':
-					self::increment('curse_profile_edit_link_reddit', 1, $user);
+				case 'profile-link-vk':
+					self::increment('curse_profile_edit_link_vk', 1, $user);
+					break;
+				case 'profile-link-xbl':
+					self::increment('curse_profile_edit_link_xbl', 1, $user);
 					break;
 			}
 		}
