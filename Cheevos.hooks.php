@@ -101,7 +101,7 @@ class CheevosHooks {
 		self::$increments[$globalId]['timestamp'] = time();
 		self::$increments[$globalId]['request_uuid'] = sha1(self::$increments[$globalId]['user_id'].self::$increments[$globalId]['site_key'].self::$increments[$globalId]['timestamp'].random_bytes(4));
 		if (!empty($edits)) {
-			if (!is_array(self::$increments[$globalId]['edits'])) {
+			if (!isset(self::$increments[$globalId]['edits']) || !is_array(self::$increments[$globalId]['edits'])) {
 				self::$increments[$globalId]['edits'] = [];
 			}
 			self::$increments[$globalId]['edits'] = array_merge(self::$increments[$globalId]['edits'], $edits);
