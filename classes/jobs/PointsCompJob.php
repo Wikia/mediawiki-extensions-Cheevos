@@ -31,11 +31,13 @@ class PointsCompJob extends \SyncService\Job {
 	public function execute($args = []) {
 		$minPointThreshold = (isset($args['min_point_threshold']) ? intval($args['min_point_threshold']) : null);
 		$maxPointThreshold = (isset($args['max_point_threshold']) ? intval($args['max_point_threshold']) : null);
-		$startTime = intval($args['start_time']);
-		$endTime = intval($args['end_time']);
-		$final = boolval($args['final']);
-		$email = boolval($args['email']);
-		$reportId = intval($args['report_id']);
+		$startTime = (isset($args['start_time']) ? intval($args['start_time']) : 0);
+		$endTime = (isset($args['end_time']) ? intval($args['end_time']) : 0);
+		$final = (isset($args['final']) ? boolval($args['final']) : false);
+		$email = (isset($args['email']) ? boolval($args['email']) : false);
+		$reportId = (isset($args['report_id']) ? intval($args['report_id']) : null);
+
+		sleep(2); //Database transaction commits on AWS are slow.
 
 		if ($reportId > 0) {
 			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);

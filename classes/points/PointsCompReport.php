@@ -131,6 +131,7 @@ class PointsCompReport {
 		$this->reportData['run_time'] = time();
 		$reportData = $this->reportData;
 		unset($reportData['report_id']);
+		$db->startAtomic(__METHOD__);
 		if ($this->reportData['report_id'] < 1) {
 			$success = $db->insert(
 				'points_comp_report',
@@ -170,7 +171,10 @@ class PointsCompReport {
 				__METHOD__
 			);
 		}
+		$db->endAtomic(__METHOD__);
+
 		$this->updateStats();
+
 		return true;
 	}
 
