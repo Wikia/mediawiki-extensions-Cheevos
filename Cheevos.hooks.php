@@ -781,7 +781,7 @@ class CheevosHooks {
 		$tools[] = Linker::linkKnown(
 			SpecialPage::getTitleFor('WikiPointsAdmin'),
 			wfMessage('sp_contributions_wikipoints_admin')->escaped(),
-			[],
+			['class' => 'mw-usertoollinks-wikipointsadmin'],
 			[
 				'action'	=> 'lookup',
 				'user'		=> $userName
