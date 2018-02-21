@@ -86,7 +86,7 @@ class PointsDisplay {
 	}
 
 	/**
-	 * Function Documentation
+	 * Get a standard points block HTML output.
 	 *
 	 * @access	public
 	 * @param	string	[Optional] Limit by or override the site key used.
