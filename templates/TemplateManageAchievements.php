@@ -31,21 +31,23 @@ class TemplateManageAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-		<!--<div class='search_bar'>
-			<form method='get' action='{$achievementsURL}'>
-				<fieldset>
-					<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
-					<input type='submit' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
-					<a href='{$achievementsURL}' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')."</a>
-				</fieldset>
-			</form>
-		</div>-->
-		<div class='buttons'>
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='mw-ui-button'>".wfMessage('award_achievement')."</a>" : null)."
-			".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>".wfMessage('add_achievement')."</a>" : null)."
-		</div>
-			";
+		<div class='button_bar'>
+			<!--<div class='buttons_left'>
+				<form method='get' action='{$achievementsURL}'>
+					<fieldset>
+						<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
+						<input type='submit' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
+						<a href='{$achievementsURL}' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')."</a>
+					</fieldset>
+				</form>
+			</div>-->
+			<div class='button_break'></div>
+			<div class='buttons_right'>
+				".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
+				".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='mw-ui-button'>".wfMessage('award_achievement')."</a>" : null)."
+				".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>".wfMessage('add_achievement')."</a>" : null)."
+			</div>
+		</div>";
 		}
 		$HTML .= "
 		<div id='p-achievement-list'>";
@@ -240,8 +242,8 @@ class TemplateManageAchievements {
 		$HTML .= "
 			</fieldset>
 			<fieldset class='submit'>
-				<input id='aid' name='aid' type='hidden' value='{$achievement->getId()}'/>
-				<input id='wiki_submit' name='wiki_submit' type='submit' value='Save'/>
+				<input id='aid' name='aid' type='hidden' value='{$achievement->getId()}'/><br/>
+				<button id='wiki_submit' name='wiki_submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('save_key_value')->escaped()."</button>
 			</fieldset>
 		</form>";
 

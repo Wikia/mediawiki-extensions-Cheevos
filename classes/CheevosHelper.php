@@ -86,7 +86,9 @@ class CheevosHelper {
 							$info[$field] = unserialize($value);
 						}
 					}
-					$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
+					if (isset($info['wiki_name'])) {
+						$sitename = $info['wiki_name']." (".strtoupper($info['wiki_language']).")";
+					}
 				}
 			} catch (\RedisException $e) {
 				wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
