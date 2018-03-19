@@ -21,10 +21,9 @@ class TemplateAchievements {
 	 * @param	array	Array of User Status for loaded user.
 	 * @param	object	User
 	 * @param	integer	User's Global ID
-	 * @param	string	Site Key Context
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId, $siteKey) {
+	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
 		global $wgOut, $wgRequest, $wgUser, $dsSiteKey;
 
 		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
