@@ -33,8 +33,11 @@ class TemplateAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-			<div class='buttons'>
-				<a href='{$manageAchievementsURL}' class='mw-ui-button'>".wfMessage('manageachievements')."</a>
+			<div class='button_bar'>
+				<div class='button_break'></div>
+				<div class='buttons_right'>
+					<a href='{$manageAchievementsURL}' class='mw-ui-button'>".wfMessage('manageachievements')."</a>
+				</div>
 			</div>";
 		}
 
