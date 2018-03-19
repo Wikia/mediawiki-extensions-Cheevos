@@ -216,17 +216,20 @@ class TemplateAchievements {
 						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='mw-ui-button'>".wfMessage('restore_achievement')->escaped()."</a></span>
 					</div>";
 				}
-				
-			}
-	
 
-			if (MASTER_WIKI !== true && $achievement->isProtected()) {
-				$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_protected')->escaped()."</div>";
 			}
 
-			if (MASTER_WIKI !== true && $achievement->isGlobal()) {
-				$HTML .= "<div class='p-achievement-admin'>".wfMessage('edit_disabled_global')->escaped()."</div>";
+			if ( MASTER_WIKI !== true && ( $achievement->isProtected() || $achievement->isGlobal() ) ) {
+				$HTML .= "<div class='p-achievement-admin'>";
+				if ($achievement->isProtected()) {
+					$HTML .= "<p>".wfMessage('edit_disabled_protected')->escaped()."</p>";
+				}
+				if ($achievement->isGlobal()) {
+					$HTML .= "<p>".wfMessage('edit_disabled_global')->escaped()."</p>";
+				}
+				$HTML .= "</div>"
 			}
+
 		}
 
 		if ($status !== false && $status->getTotal() > 0 && !$status->isEarned()) {
