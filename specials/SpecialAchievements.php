@@ -64,7 +64,7 @@ class SpecialAchievements extends SpecialPage {
 
 		$globalId = false;
 		if ($this->getUser()->isLoggedIn()) {
-			if ($this->getUser() > 0) {
+			if ($this->getUser()->getId() > 0) {
 				//This is unrelated to the user look up.  Just trigger this statistic if a logged in user visits an achievement page.
 				CheevosHooks::increment('achievement_engagement', 1, $this->getUser());
 			}
@@ -138,7 +138,7 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		$this->output->setPageTitle($title);
-		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses, $user, $globalId, $siteKey);
+		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses, $user, $globalId);
 	}
 
 

@@ -21,10 +21,9 @@ class TemplateAchievements {
 	 * @param	array	Array of User Status for loaded user.
 	 * @param	object	User
 	 * @param	integer	User's Global ID
-	 * @param	string	Site Key Context
 	 * @return	string	Built HTML
 	 */
-	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId, $siteKey) {
+	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
 		global $wgOut, $wgRequest, $wgUser, $dsSiteKey;
 
 		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
@@ -34,8 +33,11 @@ class TemplateAchievements {
 
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
-			<div class='buttons'>
-				<a href='{$manageAchievementsURL}' class='mw-ui-button'>".wfMessage('manageachievements')."</a>
+			<div class='button_bar'>
+				<div class='button_break'></div>
+				<div class='buttons_right'>
+					<a href='{$manageAchievementsURL}' class='mw-ui-button'>".wfMessage('manageachievements')."</a>
+				</div>
 			</div>";
 		}
 
