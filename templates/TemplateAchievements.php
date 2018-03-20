@@ -229,9 +229,8 @@ class TemplateAchievements {
 				if ($achievement->isGlobal()) {
 					$HTML .= "<p>".wfMessage('edit_disabled_global')->escaped()."</p>";
 				}
-				$HTML .= "</div>"
+				$HTML .= "</div>";
 			}
-
 		}
 
 		if ($status !== false && $status->getTotal() > 0 && !$status->isEarned()) {
