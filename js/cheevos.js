@@ -211,7 +211,6 @@ $(document).ready(function() {
 
 	function handleHashChange() {
 		var args = getHashArguments();
-		console.log(args);
 		if (typeof args.filterby !== "undefined") {
 			$("#search_field").val(decodeURIComponent(args.filterby));
 			if(!args.category || args.category !== "all") {
@@ -283,12 +282,9 @@ $(document).ready(function() {
 	function filterbyResults(filterby) {
 		if (typeof filterby === "string") {
 			search = decodeURIComponent(filterby).toLowerCase();
-			console.log('Searching for:',search);
-
 			$('.achievement_category').each(function () {
 				$(this).show();
 			});
-
 			for (var x in window.achievementsList) {
 				var name = window.achievementsList[x].toLowerCase();
 				var achievementRow = $(".p-achievement-row[data-id='" + x + "']");
@@ -316,9 +312,7 @@ $(document).ready(function() {
 
 	$('.achievement_category_select').click(function() {
 		var slug = $(this).attr('data-slug');
-		console.log('Clicked',slug);
 		window.location.hash = '#category=' + slug;
-
 	});
 
 	$('.p-achievement-row').click(function() {
