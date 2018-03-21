@@ -686,6 +686,7 @@ class Cheevos {
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 * 		$filters = [
+	 * 			'user_id'	=> 1, //Limit by user ID.
 	 * 			'site_key'	=> 'example', //Limit by site key.
 	 * 			'stat'		=> 'example', //Filter by a specific stat name.
 	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
@@ -694,7 +695,7 @@ class Cheevos {
 	 * @return	mixed
 	 */
 	public static function getStatMonthlyCount($filters = []) {
-		foreach (['limit', 'offset'] as $key) {
+		foreach (['user_id', 'limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);
 			}
