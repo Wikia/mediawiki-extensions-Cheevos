@@ -791,9 +791,9 @@ class Cheevos {
 
 
 
-	public static function getProgressTop($site_key = null, $ingore_users = [], $achievement_id = null, $limit = 1) {
+	public static function getProgressTop($site_key = null, $ignore_users = [], $achievement_id = null, $limit = 1) {
 		$return = self::get("achievements/progress/top",[
-			"ignore_users" => implode(",",$ingore_users),
+			"ignore_users" => implode(",",$ignore_users),
 			"site_key"	=> $site_key,
 			"achievement_id" => $achievement_id,
 			"limit"	=> $limit

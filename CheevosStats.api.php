@@ -124,7 +124,7 @@ class CheevosStatsAPI extends ApiBase {
 
 		$curseAccounts = \DynamicSettings\DS::getWikiManagers();
 		foreach ($curseAccounts as $key => $localUser) {
-			$user_global_ids[] = $lookup->centralIdFromLocalUser($localUser);
+			$curse_global_ids[] = $lookup->centralIdFromLocalUser($localUser);
 		}
 
 		$topNonCurseAchieverCall = Cheevos\Cheevos::getProgressTop(null, $curse_global_ids);
