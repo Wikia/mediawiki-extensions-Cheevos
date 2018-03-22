@@ -842,7 +842,7 @@ class CheevosHooks {
 	static private function getTotalContributors() {
 		$redis = RedisCache::getClient('cache');
 
-		$redisKey = 'cheevos:contributors:total';
+		$redisKey = 'cheevos:contributors:'.self::getSiteKey();
 		if ($redis !== false) {
 			$cache = $redis->get($redisKey);
 			if ($cache !== false) {
