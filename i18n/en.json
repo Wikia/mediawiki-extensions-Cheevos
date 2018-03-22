@@ -151,7 +151,7 @@
 	"wikipointsadmin": "Wiki Points Admin",
 	"wiki_points_admin_lookup": "$1 - Wiki Points Admin",
 	"wikipointsaddsubtractbutton": "Adjust Points",
-	"wikipointsaddsubtracttooltip": "Enter positive or negative integer to adjust.",
+	"wikipointsaddsubtracttooltip": "Enter +/- amount to adjust; maximum 10,000",
 	"wikipointsaddsubtractsuccess": "Points adjusted!",
 	"points_recently_earned": "Points recently earned",
 	"save_revocation": "Save Revocation",
