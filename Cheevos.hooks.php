@@ -861,7 +861,7 @@ class CheevosHooks {
 				'SQL_CALC_FOUND_ROWS'
 			]
 		);
-		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount');
+		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount;');
 		$total = $db->fetchRow($calcRowsResult);
 		$total = intval($total['rowcount']);
 		if ($redis !== false) {
