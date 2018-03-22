@@ -48,7 +48,7 @@ class TemplateWikiPointsAdmin {
 	 * @return	string	Built HTML
 	 */
 	static public function lookup($user, $points = [], $form = []) {
-		global $wgRequest;
+		global $wgRequest, $wgUser;
 
 		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
 		$html = self::userSearch($wikiPointsAdminPage, $form);
@@ -64,7 +64,8 @@ class TemplateWikiPointsAdmin {
 
 		$wpaPage = Title::newFromText('Special:WikiPointsAdmin');
 		$escapedUserName = ($user ? htmlspecialchars($user->getName(), ENT_QUOTES) : '');
-		$html .= "
+		if ($wgUser->isAllowed('wpa_adjust_points')) {
+			$html .= "
 		<div id='wpa_user_controls'>
 			<form method='post' action='".$wpaPage->getFullURL()."'>
 				<fieldset>
@@ -74,6 +75,7 @@ class TemplateWikiPointsAdmin {
 				</fieldset>
 			</form>
 		</div>";
+		}
 		if ($user !== null) {
 			$html .= "
 		<h2>".wfMessage('points_recently_earned')->escaped()."</h2>

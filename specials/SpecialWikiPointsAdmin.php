@@ -107,6 +107,10 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	private function adjustPoints() {
+		if (!$this->wgUser->isAllowed('wpa_adjust_points')) {
+			throw new PermissionsError('wpa_adjust_points');
+		}
+
 		$page = Title::newFromText('Special:WikiPointsAdmin');
 		$userName = $this->wgRequest->getVal('user');
 		if ($this->wgRequest->wasPosted()) {
