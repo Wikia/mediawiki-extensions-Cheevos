@@ -61,9 +61,11 @@ class SpecialPointsComp extends SpecialPage {
 			if (!$report) {
 				throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 			}
-			$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped());
-			$this->content = $pagination.TemplatePointsComp::pointsCompReportDetail($report).$pagination;
+			if ($this->getRequest()->getBool('csv')) {
+				return $this->downloadCSV(TemplatePointsComp::pointsCompReportCSV($report), $report->getReportId());
+			}
+			$this->content = TemplatePointsComp::pointsCompReportDetail($report);
 		} else {
 			$reportData = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
 
@@ -174,6 +176,26 @@ class SpecialPointsComp extends SpecialPage {
 			$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
 			return;
 		}
+	}
+
+	/**
+	 * Download CSV to client.
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	private function downloadCSV($csv, $reportId) {
+		$filename = 'points_comp_report_'.$reportId;
+
+		header("Content-type: text/csv");
+		header("Content-Disposition: attachment; filename=$filename.csv");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		$output = fopen("php://output", "w");
+		fwrite($output, $csv);
+		fclose($output);
+		exit;
 	}
 
 	/**

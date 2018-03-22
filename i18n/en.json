@@ -296,5 +296,6 @@
 	"current_active_comps": "Current Active Comps",
 	"critera": "Criteria",
 	"criteria_not_before": "Can not earn before: (UTC)",
-	"criteria_not_after": "Can not earn after: (UTC)"
+	"criteria_not_after": "Can not earn after: (UTC)",
+	"download_report_csv": "Download Report CSV"
 }

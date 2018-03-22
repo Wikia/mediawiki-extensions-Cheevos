@@ -123,19 +123,24 @@ class TemplatePointsComp {
 
 		$html = '';
 
-		if (isset($_GET['userComped'])) {
+		if ($wgRequest->getVal('userComped', null) !== null) {
 			$successText = ($wgRequest->getInt('userComped') ? 'success' : 'error');
 			$html .= "
 			<div><div class='".$successText."box'>".wfMessage('points_comp_report_user_comp_'.$successText)->escaped()."</div></div>";
 		}
 
-		if (isset($_GET['emailSent'])) {
+		if ($wgRequest->getVal('emailSent', null) !== null) {
 			$successText = ($wgRequest->getInt('emailSent') ? 'success' : 'error');
 			$html .= "
 			<div><div class='".$successText."box'>".wfMessage('points_comp_report_email_'.$successText)->escaped()."</div></div>";
 		}
 
 		$html .= "
+		<div class='button_bar'>
+			<div class='buttons_left'>
+				<a href='{$pointsCompPage->getFullURL(['csv' => 1])}' class='mw-ui-button'>".wfMessage('download_report_csv')."</a>
+			</div>
+		</div>
 		<dl class='collapse_dl'>
 			<dt>".wfMessage('run_time')->escaped()."</dt><dd>".gmdate('Y-m-d', $report->getRunTime())."</dd><br/>
 			<dt>".wfMessage('min_point_threshold')->escaped()."</dt><dd>{$report->getMinPointThreshold()}</dd><br/>
@@ -195,5 +200,38 @@ class TemplatePointsComp {
 		</form>";
 
 		return $html;
+	}
+
+
+
+	/**
+	 * Points Comp Report CSV
+	 *
+	 * @access	public
+	 * @return	string	CSV
+	 */
+	static public function pointsCompReportCSV($report) {
+		$headers = wfMessage('wpa_user')->escaped().",".wfMessage('comp_points')->escaped().",".wfMessage('comp_new')->escaped().",".wfMessage('comp_extended')->escaped().",".wfMessage('comp_failed')->escaped().",".wfMessage('comp_skipped')->escaped().",".wfMessage('current_comp_expires')->escaped().",".wfMessage('new_comp_expires')->escaped().",".wfMessage('comp_done')->escaped().",".wfMessage('emailed')->escaped();
+		$lookup = CentralIdLookup::factory();
+		while (($reportRow = $report->getNextRow()) !== false) {
+			$user = $lookup->localUserFromCentralId($reportRow['global_id']);
+			$rows[] = implode(
+				',',
+				[
+					$user ? $user->getName() : 'GID: '.$reportRow['global_id'],
+					$reportRow['points'],
+					$reportRow['comp_new'],
+					$reportRow['comp_extended'],
+					$reportRow['comp_failed'],
+					$reportRow['comp_skipped'],
+					$reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '',
+					$reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '',
+					$reportRow['comp_performed'] ? '✓' : '',
+					$reportRow['email_sent'] ? '✓' : ''
+				]
+			);
+		}
+		$csv = $headers."\n".implode("\n", $rows);
+		return $csv;
 	}
 }

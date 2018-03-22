@@ -40,13 +40,11 @@ class TemplateManageAchievements {
 			$HTML .= "
 		<div class='button_bar'>
 			<div class='buttons_left'>
-
-					<fieldset>
-						<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
-						<input id='search_button' type='button' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
-						<input id='search_reset_button' type='button' value='".wfMessage('list_reset')."' class='mw-ui-button mw-ui-destructive' />
-					</fieldset>
-
+				<fieldset>
+					<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
+					<input id='search_button' type='button' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
+					<input id='search_reset_button' type='button' value='".wfMessage('list_reset')."' class='mw-ui-button mw-ui-destructive' />
+				</fieldset>
 			</div>
 			<div class='button_break'></div>
 			<div class='buttons_right'>
