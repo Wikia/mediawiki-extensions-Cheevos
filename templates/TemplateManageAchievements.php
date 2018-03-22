@@ -29,18 +29,25 @@ class TemplateManageAchievements {
 
 		$HTML = '';
 
+		// pass a list of achievements by Id into javascript space.
+		$jsList = [];
+		foreach ($achievements as $id => $achievement) {
+			$jsList[$id] = $achievement->getName();
+		}
+		$HTML .= "<script type=\"text/javascript\"> window.achievementsList = ".json_encode($jsList)."; </script>";
+
 		if ($wgUser->isAllowed('achievement_admin')) {
 			$HTML .= "
 		<div class='button_bar'>
-			<!--<div class='buttons_left'>
-				<form method='get' action='{$achievementsURL}'>
+			<div class='buttons_left'>
+
 					<fieldset>
 						<input type='text' name='filter' id='search_field' value='' class='mw-ui-input' />
-						<input type='submit' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
-						<a href='{$achievementsURL}' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')."</a>
+						<input id='search_button' type='button' value='".wfMessage('list_search')."' class='mw-ui-button mw-ui-progressive' />
+						<input id='search_reset_button' type='button' value='".wfMessage('list_reset')."' class='mw-ui-button mw-ui-destructive' />
 					</fieldset>
-				</form>
-			</div>-->
+
+			</div>
 			<div class='button_break'></div>
 			<div class='buttons_right'>
 				".($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>".wfMessage('invalidatecache_achievement')."</a>" : null)."
@@ -76,6 +83,7 @@ class TemplateManageAchievements {
 				if ($categoryHTML[$categoryId]) {
 					$HTML .= "
 			<div class='achievement_category' data-slug='{$category->getSlug()}'>
+				<h4 class='achievement_category_title'>{$category->getName()}</h4>
 				{$categoryHTML[$categoryId]}
 			</div>";
 				}
@@ -158,7 +166,7 @@ class TemplateManageAchievements {
 			<input id='protected' name='protected' type='checkbox' value='1'".($achievement->isProtected() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('protected_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('protected_help')->escaped()."</span></div></label><br/>
 			<input id='special' name='special' type='checkbox' value='1'".($achievement->getSpecial() ? " checked='checked'" : null)."/><label for='special'>".wfMessage('special_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('special_help')->escaped()."</span></div></label><br/>
 			<input id='show_on_all_sites' name='show_on_all_sites' type='checkbox' value='1'".($achievement->getShow_On_All_Sites() ? " checked='checked'" : null)."/><label for='protected'>".wfMessage('show_on_all_sites_achievement')->escaped()."<div class='helper_mark'><span>".wfMessage('show_on_all_sites_help')->escaped()."</span></div></label><br/>";
-		
+
 		}
 
 		if ($wgUser->isAllowed('edit_meta_achievements')) {

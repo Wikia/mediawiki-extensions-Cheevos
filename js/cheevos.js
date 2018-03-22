@@ -3,6 +3,7 @@ $(document).ready(function() {
 		if ($("li.achievement_category_select").length) {
 			updateTabs();
 		}
+		handleHashChange();
 	});
 
 	$("#achievement_form").submit(function(e){
@@ -12,7 +13,7 @@ $(document).ready(function() {
 		if (!cat.length || !catid) {
 			e.preventDefault();
 			alert("A category is required to save.\n\nIf this error continues, please refresh the page and try again.");
-		} 
+		}
 	});
 
 
@@ -197,36 +198,46 @@ $(document).ready(function() {
 
 	if ("onhashchange" in window) {
 		$(window).on('hashchange', function(e) {
-			var arguments = getHashArguments();
-			if (arguments.category) {
-				switchCategoryTab(arguments.category);
-			}
-			if (arguments.achievement) {
-				highlightAchievement(arguments.achievement, arguments.category);
-			}
+			handleHashChange();
 		}).trigger('hashchange');
 	} else {
 		var hash = window.location.hash;
 		window.setInterval(function() {
 			if (window.location.hash != hash) {
-				var arguments = getHashArguments();
-				if (arguments.category) {
-					switchCategoryTab(arguments.category);
-				}
+				handleHashChange();
 			}
 		}, 100);
 	}
 
+	function handleHashChange() {
+		var args = getHashArguments();
+		if (typeof args.filterby !== "undefined") {
+			$("#search_field").val(decodeURIComponent(args.filterby));
+			if(!args.category || args.category !== "all") {
+				window.location.hash = '#category=all&filterby=' + args.filterby;
+			}
+			filterbyResults(args.filterby);
+		} else {
+			clearFilter();
+		}
+		if (args.category) {
+			switchCategoryTab(args.category);
+		}
+		if (args.achievement) {
+			highlightAchievement(args.achievement, args.category);
+		}
+	}
+
 	function getHashArguments() {
 		var hash = window.location.hash;
-		var argumentsString = hash.substring(1);
-		var argumentPairs = argumentsString.split('&');
-		var arguments = [];
+		var argsString = hash.substring(1);
+		var argumentPairs = argsString.split('&');
+		var args = [];
 		for (var i = argumentPairs.length - 1; i >= 0; i--) {
 			var pair = argumentPairs[i].split('=');
-			arguments[pair[0]] = pair[1];
+			args[pair[0]] = pair[1];
 		}
-		return arguments;
+		return args;
 	}
 
 	function switchCategoryTab(slug) {
@@ -237,6 +248,11 @@ $(document).ready(function() {
 			$(".achievement_category[data-slug='" + slug + "']").show();
 			$(".achievement_category[data-slug='" + slug + "']").attr('data-selected', 'true');
 			$(".achievement_category_select[data-slug='" + slug + "']").attr('data-selected', 'true');
+		}
+		if (slug == "all") {
+			$('.achievement_category').attr('data-selected', 'false');
+			$('.achievement_category_select').attr('data-selected', 'false');
+			$('.achievement_category').show();
 		}
 	}
 
@@ -251,6 +267,42 @@ $(document).ready(function() {
 				scrollTop: achievementTop
 			}, 1000);
 		}
+	}
+
+	$("#search_button").click(function(){
+		var filterBy = $("#search_field").val();
+		window.location.hash = '#category=all&filterby=' + encodeURIComponent(filterBy);
+	});
+
+	$("#search_reset_button").click(function () {
+		clearFilter();
+		window.location.hash = '#category=all';
+	});
+
+	function filterbyResults(filterby) {
+		if (typeof filterby === "string") {
+			search = decodeURIComponent(filterby).toLowerCase();
+			$('.achievement_category').each(function () {
+				$(this).show();
+			});
+			for (var x in window.achievementsList) {
+				var name = window.achievementsList[x].toLowerCase();
+				var achievementRow = $(".p-achievement-row[data-id='" + x + "']");
+
+				if (name.indexOf(search) > -1) {
+					achievementRow.show();
+				} else {
+					achievementRow.hide();
+				}
+			}
+		}
+	}
+
+	function clearFilter() {
+		$("#search_field").val('');
+		$(".p-achievement-row").each(function(){
+			$(this).show();
+		});
 	}
 
 	if ($(".achievement_category_select[data-selected='true']").length < 1) {
