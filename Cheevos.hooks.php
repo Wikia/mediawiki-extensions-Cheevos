@@ -804,6 +804,73 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Define custom magic word variables.
+	 *
+	 * @access	public
+	 * @param	array	Custom magic word variables.
+	 * @return	boolean	True
+	 */
+	static public function onMagicWordwgVariableIDs(&$customVariableIds) {
+		$customVariableIds[] = 'numberofcontributors';
+		return true;
+	}
+
+	/**
+	 * Handles custom MAGIC WORDS.
+	 *
+	 * @access	public
+	 * @param	object	Parser reference
+	 * @param	array	Variable Cache
+	 * @param	string	Magic Word
+	 * @param	string	Return Value
+	 * @param	mixed	Boolean false or PPFrame object.
+	 * @return	boolean	true
+	 */
+	static public function onParserGetVariableValueSwitch(&$parser, &$cache, &$magicWord, &$value, &$frame) {
+		if (strtolower($magicWord) === 'numberofcontributors') {
+			$value = self::getTotalContributors();
+		}
+		return true;
+	}
+
+	/**
+	 * Get the total number of contributors on the wiki.
+	 *
+	 * @access	public
+	 * @return	integer	Total Contributors
+	 */
+	static private function getTotalContributors() {
+		$redis = RedisCache::getClient('cache');
+
+		$redisKey = 'cheevos:contributors:total';
+		if ($redis !== false) {
+			$cache = $redis->get($redisKey);
+			if ($cache !== false) {
+				return $cache;
+			}
+		}
+
+		$db = wfGetDB(DB_MASTER);
+		$result = $db->select(
+			['revision'],
+			['count(*)'],
+			[],
+			__METHOD__,
+			[
+				'GROUP BY'	=> 'rev_user',
+				'SQL_CALC_FOUND_ROWS'
+			]
+		);
+		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount');
+		$total = $db->fetchRow($calcRowsResult);
+		$total = intval($total['rowcount']);
+		if ($redis !== false) {
+			$redis->setEx($redisKey, 3600, $total);
+		}
+		return $total;
+	}
+
+	/**
 	 * Setups and Modifies Database Information
 	 *
 	 * @access	public
