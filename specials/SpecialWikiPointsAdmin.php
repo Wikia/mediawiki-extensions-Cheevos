@@ -111,6 +111,11 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$userName = $this->wgRequest->getVal('user');
 		if ($this->wgRequest->wasPosted()) {
 			$amount = $this->wgRequest->getInt('amount');
+			if ($amount > 0) {
+				$amount = min($amount, 10000);
+			} else {
+				$amount = max($amount, -10000);
+			}
 			$user = User::newFromName($userName);
 
 			if ($amount && $user->getId()) {
