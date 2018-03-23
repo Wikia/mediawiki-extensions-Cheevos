@@ -28,7 +28,7 @@ class TemplateAchievementStats {
 			'<option value="master">Master Wiki</option>'
 		];
 		foreach ($wikis as $wiki) {
-			$wikiSelectOptions[] = "<option value=\"". $wiki->getSiteKey() ."\">". $wiki->getName() ."</option>";
+			$wikiSelectOptions[] = "<option value=\"". $wiki->getSiteKey() ."\">". $wiki->getNameForDisplay() ."</option>";
 		}
 
 		$HTML .= "
