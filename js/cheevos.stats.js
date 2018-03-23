@@ -1,5 +1,4 @@
-(function(mw, $) {
-
+(function (mw, $) {
 	/***
 	 *      ______   ________  ________  __    __  _______
 	 *     /      \ /        |/        |/  |  /  |/       \
@@ -14,10 +13,8 @@
 	 *
 	 *
 	 */
-
 	console.log('Cheevos Stats Code Loaded.');
 	var api = new mw.Api();
-	
 	/***
 	 *     __    __  ________  __        _______   ________  _______    ______
 	 *    /  |  /  |/        |/  |      /       \ /        |/       \  /      \
@@ -32,23 +29,21 @@
 	 *
 	 *
 	 */
-
 	function showLoading() {
 		$("#loadingError").slideUp();
 		$("#loadingStats").show();
 	}
 
 	function hideLoading() {
-		setTimeout(function(){
+		setTimeout(function () {
 			$("#loadingStats").hide();
-		},500);
+		}, 500);
 	}
 
 	function showError(err) {
 		$("#loadingStats").hide();
-		$("#loadingError").html('<strong>Error Loading Stats:</strong> '+err).slideDown();
+		$("#loadingError").html('<strong>Error Loading Stats:</strong> ' + err).slideDown();
 	}
-
 	/***
 	 *      ______   __        __              __       __  ______  __    __  ______   ______
 	 *     /      \ /  |      /  |            /  |  _  /  |/      |/  |  /  |/      | /      \
@@ -63,14 +58,11 @@
 	 *
 	 *
 	 */
-
 	function allWikiDisplay() {
 		showLoading();
 		$("#wikiStats").hide();
 		$("#megas").hide();
 		$("#allStats").show();
-
-
 		api.get({
 			action: 'cheevosstats',
 			do: 'getGlobalStats',
@@ -79,36 +71,32 @@
 		}).done(function (result) {
 			if (result.success) {
 				var data = result.data;
-
-				$(".dataPoint").each(function(){
+				$(".dataPoint").each(function () {
 					var name = $(this).attr('data-name');
 					if (data[name] !== null) {
 						$(this).html(data[name]);
 					}
 				});
-
-				$("#topAchieverGlobal .achieverImage").attr('src',data.topAchiever.img);
+				$("#topAchieverGlobal .achieverImage").attr('src', data.topAchiever.img);
 				$("#topAchieverGlobal .achieverName").html(data.topAchiever.name);
-
 				$("#topNonCurseAchieverGlobal .achieverImage").attr('src', data.topAchieverNonCurse.img);
 				$("#topNonCurseAchieverGlobal .achieverName").html(data.topAchieverNonCurse.name);
-
 				new Chart($("#customAchievementsPie"), {
 					type: 'pie',
 					data: {
 						labels: ["Have Custom", "Standard"],
 						datasets: [{
 							data: [
-								data.wikisWithCustomAchievements,
-								(data.totalWikis - data.wikisWithCustomAchievements),
+								data.wikisWithCustomAchievements, (data.totalWikis - data.wikisWithCustomAchievements),
 							],
 							backgroundColor: ["#FF6384", "#36A2EB"],
 							hoverBackgroundColor: ["#FF6384", "#36A2EB"]
 						}]
 					},
-					options: { responsive: true }
+					options: {
+						responsive: true
+					}
 				});
-
 				hideLoading();
 			} else {
 				showError('There was an error when pulling stats');
@@ -116,9 +104,7 @@
 		}).fail(function (xhr, status) {
 			showError(status.exception.message);
 		});
-
 	}
-
 	/***
 	 *     __       __  ________   ______    ______    ______
 	 *    /  \     /  |/        | /      \  /      \  /      \
@@ -133,21 +119,20 @@
 	 *
 	 *
 	 */
-
 	// Initialize DataTable for ALL SITE on load.
 	var megaTable = $("#all_sites_mega_list").DataTable({
 		dom: 'Blfrtip',
 		"language": {
 			"emptyTable": "Loading data for table..."
 		},
-		"columns": [
-			{ "data": "user" },
-			{ "data": "mega" },
-			{ "data": "awarded" }
-		],
-		buttons: [
-			'csv', 'excel', 'pdf'
-		]
+		"columns": [{
+			"data": "user"
+		}, {
+			"data": "mega"
+		}, {
+			"data": "awarded"
+		}],
+		buttons: ['csv', 'excel', 'pdf']
 	});
 
 	function megasDisplay() {
@@ -155,18 +140,12 @@
 		$("#allStats").hide();
 		$("#wikiStats").hide();
 		$("#megas").show();
-
 		// Refresh magical table with new fresh dank data :100:
-		var ajaxUrl = '/api.php?format=json'
-			+ '&action=cheevosstats'
-			+ '&do=getMegasTable';
-
+		var ajaxUrl = '/api.php?format=json' + '&action=cheevosstats' + '&do=getMegasTable';
 		megaTable.clear().draw();
 		megaTable.ajax.url(ajaxUrl).load();
-
 		hideLoading();
 	}
-
 	/***
 	 *      ______   ______  __    __   ______   __        ________        __       __  ______  __    __  ______
 	 *     /      \ /      |/  \  /  | /      \ /  |      /        |      /  |  _  /  |/      |/  |  /  |/      |
@@ -181,74 +160,106 @@
 	 *
 	 *
 	 */
-
 	// Initialize DataTables on WIKI SITE Load.
 	var siteTable = $("#per_wiki_stats").DataTable({
 		"language": {
 			"emptyTable": "Loading data for table..."
 		},
-		"columnDefs": [
-			{ // last row action buttons
-				"targets": -1,
-				"orderable": false,
-				"data": function(row, type, set, meta) {
-					if (row.earned > 0) {
-						return "<button class=\"viewUsersEarned mw-ui-button mw-ui-constructive\" data-achievement=\""+row.id+"\">View Users</button>";
-					} else {
-						return "";
-					}
-				},
-			},{ // yon localization number for Earned
-				"targets": 3,
-				"render": function (data, type, row) {
-					return parseInt(data).toLocaleString();
+		"columnDefs": [{ // last row action buttons
+			"targets": -1,
+			"orderable": false,
+			"data": function (row, type, set, meta) {
+				if (row.earned > 0) {
+					return "<button class=\"viewUsersEarned mw-ui-button mw-ui-constructive\" data-achievement=\"" + row.id + "\">View Users</button>";
+				} else {
+					return "<button class=\"viewUsersEarned mw-ui-button mw-ui-constructive\" disabled=\"disabled\" data-achievement=\"" + row.id + "\">View Users</button>";
 				}
-			},{ //
-				"targets": 4,
-				"render": function (data, type, row) {
-					return data.toString() + "%";
-				}
+			},
+		}, { // yon localization number for Earned
+			"targets": 3,
+			"render": function (data, type, row) {
+				return parseInt(data).toLocaleString();
 			}
-		],
-		"columns": [
-			{ "data": "name" },
-			{ "data": "description" },
-			{ "data": "category" },
-			{ "data": "earned" },
-			{ "data": "userpercent" },
-			{}
-		],
-		buttons: [
-			'csv', 'excel', 'pdf'
-		],
+		}, { //
+			"targets": 4,
+			"render": function (data, type, row) {
+				return data.toString() + "%";
+			}
+		}],
+		"columns": [{
+			"data": "name"
+		}, {
+			"data": "description"
+		}, {
+			"data": "category"
+		}, {
+			"data": "earned"
+		}, {
+			"data": "userpercent"
+		}, {}],
+		buttons: ['csv', 'excel', 'pdf'],
 		dom: 'Blfrtip'
 	});
-
-	$(document).on('click', '.viewUsersEarned', function(){
-		var achievement = $(this).data('achievement');
-		changeHash({
-			achievement: achievement
-		});
+	$(document).on('click', '.viewUsersEarned', function () {
+		var row = siteTable.row($(this).parent());
+		if (row.child.isShown()) {
+			row.child.hide();
+			$(this).html("View Users");
+		} else {
+			usersEarnedDisplay(row);
+			$(this).html("Hide Users");
+		}
 	});
+
+	function usersEarnedDisplay(row) {
+		var data = getHashArguments();
+		var wiki = data.wiki;
+		var d = row.data();
+		var achievementId = d.id;
+		row.child('Loading users from API...').show();
+		row.child().first('td').addClass('userEarnedRowLoading');
+		api.get({
+			action: 'cheevosstats',
+			do: 'getAchievementUsers',
+			format: 'json',
+			wiki: wiki,
+			achievementId: achievementId,
+			formatversion: 2
+		}).done(function (result) {
+			console.log(result);
+			if (result.success) {
+				var names = [];
+				for (var x in result.data) {
+					var r = result.data[x];
+					if (r.user_name) {
+						names.push(r.user_name);
+					} else {
+						names.push("Global User " + r.user_id);
+					}
+				}
+				var output = names.join(", ", names);
+				row.child(output).show();
+				row.child().first('td').addClass('userEarnedRow');
+			} else {
+				row.child('There was an error when pulling stats').show();
+			}
+		}).fail(function (xhr, status) {
+			console.log(status.excepotion.message);
+			row.child('status.exception.message').show();
+		});
+	}
 
 	function singleWikiDisplay() {
 		showLoading();
 		$("#allStats").hide();
 		$("#megas").hide();
 		$("#wikiStats").show();
-
 		var data = getHashArguments();
 		var wiki = data.wiki;
-
-
 		// Refresh magical table with new fresh dank data :100:
-		var ajaxUrl = '/api.php?format=json'
-					+ '&action=cheevosstats'
-					+ '&do=getWikiStatsTable'
-					+ '&wiki=' + wiki;
+		var ajaxUrl = '/api.php?format=json' + '&action=cheevosstats' + '&do=getWikiStatsTable' + '&wiki=' + wiki;
 		siteTable.clear().draw();
 		siteTable.ajax.url(ajaxUrl).load();
-
 		api.get({
 			action: 'cheevosstats',
 			do: 'getWikiStats',
@@ -259,14 +270,12 @@
 			if (result.success) {
 				var data = result.data;
 				console.log(data);
-
 				$(".dataPointWiki").each(function () {
 					var name = $(this).attr('data-name');
 					if (data[name] !== null) {
 						$(this).html(data[name]);
 					}
 				});
-
 				$("#topAchieverThisWiki .achieverImage").attr('src', data.topAchiever.img);
 				$("#topAchieverThisWiki .achieverName").html(data.topAchiever.name);
 				hideLoading();
@@ -276,17 +285,7 @@
 		}).fail(function (xhr, status) {
 			showError(status.exception.message);
 		});
-
 	}
-
-	function usersEarnedDisplay() {
-		// display datatable and load table data. 
-		var args = getHashArguments();
-
-		
-
-	}
-
 	/***
 	 *     __         ______    ______   ______   ______
 	 *    /  |       /      \  /      \ /      | /      \
@@ -301,48 +300,43 @@
 	 *
 	 *
 	 */
-
-	$("#wikiSelector").change(function(){
+	$("#wikiSelector").change(function () {
 		var val = $(this).val();
-		changeHash({'wiki': val});
+		changeHash({
+			'wiki': val
+		});
 	});
 
 	function getData(name) {
-		return $("#dataHolder").attr('data-'+name);
+		return $("#dataHolder").attr('data-' + name);
 	}
-
-	var lastHash = {wiki:false,achievement:false}; // used to hold a hash after change, to compare it to previous hash.
+	var lastHash = {
+		wiki: false,
+		achievement: false
+	}; // used to hold a hash after change, to compare it to previous hash.
 	function handleChange() {
 		var args = getHashArguments();
 		console.log("New Hash Set: ", args);
-
 		if (!args.wiki) {
 			//always force wiki=all if no wiki hash set.
-			return changeHash({ 'wiki': 'all' });
+			return changeHash({
+				'wiki': 'all'
+			});
 		}
-
 		// Make selector match.
 		$("#wikiSelector").val(args.wiki);
-
 		if (lastHash.wiki !== args.wiki) {
 			// All Wikis Stat
 			if (args.wiki == "all") {
 				allWikiDisplay();
-			} else if(args.wiki == "megas") {
+			} else if (args.wiki == "megas") {
 				megasDisplay();
 			} else {
 				singleWikiDisplay();
 			}
 		}
-
-		if (args.achievement && lastHash.achievement !== args.achievement) {
-			usersEarnedDisplay();
-		}
-		
-
 		lastHash = args;
 	}
-
 	/***
 	 *     __    __   ______    ______   __    __  ______  __    __   ______
 	 *    /  |  /  | /      \  /      \ /  |  /  |/      |/  \  /  | /      \
@@ -357,7 +351,6 @@
 	 *
 	 *
 	 */
-
 	if ("onhashchange" in window) {
 		$(window).on('hashchange', function (e) {
 			handleChange();
@@ -396,5 +389,4 @@
 		}
 		return arguments;
 	}
-
 }(mediaWiki, jQuery));

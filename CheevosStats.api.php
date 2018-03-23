@@ -59,6 +59,9 @@ class CheevosStatsAPI extends ApiBase {
 			case 'getMegasTable':
 				$response = $this->getMegasTable();
 				break;
+			case 'getAchievementUsers':
+				$response = $this->getAchievementUsers();
+				break;
 			default:
 				$this->dieUsageMsg(['invaliddo', $this->params['do']]);
 				break;
@@ -229,6 +232,31 @@ class CheevosStatsAPI extends ApiBase {
 		return ['success' => true, 'data' => $data];
 	}
 
+	public function getAchievementUsers() {
+		$this->params = $this->extractRequestParams();
+		$siteKey = $this->params['wiki'];
+		$achievementId = $this->params['achievementId'];
+		$earned = Cheevos\Cheevos::getProgressCount($siteKey, $achievementId);
+		$currentProgress = \Cheevos\Cheevos::getAchievementProgress([
+			'achievement_id' => $achievementId,
+			'site_key' => $siteKey,
+			'earned' => true,
+			'user_id' => 0
+		]);
+		$lookup = CentralIdLookup::factory();
+		$data = [];
+		foreach ($currentProgress as $cp) {
+			$user = $lookup->localUserFromCentralId($cp->getUser_Id());
+			if ($user) {
+				$userName = $user->getName();
+			} else {
+				$userName = null;
+			}
+			$cp['user_name'] = $userName;
+			$data[] = $cp;
+		}
+		return ['success' => true, 'data' => $data];
+	}
 
 	public function getMegasTable() {
 		global $wgCheevosMasterAchievementId;
@@ -286,6 +314,10 @@ class CheevosStatsAPI extends ApiBase {
 				ApiBase::PARAM_REQUIRED => true
 			],
 			'wiki' => [
+				ApiBase::PARAM_TYPE		=> 'string',
+				ApiBase::PARAM_REQUIRED => false
+			],
+			'achievementId' => [
 				ApiBase::PARAM_TYPE		=> 'string',
 				ApiBase::PARAM_REQUIRED => false
 			]
