@@ -24,6 +24,7 @@
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
 			"wiki_points_admin": true,
+			"wpa_adjust_points": true,
 			"points_comp_reports": true
 		},
 		"hydra_admin": {
@@ -34,6 +35,7 @@
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
 			"wiki_points_admin": true,
+			"wpa_adjust_points": true,
 			"points_comp_reports": true
 		}
 	},
@@ -44,7 +46,8 @@
 		"edit_achievements",
 		"edit_meta_achievements",
 		"restore_achievements",
-		"wiki_points_admin"
+		"wiki_points_admin",
+		"wpa_adjust_points"
 	],
 	"SpecialPages": {
 		"Achievements": "SpecialAchievements",

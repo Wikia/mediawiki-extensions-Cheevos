@@ -72,6 +72,7 @@
 	"action-edit_achievements": "add or edit achievements",
 	"action-edit_meta_achievements": "add or edit meta achievements",
 	"action-delete_achievements": "delete achievements",
+	"action-wpa_adjust_points": "adjust the points of an user",
 	"delete_achievement_title": "Delete Achievement",
 	"delete_achievement_confirm": "Are you sure that you wish to delete this achievement?",
 	"revert_achievement_title": "Revert Achievement",
