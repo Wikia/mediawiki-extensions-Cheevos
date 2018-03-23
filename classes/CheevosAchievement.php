@@ -214,6 +214,13 @@ class CheevosAchievement extends CheevosModel {
 			$url = $file->getCanonicalUrl();
 			return $url;
 		}
+
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$url = $config->get('AchImageFallback');
+		if (!empty($url)) {
+			return $url;
+		}
+
 		return false;
 	}
 

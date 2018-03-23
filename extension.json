@@ -309,6 +309,12 @@
 			"descriptionmsg": "cheevos-config-cheevosclientid",
 			"public": false
 		},
+		"AchImageFallback": {
+			"value": "/extensions/Cheevos/images/fallback.svg",
+			"path": false,
+			"descriptionmsg": "cheevos-config-achimagefallback",
+			"public": false
+		},
 		"AchPointAbbreviation": {
 			"value": "<img src=\"/extensions/Cheevos/images/gp30.png\"/>",
 			"path": false,
