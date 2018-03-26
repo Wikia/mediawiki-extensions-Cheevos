@@ -1,6 +1,6 @@
 <?php
 /**
- * \Cheevos
+ * Cheevos
  * Achievements API
  *
  * @author		Alexia E. Smith, Cameron Chunn
