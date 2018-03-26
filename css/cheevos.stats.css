@@ -1,12 +1,12 @@
-#allStats, #wikiStats {
+#allStats,
+#wikiStats {
 	display: none;
 }
 
 .navbar {
-    border-bottom: 1px solid #505050;
-    padding-bottom: 5px;
-    margin-top: -13px;
-
+	border-bottom: 1px solid #505050;
+	padding-bottom: 5px;
+	margin-top: -13px;
 }
 
 .achievement-box {
@@ -27,7 +27,7 @@
 	padding: 0 0 0 5px;
 }
 
-	.achievement-box table.stat-table td {
+.achievement-box table.stat-table td {
 	text-align: right;
 	padding: 0 5px 0 0;
 }
@@ -77,6 +77,13 @@
 	animation: flickerAnimation2 2s infinite;
 }
 
+.dataTables_empty {
+	background-color: #5cb85c;
+	border: 1px solid #4cae4c;
+	color: #fff;
+	animation: flickerAnimation2 2s infinite;
+}
+
 #loadingError {
 	width: 100%;
 	background-color: #d9534f;
@@ -85,6 +92,17 @@
 	text-align: center;
 	padding: 5px;
 }
+
+.userEarnedRow {
+	font-size: 0.8em;
+}
+
+.userEarnedRowLoading {
+	text-align: center;
+	color: #5cb85c;
+	font-weight: bold;
+}
+
 
 /*!
  * Fluidable Grid System 1.3
@@ -859,4 +877,3 @@
 	clear: both;
 	content: " ";
 }
-
