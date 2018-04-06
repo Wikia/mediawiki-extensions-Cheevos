@@ -119,8 +119,8 @@
 				"css/cheevos.css"
 			],
 			"dependencies": [
-				"ext.hydraCore.button",
-				"ext.hydraCore.pagination",
+				"ext.hydraCore.button.styles",
+				"ext.hydraCore.pagination.styles",
 				"mediawiki.ui.button",
 				"mediawiki.ui.input"
 			],
@@ -249,7 +249,7 @@
 			],
 			"dependencies": [
 				"jquery.ui.datepicker",
-				"ext.hydraCore.pagination"
+				"ext.hydraCore.pagination.styles"
 			],
 			"position": "top"
 		},
@@ -259,7 +259,7 @@
 			],
 			"dependencies": [
 				"jquery.ui.datepicker",
-				"ext.hydraCore.pagination"
+				"ext.hydraCore.pagination.styles"
 			],
 			"position": "top"
 		}
