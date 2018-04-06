@@ -633,7 +633,8 @@ class CheevosHooks {
 		}
 
 		if (is_array($displays) && count($displays)) {
-			$skin->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.notice.js']);
+			$skin->getOutput()->addModuleStyles(['ext.cheevos.styles']);
+			$skin->getOutput()->addModules(['ext.cheevos.notice.js']);
 			$skin->getOutput()->enableClientCache(false);
 		}
 

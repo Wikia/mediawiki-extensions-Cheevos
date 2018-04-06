@@ -58,7 +58,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 */
 	public function execute($subpage) {
 		$this->templates = new TemplateManageAchievements;
-		$this->output->addModules(['ext.cheevos.styles', 'ext.cheevos.js']);
+		$this->output->addModuleStyles(['ext.cheevos.styles']);
+		$this->output->addModules(['ext.cheevos.js']);
 		$this->setHeaders();
 
 		if (!$this->wgUser->isAllowed('edit_achievements')) {

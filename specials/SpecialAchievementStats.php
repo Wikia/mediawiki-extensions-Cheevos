@@ -64,7 +64,8 @@ class SpecialAchievementStats extends SpecialPage {
 		}
 
 		$this->templates = new TemplateAchievementStats;
-		$this->output->addModules(['ext.cheevos.styles','ext.cheevos.stats.css','ext.cheevos.stats.js']);
+		$this->output->addModuleStyles(['ext.cheevos.styles', 'ext.cheevos.stats.css']);
+		$this->output->addModules(['ext.cheevos.stats.js']);
 		$this->setHeaders();
 
 		switch ($subpage) {

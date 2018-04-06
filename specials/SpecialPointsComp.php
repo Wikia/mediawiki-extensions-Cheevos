@@ -37,7 +37,8 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->getOutput()->addModules(['ext.cheevos.styles', 'ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
+		$this->getOutput()->addModuleStyles(['ext.cheevos.styles']);
+		$this->getOutput()->addModules(['ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
 		$this->checkPermissions();
 		$this->setHeaders();
 		$this->pointsCompReports($subpage);
