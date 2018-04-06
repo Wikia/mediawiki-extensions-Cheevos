@@ -198,6 +198,7 @@
 	"revoke_points_for": "Revoke points for this edit",
 	"rank": "Rank",
 	"levels_updated": "Point levels updated!",
+	"levels_update_error": "Error updating point levels.",
 	"add_level": "Add Level",
 	"modify_levels": "Modify Levels",
 	"save_levels": "Save Levels",

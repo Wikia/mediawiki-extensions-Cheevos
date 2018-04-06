@@ -42,7 +42,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 
 		$this->redis = RedisCache::getClient('cache');
 
-		$this->output->addModules(['ext.cheevos.wikiPoints', 'ext.wikiSelect', 'ext.dynamicSettings', 'mediawiki.ui.input', 'mediawiki.ui.button']);
+		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles', 'ext.wikiSelect.styles', 'ext.dynamicSettings.styles']);
+		$this->output->addModules(['ext.cheevos.wikiPoints.scripts', 'ext.wikiSelect.scripts', 'ext.dynamicSettings.scripts']);
 
 		switch ($this->wgRequest->getVal('section')) {
 			default:

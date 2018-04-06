@@ -240,16 +240,24 @@
 			],
 			"position": "top"
 		},
-		"ext.cheevos.wikiPoints": {
+		"ext.cheevos.wikiPoints.styles": {
 			"styles": [
 				"css/cheevos.wikipoints.css"
 			],
+			"dependencies": [
+				"ext.hydraCore.pagination.styles",
+				"mediawiki.ui",
+				"mediawiki.ui.input",
+				"mediawiki.ui.button"
+			],
+			"position": "top"
+		},
+		"ext.cheevos.wikiPoints.scripts": {
 			"scripts": [
 				"js/cheevos.wikipoints.js"
 			],
 			"dependencies": [
-				"jquery.ui.datepicker",
-				"ext.hydraCore.pagination.styles"
+				"jquery.ui.datepicker"
 			],
 			"position": "top"
 		},

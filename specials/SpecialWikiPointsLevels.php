@@ -42,7 +42,8 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 
 		$this->templateWikiPointsLevels = new TemplateWikiPointsLevels;
 
-		$this->output->addModules('ext.cheevos.wikiPoints');
+		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles']);
+		$this->output->addModules(['ext.cheevos.wikiPoints.scripts']);
 
 		$this->setHeaders();
 
@@ -65,6 +66,8 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	public function levelsForm() {
 		$levels = \Cheevos\Points\PointLevels::getLevels();
 
+		$errors = [];
+		$success = null;
 		if ($this->wgRequest->getVal('do') == 'save') {
 			$lids = $this->wgRequest->getArray('lid');
 			$points = $this->wgRequest->getArray('points');
@@ -84,7 +87,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 				}
 			}
 
-			if (!count($errors) && is_array($levels)) {
+			if (is_array($levels)) {
 				$success = \Cheevos\Points\PointLevels::saveLevels($levels);
 			}
 		}

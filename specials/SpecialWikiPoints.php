@@ -38,7 +38,8 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->output->addModules('ext.cheevos.wikiPoints');
+		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles']);
+		$this->output->addModules(['ext.cheevos.wikiPoints.scripts']);
 
 		$this->setHeaders();
 

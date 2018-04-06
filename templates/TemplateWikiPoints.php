@@ -26,7 +26,7 @@ class TemplateWikiPoints {
 	 * @return	string	Built HTML
 	 */
 	static public function pointsBlockHtml($userPoints, $pagination, $start, $wikis = [], $isSitesMode = false, $isMonthly = false) {
-		$html .= "
+		$html = "
 		<div>{$pagination}</div>
 		<table class='wikitable'>
 			<thead>

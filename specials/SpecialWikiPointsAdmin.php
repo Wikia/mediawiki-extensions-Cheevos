@@ -40,7 +40,8 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	public function execute($subpage) {
 		$this->checkPermissions();
 
-		$this->output->addModules(['ext.cheevos.wikiPoints', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button']);
+		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles']);
+		$this->output->addModules(['ext.cheevos.wikiPoints.scripts']);
 
 		$this->setHeaders();
 
