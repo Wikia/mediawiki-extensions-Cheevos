@@ -127,7 +127,7 @@ class CheevosStatsAPI extends ApiBase {
 
 		$curse_global_ids = [];
 
-		$curseAccounts = \DynamicSettings\DS::getWikiManagers();
+		$curseAccounts = \DynamicSettings\Sites::getAllManagers();
 		foreach ($curseAccounts as $key => $localUser) {
 			$curse_global_ids[] = $lookup->centralIdFromLocalUser($localUser);
 		}
