@@ -94,7 +94,7 @@ class PointsDisplay {
 	 * @param	integer	[Optional] Items Per Page
 	 * @param	integer	[Optional] Offset to start at.
 	 * @param	boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param	boolean	[Optional] Showing monthly totals.
+	 * @param	boolean	[Optional] Show monthly totals.
 	 * @param	string	[Optional] Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
@@ -112,42 +112,8 @@ class PointsDisplay {
 		$isSitesMode = boolval($isSitesMode);
 		$isMonthly = boolval($isMonthly);
 
-		$total = 0;
+		$statProgress = self::getPoints($siteKey, $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly);
 
-		$filters = [
-			'stat'				=> 'wiki_points',
-			'limit'				=> $itemsPerPage,
-			'offset'			=> $start,
-			'sort_direction'	=> 'desc'
-		];
-
-		if (!$isSitesMode && empty($siteKey)) {
-			$filters['global'] = true;
-		}
-
-		if ($siteKey !== null && !empty($siteKey)) {
-			$isSitesMode = false;
-			$filters['site_key'] = $siteKey;
-		}
-
-		if ($globalId > 0) {
-			$filters['user_id'] = intval($globalId);
-		}
-
-		$statProgress = [];
-		if ($isMonthly) {
-			try {
-				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
-			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
-			}
-		} else {
-			try {
-				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
-			}
-		}
 		$userPoints = [];
 		$siteKeys = [$dsSiteKey];
 		foreach ($statProgress as $progress) {
@@ -257,6 +223,62 @@ class PointsDisplay {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Get a list of earned wiki points grouped by criteria.
+	 *
+	 * @access	public
+	 * @param	string	[Optional] Limit by or override the site key used.
+	 * @param	integer	[Optional] Global ID to filter by.
+	 * @param	integer	[Optional] Items Per Page
+	 * @param	integer	[Optional] Offset to start at.
+	 * @param	boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param	boolean	[Optional] Show monthly totals.
+	 * @return	array	CheevosStatProgress Objects
+	 */
+	static public function getPoints($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
+		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
+		$start = intval($start);
+		$isSitesMode = boolval($isSitesMode);
+		$isMonthly = boolval($isMonthly);
+
+		$total = 0;
+
+		$filters = [
+			'stat'				=> 'wiki_points',
+			'limit'				=> $itemsPerPage,
+			'offset'			=> $start,
+			'sort_direction'	=> 'desc'
+		];
+
+		if (!$isSitesMode && empty($siteKey)) {
+			$filters['global'] = true;
+		}
+
+		if ($siteKey !== null && !empty($siteKey)) {
+			$filters['site_key'] = $siteKey;
+		}
+
+		if ($globalId > 0) {
+			$filters['user_id'] = intval($globalId);
+		}
+
+		$statProgress = [];
+		if ($isMonthly) {
+			try {
+				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
+			} catch (\Cheevos\CheevosException $e) {
+				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
+			}
+		} else {
+			try {
+				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
+			} catch (\Cheevos\CheevosException $e) {
+				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
+			}
+		}
+		return $statProgress;
 	}
 
 	/**
