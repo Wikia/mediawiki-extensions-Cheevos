@@ -285,6 +285,7 @@
 	"grant_comp": "Grant Comp",
 	"send_comp_email": "Send Email",
 	"run_new_report": "Run New Report",
+	"total_users": "Total Users",
 	"points_comp_report_queued": "The requested report should finish in about ten minutes or less.  Please refresh this page or come back later to check its progress.",
 	"points_comp_report_user_comp_success": "The requested user has been comped.",
 	"points_comp_report_user_comp_error": "The requested user could not be comped.",
