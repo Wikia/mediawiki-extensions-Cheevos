@@ -221,6 +221,17 @@ class Cheevos {
 	}
 
 	/**
+	 * Get stat my Stat Name
+	 *
+	 * @param string $stat
+	 * @return array
+	 */
+	public static function getStatByName($stat) {
+		$return = self::get('/stats',['stat' => $stat]);
+		return self::return($return);
+	}
+
+	/**
 	 * Returns all relationships for a user by global id
 	 *
 	 * @param int $globalId
