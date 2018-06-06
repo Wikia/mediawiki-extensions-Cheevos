@@ -227,7 +227,7 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function getStatByName($stat) {
-		$return = self::get('/stats',['stat' => $stat]);
+		$return = self::get('/stats', ['stat' => $stat]);
 		return self::return($return);
 	}
 
