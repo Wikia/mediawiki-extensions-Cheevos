@@ -28,13 +28,6 @@ class CheevosIncrementJob extends \SyncService\Job {
 	public static $forceSingleInstance = false;
 
 	/**
-	 * Give this job a different name to use for its redis key when queueing. Overrides $priority setting.
-	 * Useful when a job should be run by a custom worker instance, rather than the default SyncService worker.
-	 * @var		string
-	 */
-	public static $customJobQueue;
-
-	/**
 	 * Example Job
 	 *
 	 * @access	public
