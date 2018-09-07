@@ -26,7 +26,7 @@ Done! Navigate to "Special:Version" on the wiki to verify that the extension is 
 	$achImageDomainWhiteList
 A white list of domains that are allowed to be used for achievement image URLs.  If none are configured then any are allowed.  The code performs a simple string position look up on the white list entry provided to ensure it exists in the provided image URL.
 Default:
-	['gamepedia.com', 'gamepedia.local', 'cursecdn.com', 'cursecdn.local']
+	['gamepedia.com', 'gamepedia.wiki', 'cursecdn.com', 'cursecdn.local']
 
 	$wgAchPointAbbreviation
 The achievement point abbreviation that appears after points display.  This can be any valid HTML.
