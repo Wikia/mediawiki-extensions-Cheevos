@@ -164,8 +164,4 @@ class SyncFriendStat extends Maintenance {
 }
 
 $maintClass = 'SyncFriendStat';
-if (defined('RUN_MAINTENANCE_IF_MAIN')) {
-	require_once( RUN_MAINTENANCE_IF_MAIN );
-} else {
-	require_once( DO_MAINTENANCE );
-}
+require_once( RUN_MAINTENANCE_IF_MAIN );
