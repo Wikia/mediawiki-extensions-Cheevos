@@ -114,18 +114,18 @@ class PointLevels {
 		$redis = \RedisCache::getClient('cache');
 
 		try {
-			$db->begin(__METHOD__);
+			$db->startAtomic(__METHOD__);
 			$db->query("TRUNCATE TABLE {$wgDBprefix}wiki_points_levels;");
 
 			foreach ($levels as $index => $level) {
 				$db->insert('wiki_points_levels', $level, __METHOD__);
 			}
-			$db->commit(__METHOD__);
+			$db->endAtomic(__METHOD__);
 			if ($redis !== false) {
 				$redis->set(self::$redisCacheKey, serialize($levels));
 			}
 		} catch (\Exception $e) {
-			$db->rollback(__METHOD__);
+			$db->cancelAtomic(__METHOD__);
 			return false;
 		}
 		return true;
