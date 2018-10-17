@@ -58,7 +58,7 @@ class TemplateWikiPointsMultipliers {
 						<td>".($multiplier->getBegins() ? htmlentities(date('Y-m-d', $multiplier->getBegins()), ENT_QUOTES) : "&nbsp;")."</td>
 						<td>".($multiplier->getExpires() ? htmlentities(date('Y-m-d', $multiplier->getExpires()), ENT_QUOTES) : "&nbsp;")."</td>
 						<td>".($wiki !== false ? $wiki->getNameForDisplay() : '('.wfMessage('all_wikis')->escaped().')')."</td>
-						<td><a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'>".HydraCore::awesomeIcon('pencil-alt')."</a></td>
+						<td><a href='{$pointsMultipliersURL}?section=form&amp;do=edit&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('edit_multiplier')->escaped()."' class='edit multiplier'>".HydraCore::awesomeIcon('pencil')."</a></td>
 						<td><a href='{$pointsMultipliersURL}?section=delete&amp;do=delete&amp;multiplier_id={$multiplier->getId()}' title='".wfMessage('delete_multiplier')->escaped()."' class='delete multiplier'>".HydraCore::awesomeIcon('minus-circle')."</a></td>
 					</tr>";
  			}
