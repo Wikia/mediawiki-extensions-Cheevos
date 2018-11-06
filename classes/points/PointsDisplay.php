@@ -14,6 +14,10 @@
 
 namespace Cheevos\Points;
 
+use DynamicSettings\Environment;
+use DynamicSettings\Wiki;
+use RedisCache;
+
 /**
  * Class containing some business and display logic for points blocks
  */
@@ -154,10 +158,11 @@ class PointsDisplay {
 		$wikis = [];
 		if ($isSitesMode && !empty($siteKeys)) {
 			global $wgServer;
-			if (class_exists('\DynamicSettings\Wiki')) {
-				$wikis = \DynamicSettings\Wiki::loadFromHash($siteKeys);
+			if (Environment::isMasterWiki()) {
+				//Skip the cache.
+				$wikis = Wiki::loadFromHash($siteKeys);
 			} else {
-				$redis = \RedisCache::getClient('cache');
+				$redis = RedisCache::getClient('cache');
 				if ($redis !== false) {
 					foreach ($siteKeys as $siteKey) {
 						if (!empty($siteKey)) {
