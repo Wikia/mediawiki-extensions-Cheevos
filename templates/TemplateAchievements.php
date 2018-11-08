@@ -11,6 +11,8 @@
  *
  **/
 
+use DynamicSettings\Environment;
+
 class TemplateAchievements {
 	/**
 	 * Achievement List
@@ -203,7 +205,7 @@ class TemplateAchievements {
 			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
 			if (
 				$wgUser->isAllowed('achievement_admin') &&
-				(MASTER_WIKI === true || (MASTER_WIKI !== true && !$achievement->isProtected() && !$achievement->isGlobal()))
+				(Environment::isMasterWiki() || (!Environment::isMasterWiki() && !$achievement->isProtected() && !$achievement->isGlobal()))
 			) {
 				if (!$achievement->isDeleted()) {
 					$HTML .= "
@@ -221,7 +223,7 @@ class TemplateAchievements {
 
 			}
 
-			if ( MASTER_WIKI !== true && ( $achievement->isProtected() || $achievement->isGlobal() ) ) {
+			if (!Environment::isMasterWiki() && ($achievement->isProtected() || $achievement->isGlobal())) {
 				$HTML .= "<div class='p-achievement-admin'>";
 				if ($achievement->isProtected()) {
 					$HTML .= "<p>".wfMessage('edit_disabled_protected')->escaped()."</p>";
