@@ -12,6 +12,8 @@
  *
 **/
 
+use DynamicSettings\Environment;
+
 class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
@@ -82,7 +84,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		}
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
-		$isSitesMode = in_array('sites', $modifiers) && defined('MASTER_WIKI');
+		$isSitesMode = in_array('sites', $modifiers) && Environment::isMasterWiki();
 		$isMonthly = in_array('monthly', $modifiers);
 		$isGlobal = in_array('global', $modifiers);
 

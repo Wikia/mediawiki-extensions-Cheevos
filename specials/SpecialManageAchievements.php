@@ -11,6 +11,8 @@
  *
  **/
 
+use DynamicSettings\Environment;
+
 class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Output HTML
@@ -163,7 +165,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
 				return;
 			}
-			if (MASTER_WIKI !== true && ($this->achievement->isProtected() || $this->achievement->isGlobal())) {
+			if (!Environment::isMasterWiki() && ($this->achievement->isProtected() || $this->achievement->isGlobal())) {
 				$this->output->showErrorPage('achievements_error', 'error_achievement_protected_global');
 				return;
 			}

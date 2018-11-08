@@ -11,6 +11,8 @@
  *
  **/
 
+use DynamicSettings\Environment;
+
 class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Output HTML
@@ -206,7 +208,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return	boolean
 	 */
 	public function isListed() {
-		if (defined('MASTER_WIKI') && MASTER_WIKI === true && $this->getUser()->isAllowed('points_comp_reports')) {
+		if (Environment::isMasterWiki() && $this->getUser()->isAllowed('points_comp_reports')) {
 			return true;
 		}
 		return false;

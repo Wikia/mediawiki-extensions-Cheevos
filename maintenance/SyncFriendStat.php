@@ -11,7 +11,10 @@
  * @link		https://www.gamepedia.com/
  *
 **/
+
 require_once(__DIR__.'/../../../maintenance/Maintenance.php');
+
+use DynamicSettings\Environment;
 
 class SyncFriendStat extends Maintenance {
 	/**
@@ -35,7 +38,7 @@ class SyncFriendStat extends Maintenance {
 	public function execute() {
 		global $dsSiteKey;
 
-		if (!defined('MASTER_WIKI') || MASTER_WIKI !== true) {
+		if (!Environment::isMasterWiki()) {
 			throw new MWException('This script is intended to be ran from the master wiki.');
 		}
 

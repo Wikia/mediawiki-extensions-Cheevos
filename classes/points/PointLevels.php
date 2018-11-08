@@ -14,6 +14,8 @@
 
 namespace Cheevos\Points;
 
+use DynamicSettings\Environment;
+
 class PointLevels {
 	/**
 	 * Threshold Values
@@ -69,7 +71,7 @@ class PointLevels {
 	 * @return	void
 	 */
 	static private function loadLevels() {
-		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
+		if (Environment::isMasterWiki()) {
 			$db = wfGetDB(DB_MASTER);
 			$result = $db->select(
 				['wiki_points_levels'],

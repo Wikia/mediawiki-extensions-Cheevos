@@ -11,6 +11,8 @@
  *
  **/
 
+use DynamicSettings\Environment;
+
 class CheevosHooks {
 	/**
 	 * Shutdown Function Registered Already
@@ -881,7 +883,7 @@ class CheevosHooks {
 	static public function onLoadExtensionSchemaUpdates($updater) {
 		$extDir = __DIR__;
 
-		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
+		if (Environment::isMasterWiki()) {
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true]);
 			$updater->addExtensionUpdate(['addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true]);
 

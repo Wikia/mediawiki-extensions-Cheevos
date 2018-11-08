@@ -11,6 +11,8 @@
  *
  **/
 
+use DynamicSettings\Environment;
+
 class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Output HTML
@@ -28,7 +30,7 @@ class SpecialAchievementStats extends SpecialPage {
 	public function __construct() {
 		global $dsSiteKey;
 
-		parent::__construct('AchievementStats', 'achievement_admin', ($this->getUser()->isAllowed('achievement_admin') && defined('MASTER_WIKI') && MASTER_WIKI === true));
+		parent::__construct('AchievementStats', 'achievement_admin', ($this->getUser()->isAllowed('achievement_admin') && Environment::isMasterWiki()));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -58,7 +60,7 @@ class SpecialAchievementStats extends SpecialPage {
 			return;
 		}
 
-		if (!defined('MASTER_WIKI') || MASTER_WIKI === false) {
+		if (!Environment::isMasterWiki()) {
 			$this->output->redirect("/");
 			return;
 		}
