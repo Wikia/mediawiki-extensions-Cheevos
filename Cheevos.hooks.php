@@ -185,7 +185,9 @@ class CheevosHooks {
 
 		$edits = [];
 		if (!$isBot && in_array($wikiPage->getTitle()->getNamespace(), $wgNamespacesForEditPoints)) {
-			$prevSize = $revision->getPrevious() ? $revision->getPrevious()->getSize() : 0;
+			$parentRevisionId = $revision->getParentId();
+			$previousRevision = $parentRevisionId ? Revision::newFromId($parentRevisionId) : null;
+			$prevSize = $previousRevision ? $previousRevision->getSize() : 0;
 			$sizeDiff = $revision->getSize() - $prevSize;
 			$edits[] = [
 				'size'			=> $revision->getSize(),
