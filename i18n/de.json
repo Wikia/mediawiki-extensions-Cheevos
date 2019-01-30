@@ -1,0 +1,26 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"achievements": "Erfolge",
+	"awardachievement": "Erfolge zuweisen oder aberkennen",
+	"edit_achievement": "Bearbeiten",
+	"rank": "Rang",
+	"score": "Punktestand",
+	"top_wiki_editors": "Die aktivsten Wiki-Autoren",
+	"top_wiki_editors_monthly": "Die aktivsten Wiki-Autoren - Monatlich",
+	"wiki_user": "Benutzer",
+	"action-delete_achievements": "Erfolge löschen",
+	"achievements_error": "Erfolge-Fehler",
+	"achievement_name": "Anzeigename",
+	"achievement_category": "Kategorie",
+	"add_condition": "Bedingung hinzufügen",
+	"add_achievement": "Hinzufügen",
+	"all_recently_earned": "Kürzlich verdiente Punkte",
+	"article_id_number": "Artikel ID #",
+	"award": "Award",
+	"award_achievement": "Erfolge zuweisen",
+	"award_hint": "Benutzername eingeben, Erfolg auswählen und Aktion anklicken.",
+	"calculation_inputs": "Berechnungseingaben",
+	"calculation_weights": "Berechnungsgewichtung"
+}

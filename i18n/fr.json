@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"achievements": "Succès",
+	"edit_achievement": "Modifier",
+	"top_wiki_editors": "Principaux éditeurs du wiki",
+	"action-delete_achievements": "supprimer des trophées",
+	"achievements_error": "Erreur de trophées",
+	"achievement_name": "Nom d'affichage",
+	"achievement_category": "Catégorie",
+	"add_achievement": "Ajouter"
+}

@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"achievements": "Obiettivi",
+	"awardachievement": "Premia o togli il premio degli obiettivi",
+	"edit_achievement": "Modifica",
+	"rank": "Rango",
+	"score": "Punteggio",
+	"top_wiki_editors": "Migliori editori del wiki",
+	"achievement_name": "Nome visualizzato",
+	"achievement_category": "Categoria",
+	"add_achievement": "Aggiungi",
+	"article_id_number": "Articolo ID #",
+	"award": "Premia",
+	"award_hint": "Inserisci uno username, seleziona un obiettivo e clicca su un'azione."
+}

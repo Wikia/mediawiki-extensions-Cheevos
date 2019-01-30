@@ -1,0 +1,33 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"achievements": "Conquistas",
+	"awardachievement": "Premiar ou Retirar Conquistas",
+	"edit_achievement": "Editar",
+	"rank": "Classificação",
+	"score": "Ponto",
+	"top_wiki_editors": "Melhores Editores Wiki",
+	"top_wiki_editors_monthly": "Principais Editores Wiki - Mensal",
+	"wiki_user": "Usuário",
+	"action-delete_achievements": "eliminar conquistas",
+	"achievement_name": "Nome de Exibição",
+	"achievement_image": "Nome da Imagem (Exemplo: Arquivo:Example.png) Tamanho mínimo: 120px x 120px",
+	"achievement_id": "Conquista #$1",
+	"achievement_category": "Categoria",
+	"action-wiki_points_admin": "Administrar pontos de wiki",
+	"action-wpa_adjust_points": "ajustar os pontos de um usuário",
+	"active": "Usuários ativos",
+	"add_condition": "Adicionar Condição",
+	"add_achievement": "Adicionar",
+	"add_level": "Adicionar Nível",
+	"all_recently_earned": "Todos os pontos ganhos recentemente",
+	"article_id_number": "Artigo ID #",
+	"award": "Premiar",
+	"award_achievement": "Prêmio de Conquista",
+	"award_hint": "Digite um nome de usuário, selecione uma conquista, e, em seguida, clique em uma ação.",
+	"award_reason_achievement_earned": "Conquista obtida",
+	"award_reason_achievement_revoked": "Conquista revogada",
+	"calculation_inputs": "Entradas de Cálculo",
+	"calculation_weights": "Pesos de cálculo"
+}

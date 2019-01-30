@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"achievements": "Osiągnięcia",
+	"awardachievement": "Przyznaj lub odbierz osiągnięcia",
+	"edit_achievement": "Edytuj",
+	"rank": "Miejsce",
+	"score": "Punktacja",
+	"top_wiki_editors": "Najlepsi edytorzy wiki",
+	"top_wiki_editors_monthly": "Najlepsi edytorzy wiki w tym miesiącu",
+	"wiki_user": "Użytkownik",
+	"action-delete_achievements": "usuń osiągnięcia",
+	"achievements_error": "Błąd osiągnięć",
+	"achievement_image": "Nazwa pliku (np.: Plik:Przykład.png)  Minimalny rozmiar: 120px x 120px",
+	"achievement_category": "Kategoria",
+	"active": "Aktywni użytkownicy",
+	"add_achievement": "Dodaj nowe"
+}
