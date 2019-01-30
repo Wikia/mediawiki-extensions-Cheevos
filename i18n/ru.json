@@ -1,6 +1,8 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"eduaddad"
+		]
 	},
 	"achievements": "Достижения",
 	"awardachievement": "Присвоение или лишение достижения",

@@ -1,6 +1,8 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"eduaddad"
+		]
 	},
 	"achievements": "Erfolge",
 	"awardachievement": "Erfolge zuweisen oder aberkennen",

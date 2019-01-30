@@ -1,6 +1,8 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"eduaddad"
+		]
 	},
 	"achievements": "Osiągnięcia",
 	"awardachievement": "Przyznaj lub odbierz osiągnięcia",

@@ -1,6 +1,8 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"eduaddad"
+		]
 	},
 	"achievements": "Obiettivi",
 	"awardachievement": "Premia o togli il premio degli obiettivi",
