@@ -1,11 +1,20 @@
 {
 	"name": "Cheevos",
-	"version": "1.0",
+	"version": "1.0.0",
 	"author": [
-		"Wiki Platform Team"
+		"Hydra Wiki Platform Team"
 	],
+	"license-name": "GPL-2.0-or-later",
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
+	"requires": {
+		"MediaWiki": ">= 1.29.0",
+		"extensions": {
+			"DynamicSettings": ">= 3.0.0",
+			"HydraCore": ">= 3.0.0",
+			"SyncService": ">= 2.0.0"
+		}
+	},
 	"GroupPermissions": {
 		"sysop": {
 			"achievement_admin": true,

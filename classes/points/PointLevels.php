@@ -6,9 +6,9 @@
  *
  * @author		Alexia E. Smith
  * @copyright	(c) 2014 Curse Inc.
- * @license		All Rights Reserved
- * @package		Staff Management
- * @link		http://www.curse.com/
+ * @license		GNU General Public License v2.0 or later
+ * @package		Cheevos
+ * @link		https://gitlab.com/hydrawiki
  *
  **/
 
