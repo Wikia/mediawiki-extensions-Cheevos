@@ -13,6 +13,8 @@
 
 namespace Cheevos\Job;
 
+use MediaWiki\MediaWikiServices;
+
 class CheevosIncrementJob extends \SyncService\Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
@@ -50,6 +52,11 @@ class CheevosIncrementJob extends \SyncService\Job {
 			}
 			return ($return === false ? 1 : 0);
 		} catch (\Cheevos\CheevosException $e) {
+			// Allows requeue to be turned off
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {
+				return 0;
+			}
 			if ($e->getCode() != 409) {
 				self::queue($increment); //Requeue in case of unintended failure.
 				return 1;

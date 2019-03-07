@@ -332,6 +332,12 @@
 			"descriptionmsg": "cheevos-config-cheevosclientid",
 			"public": false
 		},
+		"CheevosNoRequeue": {
+			"value": false,
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosnorequeue",
+			"public": false
+		},
 		"AchImageFallback": {
 			"value": "/extensions/Cheevos/images/fallback.svg",
 			"path": false,
