@@ -64,7 +64,7 @@
 	"secret_achievement": "Secret - Hide this achievement from users until earned.",
 	"global_achievement": "Global - All progress towards this achievement will be earned on all wikis.",
 	"global_help": "Global achievements do not belong to a specific site and progress earned towards them occurs on all wikis.",
-	"protected_achievement": "Protected - Do not allowed to be overrided/edited on local wikis.",
+	"protected_achievement": "Protected - Do not allow to be overrided/edited on local wikis.",
 	"protected_help": "Protect achievements such as special promotions that should not be modified on a local wiki level.",
 	"part_of_default_mega_achievement": "Make this achievement required for the default site mega achievement.",
 	"image_hint": "Click or Drag & Drop to upload image.",
