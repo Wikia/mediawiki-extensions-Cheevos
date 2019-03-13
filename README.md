@@ -1,8 +1,8 @@
-**Achievements** is a Mediawiki extension that tracks an users progress as a wiki editor and awards achievement icons, badges, and points when meeting certain criteria.  It works primarily against the Mediawiki system of hooks to link into the core and other extensions.
+**Cheevos** is a Mediawiki extension that tracks an users progress as a wiki editor and awards achievement icons, badges, and points when meeting certain criteria.  It works primarily against the Mediawiki system of hooks to link into the core and other extensions.
 
-* **Source Code:** [Part of the Hydra Stash Project](https://stash.curse.us/projects/HAIL/repos/hydra/browse)
-* **Bugs:** [Hydra JIRA Project](https://jira.curse.us/browse/HYD/)
-* **Licensing:** Cheevos is All Rights Reserved.
+* **Source Code:** [Cheevos on GitLab](https://gitlab.com/hydrawiki/extensions/cheevos/tree/develop)
+* **Bugs:** [Hydra GitLab Project](https://gitlab.com/hydrawiki/extensions/cheevos/issues)
+* **Licensing:** Cheevos is released under the [GNU GPLv2](https://gitlab.com/hydrawiki/extensions/cheevos/blob/develop/LICENSE).
 
 
 #Installation
