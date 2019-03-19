@@ -55,6 +55,7 @@
 	"cancel_trigger": "Cancel",
 	"choose_existing_hook": "<Choose Existing Hook>",
 	"add_condition": "Add Condition",
+	"delete_condition": "Delete Condition",
 	"required_achievements": "The following achievements are required to unlock this achievement:",
 	"general_achievement_section": "Achievement Display",
 	"trigger_section": "Completion Rules",
