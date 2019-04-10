@@ -302,5 +302,14 @@
 	"critera": "Criteria",
 	"criteria_not_before": "Can not earn before: (UTC)",
 	"criteria_not_after": "Can not earn after: (UTC)",
-	"download_report_csv": "Download Report CSV"
+	"download_report_csv": "Download Report CSV",
+	"right-achievement_admin": "Perform administrator tasks on achievements",
+	"right-edit_achievements": "Edit achievements",
+	"right-edit_meta_achievements": "Edit meta style local achievements",
+	"right-delete_achievements": "Delete achievements",
+	"right-restore_achievements": "Restore deleted achievements",
+	"right-award_achievements": "Manually award or unaward achievements",
+	"right-points_comp_reports": "Generate points comp reports",
+	"right-wiki_points_admin": "View [[Special:WikiPointsAdmin|user wiki points history]]",
+	"right-wpa_adjust_points": "Adjust wiki points of a user directly"
 }
