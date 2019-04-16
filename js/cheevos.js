@@ -354,25 +354,30 @@ $(document).ready(function() {
 		});
 	}
 
-	var setupCriteriaDatepickers = function() {
-		$("input#date_range_start_datepicker, input#date_range_end_datepicker").datepicker(
+	mw.loader.using("mediawiki.widgets.DateInputWidget").then(function() { 
+		var sdate = new mw.widgets.DateInputWidget(
 			{
-				dateFormat: "yy-mm-dd",
-				constrainInput: true,
-				onSelect: function(dateText) {
-					var epochInput = '#'+$(this).attr('data-input');
-					$(epochInput).val(epochDate(this));
-				}
+				inputFormat: 'YYYY-MM-DD',
+				displayFormat: 'YYYY-MM-DD',
+				value: $("#date_range_start_datepicker").val(),
+				data: $("#date_range_start_datepicker").attr('data-input')
 			}
 		);
-	}
-	setupCriteriaDatepickers();
-
-	var epochDate = function(dateField) {
-		var time = $(dateField).datepicker("getDate");
-		var offset = time.getTimezoneOffset() * 60;
-		var epoch = time.getTime() / 1000 - offset;
-
-		return epoch;
-	}
+		$("#date_range_start_datepicker").replaceWith(sdate.$element);
+		sdate.on('change',function() {
+			$("#"+sdate.data).val(new Date(sdate.getValue()).getTime()/1000);
+		});
+		var edate = new mw.widgets.DateInputWidget(
+			{
+				inputFormat: 'YYYY-MM-DD',
+				displayFormat: 'YYYY-MM-DD',
+				value: $("#date_range_end_datepicker").val(),
+				data: $("#date_range_end_datepicker").attr('data-input')
+			}
+		);
+		$("#date_range_end_datepicker").replaceWith(edate.$element);
+		edate.on('change',function() {
+			$("#"+edate.data).val(new Date(edate.getValue()).getTime()/1000);
+		});
+	});
 });
