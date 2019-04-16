@@ -146,7 +146,7 @@
 			],
 			"dependencies": [
 				"ext.cheevos.resumable.js",
-				"jquery.ui.datepicker"
+				"mediawiki.widgets.DateInputWidget"
 			],
 			"targets": [
 				"desktop",
