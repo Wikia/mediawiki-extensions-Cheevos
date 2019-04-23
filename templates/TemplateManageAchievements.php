@@ -249,7 +249,7 @@ class TemplateManageAchievements {
 			</fieldset>
 			<fieldset class='submit'>
 				<input id='aid' name='aid' type='hidden' value='{$achievement->getId()}'/><br/>
-				<button id='wiki_submit' name='wiki_submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('save_key_value')->escaped()."</button>
+				<button id='wiki_submit' name='wiki_submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('achievement_save')->escaped()."</button>
 			</fieldset>
 		</form>";
 

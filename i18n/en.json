@@ -311,5 +311,6 @@
 	"right-award_achievements": "Manually award or unaward achievements",
 	"right-points_comp_reports": "Generate points comp reports",
 	"right-wiki_points_admin": "View [[Special:WikiPointsAdmin|user wiki points history]]",
-	"right-wpa_adjust_points": "Adjust wiki points of a user directly"
+	"right-wpa_adjust_points": "Adjust wiki points of a user directly",
+	"achievement_save": "Save"
 }
