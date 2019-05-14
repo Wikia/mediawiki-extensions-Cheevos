@@ -17,6 +17,7 @@ namespace Cheevos\Points;
 use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
 use RedisCache;
+use User;
 
 /**
  * Class containing some business and display logic for points blocks
@@ -135,6 +136,9 @@ class PointsDisplay {
 			$userPointsRow = new \stdClass();
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
+				if (!User::isCreatableName($user->getName())) {
+					continue;
+				}
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
 				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName(), [], [], ['https']);
 				$userPointsRow->adminUrl = \Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
