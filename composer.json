@@ -1,0 +1,24 @@
+{
+	"name": "hydrawiki/cheevos",
+	"version": "1.0.1",
+	"type": "mediawiki-extension",
+	"description": "Awards achievements to editors for varying levels of accomplishments.",
+    "license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Hydra Wiki Platform Team"
+		}
+	],
+	"require": {
+		"php": ">=7.1.0"
+	},
+	"require-dev": {
+		"hydrawiki/hydrawiki-codesniffer": "^1.0"
+	},
+	"scripts": {
+		"test": [
+			"phpcs -p -s"
+		],
+		"fix": "phpcbf"
+	}
+}
