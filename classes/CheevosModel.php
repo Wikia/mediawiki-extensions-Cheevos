@@ -36,8 +36,8 @@ class CheevosModel implements ArrayAccess {
 	 * $this->get{Property}()
 	 * $this->has{Property}()
 	 *
-	 * @param  string $name
-	 * @param  array  $arguments
+	 * @param string $name
+	 * @param array  $arguments
 	 *
 	 * @return void
 	 */
@@ -87,8 +87,8 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Snip property name off a function call.
 	 *
-	 * @param  string	Unsnipped string.
-	 * @param  integer	Amount to snip.
+	 * @param string	Unsnipped string.
+	 * @param integer	Amount to snip.
 	 *
 	 * @return string	Property name.
 	 */
@@ -100,7 +100,7 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Magic getter for container properties.
 	 *
-	 * @param  string	Property
+	 * @param string	Property
 	 *
 	 * @return mixed	Request property or null if it does not exist.
 	 */
@@ -115,8 +115,8 @@ class CheevosModel implements ArrayAccess {
 	 * Magic setter for container properties.
 	 * Will only set the property if it was created during the child classes constructor setup.
 	 *
-	 * @param  string	Property
-	 * @param  mixed	Value to set.
+	 * @param string	Property
+	 * @param mixed	Value to set.
 	 *
 	 * @return object	This object.
 	 */
@@ -130,8 +130,8 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Sets the value at the specified index to newval
 	 *
-	 * @param  int $offset
-	 * @param  int $value
+	 * @param integer $offset
+	 * @param integer $value
 	 *
 	 * @return void
 	 */
@@ -146,7 +146,7 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Returns whether the requested index exists
 	 *
-	 * @param  int $offset
+	 * @param integer $offset
 	 *
 	 * @return void
 	 */
@@ -157,7 +157,7 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Unsets the value at the specified index
 	 *
-	 * @param  int $offset
+	 * @param integer $offset
 	 *
 	 * @return void
 	 */
@@ -168,7 +168,7 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 *Returns the value at the specified index
 	 *
-	 * @param  int $offset
+	 * @param integer $offset
 	 *
 	 * @return void
 	 */
@@ -231,7 +231,7 @@ class CheevosModel implements ArrayAccess {
 	 * Does this model roughly equal another model?
 	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
 	 *
-	 * @param  object	CheevosModel
+	 * @param object	CheevosModel
 	 *
 	 * @return boolean
 	 */

@@ -16,7 +16,7 @@ class CheevosSiteEditPointsPromotion extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @param  array $data Associated array of property values initializing the model.
+	 * @param array $data Associated array of property values initializing the model.
 	 *
 	 * @return void
 	 */

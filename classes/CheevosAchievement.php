@@ -23,11 +23,11 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @param  array $data Associated array of property values initializing the model.
-	 *                     Nearly every property is type constrained to check for data
-	 *                     integrity.  However, those that initialize submodels
-	 *                     support taking an already initialized object or an array
-	 *                     for their container model.
+	 * @param array $data Associated array of property values initializing the model.
+	 *                    Nearly every property is type constrained to check for data
+	 *                    integrity.  However, those that initialize submodels
+	 *                    support taking an already initialized object or an array
+	 *                    for their container model.
 	 *
 	 * @return void
 	 */
@@ -58,7 +58,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Save achievement up to the service.
 	 *
-	 * @param  boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
+	 * @param boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
 	 *
 	 * @return array	Success Result
 	 */
@@ -106,7 +106,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get the achievement name for display.
 	 *
-	 * @param  string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
+	 * @param string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
 	 *
 	 * @return string	Achievement Name
 	 */
@@ -135,7 +135,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the name for this achievement with automatic language code selection.
 	 *
-	 * @param  string	Name
+	 * @param string	Name
 	 *
 	 * @return void
 	 */
@@ -175,7 +175,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the description for this achievement with automatic language code selection.
 	 *
-	 * @param  string	Description
+	 * @param string	Description
 	 *
 	 * @return void
 	 */
@@ -227,7 +227,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Sets this achievement as global.
 	 *
-	 * @param  boolean	[Optional] Set to global.
+	 * @param boolean	[Optional] Set to global.
 	 *
 	 * @return void
 	 */
@@ -261,7 +261,7 @@ class CheevosAchievement extends CheevosModel {
 	 * Does this achievement roughly equal another achievement?
 	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
 	 *
-	 * @param  object	CheevosAchievement
+	 * @param object	CheevosAchievement
 	 *
 	 * @return boolean
 	 */
@@ -283,7 +283,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Removes achievements that should not be used or shown in the context they are called from.
 	 *
-	 * @param  array	Two key array of:
+	 * @param array	Two key array of:
 	 *		[
 	 *			[CheevosAchievement objects]
 	 *			[CheevosAchievementStatus OR CheevosAchievementProgress objects]
@@ -291,8 +291,8 @@ class CheevosAchievement extends CheevosModel {
 	 *		Note: Just pruning statuses still requires a blank array to be passed as the first array index.  [[], $statuses]
 	 *		Also note: Just pruning statuses is useless as it needs achievement information to successfully prune them.
 	 *		Pruning statuses is not required.
-	 * @param  boolean	[Optional] Remove parent achievements if the child achievement is present.
-	 * @param  boolean	[Optional] Remove deleted achievements.
+	 * @param boolean	[Optional] Remove parent achievements if the child achievement is present.
+	 * @param boolean	[Optional] Remove deleted achievements.
 	 *
 	 * @return array	CheevosAchievement objects.
 	 */
@@ -357,7 +357,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * When displaying "Requires" criteria it may refer to a parent achievement that has been succeeded by a child achievement.  This corrects it for display purposes.
 	 *
-	 * @param  array	CheevosAchievement objects.
+	 * @param array	CheevosAchievement objects.
 	 *
 	 * @return array	CheevosAchievement objects.
 	 */
@@ -383,7 +383,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get an array of child information for parents.
 	 *
-	 * @param  array	CheevosAchievement objects.
+	 * @param array	CheevosAchievement objects.
 	 *
 	 * @return array	Array of parent_id => child_id.
 	 */

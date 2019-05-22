@@ -16,7 +16,7 @@ class CheevosAchievementStatus extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @param  array $data Associated array of property values initializing the model.
+	 * @param array $data Associated array of property values initializing the model.
 	 *
 	 * @return void
 	 */
@@ -34,7 +34,7 @@ class CheevosAchievementStatus extends CheevosModel {
 	/**
 	 * Copy the progress from another to this one.  Typically used for copying progress from a parent into the child for display purposes.
 	 *
-	 * @param  object	CheevosAchievementStatus
+	 * @param object	CheevosAchievementStatus
 	 *
 	 * @return void
 	 */

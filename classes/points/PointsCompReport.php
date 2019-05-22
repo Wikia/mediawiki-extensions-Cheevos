@@ -36,7 +36,7 @@ class PointsCompReport {
 	/**
 	 * Main Constructor
 	 *
-	 * @param  array	Report ID
+	 * @param array	Report ID
 	 *
 	 * @return void
 	 */
@@ -47,7 +47,7 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from the report ID.
 	 *
-	 * @param  integer	Report ID
+	 * @param integer	Report ID
 	 *
 	 * @return mixed	PointsCompReport object or null if it does not exist.
 	 */
@@ -62,7 +62,7 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from a database row.
 	 *
-	 * @param  array	Report Row from the Database
+	 * @param array	Report Row from the Database
 	 *
 	 * @return object	PointsCompReport
 	 */
@@ -207,8 +207,8 @@ class PointsCompReport {
 	/**
 	 * Load a list of basic report information.
 	 *
-	 * @param  integer	Start Position
-	 * @param  integer	Maximum Items to Return
+	 * @param integer	Start Position
+	 * @param integer	Maximum Items to Return
 	 *
 	 * @return array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
@@ -277,7 +277,7 @@ class PointsCompReport {
 	/**
 	 * Set the minimum point threshold for this report.
 	 *
-	 * @param  integer	Minimum point threshold for this report.
+	 * @param integer	Minimum point threshold for this report.
 	 *
 	 * @return void
 	 */
@@ -297,7 +297,7 @@ class PointsCompReport {
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
-	 * @param  mixed	Maximum point threshold for this report or null for no maximum.
+	 * @param mixed	Maximum point threshold for this report or null for no maximum.
 	 *
 	 * @return void
 	 */
@@ -308,8 +308,8 @@ class PointsCompReport {
 	/**
 	 * Validate point thresholds.
 	 *
-	 * @param  integer	Minimum Point Threshold
-	 * @param  integer	[Optional] Maximum Point Threshold
+	 * @param integer	Minimum Point Threshold
+	 * @param integer	[Optional] Maximum Point Threshold
 	 *
 	 * @return object	Status
 	 */
@@ -342,7 +342,7 @@ class PointsCompReport {
 	/**
 	 * Set the time period start timestamp.
 	 *
-	 * @param  integer	Unix timestamp for the time period start.
+	 * @param integer	Unix timestamp for the time period start.
 	 *
 	 * @return void
 	 */
@@ -362,7 +362,7 @@ class PointsCompReport {
 	/**
 	 * Set the time period end timestamp.
 	 *
-	 * @param  integer	Unix timestamp for the time period end.
+	 * @param integer	Unix timestamp for the time period end.
 	 *
 	 * @return void
 	 */
@@ -373,8 +373,8 @@ class PointsCompReport {
 	/**
 	 * Validate time range.
 	 *
-	 * @param  integer	Start Timestamp
-	 * @param  integer	End Timestamp
+	 * @param integer	Start Timestamp
+	 * @param integer	End Timestamp
 	 *
 	 * @return object	Status
 	 */
@@ -464,7 +464,7 @@ class PointsCompReport {
 	/**
 	 * Set if the report is finished running.
 	 *
-	 * @param  boolean	Report Finished
+	 * @param boolean	Report Finished
 	 *
 	 * @return void
 	 */
@@ -476,15 +476,15 @@ class PointsCompReport {
 	 * Add new report row.
 	 * Will overwrite existing rows with the same global ID.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  integer	Aggegrate Points for the month range.
-	 * @param  boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
-	 * @param  boolean	Is this an extended comp from a previous one?
-	 * @param  boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
-	 * @param  integer	Unix timestamp for when the current comp expires.
-	 * @param  integer	Unix timestamp for when the new comp expires.(If applicable.)
-	 * @param  boolean	Was the new comp actually performed?
-	 * @param  boolean	User emailed to let them know about their comp?
+	 * @param integer	Global User ID
+	 * @param integer	Aggegrate Points for the month range.
+	 * @param boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
+	 * @param boolean	Is this an extended comp from a previous one?
+	 * @param boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
+	 * @param integer	Unix timestamp for when the current comp expires.
+	 * @param integer	Unix timestamp for when the new comp expires.(If applicable.)
+	 * @param boolean	Was the new comp actually performed?
+	 * @param boolean	User emailed to let them know about their comp?
 	 *
 	 * @return void
 	 */
@@ -527,11 +527,11 @@ class PointsCompReport {
 	 * Run the report.
 	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
 	 *
-	 * @param  integer	[Optional] Point Threshold
-	 * @param  integer	[Optional] Unix timestamp of the start time.
-	 * @param  integer	[Optional] Unix timestamp of the end time.
-	 * @param  integer	[Optional] Actually run comps.
-	 * @param  integer	[Optional] Send email to affected users.
+	 * @param integer	[Optional] Point Threshold
+	 * @param integer	[Optional] Unix timestamp of the start time.
+	 * @param integer	[Optional] Unix timestamp of the end time.
+	 * @param integer	[Optional] Actually run comps.
+	 * @param integer	[Optional] Send email to affected users.
 	 *
 	 * @return void
 	 */
@@ -651,8 +651,8 @@ class PointsCompReport {
 	/**
 	 * Get current subscription status.
 	 *
-	 * @param  integer	User Global Id
-	 * @param  object	Subscription Provider
+	 * @param integer	User Global Id
+	 * @param object	Subscription Provider
 	 *
 	 * @return array	Array of boolean status flags.
 	 */
@@ -692,8 +692,8 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  integer	Number of months into the future to compensate.
+	 * @param integer	Global User ID
+	 * @param integer	Number of months into the future to compensate.
 	 *
 	 * @return boolean	Success
 	 */
@@ -748,7 +748,7 @@ class PointsCompReport {
 	/**
 	 * Send user comp email.
 	 *
-	 * @param  integer	Global ID
+	 * @param integer	Global ID
 	 *
 	 * @return boolean	Success
 	 */

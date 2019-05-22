@@ -15,9 +15,9 @@ class TemplateWikiPointsLevels {
 	/**
 	 * Report Card Form
 	 *
-	 * @param  array	[Optional] Array of existing levels.
-	 * @param  array	[Optional] Key name => Error of errors
-	 * @param  boolean	[Optional] If the save was successful.
+	 * @param array	[Optional] Array of existing levels.
+	 * @param array	[Optional] Key name => Error of errors
+	 * @param boolean	[Optional] If the save was successful.
 	 *
 	 * @return string	Built HTML
 	 */

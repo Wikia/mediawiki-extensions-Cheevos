@@ -16,9 +16,9 @@ class Cheevos {
 	/**
 	 * Main Request cURL wrapper.
 	 *
-	 * @param  string $type
-	 * @param  string $path
-	 * @param  array  $data
+	 * @param string $type
+	 * @param string $path
+	 * @param array  $data
 	 *
 	 * @return void
 	 */
@@ -76,8 +76,8 @@ class Cheevos {
 	/**
 	 * Wrapper for Request Function for GET method.
 	 *
-	 * @param  string $path
-	 * @param  array  $data
+	 * @param string $path
+	 * @param array  $data
 	 *
 	 * @return void
 	 */
@@ -88,8 +88,8 @@ class Cheevos {
 	/**
 	 * Wrapper for Request Function for PUT method.
 	 *
-	 * @param  string $path
-	 * @param  array  $data
+	 * @param string $path
+	 * @param array  $data
 	 *
 	 * @return void
 	 */
@@ -100,8 +100,8 @@ class Cheevos {
 	/**
 	 * Wrapper for Request Function for POST method.
 	 *
-	 * @param  string $path
-	 * @param  array  $data
+	 * @param string $path
+	 * @param array  $data
 	 *
 	 * @return void
 	 */
@@ -112,8 +112,8 @@ class Cheevos {
 	/**
 	 * Wrapper for Request Function for DELETE method.
 	 *
-	 * @param  string $path
-	 * @param  array  $data
+	 * @param string $path
+	 * @param array  $data
 	 *
 	 * @return void
 	 */
@@ -124,10 +124,10 @@ class Cheevos {
 	/**
 	 * Handle the return from a CURL request.
 	 *
-	 * @param  array   $return   - Return from CURL request.
-	 * @param  string  $expected - Expected array key to return.
-	 * @param  string  $class    - Class to initialize with returned data.
-	 * @param  boolean $single   - Only return the first request of an initialized class.
+	 * @param array   $return   - Return from CURL request.
+	 * @param string  $expected - Expected array key to return.
+	 * @param string  $class    - Class to initialize with returned data.
+	 * @param boolean $single   - Only return the first request of an initialized class.
 	 *
 	 * @return mixed
 	 */
@@ -175,7 +175,7 @@ class Cheevos {
 	/**
 	 * Validate data recieved from Cheevos
 	 *
-	 * @param  array $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
@@ -227,7 +227,7 @@ class Cheevos {
 	/**
 	 * Returns all relationships for a user by global id
 	 *
-	 * @param  int $globalId
+	 * @param integer $globalId
 	 *
 	 * @return array
 	 */
@@ -239,8 +239,8 @@ class Cheevos {
 	/**
 	 * Return friendship status
 	 *
-	 * @param  from user, int $user1
-	 * @param  to user, int   $user2
+	 * @param from user, int $user1
+	 * @param to user, int   $user2
 	 *
 	 * @return array
 	 */
@@ -252,8 +252,8 @@ class Cheevos {
 	/**
 	 * Create a frienship request
 	 *
-	 * @param  from user, int $user1
-	 * @param  to user, int   $user2
+	 * @param from user, int $user1
+	 * @param to user, int   $user2
 	 *
 	 * @return array
 	 */
@@ -265,8 +265,8 @@ class Cheevos {
 	/**
 	 * Accept a friendship request (by creating a request the oposite direction!)
 	 *
-	 * @param  from user, int $user1
-	 * @param  to user, int   $user2
+	 * @param from user, int $user1
+	 * @param to user, int   $user2
 	 *
 	 * @return array
 	 */
@@ -277,8 +277,8 @@ class Cheevos {
 	/**
 	 * Remove a friendship association between 2 users.
 	 *
-	 * @param  from user, int $user1
-	 * @param  to user, int   $user2
+	 * @param from user, int $user1
+	 * @param to user, int   $user2
 	 *
 	 * @return array
 	 */
@@ -290,8 +290,8 @@ class Cheevos {
 	/**
 	 * Cancel friend request by removing assosiation.
 	 *
-	 * @param  from user, int $user1
-	 * @param  to user, int   $user2
+	 * @param from user, int $user1
+	 * @param to user, int   $user2
 	 *
 	 * @return array
 	 */
@@ -302,7 +302,7 @@ class Cheevos {
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @param  string	MD5 Hash Site Key
+	 * @param string	MD5 Hash Site Key
 	 *
 	 * @return mixed	Ouput of self::return.
 	 */
@@ -344,7 +344,7 @@ class Cheevos {
 	/**
 	 * Get achievement by database ID with caching.
 	 *
-	 * @param  integer	Achievement ID
+	 * @param integer	Achievement ID
 	 *
 	 * @return mixed	Ouput of self::return.
 	 */
@@ -381,8 +381,8 @@ class Cheevos {
 	/**
 	 * Soft delete an achievement from the service.
 	 *
-	 * @param  integer	Achievement ID
-	 * @param  integer	Global ID
+	 * @param integer	Achievement ID
+	 * @param integer	Global ID
 	 *
 	 * @return mixed	Array
 	 */
@@ -399,8 +399,8 @@ class Cheevos {
 	/**
 	 * PUT Achievement into Cheevos
 	 *
-	 * @param  array $body
-	 * @param  int   $id
+	 * @param array   $body
+	 * @param integer $id
 	 *
 	 * @return void
 	 */
@@ -418,8 +418,8 @@ class Cheevos {
 	/**
 	 * Update an existing achievement on the service.
 	 *
-	 * @param  integer	Achievement ID
-	 * @param  array                   $body
+	 * @param integer	Achievement ID
+	 * @param array                    $body
 	 *
 	 * @return void
 	 */
@@ -430,7 +430,7 @@ class Cheevos {
 	/**
 	 * Create Achievement
 	 *
-	 * @param  array $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
@@ -441,8 +441,8 @@ class Cheevos {
 	/**
 	 * Get all categories.
 	 *
-	 * @acess  public
-	 * @param  boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
+	 * @acess public
+	 * @param boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
 	 *
 	 * @return void
 	 */
@@ -483,7 +483,7 @@ class Cheevos {
 	/**
 	 * Get Category by ID
 	 *
-	 * @param  int $id
+	 * @param integer $id
 	 *
 	 * @return void
 	 */
@@ -520,8 +520,8 @@ class Cheevos {
 	/**
 	 * Delete Category by ID (with optional user_id for user that deleted the category)
 	 *
-	 * @param  int $id
-	 * @param  int $userId
+	 * @param integer $id
+	 * @param integer $userId
 	 *
 	 * @return void
 	 */
@@ -536,8 +536,8 @@ class Cheevos {
 	/**
 	 * Create a Category
 	 *
-	 * @param  array $body
-	 * @param  int   $id
+	 * @param array   $body
+	 * @param integer $id
 	 *
 	 * @return void
 	 */
@@ -555,8 +555,8 @@ class Cheevos {
 	/**
 	 * Update Category by ID
 	 *
-	 * @param  int   $id
-	 * @param  array $body
+	 * @param integer $id
+	 * @param array   $body
 	 *
 	 * @return void
 	 */
@@ -567,7 +567,7 @@ class Cheevos {
 	/**
 	 * Create Category
 	 *
-	 * @param  array $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
@@ -597,9 +597,9 @@ class Cheevos {
 	/**
 	 * Call increment to check for any unnotified achievement rewards.
 	 *
-	 * @param  int     $globalId
-	 * @param  string  $siteKey
-	 * @param  boolean $forceRecalculate
+	 * @param integer $globalId
+	 * @param string  $siteKey
+	 * @param boolean $forceRecalculate
 	 *
 	 * @return void
 	 */
@@ -621,7 +621,7 @@ class Cheevos {
 	/**
 	 * Return StatProgress for selected filters.
 	 *
-	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 * 		$filters = [
@@ -654,7 +654,7 @@ class Cheevos {
 	/**
 	 * Return WikiPointLog for selected filters.
 	 *
-	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 * 		$filters = [
@@ -682,8 +682,8 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  string	[Optional] Filter by site key.
+	 * @param integer	Global User ID
+	 * @param string	[Optional] Filter by site key.
 	 *
 	 * @return mixed
 	 */
@@ -702,7 +702,7 @@ class Cheevos {
 	/**
 	 * Return StatDailyCount for selected filters.
 	 *
-	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 * 		$filters = [
@@ -730,7 +730,7 @@ class Cheevos {
 	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
-	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 * 		$filters = [
@@ -759,8 +759,8 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
+	 * @param integer	Global User ID
+	 * @param string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
 	 *
 	 * @return mixed
 	 */
@@ -779,8 +779,8 @@ class Cheevos {
 	/**
 	 * Get achievement status for an user.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  string	Site Key - From DynamicSettings
+	 * @param integer	Global User ID
+	 * @param string	Site Key - From DynamicSettings
 	 *
 	 * @return mixed
 	 */
@@ -800,7 +800,7 @@ class Cheevos {
 	/**
 	 * Return AchievementProgress for selected filters.
 	 *
-	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
 	 * 		$filters = [
 	 * 			'site_key'			=> 'example', //Limit by site key.
 	 * 			'achievement_id'	=> 0, //Limit by achievement ID.
@@ -828,7 +828,7 @@ class Cheevos {
 	/**
 	 * Get progress for an achievement
 	 *
-	 * @param  int $id
+	 * @param integer $id
 	 *
 	 * @return mixed
 	 */
@@ -853,7 +853,7 @@ class Cheevos {
 	/**
 	 * Get process for achievement
 	 *
-	 * @param  int $id
+	 * @param integer $id
 	 *
 	 * @return mixed
 	 */
@@ -865,7 +865,7 @@ class Cheevos {
 	/**
 	 * Delete progress towards an achievement.
 	 *
-	 * @param  integer	Progress ID
+	 * @param integer	Progress ID
 	 *
 	 * @return mixed
 	 */
@@ -877,8 +877,8 @@ class Cheevos {
 	/**
 	 * Put process for achievement. Either create or updates.
 	 *
-	 * @param  array $body
-	 * @param  int   $id
+	 * @param array   $body
+	 * @param integer $id
 	 *
 	 * @return void
 	 */
@@ -896,8 +896,8 @@ class Cheevos {
 	/**
 	 * Update progress
 	 *
-	 * @param  int   $id
-	 * @param  array $body
+	 * @param integer $id
+	 * @param array   $body
 	 *
 	 * @return void
 	 */
@@ -908,7 +908,7 @@ class Cheevos {
 	/**
 	 * Create Progress
 	 *
-	 * @param  array $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
@@ -919,7 +919,7 @@ class Cheevos {
 	/**
 	 * Return user_options/{id} for selected filters.
 	 *
-	 * @param  integer	Global User ID
+	 * @param integer	Global User ID
 	 *
 	 * @return mixed
 	 */
@@ -955,8 +955,8 @@ class Cheevos {
 	/**
 	 * Put user options up to Cheevos.
 	 *
-	 * @param  integer	Global User ID
-	 * @param  array	POST Body
+	 * @param integer	Global User ID
+	 * @param array	POST Body
 	 *
 	 * @return mixed
 	 */
@@ -984,8 +984,8 @@ class Cheevos {
 	/**
 	 * Get all points promotions with caching.
 	 *
-	 * @param  string	[Optional] Site Key
-	 * @param  boolean	[Optional] Skip Cache Look Up.
+	 * @param string	[Optional] Site Key
+	 * @param boolean	[Optional] Skip Cache Look Up.
 	 *
 	 * @return mixed	Ouput of self::return.
 	 */
@@ -1027,7 +1027,7 @@ class Cheevos {
 	/**
 	 * Get points promotion by database ID with caching.
 	 *
-	 * @param  integer	SiteEditPointsPromotion ID
+	 * @param integer	SiteEditPointsPromotion ID
 	 *
 	 * @return mixed	Ouput of self::return.
 	 */
@@ -1064,8 +1064,8 @@ class Cheevos {
 	/**
 	 * Soft delete an points promotion from the service.
 	 *
-	 * @param  integer	SiteEditPointsPromotion ID
-	 * @param  integer	Global ID
+	 * @param integer	SiteEditPointsPromotion ID
+	 * @param integer	Global ID
 	 *
 	 * @return mixed	Array
 	 */
@@ -1090,8 +1090,8 @@ class Cheevos {
 	/**
 	 * PUT PointsPromotion into Cheevos
 	 *
-	 * @param  array   $body
-	 * @param  integer $id
+	 * @param array   $body
+	 * @param integer $id
 	 *
 	 * @return mixed	Output of self::return.
 	 */
@@ -1123,8 +1123,8 @@ class Cheevos {
 	/**
 	 * Update an existing points promotion on the service.
 	 *
-	 * @param  integer	SiteEditPointsPromotion ID
-	 * @param  array                               $body
+	 * @param integer	SiteEditPointsPromotion ID
+	 * @param array                                $body
 	 *
 	 * @return void
 	 */
@@ -1135,7 +1135,7 @@ class Cheevos {
 	/**
 	 * Create PointsPromotion
 	 *
-	 * @param  array $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
@@ -1146,9 +1146,9 @@ class Cheevos {
 	/**
 	 * Revokes edit points for the provided revision IDs related to the page ID.
 	 *
-	 * @param  integer	Page ID
-	 * @param  array	Revision IDs
-	 * @param  string	Site Key
+	 * @param integer	Page ID
+	 * @param array	Revision IDs
+	 * @param string	Site Key
 	 *
 	 * @return mixed	Array
 	 */

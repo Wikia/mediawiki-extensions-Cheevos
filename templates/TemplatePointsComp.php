@@ -14,8 +14,8 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
 	 *
-	 * @param  array	Reports
-	 * @param  string	Pagination HTML
+	 * @param array	Reports
+	 * @param string	Pagination HTML
 	 *
 	 * @return string	HTML
 	 */

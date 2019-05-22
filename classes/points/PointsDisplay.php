@@ -33,13 +33,13 @@ class PointsDisplay {
 	 *
 	 * TODO: break this function down, make it easier to read
 	 *
-	 * @param  Parser	mediawiki Parser reference
-	 * @param  limit	[Optional] Limit results.
-	 * @param  string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
+	 * @param Parser	mediawiki Parser reference
+	 * @param limit	[Optional] Limit results.
+	 * @param string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
 	 *					Special namespaces are:
 	 *						'all' - Breaks down points per user per wiki.
 	 *						'global' - Breaks down points per user across all wikis.
-	 * @param  string	[optional, default: 'table'] determines what type of markup is used for the output,
+	 * @param string	[optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
@@ -93,17 +93,17 @@ class PointsDisplay {
 	/**
 	 * Get a standard points block HTML output.
 	 *
-	 * @param  string	[Optional] Limit by or override the site key used.
-	 * @param  integer	[Optional] Global ID to filter by.
-	 * @param  integer	[Optional] Items Per Page
-	 * @param  integer	[Optional] Offset to start at.
-	 * @param  boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param  boolean	[Optional] Show monthly totals.
-	 * @param  string	[Optional] Determines what type of markup is used for the output.
+	 * @param string	[Optional] Limit by or override the site key used.
+	 * @param integer	[Optional] Global ID to filter by.
+	 * @param integer	[Optional] Items Per Page
+	 * @param integer	[Optional] Offset to start at.
+	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param boolean	[Optional] Show monthly totals.
+	 * @param string	[Optional] Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
 	 * 					'table' Uses a standard wikitable class HTML table.
-	 * @param  object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
+	 * @param object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
 	 *
 	 * @return string	HTML
 	 */
@@ -237,12 +237,12 @@ class PointsDisplay {
 	/**
 	 * Get a list of earned wiki points grouped by criteria.
 	 *
-	 * @param  string	[Optional] Limit by or override the site key used.
-	 * @param  integer	[Optional] Global ID to filter by.
-	 * @param  integer	[Optional] Items Per Page
-	 * @param  integer	[Optional] Offset to start at.
-	 * @param  boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param  boolean	[Optional] Show monthly totals.
+	 * @param string	[Optional] Limit by or override the site key used.
+	 * @param integer	[Optional] Global ID to filter by.
+	 * @param integer	[Optional] Items Per Page
+	 * @param integer	[Optional] Offset to start at.
+	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param boolean	[Optional] Show monthly totals.
 	 *
 	 * @return array	CheevosStatProgress Objects
 	 */
@@ -297,7 +297,7 @@ class PointsDisplay {
 	 * Example: //FakeDomain/ => FakeDomain
 	 * Example: FakeDomain => FakeDomain
 	 *
-	 * @param  string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 * @param string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
 	 *
 	 * @return string	Bare host name extracted or false if unable to parse.
 	 */
@@ -321,9 +321,9 @@ class PointsDisplay {
 	/**
 	 * Get wiki points for user by month.
 	 *
-	 * @param  integer	Global ID
-	 * @param  string	[Optional] Site Key
-	 * @param  integer	[Optional] Aggregate months into the past.
+	 * @param integer	Global ID
+	 * @param string	[Optional] Site Key
+	 * @param integer	[Optional] Aggregate months into the past.
 	 *
 	 * @return integer	Wiki Points
 	 */

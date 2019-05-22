@@ -15,8 +15,8 @@ class TemplateWikiPointsAdmin {
 	/**
 	 * Initialize form HTML for each page.
 	 *
-	 * @param  object	Title for special page.
-	 * @param  array	[Optional] Form data for resubmission.
+	 * @param object	Title for special page.
+	 * @param array	[Optional] Form data for resubmission.
 	 *
 	 * @return string	Built HTML
 	 */
@@ -40,9 +40,9 @@ class TemplateWikiPointsAdmin {
 	/**
 	 * User lookup display
 	 *
-	 * @param  array	Raw table row of looked up user if found.
-	 * @param  array	[Optional] Earned point entries for the found user.
-	 * @param  array	[Optional] Form data for resubmission.
+	 * @param array	Raw table row of looked up user if found.
+	 * @param array	[Optional] Earned point entries for the found user.
+	 * @param array	[Optional] Form data for resubmission.
 	 *
 	 * @return string	Built HTML
 	 */

@@ -14,9 +14,9 @@ class TemplateManageAchievements {
 	/**
 	 * Achievement List
 	 *
-	 * @param  array	Array of Achievement Object
-	 * @param  array	Array of Category Information
-	 * @param  array	Array of achievements that can be reverted.  All child achievements can be reverted, but this hides the button if the child achievement is effectively the same as the parent.
+	 * @param array	Array of Achievement Object
+	 * @param array	Array of Category Information
+	 * @param array	Array of achievements that can be reverted.  All child achievements can be reverted, but this hides the button if the child achievement is effectively the same as the parent.
 	 *
 	 * @return string	Built HTML
 	 */
@@ -258,7 +258,7 @@ class TemplateManageAchievements {
 	/**
 	 * Achievement Delete/Restore/Revert Form
 	 *
-	 * @param  array	Achievement information.
+	 * @param array	Achievement information.
 	 *
 	 * @return string	Built HTML
 	 */

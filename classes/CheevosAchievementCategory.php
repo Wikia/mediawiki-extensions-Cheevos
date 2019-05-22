@@ -16,7 +16,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @param  array $data Associated array of property values initializing the model.
+	 * @param array $data Associated array of property values initializing the model.
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Set the name for this category with automatic language code selection.
 	 *
-	 * @param  string	Name
+	 * @param string	Name
 	 *
 	 * @return void
 	 */
@@ -118,8 +118,8 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Transforms text into canonical versions safe for usage in URLs and Javascript data attributes.
 	 *
-	 * @param  integer	Text to filter
-	 * @param  boolean	[Optional] Ignore spaces
+	 * @param integer	Text to filter
+	 * @param boolean	[Optional] Ignore spaces
 	 *
 	 * @return integer	Generated Canonical Title
 	 */
@@ -149,7 +149,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Does this category roughly equal another category?
 	 *
-	 * @param  object	CheevosAchievementCategory
+	 * @param object	CheevosAchievementCategory
 	 *
 	 * @return boolean
 	 */

@@ -33,7 +33,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param  string	Sub page passed in the URL.
+	 * @param string	Sub page passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
@@ -51,7 +51,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
 	 * Display the wiki points page.
 	 *
-	 * @param  string	[Optional] Subpage
+	 * @param string	[Optional] Subpage
 	 *
 	 * @return void
 	 */

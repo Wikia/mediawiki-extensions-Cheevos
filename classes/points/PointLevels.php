@@ -100,7 +100,7 @@ class PointLevels {
 	/**
 	 * Load the level values from the database.
 	 *
-	 * @param  array	Array of levels containing $point => $score key value pairs.
+	 * @param array	Array of levels containing $point => $score key value pairs.
 	 *
 	 * @return boolean	Successful Save
 	 */

@@ -41,7 +41,7 @@ class CheevosHelper {
 	/**
 	 * Turns an array of CheevosStatProgress objects into an array that is easier to consume.
 	 *
-	 * @param  array	Flat array.
+	 * @param array	Flat array.
 	 *
 	 * @return array	Nice array.
 	 */
@@ -65,7 +65,7 @@ class CheevosHelper {
 	/**
 	 * Get a site name for a site key.
 	 *
-	 * @param  string	Site Key
+	 * @param string	Site Key
 	 *
 	 * @return string	Site Name with Language
 	 */

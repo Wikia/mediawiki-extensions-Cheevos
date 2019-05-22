@@ -16,7 +16,7 @@ class CheevosStatDelta extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @param  array $data Associated array of property values initializing the model
+	 * @param array $data Associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
 		$this->container['stat'] = isset($data['stat']) && is_string($data['stat']) ? $data['stat'] : '';

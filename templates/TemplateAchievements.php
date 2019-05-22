@@ -16,11 +16,11 @@ class TemplateAchievements {
 	/**
 	 * Achievement List
 	 *
-	 * @param  array	Array of Achievement Object
-	 * @param  array	Array of Category Information
-	 * @param  array	Array of User Status for loaded user.
-	 * @param  object	User
-	 * @param  integer	User's Global ID
+	 * @param array	Array of Achievement Object
+	 * @param array	Array of Category Information
+	 * @param array	Array of User Status for loaded user.
+	 * @param object	User
+	 * @param integer	User's Global ID
 	 *
 	 * @return string	Built HTML
 	 */
@@ -96,9 +96,9 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @param  array	Achievement Information
-	 * @param  string	Site Key
-	 * @param  integer	Global User ID
+	 * @param array	Achievement Information
+	 * @param string	Site Key
+	 * @param integer	Global User ID
 	 *
 	 * @return string	Built HTML
 	 */
@@ -133,12 +133,12 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @param  array	Achievement Information
-	 * @param  boolean	[Optional] Show Controls
-	 * @param  array	[Optional] AchievementStatus Objects
-	 * @param  array	[Optional] All loaded achievements for showing required criteria.
-	 * @param  boolean	[Optional] Show Required By even if hidden by secret.
-	 * @param  boolean	[Optional] Show revert button.
+	 * @param array	Achievement Information
+	 * @param boolean	[Optional] Show Controls
+	 * @param array	[Optional] AchievementStatus Objects
+	 * @param array	[Optional] All loaded achievements for showing required criteria.
+	 * @param boolean	[Optional] Show Required By even if hidden by secret.
+	 * @param boolean	[Optional] Show revert button.
 	 *
 	 * @return string	Built HTML
 	 */
@@ -261,7 +261,7 @@ class TemplateAchievements {
 	/**
 	 * Generates block of achievements to display.
 	 *
-	 * @param  string	HTML blocks of achievements.
+	 * @param string	HTML blocks of achievements.
 	 *
 	 * @return string	Built HTML
 	 */

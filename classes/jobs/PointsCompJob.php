@@ -17,7 +17,7 @@ class PointsCompJob extends \SyncService\Job {
 	/**
 	 * Runs points compensation reports and grants through the command line maintenance script.
 	 *
-	 * @param  array	Named Arguments:
+	 * @param array	Named Arguments:
 	 * - threshold		[Integer] Point threshold for the report.
 	 * - start_time		[Integer] Unix timestamp of the report start range.
 	 * - end_time		[Integer] Unix timestamp of the report end range.

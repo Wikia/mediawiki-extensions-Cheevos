@@ -22,7 +22,7 @@ class TemplateWikiPointsMultipliers {
 	/**
 	 * Points Multipliers List
 	 *
-	 * @param  array	Multidimensional array of multipliers information
+	 * @param array	Multidimensional array of multipliers information
 	 *
 	 * @return string	Built HTML
 	 */
@@ -118,7 +118,7 @@ class TemplateWikiPointsMultipliers {
 	/**
 	 * Points Multiplier Deletion Form
 	 *
-	 * @param  object	PointsMultipler object.
+	 * @param object	PointsMultipler object.
 	 *
 	 * @return string	Built HTML
 	 */

@@ -32,7 +32,7 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param  string	Sub page passed in the URL.
+	 * @param string	Sub page passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
@@ -48,7 +48,7 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Points Comp Reports
 	 *
-	 * @param  mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 * @param mixed	Passed subpage parameter to be intval()'ed for a Global ID.
 	 *
 	 * @return void	[Outputs to screen]
 	 */

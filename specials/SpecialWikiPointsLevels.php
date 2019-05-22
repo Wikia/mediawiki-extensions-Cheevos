@@ -31,7 +31,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param  string	Sub page passed in the URL.
+	 * @param string	Sub page passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */

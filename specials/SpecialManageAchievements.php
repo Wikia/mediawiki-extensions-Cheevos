@@ -52,7 +52,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param  string	Sub page passed in the URL.
+	 * @param string	Sub page passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
@@ -365,7 +365,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Delete/Restore
 	 *
-	 * @param  string	Delete or Restore action take.
+	 * @param string	Delete or Restore action take.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
