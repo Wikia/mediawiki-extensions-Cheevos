@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Achievement Criteria Model
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,9 +16,9 @@ class CheevosAchievementCriteria extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * @return	void
+	 * @access public
+	 * @param  array $data Associated array of property values initializing the model.
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['stats'] = isset($data['stats']) && is_array($data['stats']) ? $data['stats'] : [];
@@ -37,9 +36,9 @@ class CheevosAchievementCriteria extends CheevosModel {
 	/**
 	 * Does this criteria roughly equal another criteria?
 	 *
-	 * @access	public
-	 * @param	object	CheevosAchievementCriteria
-	 * @return	boolean
+	 * @access public
+	 * @param  object	CheevosAchievementCriteria
+	 * @return boolean
 	 */
 	public function sameAs($criteria) {
 		foreach (['stats', 'value', 'streak', 'streak_progress_required', 'streak_reset_to_zero', 'per_site_progress_maximum', 'date_range_start', 'date_range_end', 'category_id', 'achievement_ids'] as $field) {

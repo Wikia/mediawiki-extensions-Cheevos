@@ -4,12 +4,11 @@
  * Cheevos
  * Wiki Points Levels Class
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2014 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2014 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos\Points;
@@ -20,29 +19,29 @@ class PointLevels {
 	/**
 	 * Threshold Values
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	static private $levels;
 
 	/**
 	 * Class Initialized
 	 *
-	 * @var		boolean
+	 * @var boolean
 	 */
 	static private $initialized = false;
 
 	/**
 	 * Redis Cache Key
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	static private $redisCacheKey = 'wikipoints::levels';
 
 	/**
 	 * Main Initializer
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public static function init() {
 		if (!self::$initialized) {
@@ -55,10 +54,10 @@ class PointLevels {
 	/**
 	 * Get the level information.
 	 *
-	 * @access	public
-	 * @return	array	Array of levels containing $point => $score key value pairs.
+	 * @access public
+	 * @return array	Array of levels containing $point => $score key value pairs.
 	 */
-	static public function getLevels() {
+	public static function getLevels() {
 		self::init();
 
 		return self::$levels;
@@ -67,10 +66,10 @@ class PointLevels {
 	/**
 	 * Load the level values from the database.
 	 *
-	 * @access	private
-	 * @return	void
+	 * @access private
+	 * @return void
 	 */
-	static private function loadLevels() {
+	private static function loadLevels() {
 		if (Environment::isMasterWiki()) {
 			$db = wfGetDB(DB_MASTER);
 			$result = $db->select(
@@ -95,7 +94,7 @@ class PointLevels {
 						self::$levels = $levels;
 					}
 				} catch (\RedisException $e) {
-					wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+					wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
 				}
 			}
 		}
@@ -104,11 +103,11 @@ class PointLevels {
 	/**
 	 * Load the level values from the database.
 	 *
-	 * @access	public
-	 * @param	array	Array of levels containing $point => $score key value pairs.
-	 * @return	boolean	Successful Save
+	 * @access public
+	 * @param  array	Array of levels containing $point => $score key value pairs.
+	 * @return boolean	Successful Save
 	 */
-	static public function saveLevels($levels) {
+	public static function saveLevels($levels) {
 		global $wgDBprefix;
 		self::init();
 

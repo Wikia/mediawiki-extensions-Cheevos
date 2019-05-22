@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Template
  *
- * @author		Hydra Wiki Platform Team
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Hydra Wiki Platform Team
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 use DynamicSettings\Environment;
@@ -17,16 +16,16 @@ class TemplateAchievements {
 	/**
 	 * Achievement List
 	 *
-	 * @access	public
-	 * @param	array	Array of Achievement Object
-	 * @param	array	Array of Category Information
-	 * @param	array	Array of User Status for loaded user.
-	 * @param	object	User
-	 * @param	integer	User's Global ID
-	 * @return	string	Built HTML
+	 * @access public
+	 * @param  array	Array of Achievement Object
+	 * @param  array	Array of Category Information
+	 * @param  array	Array of User Status for loaded user.
+	 * @param  object	User
+	 * @param  integer	User's Global ID
+	 * @return string	Built HTML
 	 */
 	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
-		global $wgOut, $wgRequest, $wgUser, $dsSiteKey;
+		global $wgUser;
 
 		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$manageAchievementsURL	= $manageAchievementsPage->getFullURL();
@@ -38,7 +37,7 @@ class TemplateAchievements {
 			<div class='button_bar'>
 				<div class='button_break'></div>
 				<div class='buttons_right'>
-					<a href='{$manageAchievementsURL}' class='mw-ui-button'>".wfMessage('manageachievements')."</a>
+					<a href='{$manageAchievementsURL}' class='mw-ui-button'>" . wfMessage('manageachievements') . "</a>
 				</div>
 			</div>";
 		}
@@ -61,14 +60,14 @@ class TemplateAchievements {
 
 					if (($achievement->isSecret() && $achievementStatus === false)
 						|| ($achievementStatus !== false && $achievement->isSecret() && !$achievementStatus->isEarned())) {
-						//Do not show show secret achievements to regular users.
+						// Do not show show secret achievements to regular users.
 						continue;
 					}
 
-					$categoryHTML[$categoryId] .= TemplateAchievements::achievementBlockRow($achievement, false, $statuses, $achievements);
+					$categoryHTML[$categoryId] .= self::achievementBlockRow($achievement, false, $statuses, $achievements);
 				}
 				if (!empty($categoryHTML[$categoryId])) {
-					$HTML .= "<li class='achievement_category_select".($firstCategory ? ' begin' : '')."' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
+					$HTML .= "<li class='achievement_category_select" . ($firstCategory ? ' begin' : '') . "' data-slug='{$category->getSlug()}'>{$category->getTitle()}</li>";
 					$firstCategory = false;
 				}
 			}
@@ -85,8 +84,8 @@ class TemplateAchievements {
 			}
 		} else {
 			$HTML .= "
-			<span class='p-achievement-error large'>".wfMessage('no_achievements_found')->escaped()."</span>
-			<span class='p-achievement-error small'>".wfMessage('no_achievements_found_help')->escaped()."</span>";
+			<span class='p-achievement-error large'>" . wfMessage('no_achievements_found')->escaped() . "</span>
+			<span class='p-achievement-error small'>" . wfMessage('no_achievements_found_help')->escaped() . "</span>";
 		}
 		$HTML .= "
 		</div>";
@@ -97,11 +96,11 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @access	public
-	 * @param	array	Achievement Information
-	 * @param	string	Site Key
-	 * @param	integer	Global User ID
-	 * @return	string	Built HTML
+	 * @access public
+	 * @param  array	Achievement Information
+	 * @param  string	Site Key
+	 * @param  integer	Global User ID
+	 * @return string	Built HTML
 	 */
 	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
@@ -116,15 +115,15 @@ class TemplateAchievements {
 
 		$HTML = "
 			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$siteKey}-{$achievement->getId()}'>
-				<div class='p-achievement-source'>".\Cheevos\CheevosHelper::getSiteName($siteKey)."</div>
+				<div class='p-achievement-source'>" . \Cheevos\CheevosHelper::getSiteName($siteKey) . "</div>
 				<div class='p-achievement-icon'>
-					".(!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "")."
+					" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "
 				</div>
 				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>".htmlentities($achievement->getName($siteKey), ENT_QUOTES)."</span>
-					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
+					<span class='p-achievement-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</span>
+					<span class='p-achievement-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</span>
 				</div>
-				<span class='p-achievement-points'>".$achievement->getPoints()."{$wgAchPointAbbreviation}</span>
+				<span class='p-achievement-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</span>
 				<a href='{$achievementsPage->getFullURL()}'><span></span></a>
 			</div>";
 
@@ -134,16 +133,16 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @access	public
-	 * @param	array	Achievement Information
-	 * @param	boolean	[Optional] Show Controls
-	 * @param	array	[Optional] AchievementStatus Objects
-	 * @param	array	[Optional] All loaded achievements for showing required criteria.
-	 * @param	boolean	[Optional] Show Required By even if hidden by secret.
-	 * @param	boolean	[Optional] Show revert button.
-	 * @return	string	Built HTML
+	 * @access public
+	 * @param  array	Achievement Information
+	 * @param  boolean	[Optional] Show Controls
+	 * @param  array	[Optional] AchievementStatus Objects
+	 * @param  array	[Optional] All loaded achievements for showing required criteria.
+	 * @param  boolean	[Optional] Show Required By even if hidden by secret.
+	 * @param  boolean	[Optional] Show revert button.
+	 * @return string	Built HTML
 	 */
-	static public function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
+	public static function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
 		global $wgUser, $wgAchPointAbbreviation;
 
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
@@ -152,14 +151,14 @@ class TemplateAchievements {
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row".($status !== false && $status->isEarned() ? ' earned' : null).($achievement->isDeleted() ? ' deleted' : null).($achievement->isSecret() ? ' secret' : null)."' data-id='{$achievement->getId()}'>
-				<div class='p-achievement-icon".(($showControls && !empty($imageUrl)) ? " edit-on-hover" : null)."'>
-					".(!empty($imageUrl) ? "<img src='{$imageUrl}' data-img='{$image}'>" : "")."
-					".(($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">".wfMessage('click_to_upload_new_image')->escaped()."</span>" : null)."
+			<div class='p-achievement-row" . ($status !== false && $status->isEarned() ? ' earned' : null) . ($achievement->isDeleted() ? ' deleted' : null) . ($achievement->isSecret() ? ' secret' : null) . "' data-id='{$achievement->getId()}'>
+				<div class='p-achievement-icon" . (($showControls && !empty($imageUrl)) ? " edit-on-hover" : null) . "'>
+					" . (!empty($imageUrl) ? "<img src='{$imageUrl}' data-img='{$image}'>" : "") . "
+					" . (($showControls && !empty($imageUrl)) ? "<span class=\"image-edit-box\" style=\"display: none;\">" . wfMessage('click_to_upload_new_image')->escaped() . "</span>" : null) . "
 				</div>
 				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>".htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES)."</span>
-					<span class='p-achievement-description'>".htmlentities($achievement->getDescription(), ENT_QUOTES)."</span>
+					<span class='p-achievement-name'>" . htmlentities($achievement->getName(($status !== false && !empty($status->getSite_Key()) ? $status->getSite_Key() : null)), ENT_QUOTES) . "</span>
+					<span class='p-achievement-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</span>
 					<div class='p-achievement-requirements'>";
 		if (count($achievement->getRequiredBy())) {
 			$_rbInnerHtml = '';
@@ -173,23 +172,23 @@ class TemplateAchievements {
 					}
 				}
 				$_rbInnerHtml .= "
-							<span>".(isset($achievements[$requiredByAid]) ? $achievements[$requiredByAid]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT '{$requiredByAid}'")."</span>";
+							<span>" . (isset($achievements[$requiredByAid]) ? $achievements[$requiredByAid]->getName() : "FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT '{$requiredByAid}'") . "</span>";
 			}
 			if (!empty($_rbInnerHtml)) {
 				$HTML .= "
 						<div class='p-achievement-required_by'>
-						".wfMessage('required_by')->escaped()."{$_rbInnerHtml}
+						" . wfMessage('required_by')->escaped() . "{$_rbInnerHtml}
 						</div>";
 			}
 		}
 		if (count($achievement->getCriteria()->getAchievement_Ids())) {
 			$HTML .= "
 						<div class='p-achievement-requires'>
-						".wfMessage('requires')->escaped();
+						" . wfMessage('requires')->escaped();
 			foreach ($achievement->getCriteria()->getAchievement_Ids() as $requiresAid) {
 				if (isset($achievements[$requiresAid])) {
 					$HTML .= "
-							<span data-id='".$achievements[$requiresAid]->getId()."'>".$achievements[$requiresAid]->getName()."</span>";
+							<span data-id='" . $achievements[$requiresAid]->getId() . "'>" . $achievements[$requiresAid]->getName() . "</span>";
 				} else {
 					$HTML .= "
 							<span data-id=''>FATAL ERROR LOADING REQUIRED ACHIEVEMENT '{$requiresAid}'</span>";
@@ -203,21 +202,20 @@ class TemplateAchievements {
 		if ($showControls) {
 			$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
 			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
-			if (
-				$wgUser->isAllowed('achievement_admin') &&
+			if ($wgUser->isAllowed('achievement_admin') &&
 				(Environment::isMasterWiki() || (!Environment::isMasterWiki() && !$achievement->isProtected() && !$achievement->isGlobal()))
 			) {
 				if (!$achievement->isDeleted()) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
-						".($showRevert ? "<span class='p-achievement-revert'><a href='{$manageAchievementsURL}/revert?aid={$achievement->getId()}' class='mw-ui-button'>".wfMessage('revert_custom_achievement')->escaped()."</a></span>" : '')."
-						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='mw-ui-button mw-ui-destructive'>".wfMessage('delete_achievement')->escaped()."</a></span>
-						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='mw-ui-button mw-ui-constructive'>".wfMessage('edit_achievement')->escaped()."</a></span>
+						" . ($showRevert ? "<span class='p-achievement-revert'><a href='{$manageAchievementsURL}/revert?aid={$achievement->getId()}' class='mw-ui-button'>" . wfMessage('revert_custom_achievement')->escaped() . "</a></span>" : '') . "
+						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='mw-ui-button mw-ui-destructive'>" . wfMessage('delete_achievement')->escaped() . "</a></span>
+						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='mw-ui-button mw-ui-constructive'>" . wfMessage('edit_achievement')->escaped() . "</a></span>
 					</div>";
 				} elseif ($achievement->isDeleted() && $wgUser->isAllowed('restore_achievements')) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
-						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='mw-ui-button'>".wfMessage('restore_achievement')->escaped()."</a></span>
+						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='mw-ui-button'>" . wfMessage('restore_achievement')->escaped() . "</a></span>
 					</div>";
 				}
 
@@ -226,10 +224,10 @@ class TemplateAchievements {
 			if (!Environment::isMasterWiki() && ($achievement->isProtected() || $achievement->isGlobal())) {
 				$HTML .= "<div class='p-achievement-admin'>";
 				if ($achievement->isProtected()) {
-					$HTML .= "<p>".wfMessage('edit_disabled_protected')->escaped()."</p>";
+					$HTML .= "<p>" . wfMessage('edit_disabled_protected')->escaped() . "</p>";
 				}
 				if ($achievement->isGlobal()) {
-					$HTML .= "<p>".wfMessage('edit_disabled_global')->escaped()."</p>";
+					$HTML .= "<p>" . wfMessage('edit_disabled_global')->escaped() . "</p>";
 				}
 				$HTML .= "</div>";
 			}
@@ -242,19 +240,19 @@ class TemplateAchievements {
 			}
 			$HTML .= "
 					<div class='p-achievement-progress'>
-						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>".$status->getProgress()."/{$status->getTotal()}</span>
+						<div class='progress-background'><div class='progress-bar' style='width: {$width}%;'></div></div><span>" . $status->getProgress() . "/{$status->getTotal()}</span>
 					</div>";
 		}
 		if ($status !== false && $status->isEarned()) {
 			$timestamp = new MWTimestamp($status->getEarned_At());
 			$HTML .= "
 					<div class='p-achievement-earned'>
-						".$timestamp->getTimestamp(TS_DB)."
+						" . $timestamp->getTimestamp(TS_DB) . "
 					</div>";
 		}
 		$HTML .= "
 				</div>
-				<span class='p-achievement-points'>".intval($achievement->getPoints())."{$wgAchPointAbbreviation}</span>
+				<span class='p-achievement-points'>" . intval($achievement->getPoints()) . "{$wgAchPointAbbreviation}</span>
 			</div>";
 
 		return $HTML;
@@ -263,9 +261,9 @@ class TemplateAchievements {
 	/**
 	 * Generates block of achievements to display.
 	 *
-	 * @access	public
-	 * @param	string	HTML blocks of achievements.
-	 * @return	string	Built HTML
+	 * @access public
+	 * @param  string	HTML blocks of achievements.
+	 * @return string	Built HTML
 	 */
 	public function achievementDisplay($blocks) {
 		$HTML = "
@@ -275,5 +273,4 @@ class TemplateAchievements {
 
 		return $HTML;
 	}
-
 }

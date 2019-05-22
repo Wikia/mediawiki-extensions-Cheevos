@@ -3,25 +3,23 @@
  * Achievements
  * Cheevos Exception Class
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
 
 class CheevosException extends \MWException {
-
 	/**
 	 * Constructor for Exception
 	 *
-	 * @access	public
-	 * @param	string	$message
-	 * @param	integer	$code
-	 * @param	object	Exception $previous
+	 * @access public
+	 * @param  string             $message
+	 * @param  integer            $code
+	 * @param  object	Exception $previous
 	 */
 	public function __construct($message, $code = 0, \Exception $previous = null) {
 		parent::__construct($message, $code, $previous);

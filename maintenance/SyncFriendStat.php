@@ -4,15 +4,14 @@
  * Cheevos
  * Synchronizes friend count to the Cheevos service.
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://www.gamepedia.com/
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://www.gamepedia.com/
 **/
 
-require_once(__DIR__.'/../../../maintenance/Maintenance.php');
+require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 use DynamicSettings\Environment;
 
@@ -20,8 +19,8 @@ class SyncFriendStat extends Maintenance {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -32,8 +31,8 @@ class SyncFriendStat extends Maintenance {
 	/**
 	 * Main execution of the maintenance script
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function execute() {
 		global $dsSiteKey;
@@ -54,7 +53,7 @@ class SyncFriendStat extends Maintenance {
 		try {
 			$relationships = $redis->keys('friendlist:*');
 		} catch (\Throwable $e) {
-			wfDebug(__METHOD__.": Caught RedisException - ".$e->getMessage());
+			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
 		}
 
 		$total = count($relationships);
@@ -70,7 +69,7 @@ class SyncFriendStat extends Maintenance {
 				$this->output("Global ID: {$globalId}\n");
 			}
 
-			$local['curse_profile_add_friend'] = $redis->sCard('friendlist:'.$globalId);
+			$local['curse_profile_add_friend'] = $redis->sCard('friendlist:' . $globalId);
 
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatProgress(
@@ -104,16 +103,16 @@ class SyncFriendStat extends Maintenance {
 			}
 
 			if ($this->getOption('v')) {
-				$this->output("\tLocal: ".json_encode($local)."\n");
-				$this->output("\tCheevos: ".json_encode($cheevos)."\n");
-				$this->output("\tDelta: ".json_encode($delta)."\n");
+				$this->output("\tLocal: " . json_encode($local) . "\n");
+				$this->output("\tCheevos: " . json_encode($cheevos) . "\n");
+				$this->output("\tDelta: " . json_encode($delta) . "\n");
 			}
 
 			$increment = [
 				'user_id'		=> $globalId,
 				'site_key'		=> $dsSiteKey,
 				'timestamp'		=> time(),
-				'request_uuid'	=> sha1($globalId.$dsSiteKey.time().random_bytes(4))
+				'request_uuid'	=> sha1($globalId . $dsSiteKey . time() . random_bytes(4))
 			];
 
 			foreach ($delta as $stat => $delta) {
@@ -167,4 +166,4 @@ class SyncFriendStat extends Maintenance {
 }
 
 $maintClass = 'SyncFriendStat';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

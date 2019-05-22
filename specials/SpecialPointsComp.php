@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Special Points Comp Page
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 use DynamicSettings\Environment;
@@ -17,15 +16,15 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct('PointsComp', 'points_comp_reports');
@@ -34,9 +33,9 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @param  string	Sub page passed in the URL.
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		$this->getOutput()->addModuleStyles(['ext.cheevos.styles']);
@@ -50,9 +49,9 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Points Comp Reports
 	 *
-	 * @access	public
-	 * @param	mixed	Passed subpage parameter to be intval()'ed for a Global ID.
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @param  mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 * @return void	[Outputs to screen]
 	 */
 	public function pointsCompReports($subpage = null) {
 		$start = $this->getRequest()->getInt('st');
@@ -81,8 +80,8 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Run a report into the job queue.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function runReport() {
 		if ($this->getRequest()->wasPosted()) {
@@ -138,9 +137,9 @@ class SpecialPointsComp extends SpecialPage {
 
 			if ($report === false) {
 				$startTime = $this->getRequest()->getInt('start_time');
-				$startTime = strtotime(date('Y-m-d', $startTime).'T00:00:00+00:00');
+				$startTime = strtotime(date('Y-m-d', $startTime) . 'T00:00:00+00:00');
 				$endTime = $this->getRequest()->getInt('end_time');
-				$endTime = strtotime(date('Y-m-d', $endTime).'T23:59:59+00:00');
+				$endTime = strtotime(date('Y-m-d', $endTime) . 'T23:59:59+00:00');
 				$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
 				if (!$status->isGood()) {
 					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
@@ -184,11 +183,11 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Download CSV to client.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	private function downloadCSV($csv, $reportId) {
-		$filename = 'points_comp_report_'.$reportId;
+		$filename = 'points_comp_report_' . $reportId;
 
 		header("Content-type: text/csv");
 		header("Content-Disposition: attachment; filename=$filename.csv");
@@ -204,8 +203,8 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @access	public
-	 * @return	boolean
+	 * @access public
+	 * @return boolean
 	 */
 	public function isListed() {
 		if (Environment::isMasterWiki() && $this->getUser()->isAllowed('points_comp_reports')) {
@@ -217,8 +216,8 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access	public
-	 * @return	boolean	True
+	 * @access public
+	 * @return boolean	True
 	 */
 	public function isRestricted() {
 		return true;

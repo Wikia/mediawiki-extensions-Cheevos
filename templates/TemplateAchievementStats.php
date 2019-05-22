@@ -3,16 +3,14 @@
  * Cheevos
  * Cheevos Template
  *
- * @author		Hydra Wiki Platform Team
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Hydra Wiki Platform Team
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 class TemplateAchievementStats {
-
 	public function achievementsStats($wikis) {
 		global $wgOut, $wgRequest, $wgUser;
 
@@ -28,14 +26,14 @@ class TemplateAchievementStats {
 			'<option value="master">Master Wiki</option>'
 		];
 		foreach ($wikis as $wiki) {
-			$wikiSelectOptions[] = "<option value=\"". $wiki->getSiteKey() ."\">". $wiki->getNameForDisplay() ."</option>";
+			$wikiSelectOptions[] = "<option value=\"" . $wiki->getSiteKey() . "\">" . $wiki->getNameForDisplay() . "</option>";
 		}
 
 		$HTML .= "
 
 				<div class=\"navbar\">
 					Showing Stats for
-					<select id=\"wikiSelector\">".implode("",$wikiSelectOptions)."</select>
+					<select id=\"wikiSelector\">" . implode("", $wikiSelectOptions) . "</select>
 					<span id=\"loadingStats\">Loading Stats...</span>
 				</div>";
 
@@ -92,7 +90,6 @@ class TemplateAchievementStats {
 					</div>
 				</div>";
 
-
 		// VIEW FOR MEGAS
 		$HTML .= "
 				<div id=\"megas\" style=\"display: none;\" class=\"col-group\">
@@ -117,7 +114,6 @@ class TemplateAchievementStats {
 						</div>
 					</div>
 				</div>";
-
 
 		// VIEW FOR INDIVIDUAL WIKIS
 		$HTML .= "<div id=\"wikiStats\" style=\"display: none;\" class=\"col-group\">
@@ -183,9 +179,7 @@ class TemplateAchievementStats {
 					</div>
 				</div>";
 
-
-		//$HTML .= "<pre>".print_r($achievements,1)."</pre><pre>".print_r($categories,1)."</pre>";
+		// $HTML .= "<pre>".print_r($achievements,1)."</pre><pre>".print_r($categories,1)."</pre>";
 		return $HTML;
 	}
-
 }

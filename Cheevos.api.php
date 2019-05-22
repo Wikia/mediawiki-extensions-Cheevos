@@ -3,20 +3,19 @@
  * Cheevos
  * Achievements API
  *
- * @author		Alexia E. Smith, Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Achievements
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith, Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 class CheevosAPI extends ApiBase {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute() {
 		$this->params = $this->extractRequestParams();
@@ -38,8 +37,8 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Requirements for API call parameters.
 	 *
-	 * @access	public
-	 * @return	array	Merged array of parameter requirements.
+	 * @access public
+	 * @return array	Merged array of parameter requirements.
 	 */
 	public function getAllowedParams() {
 		return [
@@ -48,7 +47,7 @@ class CheevosAPI extends ApiBase {
 				ApiBase::PARAM_REQUIRED => true
 			],
 			'hashes' => [
-				ApiBase::PARAM_TYPE		=> 'string', //Actually a JSON string of a single dimensional array.
+				ApiBase::PARAM_TYPE		=> 'string', // Actually a JSON string of a single dimensional array.
 				ApiBase::PARAM_REQUIRED => false
 			]
 		];
@@ -57,8 +56,8 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Descriptions for API call parameters.
 	 *
-	 * @access	public
-	 * @return	array	Merged array of parameter descriptions.
+	 * @access public
+	 * @return array	Merged array of parameter descriptions.
 	 */
 	public function getParamDescription() {
 		return [
@@ -70,8 +69,8 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Acknowledge achievement awards.
 	 *
-	 * @access	public
-	 * @return	array
+	 * @access public
+	 * @return array
 	 */
 	public function acknowledgeAwards() {
 		$success = false;
@@ -85,14 +84,14 @@ class CheevosAPI extends ApiBase {
 				$this->dieUsageMsg(['notloggedin', $this->params['do']]);
 			}
 
-			$redisKey = 'cheevos:display:'.$globalId;
+			$redisKey = 'cheevos:display:' . $globalId;
 			$hashes = $this->getRequest()->getVal('hashes');
 			$hashes = @json_decode($hashes, true);
 
 			if (count($hashes)) {
 				array_unshift($hashes, $redisKey);
 
-				$success = (bool) call_user_func_array([$redis, 'hDel'], $hashes);
+				$success = (bool)call_user_func_array([$redis, 'hDel'], $hashes);
 			}
 		}
 
@@ -102,8 +101,8 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Get version of this API Extension.
 	 *
-	 * @access	public
-	 * @return	string	API Extension Version
+	 * @access public
+	 * @return string	API Extension Version
 	 */
 	public function getVersion() {
 		return '1.0';
@@ -112,8 +111,8 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Return a ApiFormatJson format object.
 	 *
-	 * @access	public
-	 * @return	object	ApiFormatJson
+	 * @access public
+	 * @return object	ApiFormatJson
 	 */
 	public function getCustomPrinter() {
 		return $this->getMain()->createPrinterByName('json');

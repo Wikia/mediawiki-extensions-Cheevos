@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Special Page
  *
- * @author		Hydra Wiki Platform Team
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Hydra Wiki Platform Team
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 use DynamicSettings\Environment;
@@ -17,15 +16,15 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		global $dsSiteKey;
@@ -44,15 +43,14 @@ class SpecialAchievementStats extends SpecialPage {
 
 		$lookup = CentralIdLookup::factory();
 		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
-
 	}
 
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @param  string	Sub page passed in the URL.
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		if (!$this->userCanExecute($this->getUser())) {
@@ -83,8 +81,8 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Cheevos List
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsStats() {
 		$sites = \DynamicSettings\Wiki::loadAll();
@@ -96,8 +94,8 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access	  public
-	 * @return	  boolean	 True
+	 * @access public
+	 * @return boolean	 True
 	 */
 	public function isRestricted() {
 		return true;

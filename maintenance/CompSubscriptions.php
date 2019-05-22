@@ -4,22 +4,21 @@
  * Cheevos
  * Comp Subscriptions Maintenance Script
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
-require_once(dirname(__DIR__, 3).'/maintenance/Maintenance.php');
+require_once dirname(__DIR__, 3) . '/maintenance/Maintenance.php';
 
 class CompSubscriptions extends Maintenance {
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -35,8 +34,8 @@ class CompSubscriptions extends Maintenance {
 	/**
 	 * Run comps.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function execute() {
 		if (!ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
@@ -65,8 +64,8 @@ class CompSubscriptions extends Maintenance {
 				$this->error("Number of monthsAgo is invalid.", 1);
 			}
 		}
-		$startTime = strtotime(date('Y-m-d', strtotime('first day of '.$monthsAgo.' month ago')).'T00:00:00+00:00');
-		$endTime = strtotime(date('Y-m-d', strtotime('last day of last month')).'T23:59:59+00:00');
+		$startTime = strtotime(date('Y-m-d', strtotime('first day of ' . $monthsAgo . ' month ago')) . 'T00:00:00+00:00');
+		$endTime = strtotime(date('Y-m-d', strtotime('last day of last month')) . 'T23:59:59+00:00');
 
 		if ($this->hasOption('timeRange')) {
 			list($_startTime, $_endTime) = explode('-', $this->getOption('timeRange'));
@@ -84,4 +83,4 @@ class CompSubscriptions extends Maintenance {
 }
 
 $maintClass = "CompSubscriptions";
-require_once(RUN_MAINTENANCE_IF_MAIN);
+require_once RUN_MAINTENANCE_IF_MAIN;

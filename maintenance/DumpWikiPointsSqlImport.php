@@ -4,21 +4,21 @@
  * Cheevos
  * Dumps WikiPoints tables to SQL to import into Cheevos.
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://www.gamepedia.com/
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://www.gamepedia.com/
 **/
-require_once(__DIR__.'/../../../maintenance/Maintenance.php');
+
+require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 class DumpWikiPointsSqlImport extends Maintenance {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -29,8 +29,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	/**
 	 * Main execution of the maintenance script
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function execute() {
 		global $dsSiteKey, $wgDBname;
@@ -73,8 +73,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		);
 		$total = intval($result->fetchRow()['total']);
 
-		$file = fopen($folder.'/'.$wgDBname.'_wiki_points.sql', 'w+');
-		fwrite($file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '".$dsSiteKey."');\n");
+		$file = fopen($folder . '/' . $wgDBname . '_wiki_points.sql', 'w+');
+		fwrite($file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '" . $dsSiteKey . "');\n");
 		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
 		fwrite($file, $sql);
 		$inserts = [];
@@ -107,7 +107,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 
 			while ($row = $result->fetchRow()) {
 				if ($insert !== false) {
-					fwrite($file, $insert.",\n");
+					fwrite($file, $insert . ",\n");
 				}
 
 				if ($row['user_id'] < 1 || $row['article_id'] < 1) {
@@ -126,11 +126,11 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				}
 				$calcInfo = json_decode($row['calculation_info'], true);
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$insert = '('.$globalId.', @site_id, '.$row['edit_id'].', '.$row['article_id'].', '.wfTimestamp(TS_UNIX, $row['created']).', '.$size.', '.$sizeDiff.', '.$row['score'].")";
+				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' . wfTimestamp(TS_UNIX, $row['created']) . ', ' . $size . ', ' . $sizeDiff . ', ' . $row['score'] . ")";
 			}
 			if ($maxLines >= 30000) {
 				$maxLines = 0;
-				fwrite($file, $insert.";\n");
+				fwrite($file, $insert . ";\n");
 				$insert = false;
 				fwrite($file, $sql);
 			}
@@ -144,4 +144,4 @@ class DumpWikiPointsSqlImport extends Maintenance {
 }
 
 $maintClass = 'DumpWikiPointsSqlImport';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

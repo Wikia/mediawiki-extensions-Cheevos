@@ -4,27 +4,26 @@
  * Cheevos
  * Wiki Points Multipliers Special Page
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2014 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2014 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
 class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct('WikiPointsMultipliers', 'wiki_points_multipliers');
@@ -33,9 +32,9 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @param  string	Sub page passed in the URL.
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		$this->checkPermissions();
@@ -66,8 +65,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Points Multipliers List
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersList() {
 		try {
@@ -83,8 +82,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Points Multipliers Form
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersForm() {
 		$this->multiplier = new \Cheevos\CheevosSiteEditPointsPromotion;
@@ -94,7 +93,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 			try {
 				$this->multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
 			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
+				wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 			}
 
 			if (!$this->multiplier) {
@@ -116,8 +115,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Saves submitted Points Multipliers Forms.
 	 *
-	 * @access	private
-	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
+	 * @access private
+	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function pointsMultipliersSave() {
 		$errors = [];
@@ -148,7 +147,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 					$page = Title::newFromText('Special:WikiPointsMultipliers');
 					$this->output->redirect($page->getFullURL());
 					return;
-			    } catch (\Cheevos\CheevosException $e) {
+				} catch (\Cheevos\CheevosException $e) {
 					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 				}
 			}
@@ -159,8 +158,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Delete Points Multipliers.
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @access public
+	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersDelete() {
 		if ($this->wgRequest->getVal('do') == 'delete') {
@@ -168,7 +167,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 			try {
 				$multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
 			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
+				wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 			}
 
 			if (!$multiplier) {
@@ -180,7 +179,7 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 				try {
 					\Cheevos\Cheevos::deletePointsPromotion($multiplierId);
 				} catch (\Cheevos\CheevosException $e) {
-					wfDebug(__METHOD__.": Error getting points promotion {$multiplierId}.");
+					wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 				}
 
 				$page = Title::newFromText('Special:WikiPointsMultipliers');
@@ -195,8 +194,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access	protected
-	 * @return	string
+	 * @access protected
+	 * @return string
 	 */
 	protected function getGroupName() {
 		return 'wikipoints';

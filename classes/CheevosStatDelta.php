@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Stat Monthly Count Model
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,8 +16,8 @@ class CheevosStatDelta extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model
+	 * @access public
+	 * @param  array $data Associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
 		$this->container['stat'] = isset($data['stat']) && is_string($data['stat']) ? $data['stat'] : '';

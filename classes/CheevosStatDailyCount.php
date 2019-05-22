@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Stat Daily Count Model
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2018 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2018 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,9 +16,9 @@ class CheevosStatDailyCount extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * @return	void
+	 * @access public
+	 * @param  array $data Associated array of property values initializing the model.
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['count'] = isset($data['count']) && is_int($data['count']) ? $data['count'] : 0;

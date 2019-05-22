@@ -4,12 +4,11 @@
  * Cheevos
  * Points Comp Report
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
 namespace Cheevos\Points;
@@ -22,7 +21,7 @@ class PointsCompReport {
 	 * Report Data
 	 * [{database row}]
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	private $reportData = [];
 
@@ -30,16 +29,16 @@ class PointsCompReport {
 	 * Report User Data
 	 * [$globalId => {database row}]
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	private $reportUser = [];
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @param	array	Report ID
-	 * @return	void
+	 * @access public
+	 * @param  array	Report ID
+	 * @return void
 	 */
 	public function __construct($reportId = 0) {
 		$this->reportData['report_id'] = intval($reportId);
@@ -48,9 +47,9 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from the report ID.
 	 *
-	 * @access	public
-	 * @param	integer	Report ID
-	 * @return	mixed	PointsCompReport object or null if it does not exist.
+	 * @access public
+	 * @param  integer	Report ID
+	 * @return mixed	PointsCompReport object or null if it does not exist.
 	 */
 	public static function newFromId($id) {
 		$report = new self($id);
@@ -63,9 +62,9 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from a database row.
 	 *
-	 * @access	public
-	 * @param	array	Report Row from the Database
-	 * @return	object	PointsCompReport
+	 * @access public
+	 * @param  array	Report Row from the Database
+	 * @return object	PointsCompReport
 	 */
 	private static function newFromRow($row) {
 		$report = new self($row['report_id']);
@@ -77,8 +76,8 @@ class PointsCompReport {
 	/**
 	 * Load information from the database.
 	 *
-	 * @access	private
-	 * @return	boolean	Sucess
+	 * @access private
+	 * @return boolean	Sucess
 	 */
 	private function load() {
 		$db = wfGetDB(DB_MASTER);
@@ -122,8 +121,8 @@ class PointsCompReport {
 	/**
 	 * Save to database.
 	 *
-	 * @access	public
-	 * @return	boolean	Success
+	 * @access public
+	 * @return boolean	Success
 	 */
 	public function save() {
 		$db = wfGetDB(DB_MASTER);
@@ -141,7 +140,7 @@ class PointsCompReport {
 
 			$this->reportData['report_id'] = intval($db->insertId());
 			if (!$success || !$this->reportData['report_id']) {
-				throw new MWException(__METHOD__.': Could not get a new report ID.');
+				throw new MWException(__METHOD__ . ': Could not get a new report ID.');
 			}
 		} else {
 			$success = $db->update(
@@ -181,8 +180,8 @@ class PointsCompReport {
 	/**
 	 * Update the report statistics into the database.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function updateStats() {
 		$db = wfGetDB(DB_MASTER);
@@ -190,7 +189,7 @@ class PointsCompReport {
 		foreach (['comp_new', 'comp_extended', 'comp_failed', 'comp_skipped', 'comp_performed', 'email_sent'] as $stat) {
 			$result = $db->select(
 				['points_comp_report_user'],
-				['count('.$stat.') as total'],
+				['count(' . $stat . ') as total'],
 				[
 					$stat => 1,
 					'report_id' => $this->reportData['report_id']
@@ -211,12 +210,12 @@ class PointsCompReport {
 	/**
 	 * Load a list of basic report information.
 	 *
-	 * @access	private
-	 * @param	integer	Start Position
-	 * @param	integer	Maximum Items to Return
-	 * @return	array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
+	 * @access private
+	 * @param  integer	Start Position
+	 * @param  integer	Maximum Items to Return
+	 * @return array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
-	static public function getReportsList($start = 0, $itemsPerPage = 50) {
+	public static function getReportsList($start = 0, $itemsPerPage = 50) {
 		$db = wfGetDB(DB_MASTER);
 
 		$result = $db->select(
@@ -254,8 +253,8 @@ class PointsCompReport {
 	/**
 	 * Get the report ID.
 	 *
-	 * @access	public
-	 * @return	integer	This report ID.
+	 * @access public
+	 * @return integer	This report ID.
 	 */
 	public function getReportId() {
 		return $this->reportData['report_id'];
@@ -264,8 +263,8 @@ class PointsCompReport {
 	/**
 	 * Get when this reported was generated.
 	 *
-	 * @access	public
-	 * @return	integer	Run time Unix timestamp.
+	 * @access public
+	 * @return integer	Run time Unix timestamp.
 	 */
 	public function getRunTime() {
 		return $this->reportData['run_time'];
@@ -274,8 +273,8 @@ class PointsCompReport {
 	/**
 	 * Get the minimum point threshold for this report.
 	 *
-	 * @access	public
-	 * @return	integer	Minimum point threshold.
+	 * @access public
+	 * @return integer	Minimum point threshold.
 	 */
 	public function getMinPointThreshold() {
 		return intval($this->reportData['min_points']);
@@ -284,9 +283,9 @@ class PointsCompReport {
 	/**
 	 * Set the minimum point threshold for this report.
 	 *
-	 * @access	public
-	 * @param	integer	Minimum point threshold for this report.
-	 * @return	void
+	 * @access public
+	 * @param  integer	Minimum point threshold for this report.
+	 * @return void
 	 */
 	public function setMinPointThreshold($minPointThreshold) {
 		$this->reportData['min_points'] = intval($minPointThreshold);
@@ -295,8 +294,8 @@ class PointsCompReport {
 	/**
 	 * Get the maximum point threshold for this report.
 	 *
-	 * @access	public
-	 * @return	integer	Maximum point threshold.
+	 * @access public
+	 * @return integer	Maximum point threshold.
 	 */
 	public function getMaxPointThreshold() {
 		return ($this->reportData['max_points'] === null ? null : intval($this->reportData['max_points']));
@@ -305,9 +304,9 @@ class PointsCompReport {
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
-	 * @access	public
-	 * @param	mixed	Maximum point threshold for this report or null for no maximum.
-	 * @return	void
+	 * @access public
+	 * @param  mixed	Maximum point threshold for this report or null for no maximum.
+	 * @return void
 	 */
 	public function setMaxPointThreshold($maxPointThreshold = null) {
 		$this->reportData['max_points'] = ($maxPointThreshold === null ? null : intval($maxPointThreshold));
@@ -316,12 +315,12 @@ class PointsCompReport {
 	/**
 	 * Validate point thresholds.
 	 *
-	 * @access	public
-	 * @param	integer	Minimum Point Threshold
-	 * @param	integer	[Optional] Maximum Point Threshold
-	 * @return	object	Status
+	 * @access public
+	 * @param  integer	Minimum Point Threshold
+	 * @param  integer	[Optional] Maximum Point Threshold
+	 * @return object	Status
 	 */
-	static public function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
+	public static function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
 		$minPointThreshold = intval($minPointThreshold);
 
 		if ($maxPointThreshold !== null) {
@@ -341,8 +340,8 @@ class PointsCompReport {
 	/**
 	 * Get the time period start timestamp.
 	 *
-	 * @access	public
-	 * @return	integer	Unix timestamp for the time period start.
+	 * @access public
+	 * @return integer	Unix timestamp for the time period start.
 	 */
 	public function getStartTime() {
 		return intval($this->reportData['start_time']);
@@ -351,9 +350,9 @@ class PointsCompReport {
 	/**
 	 * Set the time period start timestamp.
 	 *
-	 * @access	public
-	 * @param	integer	Unix timestamp for the time period start.
-	 * @return	void
+	 * @access public
+	 * @param  integer	Unix timestamp for the time period start.
+	 * @return void
 	 */
 	public function setStartTime($startTime) {
 		$this->reportData['start_time'] = intval($startTime);
@@ -362,8 +361,8 @@ class PointsCompReport {
 	/**
 	 * Get the time period end timestamp.
 	 *
-	 * @access	public
-	 * @return	integer	Unix timestamp for the time period end.
+	 * @access public
+	 * @return integer	Unix timestamp for the time period end.
 	 */
 	public function getEndTime() {
 		return intval($this->reportData['end_time']);
@@ -372,9 +371,9 @@ class PointsCompReport {
 	/**
 	 * Set the time period end timestamp.
 	 *
-	 * @access	public
-	 * @param	integer	Unix timestamp for the time period end.
-	 * @return	void
+	 * @access public
+	 * @param  integer	Unix timestamp for the time period end.
+	 * @return void
 	 */
 	public function setEndTime($endTime) {
 		$this->reportData['end_time'] = intval($endTime);
@@ -383,12 +382,12 @@ class PointsCompReport {
 	/**
 	 * Validate time range.
 	 *
-	 * @access	public
-	 * @param	integer	Start Timestamp
-	 * @param	integer	End Timestamp
-	 * @return	object	Status
+	 * @access public
+	 * @param  integer	Start Timestamp
+	 * @param  integer	End Timestamp
+	 * @return object	Status
 	 */
-	static public function validateTimeRange($startTime, $endTime) {
+	public static function validateTimeRange($startTime, $endTime) {
 		$startTime = intval($startTime);
 		$endTime = intval($endTime);
 
@@ -397,7 +396,7 @@ class PointsCompReport {
 		}
 
 		if ($startTime < 0) {
-			//Yes, nothing before 1970 exists.
+			// Yes, nothing before 1970 exists.
 			return \Status::newFatal('invalid_start_time');
 		}
 
@@ -411,8 +410,8 @@ class PointsCompReport {
 	/**
 	 * Return the total new comps.
 	 *
-	 * @access	public
-	 * @return	integer	Total new comps.
+	 * @access public
+	 * @return integer	Total new comps.
 	 */
 	public function getTotalNew() {
 		return intval($this->reportData['comp_new']);
@@ -421,8 +420,8 @@ class PointsCompReport {
 	/**
 	 * Return the total extended comps.
 	 *
-	 * @access	public
-	 * @return	integer	Total extended comps.
+	 * @access public
+	 * @return integer	Total extended comps.
 	 */
 	public function getTotalExtended() {
 		return intval($this->reportData['comp_extended']);
@@ -431,8 +430,8 @@ class PointsCompReport {
 	/**
 	 * Return the total failed comps.
 	 *
-	 * @access	public
-	 * @return	integer	Total failed comps.
+	 * @access public
+	 * @return integer	Total failed comps.
 	 */
 	public function getTotalFailed() {
 		return intval($this->reportData['comp_failed']);
@@ -441,8 +440,8 @@ class PointsCompReport {
 	/**
 	 * Return the total skipped comps.
 	 *
-	 * @access	public
-	 * @return	integer	Total skipped comps.
+	 * @access public
+	 * @return integer	Total skipped comps.
 	 */
 	public function getTotalSkipped() {
 		return intval($this->reportData['comp_skipped']);
@@ -451,8 +450,8 @@ class PointsCompReport {
 	/**
 	 * Return the total comps actually performed.
 	 *
-	 * @access	public
-	 * @return	integer	Total comps actually performed.
+	 * @access public
+	 * @return integer	Total comps actually performed.
 	 */
 	public function getTotalPerformed() {
 		return intval($this->reportData['comp_performed']);
@@ -461,8 +460,8 @@ class PointsCompReport {
 	/**
 	 * Return the total users emailed.
 	 *
-	 * @access	public
-	 * @return	integer	Total users emailed.
+	 * @access public
+	 * @return integer	Total users emailed.
 	 */
 	public function getTotalEmailed() {
 		return intval($this->reportData['email_sent']);
@@ -471,8 +470,8 @@ class PointsCompReport {
 	/**
 	 * Is this report finished running?
 	 *
-	 * @access	public
-	 * @return	boolean	Report Finished
+	 * @access public
+	 * @return boolean	Report Finished
 	 */
 	public function isFinished() {
 		return boolval($this->reportData['finished']);
@@ -481,9 +480,9 @@ class PointsCompReport {
 	/**
 	 * Set if the report is finished running.
 	 *
-	 * @access	public
-	 * @param	boolean	Report Finished
-	 * @return	void
+	 * @access public
+	 * @param  boolean	Report Finished
+	 * @return void
 	 */
 	public function setFinished($finished = false) {
 		$this->reportData['finished'] = intval(boolval($finished));
@@ -493,17 +492,17 @@ class PointsCompReport {
 	 * Add new report row.
 	 * Will overwrite existing rows with the same global ID.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @param	integer	Aggegrate Points for the month range.
-	 * @param	boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
-	 * @param	boolean	Is this an extended comp from a previous one?
-	 * @param	boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
-	 * @param	integer	Unix timestamp for when the current comp expires.
-	 * @param	integer	Unix timestamp for when the new comp expires.(If applicable.)
-	 * @param	boolean	Was the new comp actually performed?
-	 * @param	boolean	User emailed to let them know about their comp?
-	 * @return	void
+	 * @access public
+	 * @param  integer	Global User ID
+	 * @param  integer	Aggegrate Points for the month range.
+	 * @param  boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
+	 * @param  boolean	Is this an extended comp from a previous one?
+	 * @param  boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
+	 * @param  integer	Unix timestamp for when the current comp expires.
+	 * @param  integer	Unix timestamp for when the new comp expires.(If applicable.)
+	 * @param  boolean	Was the new comp actually performed?
+	 * @param  boolean	User emailed to let them know about their comp?
+	 * @return void
 	 */
 	public function addRow($globalId, $points, $compNew, $compExtended, $compFailed, $currentCompExpires, $newCompExpires, $compPerformed = false, $emailSent = false) {
 		$data = [
@@ -519,7 +518,7 @@ class PointsCompReport {
 		];
 
 		if (empty($data['global_id'])) {
-			throw new MWException(__METHOD__.': Invalid global user ID provided.');
+			throw new MWException(__METHOD__ . ': Invalid global user ID provided.');
 		}
 
 		if (isset($this->reportUser[$globalId])) {
@@ -532,8 +531,8 @@ class PointsCompReport {
 	/**
 	 * Get the next row in the report data.
 	 *
-	 * @access	public
-	 * @return	mixed	Report row data or false for no more values.
+	 * @access public
+	 * @return mixed	Report row data or false for no more values.
 	 */
 	public function getNextRow() {
 		$return = current($this->reportUser);
@@ -545,17 +544,17 @@ class PointsCompReport {
 	 * Run the report.
 	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
 	 *
-	 * @access	public
-	 * @param	integer	[Optional] Point Threshold
-	 * @param	integer	[Optional] Unix timestamp of the start time.
-	 * @param	integer	[Optional] Unix timestamp of the end time.
-	 * @param	integer	[Optional] Actually run comps.
-	 * @param	integer	[Optional] Send email to affected users.
-	 * @return	void
+	 * @access public
+	 * @param  integer	[Optional] Point Threshold
+	 * @param  integer	[Optional] Unix timestamp of the start time.
+	 * @param  integer	[Optional] Unix timestamp of the end time.
+	 * @param  integer	[Optional] Actually run comps.
+	 * @param  integer	[Optional] Send email to affected users.
+	 * @return void
 	 */
 	public function run($minPointThreshold = null, $maxPointThreshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
 		if (!\ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
-			throw new \MWException(__METHOD__.": Extension:Subscription must be loaded for this functionality.");
+			throw new \MWException(__METHOD__ . ": Extension:Subscription must be loaded for this functionality.");
 		}
 
 		if ($this->reportData['report_id'] > 0) {
@@ -580,20 +579,20 @@ class PointsCompReport {
 		}
 		$status = self::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 		if (!$status->isGood()) {
-			throw new \MWException(__METHOD__.': '.$status->getMessage());
+			throw new \MWException(__METHOD__ . ': ' . $status->getMessage());
 		}
 
-		//Number of complimentary months someone is given.
+		// Number of complimentary months someone is given.
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 
 		$timeStart = intval($timeStart);
 		$timeEnd = intval($timeEnd);
 		if ($timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0) {
-			throw new \MWException(__METHOD__.': The time range is invalid.');
+			throw new \MWException(__METHOD__ . ': The time range is invalid.');
 		}
 
 		$newExpiresDT = new \DateTime('now');
-		$newExpiresDT->add(new \DateInterval('P'.$compedSubscriptionMonths.'M'));
+		$newExpiresDT->add(new \DateInterval('P' . $compedSubscriptionMonths . 'M'));
 		$newExpires = $newExpiresDT->getTimestamp();
 
 		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
@@ -621,7 +620,7 @@ class PointsCompReport {
 
 		foreach ($statProgress as $progress) {
 			$isExtended = false;
-			$currentExpires = 0; //$newExpires is set outside of the loop up above.
+			$currentExpires = 0; // $newExpires is set outside of the loop up above.
 
 			if ($progress->getCount() < $minPointThreshold) {
 				continue;
@@ -639,7 +638,7 @@ class PointsCompReport {
 
 			$subscription = $this->getSubscription($globalId, $gamepediaPro);
 			if ($subscription['paid']) {
-				//Do not mess with paid subscriptions.
+				// Do not mess with paid subscriptions.
 				$this->addRow($globalId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
 				continue;
 			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
@@ -669,10 +668,10 @@ class PointsCompReport {
 	/**
 	 * Get current subscription status.
 	 *
-	 * @access	public
-	 * @param	integer	User Global Id
-	 * @param	object	Subscription Provider
-	 * @return	array	Array of boolean status flags.
+	 * @access public
+	 * @param  integer	User Global Id
+	 * @param  object	Subscription Provider
+	 * @return array	Array of boolean status flags.
 	 */
 	public function getSubscription($globalId, \Hydra\SubscriptionProvider $provider) {
 		$hasSubscription = false;
@@ -696,8 +695,8 @@ class PointsCompReport {
 	/**
 	 * Run through all users and comp subscriptions.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function compAllSubscriptions() {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
@@ -711,21 +710,21 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @param	integer	Number of months into the future to compensate.
-	 * @return	boolean	Success
+	 * @access public
+	 * @param  integer	Global User ID
+	 * @param  integer	Number of months into the future to compensate.
+	 * @return boolean	Success
 	 */
 	public function compSubscription($globalId, $numberOfMonths) {
 		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
 
 		$newExpiresDT = new \DateTime('now');
-		$newExpiresDT->add(new \DateInterval('P'.$numberOfMonths.'M'));
+		$newExpiresDT->add(new \DateInterval('P' . $numberOfMonths . 'M'));
 		$newExpires = $newExpiresDT->getTimestamp();
 
 		$subscription = $this->getSubscription($globalId, $gamepediaPro);
 		if ($subscription['paid'] === true) {
-			//Do not mess with paid subscriptions.
+			// Do not mess with paid subscriptions.
 			return false;
 		} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 			$gamepediaPro->cancelCompedSubscription($globalId);
@@ -756,8 +755,8 @@ class PointsCompReport {
 	/**
 	 * Run through all users and send emails.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @access public
+	 * @return void
 	 */
 	public function sendAllEmails() {
 		foreach ($this->reportUser as $globalId => $data) {
@@ -768,9 +767,9 @@ class PointsCompReport {
 	/**
 	 * Send user comp email.
 	 *
-	 * @access	public
-	 * @param	integer	Global ID
-	 * @return	boolean	Success
+	 * @access public
+	 * @param  integer	Global ID
+	 * @return boolean	Success
 	 */
 	public function sendUserEmail($globalId) {
 		$success = false;
@@ -811,17 +810,17 @@ class PointsCompReport {
 	/**
 	 * Get the number of active subscriptions.
 	 *
-	 * @access	public
-	 * @return	integer	Number of active subscriptions.
+	 * @access public
+	 * @return integer	Number of active subscriptions.
 	 */
-	static public function getNumberOfActiveSubscriptions() {
+	public static function getNumberOfActiveSubscriptions() {
 		$db = wfGetDB(DB_MASTER);
 		$result = $db->select(
 			['points_comp_report_user'],
 			['global_id'],
 			[
 				'comp_performed' => 1,
-				"current_comp_expires > ".time()." OR new_comp_expires > ".time()
+				"current_comp_expires > " . time() . " OR new_comp_expires > " . time()
 			],
 			__METHOD__,
 			[
