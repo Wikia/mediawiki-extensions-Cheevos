@@ -17,13 +17,13 @@ class TemplateWikiPoints {
 	/**
 	 * Points table
 	 *
-	 * @access public
 	 * @param  array	Array of rows of top points
 	 * @param  string	Pagination HTML
 	 * @param  integer	Current starting position.
 	 * @param  array	[Optional] Load wiki information for sites mode.
 	 * @param  boolean	[Optional] Including all wikis or not.
 	 * @param  boolean	[Optional] Showing monthly totals.
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function pointsBlockHtml($userPoints, $pagination, $start, $wikis = [], $isSitesMode = false, $isMonthly = false) {
@@ -79,7 +79,6 @@ class TemplateWikiPoints {
 	/**
 	 * Get links for various wiki points special pages.
 	 *
-	 * @access private
 	 * @return array	Anchor links.
 	 */
 	public static function getWikiPointsLinks() {
@@ -99,10 +98,10 @@ class TemplateWikiPoints {
 	/**
 	 * Get simple dumb pagination.
 	 *
-	 * @access public
 	 * @param  string	URL Destination
 	 * @param  integer	Number of items per page.
 	 * @param  integer	Current starting position.
+	 *
 	 * @return string	HTML
 	 */
 	public static function getSimplePagination(Title $title, $itemsPerPage, $start) {

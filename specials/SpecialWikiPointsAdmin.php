@@ -22,7 +22,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -32,8 +31,8 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -60,7 +59,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Shows points only from the searched user, if found.
 	 *
-	 * @access private
 	 * @return void	[Outputs to screen]
 	 */
 	private function lookUpUser() {
@@ -103,7 +101,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Adjust points by an arbitrary integer amount.
 	 *
-	 * @access private
 	 * @return void	[Outputs to screen]
 	 */
 	private function adjustPoints() {
@@ -136,7 +133,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

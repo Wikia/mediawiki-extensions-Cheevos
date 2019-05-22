@@ -23,7 +23,6 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -48,8 +47,8 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -81,7 +80,6 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Cheevos List
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsStats() {
@@ -94,7 +92,6 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access public
 	 * @return boolean	 True
 	 */
 	public function isRestricted() {
@@ -104,7 +101,6 @@ class SpecialAchievementStats extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

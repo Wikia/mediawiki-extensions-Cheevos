@@ -33,11 +33,11 @@ class CheevosIncrementJob extends \SyncService\Job {
 	/**
 	 * Example Job
 	 *
-	 * @access public
 	 * @param  array	Named arguments passed by the command that queued this job.
 	 * - example_1	First argument passed to ExampleJob::queue().
 	 * - example_2	Second argument passed to ExampleJob::queue().
 	 * - ...
+	 *
 	 * @return boolean	Success, reported to Worker class to set the exit status of the process.
 	 */
 	public function execute($increment) {

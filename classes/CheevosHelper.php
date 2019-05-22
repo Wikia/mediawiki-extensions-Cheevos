@@ -16,7 +16,6 @@ class CheevosHelper {
 	/**
 	 * Return the language code the current user.
 	 *
-	 * @access public
 	 * @return string	Language Code
 	 */
 	public static function getUserLanguage() {
@@ -32,7 +31,6 @@ class CheevosHelper {
 	/**
 	 * Return the language for the wiki.
 	 *
-	 * @access public
 	 * @return string	Language Code
 	 */
 	public static function getWikiLanuage() {
@@ -43,8 +41,8 @@ class CheevosHelper {
 	/**
 	 * Turns an array of CheevosStatProgress objects into an array that is easier to consume.
 	 *
-	 * @access public
 	 * @param  array	Flat array.
+	 *
 	 * @return array	Nice array.
 	 */
 	public static function makeNiceStatProgressArray($stats) {
@@ -67,8 +65,8 @@ class CheevosHelper {
 	/**
 	 * Get a site name for a site key.
 	 *
-	 * @access public
 	 * @param  string	Site Key
+	 *
 	 * @return string	Site Name with Language
 	 */
 	public static function getSiteName($siteKey) {

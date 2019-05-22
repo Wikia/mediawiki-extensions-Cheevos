@@ -22,7 +22,6 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -32,8 +31,8 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -59,7 +58,6 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Levels Form
 	 *
-	 * @access public
 	 * @return void	[Outputs to Screen]
 	 */
 	public function levelsForm() {
@@ -98,7 +96,6 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

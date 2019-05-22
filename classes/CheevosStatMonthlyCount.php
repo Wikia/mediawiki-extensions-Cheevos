@@ -16,8 +16,8 @@ class CheevosStatMonthlyCount extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access public
 	 * @param  array $data Associated array of property values initializing the model.
+	 *
 	 * @return void
 	 */
 	public function __construct(array $data = null) {

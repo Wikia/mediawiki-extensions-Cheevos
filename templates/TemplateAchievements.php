@@ -16,12 +16,12 @@ class TemplateAchievements {
 	/**
 	 * Achievement List
 	 *
-	 * @access public
 	 * @param  array	Array of Achievement Object
 	 * @param  array	Array of Category Information
 	 * @param  array	Array of User Status for loaded user.
 	 * @param  object	User
 	 * @param  integer	User's Global ID
+	 *
 	 * @return string	Built HTML
 	 */
 	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
@@ -96,10 +96,10 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @access public
 	 * @param  array	Achievement Information
 	 * @param  string	Site Key
 	 * @param  integer	Global User ID
+	 *
 	 * @return string	Built HTML
 	 */
 	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
@@ -133,13 +133,13 @@ class TemplateAchievements {
 	/**
 	 * Generates achievement block to display.
 	 *
-	 * @access public
 	 * @param  array	Achievement Information
 	 * @param  boolean	[Optional] Show Controls
 	 * @param  array	[Optional] AchievementStatus Objects
 	 * @param  array	[Optional] All loaded achievements for showing required criteria.
 	 * @param  boolean	[Optional] Show Required By even if hidden by secret.
 	 * @param  boolean	[Optional] Show revert button.
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
@@ -261,8 +261,8 @@ class TemplateAchievements {
 	/**
 	 * Generates block of achievements to display.
 	 *
-	 * @access public
 	 * @param  string	HTML blocks of achievements.
+	 *
 	 * @return string	Built HTML
 	 */
 	public function achievementDisplay($blocks) {

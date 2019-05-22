@@ -23,7 +23,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -53,8 +52,8 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -98,7 +97,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Cheevos List
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList() {
@@ -143,7 +141,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Form
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsForm() {
@@ -186,7 +183,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Saves submitted achievement forms.
 	 *
-	 * @access private
 	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function acheivementsSave() {
@@ -311,7 +307,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Revert
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsRevert() {
@@ -370,8 +365,8 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Delete/Restore
 	 *
-	 * @access public
 	 * @param  string	Delete or Restore action take.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsDelete($action) {
@@ -428,7 +423,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Award Form
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function awardForm() {
@@ -451,7 +445,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Saves submitted award forms.
 	 *
-	 * @access private
 	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function awardSave() {
@@ -574,7 +567,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @access public
 	 * @return boolean
 	 */
 	public function isListed() {
@@ -587,7 +579,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access public
 	 * @return boolean	True
 	 */
 	public function isRestricted() {
@@ -597,7 +588,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

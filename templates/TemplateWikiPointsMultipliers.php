@@ -22,8 +22,8 @@ class TemplateWikiPointsMultipliers {
 	/**
 	 * Points Multipliers List
 	 *
-	 * @access public
 	 * @param  array	Multidimensional array of multipliers information
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function pointsMultipliersList($multipliers) {
@@ -118,8 +118,8 @@ class TemplateWikiPointsMultipliers {
 	/**
 	 * Points Multiplier Deletion Form
 	 *
-	 * @access public
 	 * @param  object	PointsMultipler object.
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function pointsMultipliersDelete($multiplier) {

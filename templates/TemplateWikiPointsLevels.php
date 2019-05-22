@@ -15,10 +15,10 @@ class TemplateWikiPointsLevels {
 	/**
 	 * Report Card Form
 	 *
-	 * @access public
 	 * @param  array	[Optional] Array of existing levels.
 	 * @param  array	[Optional] Key name => Error of errors
 	 * @param  boolean	[Optional] If the save was successful.
+	 *
 	 * @return string	Built HTML
 	 */
 	public function levelsForm($levels = [], $errors = [], $success = false) {

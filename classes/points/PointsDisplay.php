@@ -43,6 +43,7 @@ class PointsDisplay {
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
+	 *
 	 * @return array	generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
@@ -92,7 +93,6 @@ class PointsDisplay {
 	/**
 	 * Get a standard points block HTML output.
 	 *
-	 * @access public
 	 * @param  string	[Optional] Limit by or override the site key used.
 	 * @param  integer	[Optional] Global ID to filter by.
 	 * @param  integer	[Optional] Items Per Page
@@ -104,6 +104,7 @@ class PointsDisplay {
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
 	 * 					'table' Uses a standard wikitable class HTML table.
 	 * @param  object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
+	 *
 	 * @return string	HTML
 	 */
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
@@ -236,13 +237,13 @@ class PointsDisplay {
 	/**
 	 * Get a list of earned wiki points grouped by criteria.
 	 *
-	 * @access public
 	 * @param  string	[Optional] Limit by or override the site key used.
 	 * @param  integer	[Optional] Global ID to filter by.
 	 * @param  integer	[Optional] Items Per Page
 	 * @param  integer	[Optional] Offset to start at.
 	 * @param  boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
 	 * @param  boolean	[Optional] Show monthly totals.
+	 *
 	 * @return array	CheevosStatProgress Objects
 	 */
 	public static function getPoints($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
@@ -297,6 +298,7 @@ class PointsDisplay {
 	 * Example: FakeDomain => FakeDomain
 	 *
 	 * @param  string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 *
 	 * @return string	Bare host name extracted or false if unable to parse.
 	 */
 	public static function extractDomain($fragment) {
@@ -322,6 +324,7 @@ class PointsDisplay {
 	 * @param  integer	Global ID
 	 * @param  string	[Optional] Site Key
 	 * @param  integer	[Optional] Aggregate months into the past.
+	 *
 	 * @return integer	Wiki Points
 	 */
 	public static function getWikiPointsForRange($globalId, $siteKey = null, $monthsAgo = null) {

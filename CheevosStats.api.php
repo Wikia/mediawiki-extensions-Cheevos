@@ -21,7 +21,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Initiates some needed classes.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	private function init() {
@@ -38,7 +37,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute() {
@@ -323,7 +321,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Requirements for API call parameters.
 	 *
-	 * @access public
 	 * @return array	Merged array of parameter requirements.
 	 */
 	public function getAllowedParams() {
@@ -346,7 +343,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Descriptions for API call parameters.
 	 *
-	 * @access public
 	 * @return array	Merged array of parameter descriptions.
 	 */
 	public function getParamDescription() {
@@ -359,7 +355,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Get version of this API Extension.
 	 *
-	 * @access public
 	 * @return string	API Extension Version
 	 */
 	public function getVersion() {
@@ -369,7 +364,6 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Return a ApiFormatJson format object.
 	 *
-	 * @access public
 	 * @return object	ApiFormatJson
 	 */
 	public function getCustomPrinter() {

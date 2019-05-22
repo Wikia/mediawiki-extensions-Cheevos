@@ -40,7 +40,6 @@ class PointLevels {
 	/**
 	 * Main Initializer
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function init() {
@@ -54,7 +53,6 @@ class PointLevels {
 	/**
 	 * Get the level information.
 	 *
-	 * @access public
 	 * @return array	Array of levels containing $point => $score key value pairs.
 	 */
 	public static function getLevels() {
@@ -66,7 +64,6 @@ class PointLevels {
 	/**
 	 * Load the level values from the database.
 	 *
-	 * @access private
 	 * @return void
 	 */
 	private static function loadLevels() {
@@ -103,8 +100,8 @@ class PointLevels {
 	/**
 	 * Load the level values from the database.
 	 *
-	 * @access public
 	 * @param  array	Array of levels containing $point => $score key value pairs.
+	 *
 	 * @return boolean	Successful Save
 	 */
 	public static function saveLevels($levels) {

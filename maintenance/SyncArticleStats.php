@@ -17,7 +17,6 @@ class SyncArticleStats extends Maintenance {
 	/**
 	 * Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -29,7 +28,6 @@ class SyncArticleStats extends Maintenance {
 	/**
 	 * Main execution of the maintenance script
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function execute() {

@@ -36,8 +36,8 @@ class PointsCompReport {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @param  array	Report ID
+	 *
 	 * @return void
 	 */
 	public function __construct($reportId = 0) {
@@ -47,8 +47,8 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from the report ID.
 	 *
-	 * @access public
 	 * @param  integer	Report ID
+	 *
 	 * @return mixed	PointsCompReport object or null if it does not exist.
 	 */
 	public static function newFromId($id) {
@@ -62,8 +62,8 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from a database row.
 	 *
-	 * @access public
 	 * @param  array	Report Row from the Database
+	 *
 	 * @return object	PointsCompReport
 	 */
 	private static function newFromRow($row) {
@@ -76,7 +76,6 @@ class PointsCompReport {
 	/**
 	 * Load information from the database.
 	 *
-	 * @access private
 	 * @return boolean	Sucess
 	 */
 	private function load() {
@@ -121,7 +120,6 @@ class PointsCompReport {
 	/**
 	 * Save to database.
 	 *
-	 * @access public
 	 * @return boolean	Success
 	 */
 	public function save() {
@@ -180,7 +178,6 @@ class PointsCompReport {
 	/**
 	 * Update the report statistics into the database.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function updateStats() {
@@ -210,9 +207,9 @@ class PointsCompReport {
 	/**
 	 * Load a list of basic report information.
 	 *
-	 * @access private
 	 * @param  integer	Start Position
 	 * @param  integer	Maximum Items to Return
+	 *
 	 * @return array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
 	public static function getReportsList($start = 0, $itemsPerPage = 50) {
@@ -253,7 +250,6 @@ class PointsCompReport {
 	/**
 	 * Get the report ID.
 	 *
-	 * @access public
 	 * @return integer	This report ID.
 	 */
 	public function getReportId() {
@@ -263,7 +259,6 @@ class PointsCompReport {
 	/**
 	 * Get when this reported was generated.
 	 *
-	 * @access public
 	 * @return integer	Run time Unix timestamp.
 	 */
 	public function getRunTime() {
@@ -273,7 +268,6 @@ class PointsCompReport {
 	/**
 	 * Get the minimum point threshold for this report.
 	 *
-	 * @access public
 	 * @return integer	Minimum point threshold.
 	 */
 	public function getMinPointThreshold() {
@@ -283,8 +277,8 @@ class PointsCompReport {
 	/**
 	 * Set the minimum point threshold for this report.
 	 *
-	 * @access public
 	 * @param  integer	Minimum point threshold for this report.
+	 *
 	 * @return void
 	 */
 	public function setMinPointThreshold($minPointThreshold) {
@@ -294,7 +288,6 @@ class PointsCompReport {
 	/**
 	 * Get the maximum point threshold for this report.
 	 *
-	 * @access public
 	 * @return integer	Maximum point threshold.
 	 */
 	public function getMaxPointThreshold() {
@@ -304,8 +297,8 @@ class PointsCompReport {
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
-	 * @access public
 	 * @param  mixed	Maximum point threshold for this report or null for no maximum.
+	 *
 	 * @return void
 	 */
 	public function setMaxPointThreshold($maxPointThreshold = null) {
@@ -315,9 +308,9 @@ class PointsCompReport {
 	/**
 	 * Validate point thresholds.
 	 *
-	 * @access public
 	 * @param  integer	Minimum Point Threshold
 	 * @param  integer	[Optional] Maximum Point Threshold
+	 *
 	 * @return object	Status
 	 */
 	public static function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
@@ -340,7 +333,6 @@ class PointsCompReport {
 	/**
 	 * Get the time period start timestamp.
 	 *
-	 * @access public
 	 * @return integer	Unix timestamp for the time period start.
 	 */
 	public function getStartTime() {
@@ -350,8 +342,8 @@ class PointsCompReport {
 	/**
 	 * Set the time period start timestamp.
 	 *
-	 * @access public
 	 * @param  integer	Unix timestamp for the time period start.
+	 *
 	 * @return void
 	 */
 	public function setStartTime($startTime) {
@@ -361,7 +353,6 @@ class PointsCompReport {
 	/**
 	 * Get the time period end timestamp.
 	 *
-	 * @access public
 	 * @return integer	Unix timestamp for the time period end.
 	 */
 	public function getEndTime() {
@@ -371,8 +362,8 @@ class PointsCompReport {
 	/**
 	 * Set the time period end timestamp.
 	 *
-	 * @access public
 	 * @param  integer	Unix timestamp for the time period end.
+	 *
 	 * @return void
 	 */
 	public function setEndTime($endTime) {
@@ -382,9 +373,9 @@ class PointsCompReport {
 	/**
 	 * Validate time range.
 	 *
-	 * @access public
 	 * @param  integer	Start Timestamp
 	 * @param  integer	End Timestamp
+	 *
 	 * @return object	Status
 	 */
 	public static function validateTimeRange($startTime, $endTime) {
@@ -410,7 +401,6 @@ class PointsCompReport {
 	/**
 	 * Return the total new comps.
 	 *
-	 * @access public
 	 * @return integer	Total new comps.
 	 */
 	public function getTotalNew() {
@@ -420,7 +410,6 @@ class PointsCompReport {
 	/**
 	 * Return the total extended comps.
 	 *
-	 * @access public
 	 * @return integer	Total extended comps.
 	 */
 	public function getTotalExtended() {
@@ -430,7 +419,6 @@ class PointsCompReport {
 	/**
 	 * Return the total failed comps.
 	 *
-	 * @access public
 	 * @return integer	Total failed comps.
 	 */
 	public function getTotalFailed() {
@@ -440,7 +428,6 @@ class PointsCompReport {
 	/**
 	 * Return the total skipped comps.
 	 *
-	 * @access public
 	 * @return integer	Total skipped comps.
 	 */
 	public function getTotalSkipped() {
@@ -450,7 +437,6 @@ class PointsCompReport {
 	/**
 	 * Return the total comps actually performed.
 	 *
-	 * @access public
 	 * @return integer	Total comps actually performed.
 	 */
 	public function getTotalPerformed() {
@@ -460,7 +446,6 @@ class PointsCompReport {
 	/**
 	 * Return the total users emailed.
 	 *
-	 * @access public
 	 * @return integer	Total users emailed.
 	 */
 	public function getTotalEmailed() {
@@ -470,7 +455,6 @@ class PointsCompReport {
 	/**
 	 * Is this report finished running?
 	 *
-	 * @access public
 	 * @return boolean	Report Finished
 	 */
 	public function isFinished() {
@@ -480,8 +464,8 @@ class PointsCompReport {
 	/**
 	 * Set if the report is finished running.
 	 *
-	 * @access public
 	 * @param  boolean	Report Finished
+	 *
 	 * @return void
 	 */
 	public function setFinished($finished = false) {
@@ -492,7 +476,6 @@ class PointsCompReport {
 	 * Add new report row.
 	 * Will overwrite existing rows with the same global ID.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  integer	Aggegrate Points for the month range.
 	 * @param  boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
@@ -502,6 +485,7 @@ class PointsCompReport {
 	 * @param  integer	Unix timestamp for when the new comp expires.(If applicable.)
 	 * @param  boolean	Was the new comp actually performed?
 	 * @param  boolean	User emailed to let them know about their comp?
+	 *
 	 * @return void
 	 */
 	public function addRow($globalId, $points, $compNew, $compExtended, $compFailed, $currentCompExpires, $newCompExpires, $compPerformed = false, $emailSent = false) {
@@ -531,7 +515,6 @@ class PointsCompReport {
 	/**
 	 * Get the next row in the report data.
 	 *
-	 * @access public
 	 * @return mixed	Report row data or false for no more values.
 	 */
 	public function getNextRow() {
@@ -544,12 +527,12 @@ class PointsCompReport {
 	 * Run the report.
 	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
 	 *
-	 * @access public
 	 * @param  integer	[Optional] Point Threshold
 	 * @param  integer	[Optional] Unix timestamp of the start time.
 	 * @param  integer	[Optional] Unix timestamp of the end time.
 	 * @param  integer	[Optional] Actually run comps.
 	 * @param  integer	[Optional] Send email to affected users.
+	 *
 	 * @return void
 	 */
 	public function run($minPointThreshold = null, $maxPointThreshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
@@ -668,9 +651,9 @@ class PointsCompReport {
 	/**
 	 * Get current subscription status.
 	 *
-	 * @access public
 	 * @param  integer	User Global Id
 	 * @param  object	Subscription Provider
+	 *
 	 * @return array	Array of boolean status flags.
 	 */
 	public function getSubscription($globalId, \Hydra\SubscriptionProvider $provider) {
@@ -695,7 +678,6 @@ class PointsCompReport {
 	/**
 	 * Run through all users and comp subscriptions.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function compAllSubscriptions() {
@@ -710,9 +692,9 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  integer	Number of months into the future to compensate.
+	 *
 	 * @return boolean	Success
 	 */
 	public function compSubscription($globalId, $numberOfMonths) {
@@ -755,7 +737,6 @@ class PointsCompReport {
 	/**
 	 * Run through all users and send emails.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function sendAllEmails() {
@@ -767,8 +748,8 @@ class PointsCompReport {
 	/**
 	 * Send user comp email.
 	 *
-	 * @access public
 	 * @param  integer	Global ID
+	 *
 	 * @return boolean	Success
 	 */
 	public function sendUserEmail($globalId) {
@@ -810,7 +791,6 @@ class PointsCompReport {
 	/**
 	 * Get the number of active subscriptions.
 	 *
-	 * @access public
 	 * @return integer	Number of active subscriptions.
 	 */
 	public static function getNumberOfActiveSubscriptions() {

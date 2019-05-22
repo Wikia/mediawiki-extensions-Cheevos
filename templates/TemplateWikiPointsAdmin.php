@@ -15,9 +15,9 @@ class TemplateWikiPointsAdmin {
 	/**
 	 * Initialize form HTML for each page.
 	 *
-	 * @access public
 	 * @param  object	Title for special page.
 	 * @param  array	[Optional] Form data for resubmission.
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function userSearch(Title $title, $form = []) {
@@ -40,10 +40,10 @@ class TemplateWikiPointsAdmin {
 	/**
 	 * User lookup display
 	 *
-	 * @access public
 	 * @param  array	Raw table row of looked up user if found.
 	 * @param  array	[Optional] Earned point entries for the found user.
 	 * @param  array	[Optional] Form data for resubmission.
+	 *
 	 * @return string	Built HTML
 	 */
 	public static function lookup($user, $points = [], $form = []) {

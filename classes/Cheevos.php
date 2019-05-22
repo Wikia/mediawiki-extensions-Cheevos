@@ -19,6 +19,7 @@ class Cheevos {
 	 * @param  string $type
 	 * @param  string $path
 	 * @param  array  $data
+	 *
 	 * @return void
 	 */
 	private static function request($type, $path, $data = []) {
@@ -77,6 +78,7 @@ class Cheevos {
 	 *
 	 * @param  string $path
 	 * @param  array  $data
+	 *
 	 * @return void
 	 */
 	private static function get($path, $data = []) {
@@ -88,6 +90,7 @@ class Cheevos {
 	 *
 	 * @param  string $path
 	 * @param  array  $data
+	 *
 	 * @return void
 	 */
 	private static function put($path, $data = []) {
@@ -99,6 +102,7 @@ class Cheevos {
 	 *
 	 * @param  string $path
 	 * @param  array  $data
+	 *
 	 * @return void
 	 */
 	private static function post($path, $data = []) {
@@ -110,6 +114,7 @@ class Cheevos {
 	 *
 	 * @param  string $path
 	 * @param  array  $data
+	 *
 	 * @return void
 	 */
 	private static function delete($path, $data = []) {
@@ -119,11 +124,11 @@ class Cheevos {
 	/**
 	 * Handle the return from a CURL request.
 	 *
-	 * @access private
 	 * @param  array   $return   - Return from CURL request.
 	 * @param  string  $expected - Expected array key to return.
 	 * @param  string  $class    - Class to initialize with returned data.
 	 * @param  boolean $single   - Only return the first request of an initialized class.
+	 *
 	 * @return mixed
 	 */
 	private static function return($return, $expected = null, $class = null, $single = false) {
@@ -171,6 +176,7 @@ class Cheevos {
 	 * Validate data recieved from Cheevos
 	 *
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	private static function validateBody($body) {
@@ -189,7 +195,6 @@ class Cheevos {
 	/**
 	 * Invalid API Cache
 	 *
-	 * @access public
 	 * @return boolean	Success
 	 */
 	public static function invalidateCache() {
@@ -223,6 +228,7 @@ class Cheevos {
 	 * Returns all relationships for a user by global id
 	 *
 	 * @param  int $globalId
+	 *
 	 * @return array
 	 */
 	public static function getFriends($globalId) {
@@ -235,6 +241,7 @@ class Cheevos {
 	 *
 	 * @param  from user, int $user1
 	 * @param  to user, int   $user2
+	 *
 	 * @return array
 	 */
 	public static function getFriendStatus($user1, $user2) {
@@ -247,6 +254,7 @@ class Cheevos {
 	 *
 	 * @param  from user, int $user1
 	 * @param  to user, int   $user2
+	 *
 	 * @return array
 	 */
 	public static function createFriendRequest($user1, $user2) {
@@ -259,6 +267,7 @@ class Cheevos {
 	 *
 	 * @param  from user, int $user1
 	 * @param  to user, int   $user2
+	 *
 	 * @return array
 	 */
 	public static function acceptFriendRequest($user1, $user2) {
@@ -270,6 +279,7 @@ class Cheevos {
 	 *
 	 * @param  from user, int $user1
 	 * @param  to user, int   $user2
+	 *
 	 * @return array
 	 */
 	public static function removeFriend($user1, $user2) {
@@ -282,6 +292,7 @@ class Cheevos {
 	 *
 	 * @param  from user, int $user1
 	 * @param  to user, int   $user2
+	 *
 	 * @return array
 	 */
 	public static function cancelFriendRequest($user1, $user2) {
@@ -291,8 +302,8 @@ class Cheevos {
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @access public
 	 * @param  string	MD5 Hash Site Key
+	 *
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getAchievements($siteKey = null) {
@@ -333,8 +344,8 @@ class Cheevos {
 	/**
 	 * Get achievement by database ID with caching.
 	 *
-	 * @access public
 	 * @param  integer	Achievement ID
+	 *
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getAchievement($id) {
@@ -370,9 +381,9 @@ class Cheevos {
 	/**
 	 * Soft delete an achievement from the service.
 	 *
-	 * @access public
 	 * @param  integer	Achievement ID
 	 * @param  integer	Global ID
+	 *
 	 * @return mixed	Array
 	 */
 	public static function deleteAchievement($id, $globalId) {
@@ -390,6 +401,7 @@ class Cheevos {
 	 *
 	 * @param  array $body
 	 * @param  int   $id
+	 *
 	 * @return void
 	 */
 	private static function putAchievement($body, $id = null) {
@@ -406,9 +418,9 @@ class Cheevos {
 	/**
 	 * Update an existing achievement on the service.
 	 *
-	 * @access public
 	 * @param  integer	Achievement ID
 	 * @param  array                   $body
+	 *
 	 * @return void
 	 */
 	public static function updateAchievement($id, $body) {
@@ -419,6 +431,7 @@ class Cheevos {
 	 * Create Achievement
 	 *
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function createAchievement($body) {
@@ -430,6 +443,7 @@ class Cheevos {
 	 *
 	 * @acess  public
 	 * @param  boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
+	 *
 	 * @return void
 	 */
 	public static function getCategories($skipCache = false) {
@@ -470,6 +484,7 @@ class Cheevos {
 	 * Get Category by ID
 	 *
 	 * @param  int $id
+	 *
 	 * @return void
 	 */
 	public static function getCategory($id) {
@@ -507,6 +522,7 @@ class Cheevos {
 	 *
 	 * @param  int $id
 	 * @param  int $userId
+	 *
 	 * @return void
 	 */
 	public static function deleteCategory($id, $userId = 0) {
@@ -522,6 +538,7 @@ class Cheevos {
 	 *
 	 * @param  array $body
 	 * @param  int   $id
+	 *
 	 * @return void
 	 */
 	private static function putCategory($body, $id = null) {
@@ -540,6 +557,7 @@ class Cheevos {
 	 *
 	 * @param  int   $id
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function updateCategory($id, $body) {
@@ -550,6 +568,7 @@ class Cheevos {
 	 * Create Category
 	 *
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function createCategory($body) {
@@ -561,6 +580,7 @@ class Cheevos {
 	 *
 	 * @acecss public
 	 * @param  array	Post Request Body to be converted into JSON.
+	 *
 	 * @return mixed	Array of return status including earned achievements or false on error.
 	 */
 	public static function increment($body) {
@@ -580,6 +600,7 @@ class Cheevos {
 	 * @param  int     $globalId
 	 * @param  string  $siteKey
 	 * @param  boolean $forceRecalculate
+	 *
 	 * @return void
 	 */
 	public static function checkUnnotified($globalId, $siteKey, $forceRecalculate = false) {
@@ -600,7 +621,6 @@ class Cheevos {
 	/**
 	 * Return StatProgress for selected filters.
 	 *
-	 * @access public
 	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
@@ -615,6 +635,7 @@ class Cheevos {
 	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
 	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
 	 * 		];
+	 *
 	 * @return mixed
 	 */
 	public static function getStatProgress($filters = []) {
@@ -633,7 +654,6 @@ class Cheevos {
 	/**
 	 * Return WikiPointLog for selected filters.
 	 *
-	 * @access public
 	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
@@ -643,6 +663,7 @@ class Cheevos {
 	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
 	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
 	 * 		];
+	 *
 	 * @return mixed
 	 */
 	public static function getWikiPointLog($filters = []) {
@@ -661,9 +682,9 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  string	[Optional] Filter by site key.
+	 *
 	 * @return mixed
 	 */
 	public static function getUserPointRank($globalId, $siteKey = null) {
@@ -681,7 +702,6 @@ class Cheevos {
 	/**
 	 * Return StatDailyCount for selected filters.
 	 *
-	 * @access public
 	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
@@ -691,6 +711,7 @@ class Cheevos {
 	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
 	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
 	 * 		];
+	 *
 	 * @return mixed
 	 */
 	public static function getStatDailyCount($filters = []) {
@@ -709,7 +730,6 @@ class Cheevos {
 	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
-	 * @access public
 	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
 	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
@@ -720,6 +740,7 @@ class Cheevos {
 	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
 	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
 	 * 		];
+	 *
 	 * @return mixed
 	 */
 	public static function getStatMonthlyCount($filters = []) {
@@ -738,9 +759,9 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
+	 *
 	 * @return mixed
 	 */
 	public static function getUserSitesCountByStat($globalId, $stat) {
@@ -758,9 +779,9 @@ class Cheevos {
 	/**
 	 * Get achievement status for an user.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  string	Site Key - From DynamicSettings
+	 *
 	 * @return mixed
 	 */
 	public static function getAchievementStatus($globalId, $siteKey = null) {
@@ -779,7 +800,6 @@ class Cheevos {
 	/**
 	 * Return AchievementProgress for selected filters.
 	 *
-	 * @access public
 	 * @param  array	Limit Filters - All filters are optional and can omitted from the array.
 	 * 		$filters = [
 	 * 			'site_key'			=> 'example', //Limit by site key.
@@ -790,6 +810,7 @@ class Cheevos {
 	 * 			'limit'				=> 100, //Maximum number of results.
 	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
 	 * 		];
+	 *
 	 * @return mixed
 	 */
 	public static function getAchievementProgress($filters = []) {
@@ -808,6 +829,7 @@ class Cheevos {
 	 * Get progress for an achievement
 	 *
 	 * @param  int $id
+	 *
 	 * @return mixed
 	 */
 	public static function getProgressCount($site_key = null, $achievement_id = null) {
@@ -832,6 +854,7 @@ class Cheevos {
 	 * Get process for achievement
 	 *
 	 * @param  int $id
+	 *
 	 * @return mixed
 	 */
 	public static function getProgress($id) {
@@ -842,8 +865,8 @@ class Cheevos {
 	/**
 	 * Delete progress towards an achievement.
 	 *
-	 * @access public
 	 * @param  integer	Progress ID
+	 *
 	 * @return mixed
 	 */
 	public static function deleteProgress($id) {
@@ -856,6 +879,7 @@ class Cheevos {
 	 *
 	 * @param  array $body
 	 * @param  int   $id
+	 *
 	 * @return void
 	 */
 	public static function putProgress($body, $id = null) {
@@ -874,6 +898,7 @@ class Cheevos {
 	 *
 	 * @param  int   $id
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function updateProgress($id, $body) {
@@ -884,6 +909,7 @@ class Cheevos {
 	 * Create Progress
 	 *
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function createProgress($body) {
@@ -893,8 +919,8 @@ class Cheevos {
 	/**
 	 * Return user_options/{id} for selected filters.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
+	 *
 	 * @return mixed
 	 */
 	public static function getUserOptions($globalId) {
@@ -929,9 +955,9 @@ class Cheevos {
 	/**
 	 * Put user options up to Cheevos.
 	 *
-	 * @access public
 	 * @param  integer	Global User ID
 	 * @param  array	POST Body
+	 *
 	 * @return mixed
 	 */
 	public static function setUserOptions($body) {
@@ -958,9 +984,9 @@ class Cheevos {
 	/**
 	 * Get all points promotions with caching.
 	 *
-	 * @access public
 	 * @param  string	[Optional] Site Key
 	 * @param  boolean	[Optional] Skip Cache Look Up.
+	 *
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getPointsPromotions($siteKey = null, $skipCache = false) {
@@ -1001,8 +1027,8 @@ class Cheevos {
 	/**
 	 * Get points promotion by database ID with caching.
 	 *
-	 * @access public
 	 * @param  integer	SiteEditPointsPromotion ID
+	 *
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getPointsPromotion($id) {
@@ -1038,9 +1064,9 @@ class Cheevos {
 	/**
 	 * Soft delete an points promotion from the service.
 	 *
-	 * @access public
 	 * @param  integer	SiteEditPointsPromotion ID
 	 * @param  integer	Global ID
+	 *
 	 * @return mixed	Array
 	 */
 	public static function deletePointsPromotion($id) {
@@ -1064,9 +1090,9 @@ class Cheevos {
 	/**
 	 * PUT PointsPromotion into Cheevos
 	 *
-	 * @access public
 	 * @param  array   $body
 	 * @param  integer $id
+	 *
 	 * @return mixed	Output of self::return.
 	 */
 	public static function putPointsPromotion($body, $id = null) {
@@ -1097,9 +1123,9 @@ class Cheevos {
 	/**
 	 * Update an existing points promotion on the service.
 	 *
-	 * @access public
 	 * @param  integer	SiteEditPointsPromotion ID
 	 * @param  array                               $body
+	 *
 	 * @return void
 	 */
 	public static function updatePointsPromotion($id, $body) {
@@ -1110,6 +1136,7 @@ class Cheevos {
 	 * Create PointsPromotion
 	 *
 	 * @param  array $body
+	 *
 	 * @return void
 	 */
 	public static function createPointsPromotion($body) {
@@ -1119,10 +1146,10 @@ class Cheevos {
 	/**
 	 * Revokes edit points for the provided revision IDs related to the page ID.
 	 *
-	 * @access public
 	 * @param  integer	Page ID
 	 * @param  array	Revision IDs
 	 * @param  string	Site Key
+	 *
 	 * @return mixed	Array
 	 */
 	public static function revokeEditPoints($pageId, $revisionIds, $siteKey) {

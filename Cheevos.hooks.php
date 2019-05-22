@@ -37,7 +37,6 @@ class CheevosHooks {
 	/**
 	 * Setup anything that needs to be configured before anything else runs.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function onRegistration() {
@@ -64,7 +63,6 @@ class CheevosHooks {
 	/**
 	 * Get site key.
 	 *
-	 * @access private
 	 * @return mixed	Site key string or false if empty.
 	 */
 	private static function getSiteKey() {
@@ -79,11 +77,11 @@ class CheevosHooks {
 	/**
 	 * Do incrementing for a statistic.
 	 *
-	 * @access public
 	 * @param  string	Stat Name
 	 * @param  integer	Stat Delta
 	 * @param  object	Local User object.
 	 * @param  array	Array of edit information for article_create or article_edit statistics.
+	 *
 	 * @return mixed	Array of return status including earned achievements or false on error.
 	 */
 	public static function increment($stat, $delta, User $user, $edits = []) {
@@ -118,13 +116,13 @@ class CheevosHooks {
 	/**
 	 * Handle article deletion increment.
 	 *
-	 * @access public
 	 * @param  object  $article:  the article that was deleted.
 	 * @param  object  $user:     the user that deleted the article
 	 * @param  string  $reason:   the reason the article was deleted
 	 * @param  integer $id:       id of the article that was deleted (added in 1.13)
 	 * @param  object  $content:  the content of the deleted article, or null in case of an error (added in 1.21)
 	 * @param  object  $logEntry: the log entry used to record the deletion (added in 1.21)
+	 *
 	 * @return boolean	True
 	 */
 	public static function onArticleDeleteComplete(WikiPage &$article, User &$user, $reason, $id, Content $content = null, LogEntry $logEntry) {
@@ -140,6 +138,7 @@ class CheevosHooks {
 	 * @param  object	Revision
 	 * @param  mixed	[Do Not Use, Unreliable] ID of revision this new edit started with.  May also be 0 or false for no previous revision.
 	 * @param  object	User that performed the action.
+	 *
 	 * @return boolean	true
 	 */
 	public static function onNewRevisionFromEditComplete(WikiPage $wikiPage, Revision $revision, $baseRevId, User $user) {
@@ -208,6 +207,7 @@ class CheevosHooks {
 	 * @param  object	User reference, the user performing the rollback
 	 * @param  object	Revision reference, the old revision to become current after the rollback
 	 * @param  object	Revision reference, the revision that was current before the rollback
+	 *
 	 * @return boolean	true
 	 */
 	public static function onArticleRollbackComplete(WikiPage $wikiPage, $user, Revision $revision, Revision $current) {
@@ -228,9 +228,9 @@ class CheevosHooks {
 	/**
 	 * Handle article merge increment.
 	 *
-	 * @access public
 	 * @param  object	Source Title
 	 * @param  object	Destination Title
+	 *
 	 * @return boolean	True
 	 */
 	public static function onArticleMergeComplete($targetTitle, $destTitle) {
@@ -243,11 +243,11 @@ class CheevosHooks {
 	/**
 	 * Handle article protect increment.
 	 *
-	 * @access public
 	 * @param  object	Article object that was protected
 	 * @param  object	User object who did the protection.
 	 * @param  array	Protection limits being added.
 	 * @param  string                                      $reason: Reason for protect
+	 *
 	 * @return boolean	True
 	 */
 	public static function onArticleProtectComplete(WikiPage &$wikiPage, User &$user, $limit, $reason) {
@@ -258,7 +258,6 @@ class CheevosHooks {
 	/**
 	 * Handle article move increment.
 	 *
-	 * @access public
 	 * @param  object	Original Title
 	 * @param  object	New Title
 	 * @param  object	The User object who did move.
@@ -266,6 +265,7 @@ class CheevosHooks {
 	 * @param  integer	New Page ID
 	 * @param  string                                $reason: Reason for protect
 	 * @param  object	Revision created by the move.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onTitleMoveComplete(Title &$title, Title &$newTitle, User $user, $oldid, $newid, $reason, Revision $revision) {
@@ -276,9 +276,9 @@ class CheevosHooks {
 	/**
 	 * Handle article protect increment.
 	 *
-	 * @access public
 	 * @param  object	Block
 	 * @param  object	User object of who performed the block.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onBlockIpComplete(Block $block, User $user) {
@@ -289,11 +289,11 @@ class CheevosHooks {
 	/**
 	 * Handle CurseProfile comment increment.
 	 *
-	 * @access public
 	 * @param  object	User making the comment.
 	 * @param  object	User of the profile being commented on.
 	 * @param  integer	Parent ID of the comment.
 	 * @param  string	The comment text.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onCurseProfileAddComment(User $fromUser, User $toUser, $inReplyTo, $commentText) {
@@ -304,11 +304,11 @@ class CheevosHooks {
 	/**
 	 * Handle CurseProfile comment reply increment.
 	 *
-	 * @access public
 	 * @param  object	User making the comment.
 	 * @param  object	User of the profile being commented on.
 	 * @param  integer	Parent ID of the comment.
 	 * @param  string	The comment text.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onCurseProfileAddCommentReply(User $fromUser, User $toUser, $inReplyTo, $commentText) {
@@ -319,9 +319,9 @@ class CheevosHooks {
 	/**
 	 * Handle CurseProfile friend addition increment.
 	 *
-	 * @access public
 	 * @param  object	User object of the user requesting to add a friend.
 	 * @param  object	User object of the user being requested as a friend.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onCurseProfileAddFriend(User $fromUser, User $toUser) {
@@ -332,9 +332,9 @@ class CheevosHooks {
 	/**
 	 * Handle CurseProfile friend accept increment.
 	 *
-	 * @access public
 	 * @param  object	User object of the user accepting a friend request.
 	 * @param  object	User object of the user that initiated the friend request.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onCurseProfileAcceptFriend(User $fromUser, User $toUser) {
@@ -345,11 +345,11 @@ class CheevosHooks {
 	/**
 	 * Handle CurseProfile profile edited.
 	 *
-	 * @access public
 	 * @param  object	User profile edited.
 	 * @param  string	Field being edited.
 	 * @param  string	Field Value
 	 * @param  string	The comment text.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onCurseProfileEdited(User $user, $field, $value) {
@@ -391,11 +391,11 @@ class CheevosHooks {
 	/**
 	 * Handle email sent increment.
 	 *
-	 * @access public
 	 * @param  object  MailAddress $to:      address of receiving user
 	 * @param  object  MailAddress $from:    address of sending user
 	 * @param  string              $subject: subject of the mail
 	 * @param  string              $text:    text of the mail
+	 *
 	 * @return boolean	True
 	 */
 	public static function onEmailUserComplete($address, $from, $subject, $text) {
@@ -408,10 +408,10 @@ class CheevosHooks {
 	/**
 	 * Handle mark patrolled increment.
 	 *
-	 * @access public
 	 * @param  integer	Recent Change Primary ID that was marked as patrolled.
 	 * @param  object	User that marked the change as patrolled.
 	 * @param  boolean	Automatically Patrolled
+	 *
 	 * @return boolean	True
 	 */
 	public static function onMarkPatrolledComplete($rcid, User $user, $automatic) {
@@ -422,8 +422,8 @@ class CheevosHooks {
 	/**
 	 * Handle upload increment.
 	 *
-	 * @access public
 	 * @param  object	UploadBase or child of UploadBase
+	 *
 	 * @return boolean	True
 	 */
 	public static function onUploadComplete(&$image) {
@@ -436,9 +436,9 @@ class CheevosHooks {
 	/**
 	 * Handle watch article increment.
 	 *
-	 * @access public
 	 * @param  object	User watching the article.
 	 * @param  object	Article being watched by the user.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onWatchArticleComplete(User $user, $article) {
@@ -449,9 +449,9 @@ class CheevosHooks {
 	/**
 	 * Handle when a local user is created in the database.
 	 *
-	 * @access public
 	 * @param  object	User created.
 	 * @param  boolean	Automatic Creation
+	 *
 	 * @return boolean	True
 	 */
 	public static function onLocalUserCreated(User $user, $autoCreated) {
@@ -462,13 +462,13 @@ class CheevosHooks {
 	/**
 	 * Handles awarding WikiPoints achievements.
 	 *
-	 * @access public
 	 * @param  integer	Revision Edit ID
 	 * @param  integer	Local User ID
 	 * @param  integer	Article ID
 	 * @param  integer	Score for the edit, not the overall score.
 	 * @param  string	JSON of Calculation Information
 	 * @param  string	[Optional] Stated reason for these points.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onWikiPointsSave($editId, $userId, $articleId, $score, $calculationInfo, $reason = '') {
@@ -484,8 +484,8 @@ class CheevosHooks {
 	/**
 	 * Registers shutdown function to do increments.
 	 *
-	 * @access public
 	 * @param  object	ApiMain
+	 *
 	 * @return boolean	True
 	 */
 	public static function onApiBeforeMain(&$processor) {
@@ -503,13 +503,13 @@ class CheevosHooks {
 	/**
 	 * Registers shutdown function to do increments.
 	 *
-	 * @access public
 	 * @param  object	Title
 	 * @param  object	Article
 	 * @param  object	Output
 	 * @param  object	User
 	 * @param  object	WebRequest
 	 * @param  object	Mediawiki
+	 *
 	 * @return boolean	True
 	 */
 	public static function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
@@ -533,7 +533,6 @@ class CheevosHooks {
 	/**
 	 * Send all the tallied increments up to the service.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public static function doIncrements() {
@@ -562,10 +561,10 @@ class CheevosHooks {
 	/**
 	 * Adds achievement display HTML to page output.
 	 *
-	 * @access public
 	 * @param  object	Achievement
 	 * @param  string	Site Key
 	 * @param  integer	Global User ID
+	 *
 	 * @return boolean	Success
 	 */
 	public static function displayAchievement($achievement, $siteKey, $globalId) {
@@ -600,9 +599,9 @@ class CheevosHooks {
 	 * Used to shoved displayed achievements CSS and JS into the page.
 	 * See: self::onSkinAfterBottomScripts
 	 *
-	 * @access public
 	 * @param  array	Array of commonly requested page titles.
 	 * @param  object	Skin Object
+	 *
 	 * @return boolean True
 	 */
 	public static function onSkinPreloadExistence(&$titles, $skin) {
@@ -648,9 +647,9 @@ class CheevosHooks {
 	 * Used to shoved displayed achievements into the page for Javascript to handle.
 	 * See: self::onSkinPreloadExistence
 	 *
-	 * @access public
 	 * @param  object	Skin Object
 	 * @param  string	Text to change as a reference
+	 *
 	 * @return boolean True
 	 */
 	public static function onSkinAfterBottomScripts($skin, &$text) {
@@ -701,8 +700,8 @@ class CheevosHooks {
 	/**
 	 * Add additional valid login form error messages.
 	 *
-	 * @access public
 	 * @param  array	Valid login form error messages.
+	 *
 	 * @return boolean True
 	 */
 	public static function onLoginFormValidErrorMessages(&$messages) {
@@ -714,9 +713,9 @@ class CheevosHooks {
 	/**
 	 * Add option to disable pop-up notifications.
 	 *
-	 * @access public
 	 * @param  object	User
 	 * @param  array	Default user preferences.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onGetPreferences($user, &$preferences) {
@@ -732,10 +731,10 @@ class CheevosHooks {
 	/**
 	 * Insert achievement page link into the personal URLs.
 	 *
-	 * @access public
 	 * @param  array	Peronsal URLs array.
 	 * @param  object	Title object for the current page.
 	 * @param  object	SkinTemplate instance that is setting up personal urls.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onPersonalUrls(array &$personalUrls, Title $title, SkinTemplate $skin) {
@@ -757,10 +756,10 @@ class CheevosHooks {
 	/**
 	 * Add a link to WikiPoints on contribution and edit tool links.
 	 *
-	 * @access public
 	 * @param  integer	User ID
 	 * @param  object	Title object for the user's page.
 	 * @param  array	Array of tools links.
+	 *
 	 * @return boolean	true
 	 */
 	public static function onContributionsToolLinks($userId, $userPageTitle, &$tools) {
@@ -798,8 +797,8 @@ class CheevosHooks {
 	/**
 	 * Registers our function hooks for displaying blocks of user points
 	 *
-	 * @access public
 	 * @param  object	Parser reference
+	 *
 	 * @return boolean	true
 	 */
 	public static function onParserFirstCallInit(Parser &$parser) {
@@ -810,8 +809,8 @@ class CheevosHooks {
 	/**
 	 * Define custom magic word variables.
 	 *
-	 * @access public
 	 * @param  array	Custom magic word variables.
+	 *
 	 * @return boolean	True
 	 */
 	public static function onMagicWordwgVariableIDs(&$customVariableIds) {
@@ -822,12 +821,12 @@ class CheevosHooks {
 	/**
 	 * Handles custom MAGIC WORDS.
 	 *
-	 * @access public
 	 * @param  object	Parser reference
 	 * @param  array	Variable Cache
 	 * @param  string	Magic Word
 	 * @param  string	Return Value
 	 * @param  mixed	Boolean false or PPFrame object.
+	 *
 	 * @return boolean	true
 	 */
 	public static function onParserGetVariableValueSwitch(&$parser, &$cache, &$magicWord, &$value, &$frame) {
@@ -840,7 +839,6 @@ class CheevosHooks {
 	/**
 	 * Get the total number of contributors on the wiki.
 	 *
-	 * @access public
 	 * @return integer	Total Contributors
 	 */
 	private static function getTotalContributors() {
@@ -877,8 +875,8 @@ class CheevosHooks {
 	/**
 	 * Setups and Modifies Database Information
 	 *
-	 * @access public
 	 * @param  object	DatabaseUpdater Object
+	 *
 	 * @return boolean	true
 	 */
 	public static function onLoadExtensionSchemaUpdates($updater) {

@@ -16,8 +16,8 @@ class CheevosAchievementCriteria extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access public
 	 * @param  array $data Associated array of property values initializing the model.
+	 *
 	 * @return void
 	 */
 	public function __construct(array $data = null) {
@@ -36,8 +36,8 @@ class CheevosAchievementCriteria extends CheevosModel {
 	/**
 	 * Does this criteria roughly equal another criteria?
 	 *
-	 * @access public
 	 * @param  object	CheevosAchievementCriteria
+	 *
 	 * @return boolean
 	 */
 	public function sameAs($criteria) {

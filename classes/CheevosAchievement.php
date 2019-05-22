@@ -23,12 +23,12 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access public
 	 * @param  array $data Associated array of property values initializing the model.
 	 *                     Nearly every property is type constrained to check for data
 	 *                     integrity.  However, those that initialize submodels
 	 *                     support taking an already initialized object or an array
 	 *                     for their container model.
+	 *
 	 * @return void
 	 */
 	public function __construct(array $data = null) {
@@ -58,8 +58,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Save achievement up to the service.
 	 *
-	 * @access public
 	 * @param  boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
+	 *
 	 * @return array	Success Result
 	 */
 	public function save($forceCreate = false) {
@@ -106,8 +106,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get the achievement name for display.
 	 *
-	 * @access public
 	 * @param  string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
+	 *
 	 * @return string	Achievement Name
 	 */
 	public function getName($siteKey = null) {
@@ -135,8 +135,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the name for this achievement with automatic language code selection.
 	 *
-	 * @access public
 	 * @param  string	Name
+	 *
 	 * @return void
 	 */
 	public function setName($name) {
@@ -175,8 +175,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the description for this achievement with automatic language code selection.
 	 *
-	 * @access public
 	 * @param  string	Description
+	 *
 	 * @return void
 	 */
 	public function setDescription($desc) {
@@ -192,7 +192,6 @@ class CheevosAchievement extends CheevosModel {
 	 * Returns the image article name.
 	 * "File:ExampleAchievement.png"
 	 *
-	 * @access public
 	 * @return string	Image Article Name - If available
 	 */
 	public function getImage() {
@@ -206,7 +205,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Returns the image HTTP(S) URL.
 	 *
-	 * @access public
 	 * @return mixed	Image URL; false if unable to locate the file.
 	 */
 	public function getImageUrl() {
@@ -229,8 +227,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Sets this achievement as global.
 	 *
-	 * @access public
 	 * @param  boolean	[Optional] Set to global.
+	 *
 	 * @return void
 	 */
 	public function setGlobal($global = true) {
@@ -244,7 +242,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Is this achievement deleted?
 	 *
-	 * @access public
 	 * @return boolean	Is Deleted
 	 */
 	public function isDeleted() {
@@ -254,7 +251,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Is this achievement child of a parent achievement?
 	 *
-	 * @access public
 	 * @return boolean	Is Child
 	 */
 	public function isChild() {
@@ -265,8 +261,8 @@ class CheevosAchievement extends CheevosModel {
 	 * Does this achievement roughly equal another achievement?
 	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
 	 *
-	 * @access public
 	 * @param  object	CheevosAchievement
+	 *
 	 * @return boolean
 	 */
 	public function sameAs($achievement) {
@@ -287,7 +283,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Removes achievements that should not be used or shown in the context they are called from.
 	 *
-	 * @access public
 	 * @param  array	Two key array of:
 	 *		[
 	 *			[CheevosAchievement objects]
@@ -298,6 +293,7 @@ class CheevosAchievement extends CheevosModel {
 	 *		Pruning statuses is not required.
 	 * @param  boolean	[Optional] Remove parent achievements if the child achievement is present.
 	 * @param  boolean	[Optional] Remove deleted achievements.
+	 *
 	 * @return array	CheevosAchievement objects.
 	 */
 	public static function pruneAchievements(array $toPrune, $removeParents = true, $removeDeleted = true) {
@@ -361,8 +357,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * When displaying "Requires" criteria it may refer to a parent achievement that has been succeeded by a child achievement.  This corrects it for display purposes.
 	 *
-	 * @access public
 	 * @param  array	CheevosAchievement objects.
+	 *
 	 * @return array	CheevosAchievement objects.
 	 */
 	public static function correctCriteriaChildAchievements($achievements) {
@@ -387,8 +383,8 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get an array of child information for parents.
 	 *
-	 * @access public
 	 * @param  array	CheevosAchievement objects.
+	 *
 	 * @return array	Array of parent_id => child_id.
 	 */
 	public static function getParentToChild($achievements) {
@@ -406,7 +402,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get achievement IDs that require this achievement.
 	 *
-	 * @access public
 	 * @return array	Array achievement IDs that require this achievement.
 	 */
 	public function getRequiredBy() {

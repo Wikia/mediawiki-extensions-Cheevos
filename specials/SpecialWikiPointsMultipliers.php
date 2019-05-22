@@ -22,7 +22,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -32,8 +31,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -65,7 +64,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Points Multipliers List
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersList() {
@@ -82,7 +80,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Points Multipliers Form
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersForm() {
@@ -115,7 +112,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Saves submitted Points Multipliers Forms.
 	 *
-	 * @access private
 	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function pointsMultipliersSave() {
@@ -158,7 +154,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Delete Points Multipliers.
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersDelete() {
@@ -194,7 +189,6 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

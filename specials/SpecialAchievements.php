@@ -21,7 +21,6 @@ class SpecialAchievements extends SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -36,8 +35,8 @@ class SpecialAchievements extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -52,8 +51,8 @@ class SpecialAchievements extends SpecialPage {
 	/**
 	 * Achievements List
 	 *
-	 * @access public
 	 * @param  mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList($subpage = null) {
@@ -143,7 +142,6 @@ class SpecialAchievements extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

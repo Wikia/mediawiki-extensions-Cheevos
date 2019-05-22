@@ -17,7 +17,6 @@ class PointsCompJob extends \SyncService\Job {
 	/**
 	 * Runs points compensation reports and grants through the command line maintenance script.
 	 *
-	 * @access public
 	 * @param  array	Named Arguments:
 	 * - threshold		[Integer] Point threshold for the report.
 	 * - start_time		[Integer] Unix timestamp of the report start range.
@@ -25,6 +24,7 @@ class PointsCompJob extends \SyncService\Job {
 	 * - final			[Boolean] Finalize this report by granting compensations.
 	 * - email			[Boolean] Email users affected.
 	 * - report_id		[Optional] Existing report ID to update.
+	 *
 	 * @return integer	Exit value for this thread.
 	 */
 	public function execute($args = []) {

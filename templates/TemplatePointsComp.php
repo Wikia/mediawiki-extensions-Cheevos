@@ -14,9 +14,9 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
 	 *
-	 * @access public
 	 * @param  array	Reports
 	 * @param  string	Pagination HTML
+	 *
 	 * @return string	HTML
 	 */
 	public static function pointsCompReports($reports = [], $pagination = '') {
@@ -111,7 +111,6 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Report Detail
 	 *
-	 * @access public
 	 * @return string	HTML
 	 */
 	public static function pointsCompReportDetail($report) {
@@ -204,7 +203,6 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Report CSV
 	 *
-	 * @access public
 	 * @return string	CSV
 	 */
 	public static function pointsCompReportCSV($report) {

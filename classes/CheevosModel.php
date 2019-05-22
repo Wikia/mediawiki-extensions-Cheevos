@@ -38,6 +38,7 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @param  string $name
 	 * @param  array  $arguments
+	 *
 	 * @return void
 	 */
 	public function __call($name, $arguments) {
@@ -86,9 +87,9 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Snip property name off a function call.
 	 *
-	 * @access private
 	 * @param  string	Unsnipped string.
 	 * @param  integer	Amount to snip.
+	 *
 	 * @return string	Property name.
 	 */
 	private function snipPropName($prop, $length) {
@@ -99,8 +100,8 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Magic getter for container properties.
 	 *
-	 * @access public
 	 * @param  string	Property
+	 *
 	 * @return mixed	Request property or null if it does not exist.
 	 */
 	public function __get($property) {
@@ -114,9 +115,9 @@ class CheevosModel implements ArrayAccess {
 	 * Magic setter for container properties.
 	 * Will only set the property if it was created during the child classes constructor setup.
 	 *
-	 * @access public
 	 * @param  string	Property
 	 * @param  mixed	Value to set.
+	 *
 	 * @return object	This object.
 	 */
 	public function __set($property, $value) {
@@ -131,6 +132,7 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @param  int $offset
 	 * @param  int $value
+	 *
 	 * @return void
 	 */
 	public function offsetSet($offset, $value) {
@@ -145,6 +147,7 @@ class CheevosModel implements ArrayAccess {
 	 * Returns whether the requested index exists
 	 *
 	 * @param  int $offset
+	 *
 	 * @return void
 	 */
 	public function offsetExists($offset) {
@@ -155,6 +158,7 @@ class CheevosModel implements ArrayAccess {
 	 * Unsets the value at the specified index
 	 *
 	 * @param  int $offset
+	 *
 	 * @return void
 	 */
 	public function offsetUnset($offset) {
@@ -165,6 +169,7 @@ class CheevosModel implements ArrayAccess {
 	 *Returns the value at the specified index
 	 *
 	 * @param  int $offset
+	 *
 	 * @return void
 	 */
 	public function offsetGet($offset) {
@@ -189,7 +194,6 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Wrapper for MediaWiki's API serializer.
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public function serializeForApiResult() {
@@ -208,7 +212,6 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Is this only read only?
 	 *
-	 * @access public
 	 * @return boolean
 	 */
 	public function isReadOnly() {
@@ -218,7 +221,6 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Set this object to read only.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function setReadOnly() {
@@ -229,8 +231,8 @@ class CheevosModel implements ArrayAccess {
 	 * Does this model roughly equal another model?
 	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
 	 *
-	 * @access public
 	 * @param  object	CheevosModel
+	 *
 	 * @return boolean
 	 */
 	public function sameAs($model) {

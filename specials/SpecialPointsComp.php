@@ -23,7 +23,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -33,8 +32,8 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @param  string	Sub page passed in the URL.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
@@ -49,8 +48,8 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Points Comp Reports
 	 *
-	 * @access public
 	 * @param  mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 *
 	 * @return void	[Outputs to screen]
 	 */
 	public function pointsCompReports($subpage = null) {
@@ -80,7 +79,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Run a report into the job queue.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function runReport() {
@@ -183,7 +181,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Download CSV to client.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	private function downloadCSV($csv, $reportId) {
@@ -203,7 +200,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @access public
 	 * @return boolean
 	 */
 	public function isListed() {
@@ -216,7 +212,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access public
 	 * @return boolean	True
 	 */
 	public function isRestricted() {
@@ -226,7 +221,6 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

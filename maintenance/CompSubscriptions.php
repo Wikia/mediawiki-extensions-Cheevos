@@ -17,7 +17,6 @@ class CompSubscriptions extends Maintenance {
 	/**
 	 * Main Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -34,7 +33,6 @@ class CompSubscriptions extends Maintenance {
 	/**
 	 * Run comps.
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function execute() {

@@ -14,7 +14,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Main Executor
 	 *
-	 * @access public
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute() {
@@ -37,7 +36,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Requirements for API call parameters.
 	 *
-	 * @access public
 	 * @return array	Merged array of parameter requirements.
 	 */
 	public function getAllowedParams() {
@@ -56,7 +54,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Descriptions for API call parameters.
 	 *
-	 * @access public
 	 * @return array	Merged array of parameter descriptions.
 	 */
 	public function getParamDescription() {
@@ -69,7 +66,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Acknowledge achievement awards.
 	 *
-	 * @access public
 	 * @return array
 	 */
 	public function acknowledgeAwards() {
@@ -101,7 +97,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Get version of this API Extension.
 	 *
-	 * @access public
 	 * @return string	API Extension Version
 	 */
 	public function getVersion() {
@@ -111,7 +106,6 @@ class CheevosAPI extends ApiBase {
 	/**
 	 * Return a ApiFormatJson format object.
 	 *
-	 * @access public
 	 * @return object	ApiFormatJson
 	 */
 	public function getCustomPrinter() {

@@ -19,7 +19,6 @@ class SyncFriendStat extends Maintenance {
 	/**
 	 * Constructor
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
@@ -31,7 +30,6 @@ class SyncFriendStat extends Maintenance {
 	/**
 	 * Main execution of the maintenance script
 	 *
-	 * @access public
 	 * @return void
 	 */
 	public function execute() {
