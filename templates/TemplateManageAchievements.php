@@ -334,7 +334,7 @@ class TemplateManageAchievements {
 		}
 		$HTML .= "
 				<input name='type' type='hidden' value='local'/>
-				<input name='do' type='submit' value='" . wfMessage('award')->escaped() . "'><input name='do' type='submit' value='" . wfMessage('unaward')->escaped() . "'>
+				<button name='do' type='submit' value='award'>".wfMessage('award')->escaped()."</button><button name='do' type='submit' value='unaward'>".wfMessage('unaward')->escaped()."</button>
 			</fieldset>
 		</form>";
 
