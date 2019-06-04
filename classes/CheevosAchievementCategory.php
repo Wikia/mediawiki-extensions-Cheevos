@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Achievement Category Model
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,9 +16,9 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * @return	void
+	 * @param array $data Associated array of property values initializing the model.
+	 *
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) && is_int($data['id']) ? $data['id'] : 0;
@@ -36,8 +35,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Save category up to the service.
 	 *
-	 * @access	public
-	 * @return	array	Success Result
+	 * @return array	Success Result
 	 */
 	public function save() {
 		if ($this->readOnly) {
@@ -92,9 +90,9 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Set the name for this category with automatic language code selection.
 	 *
-	 * @access	public
-	 * @param	string	Name
-	 * @return	void
+	 * @param string	Name
+	 *
+	 * @return void
 	 */
 	public function setName($name) {
 		$code = CheevosHelper::getUserLanguage();
@@ -120,10 +118,10 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Transforms text into canonical versions safe for usage in URLs and Javascript data attributes.
 	 *
-	 * @access	private
-	 * @param	integer	Text to filter
-	 * @param	boolean	[Optional] Ignore spaces
-	 * @return	integer	Generated Canonical Title
+	 * @param integer	Text to filter
+	 * @param boolean	[Optional] Ignore spaces
+	 *
+	 * @return integer	Generated Canonical Title
 	 */
 	private function makeCanonicalTitle($text, $ignoreSpaces = false) {
 		$text = html_entity_decode(rawurldecode(trim($text)), ENT_QUOTES, 'UTF-8');
@@ -133,16 +131,16 @@ class CheevosAchievementCategory extends CheevosModel {
 			$text = str_replace(' ', '-', $text);
 		}
 
-		//Replace non-alpha numeric characters that would be bad for SEO
-        $text = preg_replace('#(?![a-zA-Z0-9_\-|\\\|/|\+]).*?#is', '', $text);
+		// Replace non-alpha numeric characters that would be bad for SEO
+		$text = preg_replace('#(?![a-zA-Z0-9_\-|\\\|/|\+]).*?#is', '', $text);
 
-		//Replace other separators with dashes.
+		// Replace other separators with dashes.
 		$text = preg_replace("#(_+|/+|\\\+|\+)#is", "-", $text);
 
-		//Remove excess dashes.
+		// Remove excess dashes.
 		$text = preg_replace("#(-+)#is", "-", $text);
 
-		//Remove trailing dashes.
+		// Remove trailing dashes.
 		$text = trim($text, '-');
 
 		return $text;
@@ -151,9 +149,9 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Does this category roughly equal another category?
 	 *
-	 * @access	public
-	 * @param	object	CheevosAchievementCategory
-	 * @return	boolean
+	 * @param object	CheevosAchievementCategory
+	 *
+	 * @return boolean
 	 */
 	public function sameAs($category) {
 		foreach (['name', 'slug', 'deleted_at', 'deleted_by'] as $field) {

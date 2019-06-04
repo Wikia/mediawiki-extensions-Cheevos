@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Achievement Progress Model
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,9 +16,9 @@ class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * @return	void
+	 * @param array $data Associated array of property values initializing the model.
+	 *
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) && is_int($data['id']) ? $data['id'] : 0;
@@ -36,9 +35,9 @@ class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Copy the progress from another to this one.  Typically used for copying progress from a parent into the child for display purposes.
 	 *
-	 * @access	public
-	 * @param	object	CheevosAchievementProgress
-	 * @return	void
+	 * @param object	CheevosAchievementProgress
+	 *
+	 * @return void
 	 */
 	public function copyFrom(CheevosAchievementProgress $progress) {
 		$data = $progress->toArray();

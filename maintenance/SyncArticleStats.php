@@ -4,21 +4,20 @@
  * Cheevos
  * Synchronizes data on edits and creations to the Cheevos service.
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://www.gamepedia.com/
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://www.gamepedia.com/
 **/
-require_once(__DIR__.'/../../../maintenance/Maintenance.php');
+
+require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 class SyncArticleStats extends Maintenance {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -29,8 +28,7 @@ class SyncArticleStats extends Maintenance {
 	/**
 	 * Main execution of the maintenance script
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function execute() {
 		global $dsSiteKey;
@@ -85,7 +83,7 @@ class SyncArticleStats extends Maintenance {
 
 				$local = [];
 
-				//Creations
+				// Creations
 				$revisionResult = $db->select(
 					['revision'],
 					['count(*) AS total'],
@@ -107,7 +105,7 @@ class SyncArticleStats extends Maintenance {
 				);
 				$local['article_create'] += intval($revisionResult->fetchRow()['total']);
 
-				//Edits
+				// Edits
 				$revisionResult = $db->select(
 					['revision'],
 					[
@@ -126,7 +124,7 @@ class SyncArticleStats extends Maintenance {
 				while ($row = $revisionResult->fetchRow()) {
 					$local['article_edit']++;
 				}
-				//Archived Edits
+				// Archived Edits
 				$revisionResult = $db->select(
 					['archive'],
 					[
@@ -145,7 +143,7 @@ class SyncArticleStats extends Maintenance {
 					$local['article_edit']++;
 				}
 
-				//Deletes
+				// Deletes
 				$revisionResult = $db->select(
 					['logging'],
 					['count(*) AS total'],
@@ -158,7 +156,7 @@ class SyncArticleStats extends Maintenance {
 				);
 				$local['article_delete'] = intval($revisionResult->fetchRow()['total']);
 
-				//Uploads
+				// Uploads
 				$revisionResult = $db->select(
 					['logging'],
 					['count(*) AS total'],
@@ -203,16 +201,16 @@ class SyncArticleStats extends Maintenance {
 					}
 				}
 				if ($this->getOption('v')) {
-					$this->output("\tLocal: ".json_encode($local)."\n");
-					$this->output("\tCheevos: ".json_encode($cheevos)."\n");
-					$this->output("\tDelta: ".json_encode($delta)."\n");
+					$this->output("\tLocal: " . json_encode($local) . "\n");
+					$this->output("\tCheevos: " . json_encode($cheevos) . "\n");
+					$this->output("\tDelta: " . json_encode($delta) . "\n");
 				}
 
 				$increment = [
 					'user_id'		=> $globalId,
 					'site_key'		=> $dsSiteKey,
 					'timestamp'		=> time(),
-					'request_uuid'	=> sha1($globalId.$dsSiteKey.time().random_bytes(4))
+					'request_uuid'	=> sha1($globalId . $dsSiteKey . time() . random_bytes(4))
 				];
 
 				foreach ($delta as $stat => $delta) {
@@ -266,4 +264,4 @@ class SyncArticleStats extends Maintenance {
 }
 
 $maintClass = 'SyncArticleStats';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

@@ -4,12 +4,11 @@
  * Cheevos
  * Points Display
  *
- * @author		Noah Manneschmidt
- * @copyright	(c) 2014 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Noah Manneschmidt
+ * @copyright (c) 2014 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
 namespace Cheevos\Points;
@@ -34,17 +33,18 @@ class PointsDisplay {
 	 *
 	 * TODO: break this function down, make it easier to read
 	 *
-	 * @param	Parser	mediawiki Parser reference
-	 * @param	limit	[Optional] Limit results.
-	 * @param	string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
+	 * @param Parser	mediawiki Parser reference
+	 * @param limit	[Optional] Limit results.
+	 * @param string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
 	 *					Special namespaces are:
 	 *						'all' - Breaks down points per user per wiki.
 	 *						'global' - Breaks down points per user across all wikis.
-	 * @param	string	[optional, default: 'table'] determines what type of markup is used for the output,
+	 * @param string	[optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
-	 * @return	array	generated HTML string as element 0, followed by parser options
+	 *
+	 * @return array	generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
 		global $dsSiteKey;
@@ -93,21 +93,21 @@ class PointsDisplay {
 	/**
 	 * Get a standard points block HTML output.
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Limit by or override the site key used.
-	 * @param	integer	[Optional] Global ID to filter by.
-	 * @param	integer	[Optional] Items Per Page
-	 * @param	integer	[Optional] Offset to start at.
-	 * @param	boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param	boolean	[Optional] Show monthly totals.
-	 * @param	string	[Optional] Determines what type of markup is used for the output.
+	 * @param string	[Optional] Limit by or override the site key used.
+	 * @param integer	[Optional] Global ID to filter by.
+	 * @param integer	[Optional] Items Per Page
+	 * @param integer	[Optional] Offset to start at.
+	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param boolean	[Optional] Show monthly totals.
+	 * @param string	[Optional] Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
 	 * 					'table' Uses a standard wikitable class HTML table.
-	 * @param	object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
-	 * @return	string	HTML
+	 * @param object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
+	 *
+	 * @return string	HTML
 	 */
-	static public function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
+	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
 		global $dsSiteKey, $wgUser;
 
 		$lookup = \CentralIdLookup::factory();
@@ -123,7 +123,7 @@ class PointsDisplay {
 		$siteKeys = [$dsSiteKey];
 		foreach ($statProgress as $progress) {
 			$globalId = $progress->getUser_Id();
-			$lookupKey = $globalId.'-'.$progress->getSite_Key().'-'.($isMonthly ? $progress->getMonth() : null);
+			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' . ($isMonthly ? $progress->getMonth() : null);
 			if (isset($userPoints[$lookupKey])) {
 				continue;
 			}
@@ -140,10 +140,10 @@ class PointsDisplay {
 					continue;
 				}
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:".$user->getName()), $user->getName(), [], [], ['https']);
+				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:" . $user->getName()), $user->getName(), [], [], ['https']);
 				$userPointsRow->adminUrl = \Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
 			} else {
-				$userPointsRow->userName = "GID: ".$progress->getUser_Id();
+				$userPointsRow->userName = "GID: " . $progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
 				$userPointsRow->userLink = '';
 			}
@@ -163,14 +163,14 @@ class PointsDisplay {
 		if ($isSitesMode && !empty($siteKeys)) {
 			global $wgServer;
 			if (Environment::isMasterWiki()) {
-				//Skip the cache.
+				// Skip the cache.
 				$wikis = Wiki::loadFromHash($siteKeys);
 			} else {
 				$redis = RedisCache::getClient('cache');
 				if ($redis !== false) {
 					foreach ($siteKeys as $siteKey) {
 						if (!empty($siteKey)) {
-							$wiki = $redis->hGetAll('dynamicsettings:siteInfo:'.$siteKey);
+							$wiki = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
 							if (!empty($wiki)) {
 								foreach ($wiki as $field => $value) {
 									$wiki[$field] = unserialize($value);
@@ -192,8 +192,8 @@ class PointsDisplay {
 					}
 					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $domain, $userPoints[$key]->userToolsLinks);
 					$userPoints[$key]->userLink = str_replace($localDomain, $domain, $userPoints[$key]->userLink);
-					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://'.$domain.'/', $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://'.$domain.'/', $userPoints[$key]->userLink);
+					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks);
+					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userLink);
 				}
 			}
 		}
@@ -207,9 +207,9 @@ class PointsDisplay {
 					$userPoints[] = $userPointsRow;
 				}
 				foreach ($userPoints as $userPointsRow) {
-					$html = (isset($userPointsRow->adminUrl) && $wgUser->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>": $userPointsRow->score);
+					$html = (isset($userPointsRow->adminUrl) && $wgUser->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score);
 					if ($markup == 'badged') {
-						$html .= ' '.\Html::element(
+						$html .= ' ' . \Html::element(
 							'img',
 							[
 								'src' => '/extensions/Cheevos/images/gp30.png',
@@ -237,16 +237,16 @@ class PointsDisplay {
 	/**
 	 * Get a list of earned wiki points grouped by criteria.
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Limit by or override the site key used.
-	 * @param	integer	[Optional] Global ID to filter by.
-	 * @param	integer	[Optional] Items Per Page
-	 * @param	integer	[Optional] Offset to start at.
-	 * @param	boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param	boolean	[Optional] Show monthly totals.
-	 * @return	array	CheevosStatProgress Objects
+	 * @param string	[Optional] Limit by or override the site key used.
+	 * @param integer	[Optional] Global ID to filter by.
+	 * @param integer	[Optional] Items Per Page
+	 * @param integer	[Optional] Offset to start at.
+	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param boolean	[Optional] Show monthly totals.
+	 *
+	 * @return array	CheevosStatProgress Objects
 	 */
-	static public function getPoints($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
+	public static function getPoints($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
 		$start = intval($start);
 		$isSitesMode = boolval($isSitesMode);
@@ -278,13 +278,13 @@ class PointsDisplay {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
+				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		} else {
 			try {
 				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
 			} catch (\Cheevos\CheevosException $e) {
-				wfDebug(__METHOD__.": ".wfMessage('cheevos_api_error', $e->getMessage()));
+				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		}
 		return $statProgress;
@@ -297,15 +297,16 @@ class PointsDisplay {
 	 * Example: //FakeDomain/ => FakeDomain
 	 * Example: FakeDomain => FakeDomain
 	 *
-	 * @param	string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
-	 * @return	string	Bare host name extracted or false if unable to parse.
+	 * @param string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 *
+	 * @return string	Bare host name extracted or false if unable to parse.
 	 */
-	static public function extractDomain($fragment) {
+	public static function extractDomain($fragment) {
 		$fragment = mb_strtolower($fragment, 'UTF-8');
 
 		$host = parse_url($fragment, PHP_URL_HOST);
 		if ($host !== null) {
-			//If parse_url() went fine then return it.
+			// If parse_url() went fine then return it.
 			return $host;
 		}
 
@@ -320,12 +321,13 @@ class PointsDisplay {
 	/**
 	 * Get wiki points for user by month.
 	 *
-	 * @param	integer	Global ID
-	 * @param	string	[Optional] Site Key
-	 * @param	integer	[Optional] Aggregate months into the past.
-	 * @return	integer	Wiki Points
+	 * @param integer	Global ID
+	 * @param string	[Optional] Site Key
+	 * @param integer	[Optional] Aggregate months into the past.
+	 *
+	 * @return integer	Wiki Points
 	 */
-	static public function getWikiPointsForRange($globalId, $siteKey = null, $monthsAgo = null) {
+	public static function getWikiPointsForRange($globalId, $siteKey = null, $monthsAgo = null) {
 		if ($globalId < 1) {
 			return 0;
 		}
@@ -339,8 +341,8 @@ class PointsDisplay {
 
 		$monthsAgo = intval($monthsAgo);
 		if ($monthsAgo > 0) {
-			$filters['start_time'] = strtotime(date('Y-m-d', strtotime($monthsAgo.' month ago')).'T00:00:00+00:00');
-			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('yesterday')).'T23:59:59+00:00');
+			$filters['start_time'] = strtotime(date('Y-m-d', strtotime($monthsAgo . ' month ago')) . 'T00:00:00+00:00');
+			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('yesterday')) . 'T23:59:59+00:00');
 		}
 
 		$statProgress = [];

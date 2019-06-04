@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Special Page
  *
- * @author		Hydra Wiki Platform Team
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Hydra Wiki Platform Team
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 use DynamicSettings\Environment;
@@ -17,15 +16,14 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		global $dsSiteKey;
@@ -54,9 +52,9 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @param string	Sub page passed in the URL.
+	 *
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		$this->templates = new TemplateManageAchievements;
@@ -99,8 +97,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Cheevos List
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList() {
 		$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
@@ -132,9 +129,9 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 		}
 
-		//Fix requires achievement child IDs for display purposes.
+		// Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
-		//Remove achievements that should not be shown in this context.
+		// Remove achievements that should not be shown in this context.
 		list($achievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, []], true, false);
 
 		$this->output->setPageTitle(wfMessage('manage_achievements')->escaped());
@@ -144,8 +141,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Form
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsForm() {
 		$this->output->addModules(['ext.achievements.triggerBuilder.js']);
@@ -176,9 +172,9 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->acheivementsSave();
 
 		if ($this->achievement->exists()) {
-			$this->output->setPageTitle(wfMessage('edit_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped().' - '.$this->achievement->getName());
+			$this->output->setPageTitle(wfMessage('edit_achievement')->escaped() . ' - ' . wfMessage('manage_achievements')->escaped() . ' - ' . $this->achievement->getName());
 		} else {
-			$this->output->setPageTitle(wfMessage('add_achievement')->escaped().' - '.wfMessage('manage_achievements')->escaped());
+			$this->output->setPageTitle(wfMessage('add_achievement')->escaped() . ' - ' . wfMessage('manage_achievements')->escaped());
 		}
 
 		$this->content = $this->templates->achievementsForm($this->achievement, \Cheevos\Cheevos::getCategories(), $allAchievements, $return['errors']);
@@ -187,8 +183,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Saves submitted achievement forms.
 	 *
-	 * @access	private
-	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
+	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function acheivementsSave() {
 		global $achImageDomainWhiteList, $dsSiteKey;
@@ -280,7 +275,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
 			if ($dsSiteKey === 'master') {
-				//Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
+				// Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
 				$this->achievement->setSpecial($this->wgRequest->getBool('special'));
@@ -312,8 +307,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Achievements Revert
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsRevert() {
 		$achievementId = $this->wgRequest->getInt('aid');
@@ -364,16 +358,16 @@ class SpecialManageAchievements extends SpecialPage {
 			return;
 		}
 
-		$this->output->setPageTitle(wfMessage('revert_achievement_title')->escaped().' - '.$achievement->getName());
+		$this->output->setPageTitle(wfMessage('revert_achievement_title')->escaped() . ' - ' . $achievement->getName());
 		$this->content = $this->templates->achievementStateChange($achievement, 'revert');
 	}
 
 	/**
 	 * Achievements Delete/Restore
 	 *
-	 * @access	public
-	 * @param	string	Delete or Restore action take.
-	 * @return	void	[Outputs to screen]
+	 * @param string	Delete or Restore action take.
+	 *
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsDelete($action) {
 		if ($action == 'delete' && !$this->wgUser->isAllowed('delete_achievements')) {
@@ -398,7 +392,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$lookup = CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
 				if (!$globalId) {
-					throw new MWException('Could not obtain the global ID for the user attempting to '.$action.' an achievement.');
+					throw new MWException('Could not obtain the global ID for the user attempting to ' . $action . ' an achievement.');
 				}
 				$forceCreate = false;
 				if (!$achievement->getParent_Id() && !$this->isMaster) {
@@ -421,7 +415,7 @@ class SpecialManageAchievements extends SpecialPage {
 				return;
 			}
 
-			$this->output->setPageTitle(wfMessage($action.'_achievement_title')->escaped().' - '.$achievement->getName());
+			$this->output->setPageTitle(wfMessage($action . '_achievement_title')->escaped() . ' - ' . $achievement->getName());
 			$this->content = $this->templates->achievementStateChange($achievement, $action);
 		}
 	}
@@ -429,8 +423,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Award Form
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void	[Outputs to screen]
 	 */
 	public function awardForm() {
 		global $dsSiteKey;
@@ -442,7 +435,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$return = $this->awardSave();
 
-		//Using the 'master' site key for the awarding form.
+		// Using the 'master' site key for the awarding form.
 		list($allAchievements, ) = \Cheevos\CheevosAchievement::pruneAchievements([\Cheevos\Cheevos::getAchievements($dsSiteKey), []], true, true);
 
 		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
@@ -452,13 +445,12 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Saves submitted award forms.
 	 *
-	 * @access	private
-	 * @return	array	Array containing an array of processed form information and array of corresponding errors.
+	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function awardSave() {
 		global $dsSiteKey;
 
-		$do = strtolower($this->wgRequest->getText('do', '')); //This will break logic below if "Award" and "Unaward" are ever localized.  --Alexia 2017-04-07
+		$do = strtolower($this->wgRequest->getText('do', '')); // This will break logic below if "Award" and "Unaward" are ever localized.  --Alexia 2017-04-07
 		$save = [];
 		$errors = [];
 		$awarded = null;
@@ -467,7 +459,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$save['username'] = $this->wgRequest->getVal('username');
 			if (empty($save['username'])) {
 				$errors[] = [
-					'username' => $save['username'], 
+					'username' => $save['username'],
 					'message' => wfMessage('error_award_bad_user')->escaped()
 				];
 			}
@@ -477,7 +469,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$achievement = \Cheevos\Cheevos::getAchievement($save['achievement_id']);
 			if ($achievement === false) {
 				$errors[] = [
-					'username' => $save['username'], 
+					'username' => $save['username'],
 					'message' => wfMessage('error_award_bad_achievement')->escaped()
 				];
 			}
@@ -491,7 +483,7 @@ class SpecialManageAchievements extends SpecialPage {
 					$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 					if (!$user || !$user->getId() || !$globalId) {
 						$errors[] = [
-							'username' => $getUser, 
+							'username' => $getUser,
 							'message' => wfMessage('error_award_bad_user')->escaped()
 						];
 						continue;
@@ -522,13 +514,13 @@ class SpecialManageAchievements extends SpecialPage {
 							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [
-								'username' => $save['username'], 
-								'message' => "There was an API failure attempting to putProgress: ".$e->getMessage()
+								'username' => $save['username'],
+								'message' => "There was an API failure attempting to putProgress: " . $e->getMessage()
 							];
 						}
-						
+
 					} elseif ($do === 'award') {
-						$award = ['message'=>'nochange'];
+						$award = ['message' => 'nochange'];
 					}
 
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
@@ -537,13 +529,13 @@ class SpecialManageAchievements extends SpecialPage {
 							Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [
-								'username' => $save['username'], 
-								'message' => "There was an API failure attempting to deleteProgress: ".$e->getMessage()
+								'username' => $save['username'],
+								'message' => "There was an API failure attempting to deleteProgress: " . $e->getMessage()
 							];
 						}
 
 					} elseif ($do === 'unaward') {
-						$award = ['message'=>'nochange'];
+						$award = ['message' => 'nochange'];
 					}
 
 					$award['username'] = $user->getName();
@@ -558,7 +550,7 @@ class SpecialManageAchievements extends SpecialPage {
 			'success'	=> $awarded
 		];
 	}
-	
+
 	/**
 	 * Invalidates the cache
 	 *
@@ -575,8 +567,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @access	public
-	 * @return	boolean
+	 * @return boolean
 	 */
 	public function isListed() {
 		if ($this->wgUser->isAllowed('achievement_admin')) {
@@ -588,8 +579,7 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @access	public
-	 * @return	boolean	True
+	 * @return boolean	True
 	 */
 	public function isRestricted() {
 		return true;
@@ -598,7 +588,6 @@ class SpecialManageAchievements extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

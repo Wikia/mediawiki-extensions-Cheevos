@@ -4,27 +4,25 @@
  * Cheevos
  * Wiki Points Levels Page
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2014 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2014 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
 class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct('WikiPointsLevels', 'wiki_points_admin');
@@ -33,9 +31,9 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @param string	Sub page passed in the URL.
+	 *
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		$this->checkPermissions();
@@ -60,8 +58,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Levels Form
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to Screen]
+	 * @return void	[Outputs to Screen]
 	 */
 	public function levelsForm() {
 		$levels = \Cheevos\Points\PointLevels::getLevels();
@@ -99,8 +96,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access	protected
-	 * @return	string
+	 * @return string
 	 */
 	protected function getGroupName() {
 		return 'wikipoints';

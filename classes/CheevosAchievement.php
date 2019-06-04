@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Achievement Model
  *
- * @author		Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,17 +16,20 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * What achievements this achievement is required by.
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	private $requiredBy = null;
 
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * Nearly every property is type constrained to check for data integrity.  However, those that initialize submodels support taking an already initialized object or an array for their container model.
-	 * @return	void
+	 * @param array $data Associated array of property values initializing the model.
+	 *                    Nearly every property is type constrained to check for data
+	 *                    integrity.  However, those that initialize submodels
+	 *                    support taking an already initialized object or an array
+	 *                    for their container model.
+	 *
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['id'] = isset($data['id']) && is_int($data['id']) ? $data['id'] : 0;
@@ -50,15 +52,15 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['created_by'] = isset($data['created_by']) && is_int($data['created_by']) ? $data['created_by'] : 0;
 		$this->container['updated_by'] = isset($data['updated_by']) && is_int($data['updated_by']) ? $data['updated_by'] : 0;
 		$this->container['deleted_by'] = isset($data['deleted_by']) && is_int($data['deleted_by']) ? $data['deleted_by'] : 0;
-		$this->container['criteria'] = isset($data['criteria']) && $data['criteria'] instanceof CheevosAchievementCriteria ? $data['criteria'] : (is_array($data['criteria']) ?  new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria());
+		$this->container['criteria'] = isset($data['criteria']) && $data['criteria'] instanceof CheevosAchievementCriteria ? $data['criteria'] : (is_array($data['criteria']) ? new CheevosAchievementCriteria($data['criteria']) : new CheevosAchievementCriteria());
 	}
 
 	/**
 	 * Save achievement up to the service.
 	 *
-	 * @access	public
-	 * @param	boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
-	 * @return	array	Success Result
+	 * @param boolean	Force create instead of save.  Typically used when copying from a global parent to a child.
+	 *
+	 * @return array	Success Result
 	 */
 	public function save($forceCreate = false) {
 		if ($this->readOnly) {
@@ -98,15 +100,15 @@ class CheevosAchievement extends CheevosModel {
 	}
 
 	public function isMega() {
-		return false; //No no no... you buy.
+		return false; // No no no... you buy.
 	}
 
 	/**
 	 * Get the achievement name for display.
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
-	 * @return	string	Achievement Name
+	 * @param string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
+	 *
+	 * @return string	Achievement Name
 	 */
 	public function getName($siteKey = null) {
 		global $dsSiteKey;
@@ -133,9 +135,9 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the name for this achievement with automatic language code selection.
 	 *
-	 * @access	public
-	 * @param	string	Name
-	 * @return	void
+	 * @param string	Name
+	 *
+	 * @return void
 	 */
 	public function setName($name) {
 		$code = CheevosHelper::getUserLanguage();
@@ -173,9 +175,9 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Set the description for this achievement with automatic language code selection.
 	 *
-	 * @access	public
-	 * @param	string	Description
-	 * @return	void
+	 * @param string	Description
+	 *
+	 * @return void
 	 */
 	public function setDescription($desc) {
 		$code = CheevosHelper::getUserLanguage();
@@ -190,8 +192,7 @@ class CheevosAchievement extends CheevosModel {
 	 * Returns the image article name.
 	 * "File:ExampleAchievement.png"
 	 *
-	 * @access	public
-	 * @return	string	Image Article Name - If available
+	 * @return string	Image Article Name - If available
 	 */
 	public function getImage() {
 		$image = $this->container['image'];
@@ -204,8 +205,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Returns the image HTTP(S) URL.
 	 *
-	 * @access	public
-	 * @return	mixed	Image URL; false if unable to locate the file.
+	 * @return mixed	Image URL; false if unable to locate the file.
 	 */
 	public function getImageUrl() {
 		$title = \Title::newFromText($this->getImage());
@@ -227,9 +227,9 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Sets this achievement as global.
 	 *
-	 * @access	public
-	 * @param	boolean	[Optional] Set to global.
-	 * @return	void
+	 * @param boolean	[Optional] Set to global.
+	 *
+	 * @return void
 	 */
 	public function setGlobal($global = true) {
 		$this->container['global'] = boolval($global);
@@ -242,8 +242,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Is this achievement deleted?
 	 *
-	 * @access	public
-	 * @return	boolean	Is Deleted
+	 * @return boolean	Is Deleted
 	 */
 	public function isDeleted() {
 		return boolval($this->container['deleted_at']);
@@ -252,8 +251,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Is this achievement child of a parent achievement?
 	 *
-	 * @access	public
-	 * @return	boolean	Is Child
+	 * @return boolean	Is Child
 	 */
 	public function isChild() {
 		return boolval($this->container['parent_id']);
@@ -263,9 +261,9 @@ class CheevosAchievement extends CheevosModel {
 	 * Does this achievement roughly equal another achievement?
 	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
 	 *
-	 * @access	public
-	 * @param	object	CheevosAchievement
-	 * @return	boolean
+	 * @param object	CheevosAchievement
+	 *
+	 * @return boolean
 	 */
 	public function sameAs($achievement) {
 		foreach (['name', 'description', 'image', 'category', 'points', 'global', 'protected', 'secret', 'special', 'show_on_all_sites', 'deleted_at', 'deleted_by', 'criteria'] as $field) {
@@ -285,8 +283,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Removes achievements that should not be used or shown in the context they are called from.
 	 *
-	 * @access	public
-	 * @param	array	Two key array of:
+	 * @param array	Two key array of:
 	 *		[
 	 *			[CheevosAchievement objects]
 	 *			[CheevosAchievementStatus OR CheevosAchievementProgress objects]
@@ -294,11 +291,12 @@ class CheevosAchievement extends CheevosModel {
 	 *		Note: Just pruning statuses still requires a blank array to be passed as the first array index.  [[], $statuses]
 	 *		Also note: Just pruning statuses is useless as it needs achievement information to successfully prune them.
 	 *		Pruning statuses is not required.
-	 * @param	boolean	[Optional] Remove parent achievements if the child achievement is present.
-	 * @param	boolean	[Optional] Remove deleted achievements.
-	 * @return	array	CheevosAchievement objects.
+	 * @param boolean	[Optional] Remove parent achievements if the child achievement is present.
+	 * @param boolean	[Optional] Remove deleted achievements.
+	 *
+	 * @return array	CheevosAchievement objects.
 	 */
-	static public function pruneAchievements(array $toPrune, $removeParents = true, $removeDeleted = true) {
+	public static function pruneAchievements(array $toPrune, $removeParents = true, $removeDeleted = true) {
 		list($achievements, $statuses) = $toPrune;
 		$_achievements = $achievements;
 		if (count($_achievements)) {
@@ -359,11 +357,11 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * When displaying "Requires" criteria it may refer to a parent achievement that has been succeeded by a child achievement.  This corrects it for display purposes.
 	 *
-	 * @access	public
-	 * @param	array	CheevosAchievement objects.
-	 * @return	array	CheevosAchievement objects.
+	 * @param array	CheevosAchievement objects.
+	 *
+	 * @return array	CheevosAchievement objects.
 	 */
-	static public function correctCriteriaChildAchievements($achievements) {
+	public static function correctCriteriaChildAchievements($achievements) {
 		if (count($achievements)) {
 			$children = self::getParentToChild($achievements);
 			if (count($children)) {
@@ -385,11 +383,11 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get an array of child information for parents.
 	 *
-	 * @access	public
-	 * @param	array	CheevosAchievement objects.
-	 * @return	array	Array of parent_id => child_id.
+	 * @param array	CheevosAchievement objects.
+	 *
+	 * @return array	Array of parent_id => child_id.
 	 */
-	static public function getParentToChild($achievements) {
+	public static function getParentToChild($achievements) {
 		$children = [];
 		if (count($achievements)) {
 			foreach ($achievements as $id => $achievement) {
@@ -404,8 +402,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get achievement IDs that require this achievement.
 	 *
-	 * @access	public
-	 * @return	array	Array achievement IDs that require this achievement.
+	 * @return array	Array achievement IDs that require this achievement.
 	 */
 	public function getRequiredBy() {
 		global $dsSiteKey;

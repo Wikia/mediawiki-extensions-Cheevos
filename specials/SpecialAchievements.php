@@ -3,27 +3,25 @@
  * Cheevos
  * Cheevos Special Page
  *
- * @author		Hydra Wiki Platform Team
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Hydra Wiki Platform Team
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 class SpecialAchievements extends SpecialPage {
 	/**
 	 * Output HTML
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $content;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		global $dsSiteKey;
@@ -32,15 +30,14 @@ class SpecialAchievements extends SpecialPage {
 		$this->wgRequest	= $this->getRequest();
 		$this->output		= $this->getOutput();
 		$this->siteKey		= $dsSiteKey;
-
 	}
 
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @param string	Sub page passed in the URL.
+	 *
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
 		$this->templates = new TemplateAchievements;
@@ -54,9 +51,9 @@ class SpecialAchievements extends SpecialPage {
 	/**
 	 * Achievements List
 	 *
-	 * @access	public
-	 * @param	mixed	Passed subpage parameter to be intval()'ed for a Global ID.
-	 * @return	void	[Outputs to screen]
+	 * @param mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 *
+	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList($subpage = null) {
 		global $dsSiteKey;
@@ -66,7 +63,7 @@ class SpecialAchievements extends SpecialPage {
 		$globalId = false;
 		if ($this->getUser()->isLoggedIn()) {
 			if ($this->getUser()->getId() > 0) {
-				//This is unrelated to the user look up.  Just trigger this statistic if a logged in user visits an achievement page.
+				// This is unrelated to the user look up.  Just trigger this statistic if a logged in user visits an achievement page.
 				CheevosHooks::increment('achievement_engagement', 1, $this->getUser());
 			}
 
@@ -97,7 +94,7 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		try {
-			$check = \Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); //Just a helper to fix cases of missed achievements.
+			$check = \Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); // Just a helper to fix cases of missed achievements.
 			if (isset($check['earned'])) {
 				foreach ($check['earned'] as $earned) {
 					$earnedAchievement = new \Cheevos\CheevosAchievement($earned);
@@ -126,12 +123,12 @@ class SpecialAchievements extends SpecialPage {
 			$title = wfMessage('achievements-title')->escaped();
 		}
 
-		//Fix requires achievement child IDs for display purposes.
+		// Fix requires achievement child IDs for display purposes.
 		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
-		//Remove achievements that should not be shown in this context.
+		// Remove achievements that should not be shown in this context.
 		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
 
-		//@TODO: This fuckery of the $statuses array is backwards compatibility for the template.  If we fix the template to be able to handle more than one wiki at a time this piece of code needs to be removed.
+		// @TODO: This fuckery of the $statuses array is backwards compatibility for the template.  If we fix the template to be able to handle more than one wiki at a time this piece of code needs to be removed.
 		if (!empty($_statuses)) {
 			foreach ($_statuses as $_status) {
 				$statuses[$_status->getAchievement_Id()] = $_status;
@@ -142,11 +139,9 @@ class SpecialAchievements extends SpecialPage {
 		$this->content = $this->templates->achievementsList($achievements, $categories, $statuses, $user, $globalId);
 	}
 
-
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {

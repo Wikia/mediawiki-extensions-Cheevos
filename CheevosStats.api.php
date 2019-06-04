@@ -3,27 +3,25 @@
  * Cheevos
  * Achievements API
  *
- * @author		Alexia E. Smith, Cameron Chunn
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Achievements
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith, Cameron Chunn
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 class CheevosStatsAPI extends ApiBase {
 	/**
 	 * API Initialized
 	 *
-	 * @var		boolean
+	 * @var boolean
 	 */
 	private $initialized = false;
 
 	/**
 	 * Initiates some needed classes.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	private function init() {
 		if (!$this->initialized) {
@@ -39,8 +37,7 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void	[Outputs to screen]
 	 */
 	public function execute() {
 		$this->init();
@@ -95,7 +92,7 @@ class CheevosStatsAPI extends ApiBase {
 
 		$customAchievements = [];
 
-		foreach($achievements as $a) {
+		foreach ($achievements as $a) {
 			if ($a->getParent_Id() !== 0) {
 				$customAchievements[$a->getSite_Key()][] = $a;
 			}
@@ -116,7 +113,7 @@ class CheevosStatsAPI extends ApiBase {
 			if ($user) {
 				$topAchiever = [
 					'name' => $user->getName(),
-					'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"
+					'img' => "//www.gravatar.com/avatar/" . md5(strtolower(trim($user->getEmail()))) . "?d=mm&amp;s=96"
 				];
 			} else {
 				$topAchiever = [
@@ -141,7 +138,7 @@ class CheevosStatsAPI extends ApiBase {
 
 			$userNonCurse = $lookup->localUserFromCentralId($topNonCurseUser);
 			if ($user) {
-				$topNonCurseAchiever = ['name' => $userNonCurse->getName(), 'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($userNonCurse->getEmail())))."?d=mm&amp;s=96"];
+				$topNonCurseAchiever = ['name' => $userNonCurse->getName(), 'img' => "//www.gravatar.com/avatar/" . md5(strtolower(trim($userNonCurse->getEmail()))) . "?d=mm&amp;s=96"];
 			} else {
 				$topNonCurseAchiever = ['name' => "UNABLE TO LOOKUP USER ($topNonCurseUser)", 'img' => 'https://placehold.it/96x96'];
 			}
@@ -188,12 +185,11 @@ class CheevosStatsAPI extends ApiBase {
 			$lookup = CentralIdLookup::factory();
 			$user = $lookup->localUserFromCentralId($topUser);
 			if ($user) {
-				$topAchiever = ['name' => $user->getName(), 'img' => "//www.gravatar.com/avatar/".md5(strtolower(trim($user->getEmail())))."?d=mm&amp;s=96"];
+				$topAchiever = ['name' => $user->getName(), 'img' => "//www.gravatar.com/avatar/" . md5(strtolower(trim($user->getEmail()))) . "?d=mm&amp;s=96"];
 			} else {
 				$topAchiever = ['name' => "UNABLE TO LOOKUP USER ($topUser)", 'img' => 'https://placehold.it/96x96'];
 			}
 		}
-
 
 		$data = [
 			'totalAchievements' => count($achievements),
@@ -225,11 +221,11 @@ class CheevosStatsAPI extends ApiBase {
 		$userCount = $userCount->count;
 
 		$achievements = \Cheevos\Cheevos::getAchievements($siteKey);
-		foreach($achievements as $a) {
+		foreach ($achievements as $a) {
 
 			$earned = \Cheevos\Cheevos::getProgressCount($siteKey, $a->getId());
 			$totalEarned = isset($earned['total']) ? $earned['total'] : 0;
-			$userPercent = ($totalEarned > 0) ? ( ($totalEarned / $userCount) * 100 ) : 0;
+			$userPercent = ($totalEarned > 0) ? (($totalEarned / $userCount) * 100) : 0;
 
 			$data[] = [
 				"id" => $a->getId(),
@@ -302,7 +298,7 @@ class CheevosStatsAPI extends ApiBase {
 			$achievement = $achievementStore[$achievementId];
 
 			$user = $lookup->localUserFromCentralId($p->getUser_Id());
-			$userName = ($user) ? $user->getName() : "User #".$p->getUser_Id();
+			$userName = ($user) ? $user->getName() : "User #" . $p->getUser_Id();
 
 			$data[] = [
 				'user' => $userName,
@@ -322,12 +318,10 @@ class CheevosStatsAPI extends ApiBase {
 		return ['success' => true, 'data' => $data];
 	}
 
-
 	/**
 	 * Requirements for API call parameters.
 	 *
-	 * @access	public
-	 * @return	array	Merged array of parameter requirements.
+	 * @return array	Merged array of parameter requirements.
 	 */
 	public function getAllowedParams() {
 		return [
@@ -349,8 +343,7 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Descriptions for API call parameters.
 	 *
-	 * @access	public
-	 * @return	array	Merged array of parameter descriptions.
+	 * @return array	Merged array of parameter descriptions.
 	 */
 	public function getParamDescription() {
 		return [
@@ -359,12 +352,10 @@ class CheevosStatsAPI extends ApiBase {
 		];
 	}
 
-
 	/**
 	 * Get version of this API Extension.
 	 *
-	 * @access	public
-	 * @return	string	API Extension Version
+	 * @return string	API Extension Version
 	 */
 	public function getVersion() {
 		return '1.0';
@@ -373,8 +364,7 @@ class CheevosStatsAPI extends ApiBase {
 	/**
 	 * Return a ApiFormatJson format object.
 	 *
-	 * @access	public
-	 * @return	object	ApiFormatJson
+	 * @return object	ApiFormatJson
 	 */
 	public function getCustomPrinter() {
 		return $this->getMain()->createPrinterByName('json');

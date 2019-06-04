@@ -3,12 +3,11 @@
  * Cheevos
  * Cheevos Wiki Point Log Model
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
 namespace Cheevos;
@@ -17,9 +16,9 @@ class CheevosWikiPointLog extends CheevosModel {
 	/**
 	 * Constructor
 	 *
-	 * @access	public
-	 * @param	array	$data Associated array of property values initializing the model.
-	 * @return	void
+	 * @param array $data Associated array of property values initializing the model.
+	 *
+	 * @return void
 	 */
 	public function __construct(array $data = null) {
 		$this->container['achievement_id'] = isset($data['achievement_id']) && is_int($data['achievement_id']) ? $data['achievement_id'] : 0;

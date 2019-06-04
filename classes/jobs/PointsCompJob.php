@@ -4,12 +4,11 @@
  * Cheevos
  * Points Comp Job
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2017 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Cheevos
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Cheevos
+ * @author    Alexia E. Smith
+ * @copyright (c) 2017 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
 namespace Cheevos\Job;
@@ -18,15 +17,15 @@ class PointsCompJob extends \SyncService\Job {
 	/**
 	 * Runs points compensation reports and grants through the command line maintenance script.
 	 *
-	 * @access	public
-	 * @param	array	Named Arguments:
+	 * @param array	Named Arguments:
 	 * - threshold		[Integer] Point threshold for the report.
 	 * - start_time		[Integer] Unix timestamp of the report start range.
 	 * - end_time		[Integer] Unix timestamp of the report end range.
 	 * - final			[Boolean] Finalize this report by granting compensations.
 	 * - email			[Boolean] Email users affected.
 	 * - report_id		[Optional] Existing report ID to update.
-	 * @return	integer	Exit value for this thread.
+	 *
+	 * @return integer	Exit value for this thread.
 	 */
 	public function execute($args = []) {
 		$minPointThreshold = (isset($args['min_point_threshold']) ? intval($args['min_point_threshold']) : null);
@@ -37,12 +36,12 @@ class PointsCompJob extends \SyncService\Job {
 		$email = (isset($args['email']) ? boolval($args['email']) : false);
 		$reportId = (isset($args['report_id']) ? intval($args['report_id']) : null);
 
-		sleep(2); //Database transaction commits on AWS are slow.
+		sleep(2); // Database transaction commits on AWS are slow.
 
 		if ($reportId > 0) {
 			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
 			if (!$report) {
-				$this->outputLine(__METHOD__.": Bad report ID.", time());
+				$this->outputLine(__METHOD__ . ": Bad report ID.", time());
 				return 1;
 			}
 		} else {
@@ -64,7 +63,7 @@ class PointsCompJob extends \SyncService\Job {
 				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
 			}
 		} catch (\MWException $e) {
-			$this->outputLine(__METHOD__.": Failed to run report due to: ".$e->getMessage(), time());
+			$this->outputLine(__METHOD__ . ": Failed to run report due to: " . $e->getMessage(), time());
 			return 1;
 		}
 
