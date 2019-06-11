@@ -191,7 +191,7 @@ class PointsDisplay {
 						$domain = $wikis[$userPointsRow->siteKey]->getDomains()->getDomain();
 					}
 					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $domain, $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace($localDomain, $domain, $userPoints[$key]->userLink);
+					$userPoints[$key]->userLink = str_replace($localDomain, "https://" . $domain, $userPoints[$key]->userLink);
 					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks);
 					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userLink);
 				}
