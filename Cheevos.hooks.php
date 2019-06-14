@@ -221,7 +221,12 @@ class CheevosHooks {
 			$editsToRevoke[] = $current->getId();
 			$current = $current->getPrevious();
 		}
-		\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
+		try {
+			\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
+		} catch (\Cheevos\CheevosException $e) {
+			// Honey Badger
+		}
+
 		return true;
 	}
 
