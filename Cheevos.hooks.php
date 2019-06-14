@@ -221,6 +221,7 @@ class CheevosHooks {
 			$editsToRevoke[] = $current->getId();
 			$current = $current->getPrevious();
 		}
+
 		try {
 			\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
 		} catch (\Cheevos\CheevosException $e) {
