@@ -136,7 +136,7 @@ class PointsDisplay {
 			$userPointsRow = new \stdClass();
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
-				if (!User::isCreatableName($user->getName())) {
+				if (!User::isCreatableName($user->getName()) || $user->isHidden()) {
 					continue;
 				}
 				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
