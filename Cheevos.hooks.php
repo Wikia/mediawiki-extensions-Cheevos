@@ -725,11 +725,13 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onGetPreferences(User $user, array &$preferences) {
-		$preferences['cheevos-popup-notification'] = [
-			'type' => 'toggle',
-			'label-message' => 'cheevos-popup-notification', // a system message
-			'section' => 'echo/cheevos-notification'
-		];
+		// @todo Replace with reverb preferences
+		//
+		// $preferences['cheevos-popup-notification'] = [
+		// 	'type' => 'toggle',
+		// 	'label-message' => 'cheevos-popup-notification', // a system message
+		// 	'section' => 'echo/cheevos-notification'
+		// ];
 
 		return true;
 	}
