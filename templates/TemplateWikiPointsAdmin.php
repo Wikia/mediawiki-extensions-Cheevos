@@ -102,7 +102,7 @@ class TemplateWikiPointsAdmin {
 							if ($pointRow->getRevision_Id()) {
 								$arguments['oldid'] = $pointRow->getRevision_Id();
 							}
-							$link = '<a href="' . $title->getInternalURL($arguments) . '">' . $title->getText() . '</a>';
+							$link = '<a href="' . $title->getInternalURL($arguments) . '">' . $title->getPrefixedText() . '</a>';
 						} else {
 							$link = '<span title="' . wfMessage('deleted_article')->escaped() . '">' . wfMessage('article_id_number')->escaped() . $pointRow->getPage_Id() . '</span>';
 						}
