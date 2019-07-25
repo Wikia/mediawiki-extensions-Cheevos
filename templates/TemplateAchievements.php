@@ -102,7 +102,7 @@ class TemplateAchievements {
 	 *
 	 * @return string	Built HTML
 	 */
-	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
+	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
 
 		if (empty($siteKey)) {
@@ -254,22 +254,6 @@ class TemplateAchievements {
 				</div>
 				<span class='p-achievement-points'>" . intval($achievement->getPoints()) . "{$wgAchPointAbbreviation}</span>
 			</div>";
-
-		return $HTML;
-	}
-
-	/**
-	 * Generates block of achievements to display.
-	 *
-	 * @param string	HTML blocks of achievements.
-	 *
-	 * @return string	Built HTML
-	 */
-	public function achievementDisplay($blocks) {
-		$HTML = "
-		<div id='p-achievement-notices' class='p-achievement'>
-			{$blocks}
-		</div>";
 
 		return $HTML;
 	}

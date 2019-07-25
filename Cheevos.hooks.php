@@ -580,25 +580,45 @@ class CheevosHooks {
 			return false;
 		}
 
-		$templates = new TemplateAchievements;
-		$redis = RedisCache::getClient('cache');
+		$lookup = CentralIdLookup::factory();
+		$user = $lookup->localUserFromCentralId($globalId);
 
-		if ($redis === false) {
-			return false;
+		$html = TemplateAchievements::achievementBlockPopUp($achievement, $siteKey, $globalId);
+
+		$broadcast = NotificationBroadcast::newSingle(
+			'user-interest-talk-page-edit',
+			null,
+			$user,
+			[
+				'url' => Special::getTitleFor('Special:Achievements')->getFullURL(),
+				'message' => [
+					[
+						'user_note',
+						$html
+					],
+					[
+						1,
+						$agentPage->getFullURL()
+					],
+					[
+						2,
+						$agent->getName()
+					],
+					[
+						3,
+						$notifyUserTalk->getFullURL()
+					],
+					[
+						4,
+						$agent->getName()
+					]
+				]
+			]
+		);
+		if ($broadcast) {
+			$broadcast->transmit();
 		}
 
-		$html = $templates->achievementBlockPopUp($achievement, $siteKey, $globalId);
-
-		try {
-			// Using a global key.
-			$redisKey = 'cheevos:display:' . $globalId;
-			$redis->hSet($redisKey, $siteKey . "-" . $achievement->getId(), $html);
-			$redis->expire($redisKey, 3600);
-			return true;
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
-			return false;
-		}
 	}
 
 	/**
