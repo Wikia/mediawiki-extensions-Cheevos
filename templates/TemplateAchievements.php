@@ -110,7 +110,7 @@ class TemplateAchievements {
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote'>
+			<div class='p-achievement-row p-achievement-notice'>
 				<div class='p-achievement-icon'>
 					" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "
 				</div>

@@ -74,7 +74,6 @@
 
 .p-achievement-row .p-achievement-icon > img,
 #p-achievement-notices .p-achievement-icon > img {
-	filter: grayscale(75%);
 	max-height: 80px;
 	max-width: 80px;
 	min-height: 80px;
@@ -129,29 +128,15 @@
 }
 
 .p-achievement-row {
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	-ms-flex-direction: row;
-	flex-direction: row;
-	-webkit-flex-wrap: nowrap;
-	-ms-flex-wrap: nowrap;
-	flex-wrap: nowrap;
-	-webkit-justify-content: flex-start;
-	-ms-flex-pack: start;
-	justify-content: flex-start;
-	-webkit-align-content: stretch;
-	-ms-flex-line-pack: stretch;
 	align-content: stretch;
-	-webkit-align-items: flex-start;
-	-ms-flex-align: start;
 	align-items: flex-start;
 	background: none repeat scroll 0 0 #e1e1e1;
-	border: 1px solid #9d9d9d;
-	color: #7e7e7e;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	margin: 0 auto;
 	min-height: 86px;
-	margin: 7px auto;
 	position: relative;
 	width: 100%;
 }
@@ -178,8 +163,6 @@
 
 .skin-hydradark .p-achievement-row {
 	background: none repeat scroll 0 0 #383838;
-	border-color: #555555;
-	color: #7e7e7e;
 }
 
 .skin-hydradark .p-achievement-row.deleted {
@@ -203,61 +186,31 @@
 }
 
 .p-achievement-row-inner {
-	-webkit-order: 0;
-	-ms-flex-order: 0;
-	order: 0;
-	-webkit-flex: 1 1 auto;
-	-ms-flex: 1 1 auto;
-	flex: 1 1 auto;
-	-webkit-align-self: auto;
-	-ms-flex-item-align: auto;
-	align-self: auto;
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	-ms-flex-direction: column;
-	flex-direction: column;
-	-webkit-flex-wrap: nowrap;
-	-ms-flex-wrap: nowrap;
-	flex-wrap: nowrap;
-	-webkit-justify-content: flex-start;
-	-ms-flex-pack: start;
-	justify-content: flex-start;
-	-webkit-align-content: center;
-	-ms-flex-line-pack: center;
 	align-content: center;
-	-webkit-align-items: baseline;
-	-ms-flex-align: baseline;
 	align-items: baseline;
+	align-self: auto;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	flex: 1 1 auto;
+	justify-content: flex-start;
+	order: 0;
 	padding: 3px 5px 0 0;
 }
 
 .p-achievement-name {
-	-webkit-order: 1;
-	-ms-flex-order: 1;
-	order: 1;
-	-webkit-flex: 0 1 auto;
-	-ms-flex: 0 1 auto;
-	flex: 0 1 auto;
-	-webkit-align-self: auto;
-	-ms-flex-item-align: auto;
 	align-self: auto;
+	flex: 0 1 auto;
 	font-size: 1.2em;
 	font-weight: bold;
+	order: 1;
 	white-space: nowrap;
 }
 
 .p-achievement-description {
-	-webkit-order: 2;
-	-ms-flex-order: 2;
-	order: 2;
-	-webkit-flex: 1 1 auto;
-	-ms-flex: 1 1 auto;
-	flex: 1 1 auto;
-	-webkit-align-self: auto;
-	-ms-flex-item-align: auto;
 	align-self: auto;
+	flex: 1 1 auto;
+	order: 2;
 }
 
 .p-achievement-points > img {
@@ -379,10 +332,6 @@
 	position: absolute;
 	right: 3px;
 	top: 40px;
-}
-
-.p-achievement-remote {
-	margin-top: 32px;
 }
 
 .p-achievement-source {
