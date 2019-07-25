@@ -78,11 +78,9 @@
 		"CheevosMagic": "Cheevos.i18n.magic.php"
 	},
 	"APIModules": {
-		"cheevos": "CheevosAPI",
 		"cheevosstats": "CheevosStatsAPI"
 	},
 	"AutoloadClasses": {
-		"CheevosAPI": "Cheevos.api.php",
 		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
@@ -182,19 +180,6 @@
 				"error_connecting_to_site",
 				"bad_site_key",
 				"choose_existing_hook"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
-			],
-			"position": "top"
-		},
-		"ext.cheevos.notice.js": {
-			"scripts": [
-				"js/cheevos.notice.js"
-			],
-			"dependencies": [
-				"mediawiki.api"
 			],
 			"targets": [
 				"desktop",
@@ -311,8 +296,6 @@
 		"ParserFirstCallInit": "CheevosHooks::onParserFirstCallInit",
 		"ParserGetVariableValueSwitch": "CheevosHooks::onParserGetVariableValueSwitch",
 		"PersonalUrls": "CheevosHooks::onPersonalUrls",
-		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
-		"SkinPreloadExistence": "CheevosHooks::onSkinPreloadExistence",
 		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"UserToolLinksEdit": "CheevosHooks::onContributionsToolLinks",
