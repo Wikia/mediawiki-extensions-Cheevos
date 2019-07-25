@@ -47,7 +47,7 @@ class CheevosIncrementJob extends \SyncService\Job {
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
 					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+					\CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
 					\Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 				}
 			}

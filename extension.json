@@ -398,6 +398,14 @@
 			"descriptionmsg": "cheevos-config-compedsubscriptionmonths",
 			"public": false
 		},
+		"ReverbNotifications": {
+			"value": {
+				"user-interest-achievement-earned": {
+					"importance": 8
+				}
+			},
+			"merge_strategy": "array_plus_2d"
+		},
 		"SyncServices": {
 			"value": {
 				"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",

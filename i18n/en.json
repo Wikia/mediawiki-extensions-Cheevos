@@ -312,5 +312,7 @@
 	"right-points_comp_reports": "Generate points comp reports",
 	"right-wiki_points_admin": "View [[Special:WikiPointsAdmin|user wiki points history]]",
 	"right-wpa_adjust_points": "Adjust wiki points of a user directly",
-	"achievement_save": "Save"
+	"achievement_save": "Save",
+	"short-header-user-interest-achievement-earned": "Achievement earned!",
+	"long-header-user-interest-achievement-earned": "Achievement earned!"
 }

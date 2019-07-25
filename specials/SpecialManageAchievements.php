@@ -510,7 +510,7 @@ class SpecialManageAchievements extends SpecialPage {
 									'notified'			=> false
 								]
 							);
-							\CheevosHooks::displayAchievement($achievement, $dsSiteKey, $globalId);
+							\CheevosHooks::broadcastAchievement($achievement, $dsSiteKey, $globalId);
 							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [

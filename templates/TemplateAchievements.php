@@ -103,19 +103,14 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
-		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
+		global $wgAchPointAbbreviation;
 
-		if (empty($siteKey)) {
-			$siteKey = $dsSiteKey;
-		}
-
-		$achievementsPage = Title::newFromText('Special:Achievements');
+		$achievementsPage = SpecialPage::getTitleFor('Special:Achievements');
 
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$siteKey}-{$achievement->getId()}'>
-				<div class='p-achievement-source'>" . \Cheevos\CheevosHelper::getSiteName($siteKey) . "</div>
+			<div class='p-achievement-row p-achievement-notice p-achievement-remote'>
 				<div class='p-achievement-icon'>
 					" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "
 				</div>

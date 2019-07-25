@@ -10,7 +10,9 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\CheevosAchievement;
 use DynamicSettings\Environment;
+use Reverb\Notification\NotificationBroadcast;
 
 class CheevosHooks {
 	/**
@@ -551,7 +553,7 @@ class CheevosHooks {
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
-						self::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+						self::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
 						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
@@ -567,13 +569,13 @@ class CheevosHooks {
 	/**
 	 * Adds achievement display HTML to page output.
 	 *
-	 * @param Achievement $achievement Achievement
-	 * @param string      $siteKey     Site Key
-	 * @param integer     $globalId    Global User ID
+	 * @param CheevosAchievement $achievement CheevosAchievement
+	 * @param string             $siteKey     Site Key
+	 * @param integer            $globalId    Global User ID
 	 *
 	 * @return boolean	Success
 	 */
-	public static function displayAchievement(Achievement $achievement, string $siteKey, int $globalId) {
+	public static function broadcastAchievement(CheevosAchievement $achievement, string $siteKey, int $globalId) {
 		$globalId = intval($globalId);
 
 		if (empty($siteKey) || $globalId < 0) {
@@ -581,44 +583,31 @@ class CheevosHooks {
 		}
 
 		$lookup = CentralIdLookup::factory();
-		$user = $lookup->localUserFromCentralId($globalId);
+		$targetUser = $lookup->localUserFromCentralId($globalId);
+
+		if (!$targetUser) {
+			return false;
+		}
 
 		$html = TemplateAchievements::achievementBlockPopUp($achievement, $siteKey, $globalId);
 
-		$broadcast = NotificationBroadcast::newSingle(
-			'user-interest-talk-page-edit',
-			null,
-			$user,
+		$broadcast = NotificationBroadcast::newSystemSingle(
+			'user-interest-achievement-earned',
+			$targetUser,
 			[
-				'url' => Special::getTitleFor('Special:Achievements')->getFullURL(),
+				'url' => SpecialPage::getTitleFor('Special:Achievements')->getFullURL(),
 				'message' => [
 					[
 						'user_note',
 						$html
-					],
-					[
-						1,
-						$agentPage->getFullURL()
-					],
-					[
-						2,
-						$agent->getName()
-					],
-					[
-						3,
-						$notifyUserTalk->getFullURL()
-					],
-					[
-						4,
-						$agent->getName()
 					]
 				]
 			]
 		);
+
 		if ($broadcast) {
 			$broadcast->transmit();
 		}
-
 	}
 
 	/**

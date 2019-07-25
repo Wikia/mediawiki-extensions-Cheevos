@@ -98,7 +98,7 @@ class SpecialAchievements extends SpecialPage {
 			if (isset($check['earned'])) {
 				foreach ($check['earned'] as $earned) {
 					$earnedAchievement = new \Cheevos\CheevosAchievement($earned);
-					\CheevosHooks::displayAchievement($earnedAchievement, $this->siteKey, $globalId);
+					\CheevosHooks::broadcastAchievement($earnedAchievement, $this->siteKey, $globalId);
 					Hooks::run('AchievementAwarded', [$earnedAchievement, $globalId]);
 				}
 			}
@@ -129,6 +129,7 @@ class SpecialAchievements extends SpecialPage {
 		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
 
 		// @TODO: This fuckery of the $statuses array is backwards compatibility for the template.  If we fix the template to be able to handle more than one wiki at a time this piece of code needs to be removed.
+		$statuses = [];
 		if (!empty($_statuses)) {
 			foreach ($_statuses as $_status) {
 				$statuses[$_status->getAchievement_Id()] = $_status;
