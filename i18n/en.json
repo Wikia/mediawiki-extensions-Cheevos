@@ -314,5 +314,7 @@
 	"right-wpa_adjust_points": "Adjust wiki points of a user directly",
 	"achievement_save": "Save",
 	"short-header-user-interest-achievement-earned": "Achievement earned!",
-	"long-header-user-interest-achievement-earned": "Achievement earned!"
+	"long-header-user-interest-achievement-earned": "Achievement earned!",
+	"reverb-pref-title-user-interest-achievement-earned": "Achievements",
+	"special-sidebar-user-interest-achievement-earned": "Achievements"
 }
