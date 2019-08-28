@@ -509,6 +509,23 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Add styles for Reverb notifications to every page.
+	 *
+	 * @param OutputPage   $output Mediawiki Output Object
+	 * @param SkinTemplate $skin   Mediawiki Skin Object
+	 *
+	 * @return boolean True
+	 */
+	public static function onBeforePageDisplay(OutputPage &$output, SkinTemplate &$skin) {
+		if ($output->getUser()->isAnon()) {
+			return true;
+		}
+
+		$output->addModuleStyles('ext.cheevos.notifications.styles');
+		return true;
+	}
+
+	/**
 	 * Registers shutdown function to do increments.
 	 *
 	 * @param Title      $title     Title

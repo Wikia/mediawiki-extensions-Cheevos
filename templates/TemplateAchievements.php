@@ -110,16 +110,13 @@ class TemplateAchievements {
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice'>
-				<div class='p-achievement-icon'>
-					" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "
+			<div class='reverb-npn-ach'>
+				<div class='reverb-npn-ach-text'>
+					<div class='reverb-npn-ach-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</div>
+					<div class='reverb-npn-ach-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</div>
 				</div>
-				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</span>
-					<span class='p-achievement-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</span>
-				</div>
-				<span class='p-achievement-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</span>
-				<a href='{$achievementsPage->getFullURL()}'><span></span></a>
+				<div class='reverb-npn-ach-icon'>" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "</div>
+				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</div>
 			</div>";
 
 		return $HTML;

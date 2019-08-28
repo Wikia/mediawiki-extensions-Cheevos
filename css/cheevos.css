@@ -1,13 +1,3 @@
-#p-achievement-notices {
-	bottom: 10px;
-	display: inline-block;
-	max-width: 600px;
-	min-width: 400px;
-	position: fixed;
-	right: 10px;
-	z-index: 100000;
-}
-
 .image-edit-box {
 	display: none;
 	position: absolute;
@@ -29,27 +19,7 @@
 	cursor: pointer;
 }
 
-#p-achievement-notices .p-achievement-notice {
-	color: black;
-	left: 410px;
-	position: relative;
-}
-
-.skin-hydradark #p-achievement-notices .p-achievement-notice {
-	color: #eee;
-}
-
-#p-achievement-notices .p-achievement-notice a span {
-	display: block;
-	height: 100%;
-	left: 0;
-	position: absolute;
-	top: 0;
-	width: 100%;
-}
-
-.p-achievement-row .p-achievement-icon,
-#p-achievement-notices .p-achievement-icon {
+.p-achievement-row .p-achievement-icon {
 	-webkit-order: 0;
 	-ms-flex-order: 0;
 	order: 0;
@@ -66,32 +36,28 @@
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-	.p-achievement-row .p-achievement-icon,
-	#p-achievement-notices .p-achievement-icon {
+	.p-achievement-row .p-achievement-icon {
 		flex: 0 1 86px;
 	}
 }
 
-.p-achievement-row .p-achievement-icon > img,
-#p-achievement-notices .p-achievement-icon > img {
+.p-achievement-row .p-achievement-icon > img {
 	max-height: 80px;
 	max-width: 80px;
 	min-height: 80px;
 	min-width: 80px;
 }
 
-.p-achievement-row.earned .p-achievement-icon > img,
-#p-achievement-notices .p-achievement-icon > img {
+.p-achievement-row.earned .p-achievement-icon > img {
 	filter: none;
 }
 
-.p-achievement-row .p-achievement-points,
-#p-achievement-notices .p-achievement-points {
+.p-achievement-row .p-achievement-points {
 	bottom: 0;
-	font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
-	font-size: 1.2em;
 	position: absolute;
 	right: 5px;
+	font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
+	font-size: 1.2em;
 }
 
 .p-achievement-error {
@@ -185,7 +151,8 @@
 	border-color: #a8a54c;
 }
 
-.p-achievement-row-inner {
+.p-achievement-row-inner,
+.p-achievement-flex-left {
 	align-content: center;
 	align-items: baseline;
 	align-self: auto;
@@ -350,11 +317,6 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
-}
-
-.p-achievement-remote .p-achievement-notice {
-	border-radius: 0 0 7px 7px;
-	margin-top: 0;
 }
 
 .list_search a.button,

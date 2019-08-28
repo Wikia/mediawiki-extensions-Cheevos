@@ -152,6 +152,16 @@
 			],
 			"position": "top"
 		},
+		"ext.cheevos.notifications.styles": {
+			"styles": [
+				"css/cheevos.notifications.css"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
 		"ext.cheevos.resumable.js": {
 			"scripts": [
 				"js/cheevos.resumable.js"
@@ -278,6 +288,7 @@
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
 		"ArticleRollbackComplete": "CheevosHooks::onArticleRollbackComplete",
 		"BeforeInitialize": "CheevosHooks::onBeforeInitialize",
+		"BeforePageDisplay": "CheevosHooks::onBeforePageDisplay",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
 		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
