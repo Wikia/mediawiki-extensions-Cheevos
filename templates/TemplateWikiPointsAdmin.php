@@ -111,7 +111,7 @@ class TemplateWikiPointsAdmin {
 						$title = SpecialPage::getTitleFor('Achievements');
 						try {
 							$achievement = \Cheevos\Cheevos::getAchievement($pointRow->getAchievement_Id());
-							$link = '<a href="' . $title->getInternalURL() . '#category=' . $achievement->getCategory()->getSlug() . '&achievement=' . $pointRow->getAchievement_Id() . '">' . htmlentities($achievement->getName()) . '</a>';
+							$link = '<a href="' . $title->getInternalURL() . '/'. $escapedUserName .'#category=' . $achievement->getCategory()->getSlug() . '&achievement=' . $pointRow->getAchievement_Id() . '">' . htmlentities($achievement->getName()) . '</a>';
 						} catch (\Cheevos\CheevosException $e) {
 							$link = '<a href="' . $title->getInternalURL() . '#achievement=' . $pointRow->getAchievement_Id() . '">' . wfMessage('achievement_id', $pointRow->getAchievement_Id())->escaped() . '</a>';
 						}
