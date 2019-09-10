@@ -10,7 +10,9 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\CheevosAchievement;
 use DynamicSettings\Environment;
+use Reverb\Notification\NotificationBroadcast;
 
 class CheevosHooks {
 	/**
@@ -507,6 +509,23 @@ class CheevosHooks {
 	}
 
 	/**
+	 * Add styles for Reverb notifications to every page.
+	 *
+	 * @param OutputPage   $output Mediawiki Output Object
+	 * @param SkinTemplate $skin   Mediawiki Skin Object
+	 *
+	 * @return boolean True
+	 */
+	public static function onBeforePageDisplay(OutputPage &$output, SkinTemplate &$skin) {
+		if ($output->getUser()->isAnon()) {
+			return true;
+		}
+
+		$output->addModuleStyles('ext.cheevos.notifications.styles');
+		return true;
+	}
+
+	/**
 	 * Registers shutdown function to do increments.
 	 *
 	 * @param Title      $title     Title
@@ -551,7 +570,7 @@ class CheevosHooks {
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new \Cheevos\CheevosAchievement($achievement);
-						self::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+						self::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
 						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
@@ -567,140 +586,45 @@ class CheevosHooks {
 	/**
 	 * Adds achievement display HTML to page output.
 	 *
-	 * @param Achievement $achievement Achievement
-	 * @param string      $siteKey     Site Key
-	 * @param integer     $globalId    Global User ID
+	 * @param CheevosAchievement $achievement CheevosAchievement
+	 * @param string             $siteKey     Site Key
+	 * @param integer            $globalId    Global User ID
 	 *
 	 * @return boolean	Success
 	 */
-	public static function displayAchievement(Achievement $achievement, string $siteKey, int $globalId) {
+	public static function broadcastAchievement(CheevosAchievement $achievement, string $siteKey, int $globalId) {
 		$globalId = intval($globalId);
 
 		if (empty($siteKey) || $globalId < 0) {
 			return false;
 		}
 
-		$templates = new TemplateAchievements;
-		$redis = RedisCache::getClient('cache');
+		$lookup = CentralIdLookup::factory();
+		$targetUser = $lookup->localUserFromCentralId($globalId);
 
-		if ($redis === false) {
+		if (!$targetUser) {
 			return false;
 		}
 
-		$html = $templates->achievementBlockPopUp($achievement, $siteKey, $globalId);
+		$html = TemplateAchievements::achievementBlockPopUp($achievement, $siteKey, $globalId);
 
-		try {
-			// Using a global key.
-			$redisKey = 'cheevos:display:' . $globalId;
-			$redis->hSet($redisKey, $siteKey . "-" . $achievement->getId(), $html);
-			$redis->expire($redisKey, 3600);
-			return true;
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
-			return false;
+		$broadcast = NotificationBroadcast::newSystemSingle(
+			'user-interest-achievement-earned',
+			$targetUser,
+			[
+				'url' => SpecialPage::getTitleFor('Special:Achievements')->getFullURL(),
+				'message' => [
+					[
+						'user_note',
+						$html
+					]
+				]
+			]
+		);
+
+		if ($broadcast) {
+			$broadcast->transmit();
 		}
-	}
-
-	/**
-	 * Used to shoved displayed achievements CSS and JS into the page.
-	 * See: self::onSkinAfterBottomScripts
-	 *
-	 * @param array  $titles Array of commonly requested page titles.
-	 * @param object $skin   Skin Object
-	 *
-	 * @return boolean True
-	 */
-	public static function onSkinPreloadExistence(&$titles, $skin) {
-		global $wgUser;
-
-		if (!$wgUser->getOption('cheevos-popup-notification')) {
-			return true;
-		}
-
-		$templates = new TemplateAchievements;
-		$redis = RedisCache::getClient('cache');
-
-		if ($redis === false) {
-			return true;
-		}
-
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($wgUser, CentralIdLookup::AUDIENCE_RAW);
-
-		if (!$globalId) {
-			return true;
-		}
-
-		try {
-			// Using a global key.
-			$redisKey = 'cheevos:display:' . $globalId;
-			$displays = $redis->hGetAll($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
-			return true;
-		}
-
-		if (is_array($displays) && count($displays)) {
-			$skin->getOutput()->addModuleStyles(['ext.cheevos.styles']);
-			$skin->getOutput()->addModules(['ext.cheevos.notice.js']);
-			$skin->getOutput()->enableClientCache(false);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Used to shoved displayed achievements into the page for Javascript to handle.
-	 * See: self::onSkinPreloadExistence
-	 *
-	 * @param object $skin Skin Object
-	 * @param string $text Text to change as a reference
-	 *
-	 * @return boolean True
-	 */
-	public static function onSkinAfterBottomScripts($skin, &$text) {
-		global $wgUser;
-
-		$templates = new TemplateAchievements;
-		$redis = RedisCache::getClient('cache');
-
-		if ($redis === false) {
-			return true;
-		}
-
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($wgUser, CentralIdLookup::AUDIENCE_RAW);
-
-		if (!$globalId) {
-			return true;
-		}
-
-		try {
-			// Using a global key.
-			$redisKey = 'cheevos:display:' . $globalId;
-			$displays = $redis->hGetAll($redisKey);
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
-			return true;
-		}
-
-		if (is_array($displays) && count($displays)) {
-			if ($wgUser->getOption('cheevos-popup-notification')) {
-				if ($displays > 3) {
-					// Per HYD-784. Only show 3 at a time for a better user experience.
-					$displays = array_slice($displays, 0, 3);
-				}
-				// If use wants to recieve these notifications, lets place them on screen
-				$text .= $templates->achievementDisplay(implode("\n", $displays));
-			} else {
-				// If not, lets delete them so that they don't sit around and flood in if this setting ever changes.'
-				foreach ($displays as $key => $value) {
-					$redis->hDel($redisKey, $key);
-				}
-			}
-		}
-
-		return true;
 	}
 
 	/**

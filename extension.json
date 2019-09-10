@@ -78,11 +78,9 @@
 		"CheevosMagic": "Cheevos.i18n.magic.php"
 	},
 	"APIModules": {
-		"cheevos": "CheevosAPI",
 		"cheevosstats": "CheevosStatsAPI"
 	},
 	"AutoloadClasses": {
-		"CheevosAPI": "Cheevos.api.php",
 		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
@@ -154,6 +152,16 @@
 			],
 			"position": "top"
 		},
+		"ext.cheevos.notifications.styles": {
+			"styles": [
+				"css/cheevos.notifications.css"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			],
+			"position": "top"
+		},
 		"ext.cheevos.resumable.js": {
 			"scripts": [
 				"js/cheevos.resumable.js"
@@ -182,19 +190,6 @@
 				"error_connecting_to_site",
 				"bad_site_key",
 				"choose_existing_hook"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
-			],
-			"position": "top"
-		},
-		"ext.cheevos.notice.js": {
-			"scripts": [
-				"js/cheevos.notice.js"
-			],
-			"dependencies": [
-				"mediawiki.api"
 			],
 			"targets": [
 				"desktop",
@@ -293,6 +288,7 @@
 		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
 		"ArticleRollbackComplete": "CheevosHooks::onArticleRollbackComplete",
 		"BeforeInitialize": "CheevosHooks::onBeforeInitialize",
+		"BeforePageDisplay": "CheevosHooks::onBeforePageDisplay",
 		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
 		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
 		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
@@ -311,8 +307,6 @@
 		"ParserFirstCallInit": "CheevosHooks::onParserFirstCallInit",
 		"ParserGetVariableValueSwitch": "CheevosHooks::onParserGetVariableValueSwitch",
 		"PersonalUrls": "CheevosHooks::onPersonalUrls",
-		"SkinAfterBottomScripts": "CheevosHooks::onSkinAfterBottomScripts",
-		"SkinPreloadExistence": "CheevosHooks::onSkinPreloadExistence",
 		"TitleMoveComplete": "CheevosHooks::onTitleMoveComplete",
 		"UploadComplete": "CheevosHooks::onUploadComplete",
 		"UserToolLinksEdit": "CheevosHooks::onContributionsToolLinks",
@@ -414,6 +408,14 @@
 			"path": false,
 			"descriptionmsg": "cheevos-config-compedsubscriptionmonths",
 			"public": false
+		},
+		"ReverbNotifications": {
+			"value": {
+				"user-interest-achievement-earned": {
+					"importance": 8
+				}
+			},
+			"merge_strategy": "array_plus_2d"
 		},
 		"SyncServices": {
 			"value": {

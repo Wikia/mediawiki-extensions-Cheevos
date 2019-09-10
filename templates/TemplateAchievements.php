@@ -102,29 +102,21 @@ class TemplateAchievements {
 	 *
 	 * @return string	Built HTML
 	 */
-	public function achievementBlockPopUp($achievement, $siteKey, $globalId) {
-		global $wgAchPointAbbreviation, $wgSitename, $dsSiteKey;
+	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
+		global $wgAchPointAbbreviation;
 
-		if (empty($siteKey)) {
-			$siteKey = $dsSiteKey;
-		}
-
-		$achievementsPage = Title::newFromText('Special:Achievements');
+		$achievementsPage = SpecialPage::getTitleFor('Special:Achievements');
 
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
-			<div class='p-achievement-row p-achievement-notice p-achievement-remote' data-hash='{$siteKey}-{$achievement->getId()}'>
-				<div class='p-achievement-source'>" . \Cheevos\CheevosHelper::getSiteName($siteKey) . "</div>
-				<div class='p-achievement-icon'>
-					" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "
+			<div class='reverb-npn-ach'>
+				<div class='reverb-npn-ach-text'>
+					<div class='reverb-npn-ach-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</div>
+					<div class='reverb-npn-ach-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</div>
 				</div>
-				<div class='p-achievement-row-inner'>
-					<span class='p-achievement-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</span>
-					<span class='p-achievement-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</span>
-				</div>
-				<span class='p-achievement-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</span>
-				<a href='{$achievementsPage->getFullURL()}'><span></span></a>
+				<div class='reverb-npn-ach-icon'>" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "</div>
+				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</div>
 			</div>";
 
 		return $HTML;
@@ -254,22 +246,6 @@ class TemplateAchievements {
 				</div>
 				<span class='p-achievement-points'>" . intval($achievement->getPoints()) . "{$wgAchPointAbbreviation}</span>
 			</div>";
-
-		return $HTML;
-	}
-
-	/**
-	 * Generates block of achievements to display.
-	 *
-	 * @param string	HTML blocks of achievements.
-	 *
-	 * @return string	Built HTML
-	 */
-	public function achievementDisplay($blocks) {
-		$HTML = "
-		<div id='p-achievement-notices' class='p-achievement'>
-			{$blocks}
-		</div>";
 
 		return $HTML;
 	}

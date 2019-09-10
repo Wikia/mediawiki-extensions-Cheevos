@@ -230,7 +230,7 @@ class SyncArticleStats extends Maintenance {
 								if ($this->getOption('v')) {
 									$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
 								}
-								\CheevosHooks::displayAchievement($achievement, $increment['site_key'], $increment['user_id']);
+								\CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
 								Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 								if ($this->getOption('v')) {
 									$this->output("done.\n");
