@@ -641,24 +641,6 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Add option to disable pop-up notifications.
-	 *
-	 * @param User  $user        User
-	 * @param array $preferences Default user preferences.
-	 *
-	 * @return boolean True
-	 */
-	public static function onGetPreferences(User $user, array &$preferences) {
-		$preferences['cheevos-popup-notification'] = [
-			'type' => 'toggle',
-			'label-message' => 'cheevos-popup-notification', // a system message
-			'section' => 'reverb/cheevos-notification'
-		];
-
-		return true;
-	}
-
-	/**
 	 * Insert achievement page link into the personal URLs.
 	 *
 	 * @param array        $personalUrls Peronsal URLs array.
