@@ -297,7 +297,6 @@
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
-		"GetPreferences": "CheevosHooks::onGetPreferences",
 		"LoadExtensionSchemaUpdates": "CheevosHooks::onLoadExtensionSchemaUpdates",
 		"LocalUserCreated": "CheevosHooks::onLocalUserCreated",
 		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
