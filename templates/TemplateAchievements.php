@@ -115,7 +115,6 @@ class TemplateAchievements {
 					<div class='reverb-npn-ach-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</div>
 					<div class='reverb-npn-ach-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</div>
 				</div>
-				<div class='reverb-npn-ach-icon'>" . (!empty($imageUrl) ? "<img src='{$imageUrl}'/>" : "") . "</div>
 				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</div>
 			</div>";
 
