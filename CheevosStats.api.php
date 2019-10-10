@@ -60,7 +60,7 @@ class CheevosStatsAPI extends ApiBase {
 				$response = $this->getAchievementUsers();
 				break;
 			default:
-				$this->dieUsageMsg(['invaliddo', $this->params['do']]);
+				$this->dieWithError(['invaliddo', $this->params['do']]);
 				break;
 		}
 
