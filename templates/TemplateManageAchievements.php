@@ -80,7 +80,7 @@ class TemplateManageAchievements {
 				if ($categoryHTML[$categoryId]) {
 					$HTML .= "
 			<div class='achievement_category' data-slug='{$category->getSlug()}'>
-				<h4 class='achievement_category_title'>{$category->getName()}</h4>
+				<h4 class='achievement_category_title'>" . htmlentities($category->getName(), ENT_QUOTES) . "</h4>
 				{$categoryHTML[$categoryId]}
 			</div>";
 				}
@@ -131,7 +131,7 @@ class TemplateManageAchievements {
 					" . (isset($errors['category']) ? '<span class="error">' . $errors['category'] . '</span>' : '') . "
 					<label for='category' class='label_above'>" . wfMessage('achievement_category')->escaped() . "</label>
 					<input id='category_id' name='category_id' type='hidden' value='" . $category->getId() . "'/>
-					<input id='category' name='category' type='text' maxlength='30' placeholder='" . wfMessage('achievement_category_helper')->escaped() . "' value='" . $category->getName() . "'/>";
+					<input id='category' name='category' type='text' maxlength='30' placeholder='" . wfMessage('achievement_category_helper')->escaped() . "' value='" . htmlentities($category->getName(), ENT_QUOTES) . "'/>";
 
 		if (is_array($categories) && count($categories)) {
 			$HTML .= "<select id='achievement_category_select'>
@@ -237,7 +237,7 @@ class TemplateManageAchievements {
 					if ($info->getId() == $achievement->getId() || isset($seenIds[$id])) {
 						continue;
 					}
-					$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$id}'" . (in_array($info->getId(), $criteria['achievement_ids']) || in_array($info->getParent_Id(), $criteria['achievement_ids']) ? " checked='checked'" : null) . "/>{$info->getName()}</label>";
+					$HTML .= "<label><input type='checkbox' name='criteria_achievement_ids[]' value='{$id}'" . (in_array($info->getId(), $criteria['achievement_ids']) || in_array($info->getParent_Id(), $criteria['achievement_ids']) ? " checked='checked'" : null) . "/>" . htmlentities($info->getName(), ENT_QUOTES) . "</label>";
 					$seenIds[$id] = true;
 				}
 			}
