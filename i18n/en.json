@@ -316,5 +316,6 @@
 	"short-header-user-interest-achievement-earned": "Achievement earned!",
 	"long-header-user-interest-achievement-earned": "Achievement earned!",
 	"reverb-pref-title-user-interest-achievement-earned": "Achievements",
-	"special-sidebar-user-interest-achievement-earned": "Achievements"
+	"special-sidebar-user-interest-achievement-earned": "Achievements",
+	"apihelp-cheevosstats-summary": "Awards achievements to editors for varying levels of accomplishments."
 }
