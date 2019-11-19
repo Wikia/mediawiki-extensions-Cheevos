@@ -293,11 +293,17 @@ form.wikipoints fieldset.bounding input[name="save_revocation"] {
 	padding: 6px;
 }
 
-	#multiplier_form fieldset.group_fieldset textarea {
-		display: block;
-	}
+#multiplier_form fieldset.group_fieldset textarea {
+	display: block;
+}
 
 
-	#addSubtractField {
-		width: 250px;
-	}
+#addSubtractField {
+	width: 250px;
+}
+
+#content .successbox {
+	color: #00a700;
+	border-color: #75a274;
+	background-color: #9cb89a4a;
+}
