@@ -10,7 +10,10 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
+use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 use DynamicSettings\Environment;
 use Reverb\Notification\NotificationBroadcast;
 
@@ -59,7 +62,7 @@ class CheevosHooks {
 	 */
 	public static function invalidateCache() {
 		// this is here for future functionality.
-		return \Cheevos\Cheevos::invalidateCache();
+		return Cheevos::invalidateCache();
 	}
 
 	/**
@@ -225,8 +228,8 @@ class CheevosHooks {
 		}
 
 		try {
-			\Cheevos\Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
-		} catch (\Cheevos\CheevosException $e) {
+			Cheevos::revokeEditPoints($wikiPage->getId(), $editsToRevoke, $siteKey);
+		} catch (CheevosException $e) {
 			// Honey Badger
 			wfLogWarning("Cheevos Service is unavailable: " . $e->getMessage());
 		}
@@ -349,6 +352,33 @@ class CheevosHooks {
 	public static function onCurseProfileAcceptFriend(User $fromUser, User $toUser) {
 		self::increment('curse_profile_accept_friend', 1, $fromUser);
 		return true;
+	}
+
+	/**
+	 * Handle when CurseProfile is checking if an user can comment.
+	 *
+	 * @param User $fromUser User object of the user attempting to comment.
+	 * @param User $toUser   User object of the user that owns the comment board.
+	 * @param integer $editsToComment The number of edits required to comment.
+	 *
+	 * @return boolean
+	 */
+	public static function onCurseProfileCanComment(User $fromUser, User $toUser, int $editsToComment): bool {
+		$editCount = 0;
+		try {
+			$stats = Cheevos::getStatProgress(
+				[
+					'user_id'	=> $fromUser->getId(),
+					'global'	=> true,
+					'stat'		=> 'article_edit'
+				]
+			);
+			$stats = CheevosHelper::makeNiceStatProgressArray($stats);
+			$editCount = (isset($stats[$fromUser->getId()]['article_edit']['count']) && $stats[$fromUser->getId()]['article_edit']['count'] > $editCount ? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount);
+		} catch (CheevosException $e) {
+			wfDebug("Encountered Cheevos API error getting article_edit count.");
+		}
+		return $editCount >= $editsToComment;
 	}
 
 	/**
@@ -565,17 +595,17 @@ class CheevosHooks {
 		try {
 			self::$shutdownRan = true;
 			foreach (self::$increments as $globalId => $increment) {
-				$return = \Cheevos\Cheevos::increment($increment);
+				$return = Cheevos::increment($increment);
 				unset(self::$increments[$globalId]);
 				if (isset($return['earned'])) {
 					foreach ($return['earned'] as $achievement) {
-						$achievement = new \Cheevos\CheevosAchievement($achievement);
+						$achievement = new CheevosAchievement($achievement);
 						self::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
 						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
 			}
-		} catch (\Cheevos\CheevosException $e) {
+		} catch (CheevosException $e) {
 			foreach (self::$increments as $globalId => $increment) {
 				\Cheevos\Job\CheevosIncrementJob::queue($increment);
 				unset(self::$increments[$globalId]);
