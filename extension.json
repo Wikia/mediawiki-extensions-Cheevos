@@ -295,6 +295,7 @@
 		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
 		"CurseProfileAddCommentReply": "CheevosHooks::onCurseProfileAddCommentReply",
 		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
+		"CurseProfileCanComment": "CheevosHooks::onCurseProfileCanComment",
 		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
 		"LoadExtensionSchemaUpdates": "CheevosHooks::onLoadExtensionSchemaUpdates",
