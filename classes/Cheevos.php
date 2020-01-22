@@ -1200,7 +1200,7 @@ class Cheevos {
 	 *
 	 * @return integer
 	 */
-	private static function getUserIdForService(User $user): int {
+	public static function getUserIdForService(User $user): int {
 		$lookup = CentralIdLookup::factory();
 		return $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 	}
@@ -1212,7 +1212,7 @@ class Cheevos {
 	 *
 	 * @return User|null
 	 */
-	private static function getUserForServiceUserId(int $serviceUserId): ?User {
+	public static function getUserForServiceUserId(int $serviceUserId): ?User {
 		$lookup = CentralIdLookup::factory();
 		return $lookup->localUserFromCentralId($serviceUserId);
 	}
