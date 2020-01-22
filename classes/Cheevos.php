@@ -12,6 +12,10 @@
 
 namespace Cheevos;
 
+use CentralIdLookup;
+use RedisCache;
+use RedisException;
+
 class Cheevos {
 	/**
 	 * Main Request cURL wrapper.
@@ -227,11 +231,12 @@ class Cheevos {
 	/**
 	 * Returns all relationships for a user by global id
 	 *
-	 * @param integer $globalId
+	 * @param User $user
 	 *
 	 * @return array
 	 */
-	public static function getFriends($globalId) {
+	public static function getFriends(User $user) {
+		$globalId = self::getUserIdForService($user);
 		$return = self::get("friends/{$globalId}");
 		return self::return($return);
 	}
@@ -239,75 +244,81 @@ class Cheevos {
 	/**
 	 * Return friendship status
 	 *
-	 * @param from user, int $user1
-	 * @param to user, int   $user2
+	 * @param User $from
+	 * @param User $to
 	 *
 	 * @return array
 	 */
-	public static function getFriendStatus($user1, $user2) {
-		$return = self::get("friends/{$user1}/{$user2}");
+	public static function getFriendStatus(User $from, User $to) {
+		$fromGlobalId = self::getUserIdForService($from);
+		$toGlobalId = self::getUserIdForService($to);
+		$return = self::get("friends/{$fromGlobalId}/{$toGlobalId}");
 		return self::return($return);
 	}
 
 	/**
 	 * Create a frienship request
 	 *
-	 * @param from user, int $user1
-	 * @param to user, int   $user2
+	 * @param User $from
+	 * @param User $to
 	 *
 	 * @return array
 	 */
-	public static function createFriendRequest($user1, $user2) {
-		$return = self::put("friends/{$user1}/{$user2}");
+	public static function createFriendRequest(User $from, User $to) {
+		$fromGlobalId = self::getUserIdForService($from);
+		$toGlobalId = self::getUserIdForService($to);
+		$return = self::put("friends/{$fromGlobalId}/{$toGlobalId}");
 		return self::return($return);
 	}
 
 	/**
 	 * Accept a friendship request (by creating a request the oposite direction!)
 	 *
-	 * @param from user, int $user1
-	 * @param to user, int   $user2
+	 * @param User $from
+	 * @param User $to
 	 *
 	 * @return array
 	 */
-	public static function acceptFriendRequest($user1, $user2) {
-		return self::createFriendRequest($user1, $user2);
+	public static function acceptFriendRequest(User $from, User $to) {
+		return self::createFriendRequest($from, $to);
 	}
 
 	/**
 	 * Remove a friendship association between 2 users.
 	 *
-	 * @param from user, int $user1
-	 * @param to user, int   $user2
+	 * @param User $from
+	 * @param User $to
 	 *
 	 * @return array
 	 */
-	public static function removeFriend($user1, $user2) {
-		$return = self::delete("friends/{$user1}/{$user2}");
+	public static function removeFriend(User $from, User $to) {
+		$fromGlobalId = self::getUserIdForService($from);
+		$toGlobalId = self::getUserIdForService($to);
+		$return = self::delete("friends/{$fromGlobalId}/{$toGlobalId}");
 		return self::return($return);
 	}
 
 	/**
 	 * Cancel friend request by removing assosiation.
 	 *
-	 * @param from user, int $user1
-	 * @param to user, int   $user2
+	 * @param User $from
+	 * @param User $to
 	 *
 	 * @return array
 	 */
-	public static function cancelFriendRequest($user1, $user2) {
-		return self::removeFriend($user1, $user2);
+	public static function cancelFriendRequest(User $from, User $to) {
+		return self::removeFriend($from, $to);
 	}
 
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @param string	MD5 Hash Site Key
+	 * @param string $siteKey MD5 Hash Site Key
 	 *
-	 * @return mixed	Ouput of self::return.
+	 * @return mixed Ouput of self::return.
 	 */
 	public static function getAchievements($siteKey = null) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievements:' . ($siteKey ? $siteKey : 'all');
 
@@ -578,10 +589,9 @@ class Cheevos {
 	/**
 	 * Call the increment end point on the API.
 	 *
-	 * @acecss public
-	 * @param  array	Post Request Body to be converted into JSON.
+	 * @param  array $body Post Request Body to be converted into JSON.
 	 *
-	 * @return mixed	Array of return status including earned achievements or false on error.
+	 * @return mixed Array of return status including earned achievements or false on error.
 	 */
 	public static function increment($body) {
 		$body = self::validateBody($body);
@@ -1163,5 +1173,17 @@ class Cheevos {
 			]
 		);
 		return self::return($return);
+	}
+
+	/**
+	 * Get the user ID for this user in the Cheevos service.
+	 *
+	 * @param User $user
+	 *
+	 * @return integer
+	 */
+	private function getUserIdForService(User $user): int {
+		$lookup = CentralIdLookup::factory();
+		return $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 	}
 }
