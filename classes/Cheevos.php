@@ -1183,7 +1183,7 @@ class Cheevos {
 	 *
 	 * @return integer
 	 */
-	private function getUserIdForService(User $user): int {
+	private static function getUserIdForService(User $user): int {
 		$lookup = CentralIdLookup::factory();
 		return $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
 	}
