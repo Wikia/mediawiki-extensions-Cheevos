@@ -236,10 +236,27 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function getFriends(User $user) {
+	public static function getFriends(User $user): array {
 		$globalId = self::getUserIdForService($user);
-		$return = self::get("friends/{$globalId}");
-		return self::return($return);
+		$friendTypes = self::return(self::get("friends/{$globalId}"));
+		if (is_array($friendTypes)) {
+			foreach ($friendTypes as $category => $serviceUserIds) {
+				if (is_array($serviceUserIds)) {
+					foreach ($serviceUserIds as $key => $serviceUserId) {
+						$user = self::getUserForServiceUserId($serviceUserId);
+						if (!$user) {
+							unset($friendTypes[$category][$key]);
+						} else {
+							$friendTypes[$category][$key] = $user;
+						}
+					}
+				}
+			}
+		} else {
+			$friendTypes = [];
+		}
+
+		return $friendTypes;
 	}
 
 	/**
@@ -1186,5 +1203,17 @@ class Cheevos {
 	private static function getUserIdForService(User $user): int {
 		$lookup = CentralIdLookup::factory();
 		return $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+	}
+
+	/**
+	 * Get a local User object for this user ID in the Cheevos service.
+	 *
+	 * @param integer $serviceUserId
+	 *
+	 * @return User|null
+	 */
+	private static function getUserForServiceUserId(int $serviceUserId): ?User {
+		$lookup = CentralIdLookup::factory();
+		return $lookup->localUserFromCentralId($serviceUserId);
 	}
 }
