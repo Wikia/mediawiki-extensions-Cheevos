@@ -15,6 +15,7 @@ namespace Cheevos;
 use CentralIdLookup;
 use RedisCache;
 use RedisException;
+use User;
 
 class Cheevos {
 	/**
@@ -204,7 +205,7 @@ class Cheevos {
 	public static function invalidateCache() {
 		global $wgRedisServers;
 
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 
 		if ($redis === false) {
 			return false;
@@ -360,7 +361,7 @@ class Cheevos {
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getAchievement($id) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievement:' . $id;
 
@@ -459,7 +460,7 @@ class Cheevos {
 	 */
 	public static function getCategories($skipCache = false) {
 		$cache = false;
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$redisKey = 'cheevos:apicache:getCategories';
 
 		if (!$skipCache && $redis !== false) {
@@ -499,7 +500,7 @@ class Cheevos {
 	 * @return void
 	 */
 	public static function getCategory($id) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getCategory:' . $id;
 
@@ -934,7 +935,7 @@ class Cheevos {
 	 * @return mixed
 	 */
 	public static function getUserOptions($globalId) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:useroptions:' . $globalId;
 
@@ -976,7 +977,7 @@ class Cheevos {
 			return false;
 		}
 
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$redisKey = 'cheevos:apicache:useroptions:' . $body['user_id'];
 		try {
 			if ($redis !== false) {
@@ -1000,7 +1001,7 @@ class Cheevos {
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getPointsPromotions($siteKey = null, $skipCache = false) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotions:' . ($siteKey ? $siteKey : 'all');
 
@@ -1042,7 +1043,7 @@ class Cheevos {
 	 * @return mixed	Ouput of self::return.
 	 */
 	public static function getPointsPromotion($id) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
 
@@ -1080,7 +1081,7 @@ class Cheevos {
 	 * @return mixed	Array
 	 */
 	public static function deletePointsPromotion($id) {
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 		$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
 
 		if ($redis !== false) {
@@ -1116,7 +1117,7 @@ class Cheevos {
 		$return = self::put($path, $body);
 
 		if ($id > 0) {
-			$redis = \RedisCache::getClient('cache');
+			$redis = RedisCache::getClient('cache');
 			$redisKey = 'cheevos:apicache:getPointsPromotion:' . $id;
 			if ($redis !== false) {
 				try {
