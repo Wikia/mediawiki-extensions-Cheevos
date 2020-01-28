@@ -163,7 +163,7 @@ class PointsCompReport {
 					'comp_new'			=> $data['comp_new'],
 					'comp_extended'		=> $data['comp_extended'],
 					'comp_failed'		=> $data['comp_failed'],
-					'comp_skipped'		=> $data['comp_skipped'],
+					'comp_skipped'		=> isset($data['comp_skipped']) ? $data['comp_skipped'] : 0,
 					'comp_performed'	=> $data['comp_performed'],
 					'email_sent'		=> $data['email_sent']
 				],
@@ -630,6 +630,7 @@ class PointsCompReport {
 				$isExtended = true;
 			}
 
+			$emailSent = false;
 			if ($final) {
 				if ($isExtended) {
 					$gamepediaPro->cancelCompedSubscription($globalId);
