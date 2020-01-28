@@ -95,8 +95,7 @@ class CheevosHooks {
 			return false;
 		}
 
-		$lookup = CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+		$globalId = Cheevos::getUserIdForService($user);
 
 		self::$increments[$globalId]['user_id'] = $globalId;
 		self::$increments[$globalId]['user_name'] = $user->getName();
@@ -630,8 +629,7 @@ class CheevosHooks {
 			return false;
 		}
 
-		$lookup = CentralIdLookup::factory();
-		$targetUser = $lookup->localUserFromCentralId($globalId);
+		$targetUser = Cheevos::getUserForServiceUserId($globalId);
 
 		if (!$targetUser) {
 			return false;

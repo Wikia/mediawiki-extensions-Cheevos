@@ -11,6 +11,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\Cheevos;
+
 class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
@@ -75,8 +77,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			$user = User::newFromName($form['username']);
 
 			if ($user !== false && $user->getId()) {
-				$lookup = \CentralIdLookup::factory();
-				$globalId = $lookup->centralIdFromLocalUser($user);
+				$globalId = Cheevos::getUserIdForService($user);
 			}
 
 			$pointsLog = [];

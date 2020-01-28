@@ -13,6 +13,8 @@
 
 namespace Cheevos\Points;
 
+use Cheevos\Cheevos;
+
 /**
  * Class containing some business and display logic for points blocks
  */
@@ -755,8 +757,7 @@ class PointsCompReport {
 	public function sendUserEmail($globalId) {
 		$success = false;
 
-		$lookup = \CentralIdLookup::factory();
-		$user = $lookup->localUserFromCentralId($globalId);
+		$user = Cheevos::getUserForServiceUserId($globalId);
 		if (!$user) {
 			$success = false;
 			return false;

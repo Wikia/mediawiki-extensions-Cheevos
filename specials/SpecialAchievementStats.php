@@ -40,8 +40,7 @@ class SpecialAchievementStats extends SpecialPage {
 			return;
 		}
 
-		$lookup = CentralIdLookup::factory();
-		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+		$this->globalId = Cheevos::getUserIdForService($this->wgUser);
 	}
 
 	/**

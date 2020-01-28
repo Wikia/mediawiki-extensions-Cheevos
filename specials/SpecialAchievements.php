@@ -10,6 +10,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\Cheevos;
+
 class SpecialAchievements extends SpecialPage {
 	/**
 	 * Output HTML
@@ -58,8 +60,6 @@ class SpecialAchievements extends SpecialPage {
 	public function achievementsList($subpage = null) {
 		global $dsSiteKey;
 
-		$lookup = CentralIdLookup::factory();
-
 		$globalId = false;
 		if ($this->getUser()->isLoggedIn()) {
 			if ($this->getUser()->getId() > 0) {
@@ -67,7 +67,7 @@ class SpecialAchievements extends SpecialPage {
 				CheevosHooks::increment('achievement_engagement', 1, $this->getUser());
 			}
 
-			$globalId = $lookup->centralIdFromLocalUser($this->getUser(), CentralIdLookup::AUDIENCE_RAW);
+			$globalId = Cheevos::getUserIdForService($this->getUser());
 			$user = $this->getUser();
 		}
 
@@ -75,7 +75,7 @@ class SpecialAchievements extends SpecialPage {
 			$lookupUser = User::newFromName($subpage);
 			if ($lookupUser && $lookupUser->getId()) {
 				$user = $lookupUser;
-				$globalId = $lookup->centralIdFromLocalUser($user, CentralIdLookup::AUDIENCE_RAW);
+				$globalId = Cheevos::getUserIdForService($user);
 			}
 			if ($globalId < 1 || !$lookupUser->getId()) {
 				throw new ErrorPageError('achievements', 'no_user_to_display_achievements');
@@ -83,7 +83,7 @@ class SpecialAchievements extends SpecialPage {
 		}
 		if (intval($subpage) > 0) {
 			$globalId = intval($subpage);
-			$user = $lookup->localUserFromCentralId($globalId);
+			$user = Cheevos::getUserForServiceUserId($globalId);
 			if ($globalId < 1 || $user === null) {
 				throw new ErrorPageError('achievements', 'no_user_to_display_achievements');
 			}

@@ -13,6 +13,7 @@
 
 namespace Cheevos\Points;
 
+use Cheevos\Cheevos;
 use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
 use RedisCache;
@@ -63,8 +64,8 @@ class PointsDisplay {
 					'isHTML' => true,
 				];
 			}
-			$lookup = \CentralIdLookup::factory();
-			$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+
+			$globalId = Cheevos::getUserIdForService($user);
 			if (!$globalId) {
 				return [
 					wfMessage('global_user_not_found')->escaped(),
@@ -110,8 +111,6 @@ class PointsDisplay {
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
 		global $dsSiteKey, $wgUser;
 
-		$lookup = \CentralIdLookup::factory();
-
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
 		$start = intval($start);
 		$isSitesMode = boolval($isSitesMode);
@@ -128,7 +127,7 @@ class PointsDisplay {
 				continue;
 			}
 
-			$user = $lookup->localUserFromCentralId($globalId);
+			$user = Cheevos::getUserForServiceUserId($globalId);
 			if ($globalId < 1) {
 				continue;
 			}
