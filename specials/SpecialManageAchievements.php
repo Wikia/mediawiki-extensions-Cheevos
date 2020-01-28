@@ -100,8 +100,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList() {
-		$achievements = Cheevos\Cheevos::getAchievements($this->siteKey);
-		$categories = Cheevos\Cheevos::getCategories();
+		$achievements = Cheevos::getAchievements($this->siteKey);
+		$categories = Cheevos::getCategories();
 
 		if ($this->isMaster) {
 			foreach ($achievements as $i => $a) {
@@ -234,7 +234,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$categoryId = $this->wgRequest->getInt('category_id');
 			$categoryName = trim($this->wgRequest->getText('category'));
 			$category = Cheevos::getCategory($categoryId);
-			$categories = Cheevos\Cheevos::getCategories(true);
+			$categories = Cheevos::getCategories(true);
 			if ($category !== false && $categoryId > 0 && $categoryId == $category->getId() && $categoryName == $category->getName()) {
 				$this->achievement->setCategory($category);
 			} elseif (!empty($categoryName)) {
@@ -285,7 +285,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$success = $this->achievement->save($forceCreate);
 
 				if ($success['code'] == 200) {
-					Cheevos\Cheevos::invalidateCache();
+					Cheevos::invalidateCache();
 				}
 
 				$page = Title::newFromText('Special:ManageAchievements');
@@ -495,7 +495,7 @@ class SpecialManageAchievements extends SpecialPage {
 					}
 					if (!$currentProgress && $do === 'award') {
 						try {
-							$award = Cheevos\Cheevos::putProgress(
+							$award = Cheevos::putProgress(
 								[
 									'achievement_id'	=> $achievement->getId(),
 									'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
@@ -521,7 +521,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
 						try {
-							$award = Cheevos\Cheevos::deleteProgress($currentProgress->getId(), $globalId);
+							$award = Cheevos::deleteProgress($currentProgress->getId(), $globalId);
 							Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [
@@ -553,7 +553,7 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return void
 	 */
 	private function invalidateCache() {
-		Cheevos\Cheevos::invalidateCache();
+		Cheevos::invalidateCache();
 
 		$page = Title::newFromText('Special:ManageAchievements');
 		$this->output->redirect($page->getFullURL());

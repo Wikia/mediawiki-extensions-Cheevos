@@ -10,6 +10,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\Cheevos;
 use DynamicSettings\Environment;
 
 class SpecialAchievementStats extends SpecialPage {
