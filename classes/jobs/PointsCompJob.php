@@ -13,7 +13,11 @@
 
 namespace Cheevos\Job;
 
-class PointsCompJob extends \SyncService\Job {
+use Cheevos\Points\PointsCompReport;
+use MWException;
+use SyncService\Job;
+
+class PointsCompJob extends Job {
 	/**
 	 * Runs points compensation reports and grants through the command line maintenance script.
 	 *
@@ -39,13 +43,13 @@ class PointsCompJob extends \SyncService\Job {
 		sleep(2); // Database transaction commits on AWS are slow.
 
 		if ($reportId > 0) {
-			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
+			$report = PointsCompReport::newFromId($reportId);
 			if (!$report) {
 				$this->outputLine(__METHOD__ . ": Bad report ID.", time());
 				return 1;
 			}
 		} else {
-			$report = new \Cheevos\Points\PointsCompReport();
+			$report = new PointsCompReport();
 		}
 
 		try {
@@ -62,7 +66,7 @@ class PointsCompJob extends \SyncService\Job {
 			if (!$skipReport) {
 				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
 			}
-		} catch (\MWException $e) {
+		} catch (MWException $e) {
 			$this->outputLine(__METHOD__ . ": Failed to run report due to: " . $e->getMessage(), time());
 			return 1;
 		}

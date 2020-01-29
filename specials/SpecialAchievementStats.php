@@ -12,6 +12,7 @@
 
 use Cheevos\Cheevos;
 use DynamicSettings\Environment;
+use DynamicSettings\Wiki;
 
 class SpecialAchievementStats extends SpecialPage {
 	/**
@@ -83,7 +84,7 @@ class SpecialAchievementStats extends SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsStats() {
-		$sites = \DynamicSettings\Wiki::loadAll();
+		$sites = Wiki::loadAll();
 
 		$this->output->setPageTitle(wfMessage('achievement_stats')->escaped());
 		$this->content = $this->templates->achievementsStats($sites);

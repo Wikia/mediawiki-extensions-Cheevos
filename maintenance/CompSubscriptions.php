@@ -13,6 +13,8 @@
 
 require_once dirname(__DIR__, 3) . '/maintenance/Maintenance.php';
 
+use Cheevos\Points\PointsCompReport;
+
 class CompSubscriptions extends Maintenance {
 	/**
 	 * Main Constructor
@@ -49,7 +51,7 @@ class CompSubscriptions extends Maintenance {
 		if ($this->hasOption('threshold')) {
 			$compedSubscriptionThreshold = intval($this->getOption('threshold'));
 		}
-		$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($compedSubscriptionThreshold);
+		$status = PointsCompReport::validatePointThresholds($compedSubscriptionThreshold);
 		if (!$status->isGood()) {
 			$this->error($status->getMessage()->plain(), 1);
 		}
@@ -70,12 +72,12 @@ class CompSubscriptions extends Maintenance {
 			$startTime = intval($_startTime);
 			$endTime = intval($_endTime);
 		}
-		$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
+		$status = PointsCompReport::validateTimeRange($startTime, $endTime);
 		if (!$status->isGood()) {
 			$this->error($status->getMessage()->plain(), 1);
 		}
 
-		$report = new \Cheevos\Points\PointsCompReport();
+		$report = new PointsCompReport();
 		$report->run($compedSubscriptionThreshold, null, $startTime, $endTime, $this->hasOption('final'));
 	}
 }

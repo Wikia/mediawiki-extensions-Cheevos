@@ -10,6 +10,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\Job\PointsCompJob;
+use Cheevos\Points\PointsCompReport;
 use DynamicSettings\Environment;
 
 class SpecialPointsComp extends SpecialPage {
@@ -58,7 +60,7 @@ class SpecialPointsComp extends SpecialPage {
 		$reportId = intval($subpage);
 		$messages = $this->runReport();
 		if ($reportId > 0) {
-			$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
+			$report = PointsCompReport::newFromId($reportId);
 			if (!$report) {
 				throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 			}
@@ -68,7 +70,7 @@ class SpecialPointsComp extends SpecialPage {
 			}
 			$this->content = TemplatePointsComp::pointsCompReportDetail($report);
 		} else {
-			$reportData = \Cheevos\Points\PointsCompReport::getReportsList($start, $itemsPerPage);
+			$reportData = PointsCompReport::getReportsList($start, $itemsPerPage);
 
 			$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $reportData['total'], $itemsPerPage, $start);
 			$this->getOutput()->setPageTitle(wfMessage('pointscomp')->escaped());
@@ -86,7 +88,7 @@ class SpecialPointsComp extends SpecialPage {
 			$report = false;
 			$reportId = $this->getRequest()->getInt('report_id');
 			if ($reportId > 0) {
-				$report = \Cheevos\Points\PointsCompReport::newFromId($reportId);
+				$report = PointsCompReport::newFromId($reportId);
 				if (!$report) {
 					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
 				}
@@ -97,7 +99,7 @@ class SpecialPointsComp extends SpecialPage {
 			if (($doCompUser > 0 || $doEmailUser > 0) && $report !== null) {
 				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $reportId);
 				if ($doCompUser > 0) {
-					$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+					$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 					$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 					$userComped = $report->compSubscription($doCompUser, $compedSubscriptionMonths);
 					$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
@@ -121,7 +123,7 @@ class SpecialPointsComp extends SpecialPage {
 				$email = true;
 			}
 			if (($do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll') && $report !== null) {
-				$success = \Cheevos\Job\PointsCompJob::queue(
+				$success = PointsCompJob::queue(
 					[
 						'report_id'	=> $reportId,
 						'grantAll'	=> $final,
@@ -138,7 +140,7 @@ class SpecialPointsComp extends SpecialPage {
 				$startTime = strtotime(date('Y-m-d', $startTime) . 'T00:00:00+00:00');
 				$endTime = $this->getRequest()->getInt('end_time');
 				$endTime = strtotime(date('Y-m-d', $endTime) . 'T23:59:59+00:00');
-				$status = \Cheevos\Points\PointsCompReport::validateTimeRange($startTime, $endTime);
+				$status = PointsCompReport::validateTimeRange($startTime, $endTime);
 				if (!$status->isGood()) {
 					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
 				}
@@ -150,12 +152,12 @@ class SpecialPointsComp extends SpecialPage {
 				} else {
 					$maxPointThreshold = intval($maxPointThreshold);
 				}
-				$status = \Cheevos\Points\PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
+				$status = PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 				if (!$status->isGood()) {
 					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
 				}
 
-				$report = new \Cheevos\Points\PointsCompReport();
+				$report = new PointsCompReport();
 				$report->setMinPointThreshold($minPointThreshold);
 				$report->setMaxPointThreshold($maxPointThreshold);
 				$report->setStartTime($startTime);
@@ -164,7 +166,7 @@ class SpecialPointsComp extends SpecialPage {
 				$reportId = $report->getReportId();
 			}
 
-			$success = \Cheevos\Job\PointsCompJob::queue(
+			$success = PointsCompJob::queue(
 				[
 					'report_id'	=> $reportId,
 					'final'		=> $final,

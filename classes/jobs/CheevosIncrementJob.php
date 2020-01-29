@@ -12,9 +12,15 @@
 
 namespace Cheevos\Job;
 
+use Cheevos\Cheevos;
+use Cheevos\CheevosAchievement;
+use Cheevos\CheevosException;
+use CheevosHooks;
+use Hooks;
 use MediaWiki\MediaWikiServices;
+use SyncService\Job;
 
-class CheevosIncrementJob extends \SyncService\Job {
+class CheevosIncrementJob extends Job {
 	/**
 	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
 	 *
@@ -42,16 +48,16 @@ class CheevosIncrementJob extends \SyncService\Job {
 	 */
 	public function execute($increment) {
 		try {
-			$return = \Cheevos\Cheevos::increment($increment);
+			$return = Cheevos::increment($increment);
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {
-					$achievement = new \Cheevos\CheevosAchievement($achievement);
-					\CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-					\Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
+					$achievement = new CheevosAchievement($achievement);
+					CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
+					Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 				}
 			}
 			return ($return === false ? 1 : 0);
-		} catch (\Cheevos\CheevosException $e) {
+		} catch (CheevosException $e) {
 			// Allows requeue to be turned off
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {

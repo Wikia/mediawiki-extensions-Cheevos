@@ -12,6 +12,7 @@
 **/
 
 use Cheevos\Cheevos;
+use Cheevos\Points\PointsDisplay;
 use DynamicSettings\Environment;
 
 class SpecialWikiPoints extends HydraCore\SpecialPage {
@@ -90,7 +91,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		if (!$isMonthly) {
 			$this->content .= TemplateWikiPointsAdmin::userSearch($thisPage, $form) . "<hr/>";
 		}
-		$this->content .= \Cheevos\Points\PointsDisplay::pointsBlockHtml(($isSitesMode || $isGlobal ? null : $dsSiteKey), $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly, 'table', $thisPage);
+		$this->content .= PointsDisplay::pointsBlockHtml(($isSitesMode || $isGlobal ? null : $dsSiteKey), $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly, 'table', $thisPage);
 	}
 
 	/**

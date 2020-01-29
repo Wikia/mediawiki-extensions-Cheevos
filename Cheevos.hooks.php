@@ -14,6 +14,7 @@ use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\Job\CheevosIncrementJob;
 use DynamicSettings\Environment;
 use Reverb\Notification\NotificationBroadcast;
 
@@ -356,8 +357,8 @@ class CheevosHooks {
 	/**
 	 * Handle when CurseProfile is checking if an user can comment.
 	 *
-	 * @param User $fromUser User object of the user attempting to comment.
-	 * @param User $toUser   User object of the user that owns the comment board.
+	 * @param User    $fromUser       User object of the user attempting to comment.
+	 * @param User    $toUser         User object of the user that owns the comment board.
 	 * @param integer $editsToComment The number of edits required to comment.
 	 *
 	 * @return boolean
@@ -607,7 +608,7 @@ class CheevosHooks {
 			}
 		} catch (CheevosException $e) {
 			foreach (self::$increments as $globalId => $increment) {
-				\Cheevos\Job\CheevosIncrementJob::queue($increment);
+				CheevosIncrementJob::queue($increment);
 				unset(self::$increments[$globalId]);
 			}
 		}

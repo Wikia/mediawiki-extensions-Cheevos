@@ -12,7 +12,7 @@
 
 namespace Cheevos;
 
-use \ArrayAccess;
+use ArrayAccess;
 
 class CheevosModel implements ArrayAccess {
 	/**
