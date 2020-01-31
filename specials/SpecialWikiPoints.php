@@ -11,6 +11,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\Cheevos;
 use DynamicSettings\Environment;
 
 class SpecialWikiPoints extends HydraCore\SpecialPage {
@@ -58,8 +59,6 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	public function wikiPoints($subpage = null) {
 		global $dsSiteKey;
 
-		$lookup = CentralIdLookup::factory();
-
 		$start = $this->wgRequest->getInt('st');
 		$itemsPerPage = 100;
 
@@ -70,8 +69,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 			$user = User::newFromName($form['username']);
 
 			if ($user->getId()) {
-				$lookup = \CentralIdLookup::factory();
-				$globalId = $lookup->centralIdFromLocalUser($user);
+				$globalId = Cheevos::getUserIdForService($user);
 			}
 
 			$pointsLog = [];

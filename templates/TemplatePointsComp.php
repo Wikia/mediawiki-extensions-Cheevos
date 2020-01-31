@@ -10,6 +10,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\Cheevos;
+
 class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
@@ -175,9 +177,8 @@ class TemplatePointsComp {
 					</tr>
 				</thead>
 				<tbody>";
-		$lookup = CentralIdLookup::factory();
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = $lookup->localUserFromCentralId($reportRow['global_id']);
+			$user = Cheevos::getUserForServiceUserId($reportRow['global_id']);
 			$html .= "
 					<tr>
 						<td>" . ($user ? $user->getName() : 'GID: ' . $reportRow['global_id']) . "</td>
@@ -207,9 +208,8 @@ class TemplatePointsComp {
 	 */
 	public static function pointsCompReportCSV($report) {
 		$headers = wfMessage('wpa_user')->escaped() . "," . wfMessage('comp_points')->escaped() . "," . wfMessage('comp_new')->escaped() . "," . wfMessage('comp_extended')->escaped() . "," . wfMessage('comp_failed')->escaped() . "," . wfMessage('comp_skipped')->escaped() . "," . wfMessage('current_comp_expires')->escaped() . "," . wfMessage('new_comp_expires')->escaped() . "," . wfMessage('comp_done')->escaped() . "," . wfMessage('emailed')->escaped();
-		$lookup = CentralIdLookup::factory();
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = $lookup->localUserFromCentralId($reportRow['global_id']);
+			$user = Cheevos::getUserForServiceUserId($reportRow['global_id']);
 			$rows[] = implode(
 				',',
 				[

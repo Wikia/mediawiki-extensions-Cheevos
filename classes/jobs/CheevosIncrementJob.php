@@ -42,7 +42,6 @@ class CheevosIncrementJob extends \SyncService\Job {
 	 */
 	public function execute($increment) {
 		try {
-			$lookup = \CentralIdLookup::factory();
 			$return = \Cheevos\Cheevos::increment($increment);
 			if (isset($return['earned'])) {
 				foreach ($return['earned'] as $achievement) {

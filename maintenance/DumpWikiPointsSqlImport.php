@@ -78,7 +78,6 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$inserts = [];
 
 		$userIdGlobalId = [];
-		$lookup = \CentralIdLookup::factory();
 		$insert = false;
 		$maxLines = 0;
 		for ($i = 0; $i <= $total; $i = $i + 1000) {

@@ -10,6 +10,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\Cheevos;
 use DynamicSettings\Environment;
 
 class SpecialAchievementStats extends SpecialPage {
@@ -40,8 +41,7 @@ class SpecialAchievementStats extends SpecialPage {
 			return;
 		}
 
-		$lookup = CentralIdLookup::factory();
-		$this->globalId = $lookup->centralIdFromLocalUser($this->wgUser, CentralIdLookup::AUDIENCE_RAW);
+		$this->globalId = Cheevos::getUserIdForService($this->wgUser);
 	}
 
 	/**
