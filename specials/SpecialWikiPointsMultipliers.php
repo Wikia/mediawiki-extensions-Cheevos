@@ -11,6 +11,10 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\Cheevos;
+use Cheevos\CheevosException;
+use Cheevos\CheevosSiteEditPointsPromotion;
+
 class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
@@ -68,8 +72,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 */
 	public function pointsMultipliersList() {
 		try {
-			$promotions = \Cheevos\Cheevos::getPointsPromotions(null, true);
-		} catch (\Cheevos\CheevosException $e) {
+			$promotions = Cheevos::getPointsPromotions(null, true);
+		} catch (CheevosException $e) {
 			return false;
 		}
 
@@ -83,13 +87,13 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function pointsMultipliersForm() {
-		$this->multiplier = new \Cheevos\CheevosSiteEditPointsPromotion;
+		$this->multiplier = new CheevosSiteEditPointsPromotion;
 		if ($this->wgRequest->getInt('multiplier_id')) {
 			$multiplierId = $this->wgRequest->getInt('multiplier_id');
 
 			try {
-				$this->multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
-			} catch (\Cheevos\CheevosException $e) {
+				$this->multiplier = Cheevos::getPointsPromotion($multiplierId);
+			} catch (CheevosException $e) {
 				wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 			}
 
@@ -139,12 +143,12 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 
 			if (!count($errors)) {
 				try {
-					\Cheevos\Cheevos::putPointsPromotion($this->multiplier, $this->multiplier->getId());
+					Cheevos::putPointsPromotion($this->multiplier, $this->multiplier->getId());
 					$page = Title::newFromText('Special:WikiPointsMultipliers');
 					$this->output->redirect($page->getFullURL());
 					return;
-				} catch (\Cheevos\CheevosException $e) {
-					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+				} catch (CheevosException $e) {
+					throw new ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 				}
 			}
 		}
@@ -160,8 +164,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 		if ($this->wgRequest->getVal('do') == 'delete') {
 			$multiplierId = $this->wgRequest->getInt('multiplier_id');
 			try {
-				$multiplier = \Cheevos\Cheevos::getPointsPromotion($multiplierId);
-			} catch (\Cheevos\CheevosException $e) {
+				$multiplier = Cheevos::getPointsPromotion($multiplierId);
+			} catch (CheevosException $e) {
 				wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 			}
 
@@ -172,8 +176,8 @@ class SpecialWikiPointsMultipliers extends HydraCore\SpecialPage {
 
 			if ($this->wgRequest->getVal('confirm') == 'true' && $this->wgRequest->wasPosted()) {
 				try {
-					\Cheevos\Cheevos::deletePointsPromotion($multiplierId);
-				} catch (\Cheevos\CheevosException $e) {
+					Cheevos::deletePointsPromotion($multiplierId);
+				} catch (CheevosException $e) {
 					wfDebug(__METHOD__ . ": Error getting points promotion {$multiplierId}.");
 				}
 

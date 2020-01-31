@@ -12,6 +12,7 @@
 **/
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosException;
 
 class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
@@ -83,9 +84,9 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			$pointsLog = [];
 			if ($globalId > 0) {
 				try {
-					$pointsLog = \Cheevos\Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
-				} catch (\Cheevos\CheevosException $e) {
-					throw new \ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
+					$pointsLog = Cheevos::getWikiPointLog(['user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100]);
+				} catch (CheevosException $e) {
+					throw new ErrorPageError(wfMessage('cheevos_api_error_title'), wfMessage('cheevos_api_error', $e->getMessage()));
 				}
 				if (empty($form['username'])) {
 					$form['username'] = $user->getName();

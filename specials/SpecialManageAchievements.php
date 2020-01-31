@@ -12,6 +12,9 @@
 
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
+use Cheevos\CheevosAchievementCategory;
+use Cheevos\CheevosAchievementCriteria;
+use Cheevos\CheevosException;
 use DynamicSettings\Environment;
 
 class SpecialManageAchievements extends SpecialPage {
@@ -166,7 +169,7 @@ class SpecialManageAchievements extends SpecialPage {
 				return;
 			}
 		} else {
-			$this->achievement = new \Cheevos\CheevosAchievement();
+			$this->achievement = new CheevosAchievement();
 		}
 
 		$return = $this->acheivementsSave();
@@ -199,7 +202,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 			$this->achievement->setSite_Key($this->siteKey);
 
-			$criteria = new \Cheevos\CheevosAchievementCriteria($this->achievement->getCriteria()->toArray());
+			$criteria = new CheevosAchievementCriteria($this->achievement->getCriteria()->toArray());
 			$criteria->setStats($this->wgRequest->getArray("criteria_stats", []));
 			$criteria->setValue($this->wgRequest->getInt("criteria_value"));
 			$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
@@ -249,13 +252,13 @@ class SpecialManageAchievements extends SpecialPage {
 				if (!$found) {
 					$globalId = Cheevos::getUserIdForService($this->getUser());
 
-					$category = new \Cheevos\CheevosAchievementCategory();
+					$category = new CheevosAchievementCategory();
 					$category->setName($categoryName);
 					$category->setCreated_At(time());
 					$category->setCreated_By($globalId);
 					$return = $category->save();
 					if (isset($return['code']) && $return['code'] !== 200) {
-						throw new \Cheeovs\CheevosException($return['message'], $return['code']);
+						throw new CheevosException($return['message'], $return['code']);
 					}
 					if (isset($return['object_id'])) {
 						$category = Cheevos::getCategory($return['object_id']);
@@ -506,7 +509,7 @@ class SpecialManageAchievements extends SpecialPage {
 									'notified'			=> false
 								]
 							);
-							\CheevosHooks::broadcastAchievement($achievement, $dsSiteKey, $globalId);
+							CheevosHooks::broadcastAchievement($achievement, $dsSiteKey, $globalId);
 							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [

@@ -14,6 +14,8 @@
 namespace Cheevos\Points;
 
 use DynamicSettings\Environment;
+use RedisCache;
+use RedisException;
 
 class PointLevels {
 	/**
@@ -83,14 +85,14 @@ class PointLevels {
 				self::$levels[$row['lid']] = $row;
 			}
 		} else {
-			$redis = \RedisCache::getClient('cache');
+			$redis = RedisCache::getClient('cache');
 			if ($redis !== false) {
 				try {
 					$levels = unserialize($redis->get(self::$redisCacheKey));
 					if (is_array($levels) && count($levels)) {
 						self::$levels = $levels;
 					}
-				} catch (\RedisException $e) {
+				} catch (RedisException $e) {
 					wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
 				}
 			}
@@ -109,7 +111,7 @@ class PointLevels {
 		self::init();
 
 		$db = wfGetDB(DB_MASTER);
-		$redis = \RedisCache::getClient('cache');
+		$redis = RedisCache::getClient('cache');
 
 		try {
 			$db->startAtomic(__METHOD__);

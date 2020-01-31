@@ -12,6 +12,9 @@
 
 namespace Cheevos;
 
+use ConfigFactory;
+use Title;
+
 class CheevosAchievement extends CheevosModel {
 	/**
 	 * What achievements this achievement is required by.
@@ -208,14 +211,14 @@ class CheevosAchievement extends CheevosModel {
 	 * @return mixed	Image URL; false if unable to locate the file.
 	 */
 	public function getImageUrl() {
-		$title = \Title::newFromText($this->getImage());
+		$title = Title::newFromText($this->getImage());
 		$file = wfFindFile($title);
 		if ($file) {
 			$url = $file->getCanonicalUrl();
 			return $url;
 		}
 
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$url = $config->get('AchImageFallback');
 		if (!empty($url)) {
 			return $url;

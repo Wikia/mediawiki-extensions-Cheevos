@@ -14,9 +14,15 @@
 namespace Cheevos\Points;
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosException;
 use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
+use Html;
+use Linker;
 use RedisCache;
+use stdClass;
+use TemplateWikiPoints;
+use Title;
 use User;
 
 /**
@@ -57,7 +63,7 @@ class PointsDisplay {
 
 		$globalId = null;
 		if (!empty($user)) {
-			$user = \User::newFromName($user);
+			$user = User::newFromName($user);
 			if (!$user || !$user->getId()) {
 				return [
 					wfMessage('user_not_found')->escaped(),
@@ -108,7 +114,7 @@ class PointsDisplay {
 	 *
 	 * @return string	HTML
 	 */
-	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', \Title $title = null) {
+	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
 		global $dsSiteKey, $wgUser;
 
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
@@ -132,15 +138,15 @@ class PointsDisplay {
 				continue;
 			}
 
-			$userPointsRow = new \stdClass();
+			$userPointsRow = new stdClass();
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
 				if (!User::isCreatableName($user->getName()) || $user->isHidden()) {
 					continue;
 				}
-				$userPointsRow->userToolsLinks = \Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = \Linker::link(\Title::newFromText("User:" . $user->getName()), $user->getName(), [], [], ['https']);
-				$userPointsRow->adminUrl = \Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
+				$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
+				$userPointsRow->userLink = Linker::link(Title::newFromText("User:" . $user->getName()), $user->getName(), [], [], ['https']);
+				$userPointsRow->adminUrl = Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
 			} else {
 				$userPointsRow->userName = "GID: " . $progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
@@ -201,14 +207,14 @@ class PointsDisplay {
 			case 'badged':
 			case 'raw':
 				if (empty($userPoints)) {
-					$userPointsRow = new \stdClass();
+					$userPointsRow = new stdClass();
 					$userPointsRow->score = 0;
 					$userPoints[] = $userPointsRow;
 				}
 				foreach ($userPoints as $userPointsRow) {
 					$html = (isset($userPointsRow->adminUrl) && $wgUser->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score);
 					if ($markup == 'badged') {
-						$html .= ' ' . \Html::element(
+						$html .= ' ' . Html::element(
 							'img',
 							[
 								'src' => '/extensions/Cheevos/images/gp30.png',
@@ -224,9 +230,9 @@ class PointsDisplay {
 			case 'table':
 			default:
 				if ($title !== null) {
-					$pagination = \TemplateWikiPoints::getSimplePagination($title, $itemsPerPage, $start);
+					$pagination = TemplateWikiPoints::getSimplePagination($title, $itemsPerPage, $start);
 				}
-				$html = \TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly);
+				$html = TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly);
 				break;
 		}
 
@@ -275,14 +281,14 @@ class PointsDisplay {
 		$statProgress = [];
 		if ($isMonthly) {
 			try {
-				$statProgress = \Cheevos\Cheevos::getStatMonthlyCount($filters);
-			} catch (\Cheevos\CheevosException $e) {
+				$statProgress = Cheevos::getStatMonthlyCount($filters);
+			} catch (CheevosException $e) {
 				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		} else {
 			try {
-				$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-			} catch (\Cheevos\CheevosException $e) {
+				$statProgress = Cheevos::getStatProgress($filters);
+			} catch (CheevosException $e) {
 				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
 			}
 		}
@@ -346,8 +352,8 @@ class PointsDisplay {
 
 		$statProgress = [];
 		try {
-			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-		} catch (\Cheevos\CheevosException $e) {
+			$statProgress = Cheevos::getStatProgress($filters);
+		} catch (CheevosException $e) {
 			wfDebug("Encountered Cheevos API error {$e->getMessage()}\n");
 		}
 

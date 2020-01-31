@@ -11,6 +11,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\Points\PointLevels;
+
 class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	/**
 	 * Output HTML
@@ -61,7 +63,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 	 * @return void	[Outputs to Screen]
 	 */
 	public function levelsForm() {
-		$levels = \Cheevos\Points\PointLevels::getLevels();
+		$levels = PointLevels::getLevels();
 
 		$errors = [];
 		$success = null;
@@ -85,7 +87,7 @@ class SpecialWikiPointsLevels extends HydraCore\SpecialPage {
 			}
 
 			if (is_array($levels)) {
-				$success = \Cheevos\Points\PointLevels::saveLevels($levels);
+				$success = PointLevels::saveLevels($levels);
 			}
 		}
 

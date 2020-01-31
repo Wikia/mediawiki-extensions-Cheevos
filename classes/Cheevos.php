@@ -607,7 +607,7 @@ class Cheevos {
 	/**
 	 * Call the increment end point on the API.
 	 *
-	 * @param  array $body Post Request Body to be converted into JSON.
+	 * @param array $body Post Request Body to be converted into JSON.
 	 *
 	 * @return mixed Array of return status including earned achievements or false on error.
 	 */

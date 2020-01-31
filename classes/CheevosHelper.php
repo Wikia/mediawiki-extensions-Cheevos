@@ -12,6 +12,10 @@
 
 namespace Cheevos;
 
+use Exception;
+use RedisCache;
+use RequestContext;
+
 class CheevosHelper {
 	/**
 	 * Return the language code the current user.
@@ -20,9 +24,9 @@ class CheevosHelper {
 	 */
 	public static function getUserLanguage() {
 		try {
-			$user = \RequestContext::getMain()->getUser();
+			$user = RequestContext::getMain()->getUser();
 			$code = $user->getOption('language');
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$code = "en"; // "faulure? English is best anyway."  --Cameron Chunn, 2017-03-02 15:37:33 -0600
 		}
 		return $code;
@@ -75,7 +79,7 @@ class CheevosHelper {
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
 			try {
-				$redis = \RedisCache::getClient('cache');
+				$redis = RedisCache::getClient('cache');
 				if ($redis !== false) {
 					$info = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
 					if (!empty($info)) {
@@ -87,7 +91,7 @@ class CheevosHelper {
 						$sitename = $info['wiki_name'] . " (" . strtoupper($info['wiki_language']) . ")";
 					}
 				}
-			} catch (\RedisException $e) {
+			} catch (RedisException $e) {
 				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
 			}
 		}

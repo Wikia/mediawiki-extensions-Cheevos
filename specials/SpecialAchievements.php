@@ -11,6 +11,7 @@
  **/
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosException;
 
 class SpecialAchievements extends SpecialPage {
 	/**
@@ -94,17 +95,17 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		try {
-			$check = \Cheevos\Cheevos::checkUnnotified($globalId, $this->siteKey, true); // Just a helper to fix cases of missed achievements.
+			$check = Cheevos::checkUnnotified($globalId, $this->siteKey, true); // Just a helper to fix cases of missed achievements.
 			if (isset($check['earned'])) {
 				foreach ($check['earned'] as $earned) {
-					$earnedAchievement = new \Cheevos\CheevosAchievement($earned);
-					\CheevosHooks::broadcastAchievement($earnedAchievement, $this->siteKey, $globalId);
+					$earnedAchievement = new CheevosAchievement($earned);
+					CheevosHooks::broadcastAchievement($earnedAchievement, $this->siteKey, $globalId);
 					Hooks::run('AchievementAwarded', [$earnedAchievement, $globalId]);
 				}
 			}
-			$_statuses = \Cheevos\Cheevos::getAchievementStatus($globalId, $this->siteKey);
-			$achievements = \Cheevos\Cheevos::getAchievements($dsSiteKey);
-		} catch (\Cheevos\CheevosException $e) {
+			$_statuses = Cheevos::getAchievementStatus($globalId, $this->siteKey);
+			$achievements = Cheevos::getAchievements($dsSiteKey);
+		} catch (CheevosException $e) {
 			throw new ErrorPageError('achievements', 'error_cheevos_service', [$e->getMessage()]);
 		}
 
@@ -124,9 +125,9 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		// Fix requires achievement child IDs for display purposes.
-		$achievements = \Cheevos\CheevosAchievement::correctCriteriaChildAchievements($achievements);
+		$achievements = CheevosAchievement::correctCriteriaChildAchievements($achievements);
 		// Remove achievements that should not be shown in this context.
-		list($achievements, $_statuses) = \Cheevos\CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
+		list($achievements, $_statuses) = CheevosAchievement::pruneAchievements([$achievements, $_statuses], true, true);
 
 		// @TODO: This fuckery of the $statuses array is backwards compatibility for the template.  If we fix the template to be able to handle more than one wiki at a time this piece of code needs to be removed.
 		$statuses = [];

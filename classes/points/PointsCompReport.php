@@ -14,6 +14,15 @@
 namespace Cheevos\Points;
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosException;
+use ConfigFactory;
+use DateInterval;
+use DateTime;
+use ExtensionRegistry;
+use Hydra\SubscriptionProvider;
+use Hydra\Subscription;
+use MWException;
+use Status;
 
 /**
  * Class containing some business and display logic for points blocks
@@ -321,15 +330,15 @@ class PointsCompReport {
 		if ($maxPointThreshold !== null) {
 			$maxPointThreshold = intval($maxPointThreshold);
 			if ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold) {
-				return \Status::newFatal('invalid_maximum_threshold');
+				return Status::newFatal('invalid_maximum_threshold');
 			}
 		}
 
 		if ($minPointThreshold < 0) {
-			return \Status::newFatal('invalid_minimum_threshold');
+			return Status::newFatal('invalid_minimum_threshold');
 		}
 
-		return \Status::newGood();
+		return Status::newGood();
 	}
 
 	/**
@@ -385,19 +394,19 @@ class PointsCompReport {
 		$endTime = intval($endTime);
 
 		if ($endTime <= 0 || $endTime < $startTime) {
-			return \Status::newFatal('invalid_end_time');
+			return Status::newFatal('invalid_end_time');
 		}
 
 		if ($startTime < 0) {
 			// Yes, nothing before 1970 exists.
-			return \Status::newFatal('invalid_start_time');
+			return Status::newFatal('invalid_start_time');
 		}
 
 		if ($startTime == $endTime) {
-			return \Status::newFatal('invalid_start_end_time_equal');
+			return Status::newFatal('invalid_start_end_time_equal');
 		}
 
-		return \Status::newGood();
+		return Status::newGood();
 	}
 
 	/**
@@ -538,8 +547,8 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function run($minPointThreshold = null, $maxPointThreshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
-		if (!\ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
-			throw new \MWException(__METHOD__ . ": Extension:Subscription must be loaded for this functionality.");
+		if (!ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
+			throw new MWException(__METHOD__ . ": Extension:Subscription must be loaded for this functionality.");
 		}
 
 		if ($this->reportData['report_id'] > 0) {
@@ -551,7 +560,7 @@ class PointsCompReport {
 
 		$db = wfGetDB(DB_MASTER);
 
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 
 		if ($minPointThreshold !== null) {
 			$minPointThreshold = intval($minPointThreshold);
@@ -564,7 +573,7 @@ class PointsCompReport {
 		}
 		$status = self::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 		if (!$status->isGood()) {
-			throw new \MWException(__METHOD__ . ': ' . $status->getMessage());
+			throw new MWException(__METHOD__ . ': ' . $status->getMessage());
 		}
 
 		// Number of complimentary months someone is given.
@@ -573,15 +582,15 @@ class PointsCompReport {
 		$timeStart = intval($timeStart);
 		$timeEnd = intval($timeEnd);
 		if ($timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0) {
-			throw new \MWException(__METHOD__ . ': The time range is invalid.');
+			throw new MWException(__METHOD__ . ': The time range is invalid.');
 		}
 
-		$newExpiresDT = new \DateTime('now');
-		$newExpiresDT->add(new \DateInterval('P' . $compedSubscriptionMonths . 'M'));
+		$newExpiresDT = new DateTime('now');
+		$newExpiresDT->add(new DateInterval('P' . $compedSubscriptionMonths . 'M'));
 		$newExpires = $newExpiresDT->getTimestamp();
 
-		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
-		\Hydra\Subscription::skipCache(true);
+		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
+		Subscription::skipCache(true);
 
 		$filters = [
 			'stat'				=> 'wiki_points',
@@ -593,9 +602,9 @@ class PointsCompReport {
 		];
 
 		try {
-			$statProgress = \Cheevos\Cheevos::getStatProgress($filters);
-		} catch (\Cheevos\CheevosException $e) {
-			throw new \MWException($e->getMessage());
+			$statProgress = Cheevos::getStatProgress($filters);
+		} catch (CheevosException $e) {
+			throw new MWException($e->getMessage());
 		}
 
 		$this->setMinPointThreshold($minPointThreshold);
@@ -659,7 +668,7 @@ class PointsCompReport {
 	 *
 	 * @return array	Array of boolean status flags.
 	 */
-	public function getSubscription($globalId, \Hydra\SubscriptionProvider $provider) {
+	public function getSubscription($globalId, SubscriptionProvider $provider) {
 		$hasSubscription = false;
 		$paid = false;
 		$expires = null;
@@ -684,7 +693,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function compAllSubscriptions() {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 		foreach ($this->reportUser as $globalId => $data) {
 			$this->compSubscription($globalId, $compedSubscriptionMonths);
@@ -701,10 +710,10 @@ class PointsCompReport {
 	 * @return boolean	Success
 	 */
 	public function compSubscription($globalId, $numberOfMonths) {
-		$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
+		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
 
-		$newExpiresDT = new \DateTime('now');
-		$newExpiresDT->add(new \DateInterval('P' . $numberOfMonths . 'M'));
+		$newExpiresDT = new DateTime('now');
+		$newExpiresDT->add(new DateInterval('P' . $numberOfMonths . 'M'));
 		$newExpires = $newExpiresDT->getTimestamp();
 
 		$subscription = $this->getSubscription($globalId, $gamepediaPro);
