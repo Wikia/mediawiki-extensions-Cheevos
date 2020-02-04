@@ -623,17 +623,18 @@ class PointsCompReport {
 				continue;
 			}
 
-			$globalId = $progress->getUser_Id();
-			if ($globalId < 1) {
+			$serviceUserId = $progress->getUser_Id();
+			$user = Cheevos::getUserForServiceUserId($progress->getUser_Id());
+			if ($user->getId() < 1) {
 				continue;
 			}
 
 			$success = false;
 
-			$subscription = $this->getSubscription($globalId, $gamepediaPro);
+			$subscription = $this->getSubscription($user->getId(), $gamepediaPro);
 			if ($subscription['paid']) {
 				// Do not mess with paid subscriptions.
-				$this->addRow($globalId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
+				$this->addRow($serviceUserId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
 				continue;
 			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 				$isExtended = true;
@@ -642,19 +643,19 @@ class PointsCompReport {
 			$emailSent = false;
 			if ($final) {
 				if ($isExtended) {
-					$gamepediaPro->cancelCompedSubscription($globalId);
+					$gamepediaPro->cancelCompedSubscription($user->getId());
 				}
-				$comp = $gamepediaPro->createCompedSubscription($globalId, $compedSubscriptionMonths);
+				$comp = $gamepediaPro->createCompedSubscription($user->getId(), $compedSubscriptionMonths);
 
 				if ($comp !== false) {
 					$success = true;
 					if ($email) {
-						$emailSent = self::sendUserEmail($user);
+						$emailSent = self::sendUserEmail($serviceUserId);
 					}
 				}
 			}
 
-			$this->addRow($globalId, $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
+			$this->addRow($serviceUserId, $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();
