@@ -625,7 +625,7 @@ class PointsCompReport {
 
 			$serviceUserId = $progress->getUser_Id();
 			$user = Cheevos::getUserForServiceUserId($progress->getUser_Id());
-			if ($user->getId() < 1) {
+			if (!$user || $user->getId() < 1) {
 				continue;
 			}
 
