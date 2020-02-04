@@ -11,6 +11,7 @@
  **/
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 
 class SpecialAchievements extends SpecialPage {
