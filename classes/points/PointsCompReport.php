@@ -631,7 +631,7 @@ class PointsCompReport {
 
 			$success = false;
 
-			$subscription = $this->getSubscription($user->getId(), $gamepediaPro);
+			$subscription = $this->getSubscription($user, $gamepediaPro);
 			if ($subscription['paid']) {
 				// Do not mess with paid subscriptions.
 				$this->addRow($serviceUserId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
@@ -664,16 +664,16 @@ class PointsCompReport {
 	/**
 	 * Get current subscription status.
 	 *
-	 * @param integer	User Global Id
-	 * @param object	Subscription Provider
+	 * @param User                 $user     User
+	 * @param SubscriptionProvider $provider Subscription Provider
 	 *
-	 * @return array	Array of boolean status flags.
+	 * @return array Array of boolean status flags.
 	 */
-	public function getSubscription($globalId, SubscriptionProvider $provider) {
+	public function getSubscription(User $user, SubscriptionProvider $provider): array {
 		$hasSubscription = false;
 		$paid = false;
 		$expires = null;
-		$subscription = $provider->getSubscription($globalId);
+		$subscription = $provider->getSubscription($user->getId());
 		if ($subscription !== false && is_array($subscription)) {
 			$hasSubscription = true;
 			$expires = intval($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_UNIX) : null);
@@ -710,22 +710,27 @@ class PointsCompReport {
 	 *
 	 * @return boolean	Success
 	 */
-	public function compSubscription($globalId, $numberOfMonths) {
+	public function compSubscription(int $globalId, int $numberOfMonths): bool {
+		$user = Cheevos::getUserForServiceUserId($globalId);
+		if (!$user || $user->getId() < 1) {
+			return false;
+		}
+
 		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
 
 		$newExpiresDT = new DateTime('now');
 		$newExpiresDT->add(new DateInterval('P' . $numberOfMonths . 'M'));
 		$newExpires = $newExpiresDT->getTimestamp();
 
-		$subscription = $this->getSubscription($globalId, $gamepediaPro);
+		$subscription = $this->getSubscription($user, $gamepediaPro);
 		if ($subscription['paid'] === true) {
 			// Do not mess with paid subscriptions.
 			return false;
 		} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
-			$gamepediaPro->cancelCompedSubscription($globalId);
+			$gamepediaPro->cancelCompedSubscription($user->getId());
 		}
 
-		$comp = $gamepediaPro->createCompedSubscription($globalId, $numberOfMonths);
+		$comp = $gamepediaPro->createCompedSubscription($user->getId(), $numberOfMonths);
 
 		if ($comp !== false) {
 			$db = wfGetDB(DB_MASTER);
@@ -770,7 +775,6 @@ class PointsCompReport {
 
 		$user = Cheevos::getUserForServiceUserId($globalId);
 		if (!$user) {
-			$success = false;
 			return false;
 		}
 
