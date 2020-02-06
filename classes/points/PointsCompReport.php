@@ -23,6 +23,7 @@ use Hydra\SubscriptionProvider;
 use Hydra\Subscription;
 use MWException;
 use Status;
+use User;
 
 /**
  * Class containing some business and display logic for points blocks
