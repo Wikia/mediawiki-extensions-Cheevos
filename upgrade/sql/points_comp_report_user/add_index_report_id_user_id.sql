@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/points_comp_report_user ADD UNIQUE `report_id_user_id` (`report_id`, `user_id`);

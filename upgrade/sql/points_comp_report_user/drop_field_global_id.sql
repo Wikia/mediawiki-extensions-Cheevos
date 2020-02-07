@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/points_comp_report_user DROP `global_id`;
