@@ -60,9 +60,8 @@ class CheevosHelper {
 				'last_incremented' => $stat['last_incremented'],
 			];
 			if (!isset($users[$stat['user_id']])) {
-
+				$users[$stat['user_id']] = Cheevos::getUserForServiceUserId($stat['user_id']);
 			}
-			$users[$stat['user_id']] = Cheevos::getUserForServiceUserId($stat['user_id']);
 			if (isset($stat['site_key']) && !empty($stat['site_key'])) {
 				$nice[$stat['site_key']][$users[$stat['user_id']]->getId()][$stat['stat']] = $_data;
 			} else {
