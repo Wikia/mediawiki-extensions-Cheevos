@@ -364,18 +364,17 @@ class CheevosHooks {
 	 * @return boolean
 	 */
 	public static function onCurseProfileCanComment(User $fromUser, User $toUser, int $editsToComment): bool {
-		$userId = Cheevos::getUserIdForService($fromUser);
 		$editCount = 0;
 		try {
 			$stats = Cheevos::getStatProgress(
 				[
-					'user_id'	=> $userId,
 					'global'	=> true,
 					'stat'		=> 'article_edit'
-				]
+				],
+				$fromUser
 			);
 			$stats = CheevosHelper::makeNiceStatProgressArray($stats);
-			$editCount = (isset($stats[$userId]['article_edit']['count']) && $stats[$userId]['article_edit']['count'] > $editCount ? $stats[$userId]['article_edit']['count'] : $editCount);
+			$editCount = (isset($stats[$fromUser->getId()]['article_edit']['count']) && $stats[$fromUser->getId()]['article_edit']['count'] > $editCount ? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount);
 		} catch (CheevosException $e) {
 			wfDebug("Encountered Cheevos API error getting article_edit count.");
 		}

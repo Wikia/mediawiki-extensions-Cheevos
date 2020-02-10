@@ -10,8 +10,6 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
-use Cheevos\Cheevos;
-
 class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
@@ -204,7 +202,7 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Report CSV
 	 *
-	 * @return string	CSV
+	 * @return string CSV
 	 */
 	public static function pointsCompReportCSV($report) {
 		$headers = wfMessage('wpa_user')->escaped() . "," . wfMessage('comp_points')->escaped() . "," . wfMessage('comp_new')->escaped() . "," . wfMessage('comp_extended')->escaped() . "," . wfMessage('comp_failed')->escaped() . "," . wfMessage('comp_skipped')->escaped() . "," . wfMessage('current_comp_expires')->escaped() . "," . wfMessage('new_comp_expires')->escaped() . "," . wfMessage('comp_done')->escaped() . "," . wfMessage('emailed')->escaped();

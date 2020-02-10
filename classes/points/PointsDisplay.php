@@ -302,11 +302,11 @@ class PointsDisplay {
 	 * Example: //FakeDomain/ => FakeDomain
 	 * Example: FakeDomain => FakeDomain
 	 *
-	 * @param string	The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 * @param string $fragment The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
 	 *
 	 * @return string	Bare host name extracted or false if unable to parse.
 	 */
-	public static function extractDomain($fragment) {
+	public static function extractDomain(string $fragment) {
 		$fragment = mb_strtolower($fragment, 'UTF-8');
 
 		$host = parse_url($fragment, PHP_URL_HOST);
@@ -326,13 +326,15 @@ class PointsDisplay {
 	/**
 	 * Get wiki points for user by month.
 	 *
-	 * @param integer	Global ID
-	 * @param string	[Optional] Site Key
-	 * @param integer	[Optional] Aggregate months into the past.
+	 * @param User         $user      User to look up.
+	 * @param string|null  $siteKey   [Optional] Site Key
+	 * @param integer|null $monthsAgo [Optional] Aggregate months into the past.
 	 *
 	 * @return integer	Wiki Points
 	 */
-	public static function getWikiPointsForRange($globalId, $siteKey = null, $monthsAgo = null) {
+	public static function getWikiPointsForRange(User $user, string $siteKey = null, int $monthsAgo = null) {
+		$globalId = self::getUserIdForService($user);
+
 		if ($globalId < 1) {
 			return 0;
 		}
