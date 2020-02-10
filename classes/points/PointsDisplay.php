@@ -333,7 +333,7 @@ class PointsDisplay {
 	 * @return integer	Wiki Points
 	 */
 	public static function getWikiPointsForRange(User $user, string $siteKey = null, int $monthsAgo = null) {
-		$globalId = self::getUserIdForService($user);
+		$globalId = Cheevos::getUserIdForService($user);
 
 		if ($globalId < 1) {
 			return 0;
