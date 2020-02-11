@@ -51,16 +51,21 @@ class CheevosHelper {
 	 */
 	public static function makeNiceStatProgressArray($stats) {
 		$nice = [];
+		$users = [];
+
 		foreach ($stats as $stat) {
 			$_data = [
 				'stat_id' => $stat['stat_id'],
 				'count' => $stat['count'],
 				'last_incremented' => $stat['last_incremented'],
 			];
+			if (!isset($users[$stat['user_id']])) {
+				$users[$stat['user_id']] = Cheevos::getUserForServiceUserId($stat['user_id']);
+			}
 			if (isset($stat['site_key']) && !empty($stat['site_key'])) {
-				$nice[$stat['site_key']][$stat['user_id']][$stat['stat']] = $_data;
+				$nice[$stat['site_key']][$users[$stat['user_id']]->getId()][$stat['stat']] = $_data;
 			} else {
-				$nice[$stat['user_id']][$stat['stat']] = $_data;
+				$nice[$users[$stat['user_id']]->getId()][$stat['stat']] = $_data;
 			}
 		}
 		return $nice;

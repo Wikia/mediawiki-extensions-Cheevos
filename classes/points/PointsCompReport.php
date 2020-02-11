@@ -39,7 +39,7 @@ class PointsCompReport {
 
 	/**
 	 * Report User Data
-	 * [$globalId => {database row}]
+	 * [$userId => {database row}]
 	 *
 	 * @var array
 	 */
@@ -111,7 +111,7 @@ class PointsCompReport {
 			['report_id' => $this->reportData['report_id']],
 			__METHOD__,
 			[
-				'ORDER BY'	=> 'global_id ASC'
+				'ORDER BY'	=> 'user_id ASC'
 			]
 		);
 
@@ -119,11 +119,11 @@ class PointsCompReport {
 			$this->reportUser = [];
 		}
 		while ($row = $result->fetchRow()) {
-			if ($row['global_id'] == 0) {
+			if ($row['user_id'] == 0) {
 				continue;
 			}
 
-			$this->reportUser[$row['global_id']] = $row;
+			$this->reportUser[$row['user_id']] = $row;
 		}
 
 		return boolval($this->reportData['report_id']);
@@ -161,14 +161,14 @@ class PointsCompReport {
 			);
 		}
 
-		foreach ($this->reportUser as $globalId => $data) {
+		foreach ($this->reportUser as $userId => $data) {
 			$data['report_id'] = $this->reportData['report_id'];
 			$data['start_time'] = $this->reportData['start_time'];
 			$data['end_time'] = $this->reportData['end_time'];
 			$db->upsert(
 				'points_comp_report_user',
 				$data,
-				['report_id_global_id'],
+				['report_id_user_id'],
 				[
 					'comp_new'			=> $data['comp_new'],
 					'comp_extended'		=> $data['comp_extended'],
@@ -320,16 +320,16 @@ class PointsCompReport {
 	/**
 	 * Validate point thresholds.
 	 *
-	 * @param integer	Minimum Point Threshold
-	 * @param integer	[Optional] Maximum Point Threshold
+	 * @param integer Minimum Point Threshold
+	 * @param integer|null [Optional] Maximum Point Threshold
 	 *
-	 * @return object	Status
+	 * @return Status
 	 */
-	public static function validatePointThresholds($minPointThreshold, $maxPointThreshold = null) {
-		$minPointThreshold = intval($minPointThreshold);
+	public static function validatePointThresholds(int $minPointThreshold, ?int $maxPointThreshold = null) {
+		$minPointThreshold = $minPointThreshold;
 
 		if ($maxPointThreshold !== null) {
-			$maxPointThreshold = intval($maxPointThreshold);
+			$maxPointThreshold = $maxPointThreshold;
 			if ($maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold) {
 				return Status::newFatal('invalid_maximum_threshold');
 			}
@@ -345,54 +345,54 @@ class PointsCompReport {
 	/**
 	 * Get the time period start timestamp.
 	 *
-	 * @return integer	Unix timestamp for the time period start.
+	 * @return integer Unix timestamp for the time period start.
 	 */
-	public function getStartTime() {
+	public function getStartTime(): int {
 		return intval($this->reportData['start_time']);
 	}
 
 	/**
 	 * Set the time period start timestamp.
 	 *
-	 * @param integer	Unix timestamp for the time period start.
+	 * @param integer $startTime Unix timestamp for the time period start.
 	 *
 	 * @return void
 	 */
-	public function setStartTime($startTime) {
-		$this->reportData['start_time'] = intval($startTime);
+	public function setStartTime(int $startTime) {
+		$this->reportData['start_time'] = $startTime;
 	}
 
 	/**
 	 * Get the time period end timestamp.
 	 *
-	 * @return integer	Unix timestamp for the time period end.
+	 * @return integer Unix timestamp for the time period end.
 	 */
-	public function getEndTime() {
+	public function getEndTime(): int {
 		return intval($this->reportData['end_time']);
 	}
 
 	/**
 	 * Set the time period end timestamp.
 	 *
-	 * @param integer	Unix timestamp for the time period end.
+	 * @param integer $endTime Unix timestamp for the time period end.
 	 *
 	 * @return void
 	 */
-	public function setEndTime($endTime) {
-		$this->reportData['end_time'] = intval($endTime);
+	public function setEndTime(int $endTime) {
+		$this->reportData['end_time'] = $endTime;
 	}
 
 	/**
 	 * Validate time range.
 	 *
-	 * @param integer	Start Timestamp
-	 * @param integer	End Timestamp
+	 * @param integer $startTime Start Timestamp
+	 * @param integer $endTime   End Timestamp
 	 *
-	 * @return object	Status
+	 * @return Status
 	 */
-	public static function validateTimeRange($startTime, $endTime) {
-		$startTime = intval($startTime);
-		$endTime = intval($endTime);
+	public static function validateTimeRange(int $startTime, int $endTime) {
+		$startTime = $startTime;
+		$endTime = $endTime;
 
 		if ($endTime <= 0 || $endTime < $startTime) {
 			return Status::newFatal('invalid_end_time');
@@ -413,74 +413,74 @@ class PointsCompReport {
 	/**
 	 * Return the total new comps.
 	 *
-	 * @return integer	Total new comps.
+	 * @return integer Total new comps.
 	 */
-	public function getTotalNew() {
+	public function getTotalNew(): int {
 		return intval($this->reportData['comp_new']);
 	}
 
 	/**
 	 * Return the total extended comps.
 	 *
-	 * @return integer	Total extended comps.
+	 * @return integer Total extended comps.
 	 */
-	public function getTotalExtended() {
+	public function getTotalExtended(): int {
 		return intval($this->reportData['comp_extended']);
 	}
 
 	/**
 	 * Return the total failed comps.
 	 *
-	 * @return integer	Total failed comps.
+	 * @return integer Total failed comps.
 	 */
-	public function getTotalFailed() {
+	public function getTotalFailed(): int {
 		return intval($this->reportData['comp_failed']);
 	}
 
 	/**
 	 * Return the total skipped comps.
 	 *
-	 * @return integer	Total skipped comps.
+	 * @return integer Total skipped comps.
 	 */
-	public function getTotalSkipped() {
+	public function getTotalSkipped(): int {
 		return intval($this->reportData['comp_skipped']);
 	}
 
 	/**
 	 * Return the total comps actually performed.
 	 *
-	 * @return integer	Total comps actually performed.
+	 * @return integer Total comps actually performed.
 	 */
-	public function getTotalPerformed() {
+	public function getTotalPerformed(): int {
 		return intval($this->reportData['comp_performed']);
 	}
 
 	/**
 	 * Return the total users emailed.
 	 *
-	 * @return integer	Total users emailed.
+	 * @return integer Total users emailed.
 	 */
-	public function getTotalEmailed() {
+	public function getTotalEmailed(): int {
 		return intval($this->reportData['email_sent']);
 	}
 
 	/**
 	 * Is this report finished running?
 	 *
-	 * @return boolean	Report Finished
+	 * @return boolean Report Finished
 	 */
-	public function isFinished() {
+	public function isFinished(): int {
 		return boolval($this->reportData['finished']);
 	}
 
 	/**
 	 * Set if the report is finished running.
 	 *
-	 * @param boolean	Report Finished
+	 * @param boolean Report Finished
 	 *
 	 * @return void
 	 */
-	public function setFinished($finished = false) {
+	public function setFinished(bool $finished = false) {
 		$this->reportData['finished'] = intval(boolval($finished));
 	}
 
@@ -500,27 +500,27 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function addRow($globalId, $points, $compNew, $compExtended, $compFailed, $currentCompExpires, $newCompExpires, $compPerformed = false, $emailSent = false) {
+	public function addRow(int $userId, int $points, bool $compNew, bool $compExtended, bool $compFailed, int $currentCompExpires, int $newCompExpires, bool $compPerformed = false, bool $emailSent = false) {
 		$data = [
-			'global_id'				=> intval($globalId),
-			'points'				=> intval($points),
-			'comp_new'				=> boolval($compNew),
-			'comp_extended'			=> boolval($compExtended),
-			'comp_failed'			=> boolval($compFailed),
-			'current_comp_expires'	=> intval($currentCompExpires),
-			'new_comp_expires'		=> intval($newCompExpires),
-			'comp_performed'		=> boolval($compPerformed),
-			'email_sent'			=> boolval($emailSent)
+			'user_id'				=> $userId,
+			'points'				=> $points,
+			'comp_new'				=> $compNew,
+			'comp_extended'			=> $compExtended,
+			'comp_failed'			=> $compFailed,
+			'current_comp_expires'	=> $currentCompExpires,
+			'new_comp_expires'		=> $newCompExpires,
+			'comp_performed'		=> $compPerformed,
+			'email_sent'			=> $emailSent
 		];
 
-		if (empty($data['global_id'])) {
+		if (empty($data['user_id'])) {
 			throw new MWException(__METHOD__ . ': Invalid global user ID provided.');
 		}
 
-		if (isset($this->reportUser[$globalId])) {
-			$this->reportUser[$globalId] = array_merge($this->reportUser[$globalId], $data);
+		if (isset($this->reportUser[$userId])) {
+			$this->reportUser[$userId] = array_merge($this->reportUser[$userId], $data);
 		} else {
-			$this->reportUser[$globalId] = $data;
+			$this->reportUser[$userId] = $data;
 		}
 	}
 
@@ -539,15 +539,16 @@ class PointsCompReport {
 	 * Run the report.
 	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
 	 *
-	 * @param integer	[Optional] Point Threshold
-	 * @param integer	[Optional] Unix timestamp of the start time.
-	 * @param integer	[Optional] Unix timestamp of the end time.
-	 * @param integer	[Optional] Actually run comps.
-	 * @param integer	[Optional] Send email to affected users.
+	 * @param integer|null $minPointThreshold [Optional] Minimum Point Threshold
+	 * @param integer|null $maxPointThreshold [Optional] Maximum Point Threshold
+	 * @param integer      $timeStart         [Optional] Unix timestamp of the start time.
+	 * @param integer      $timeEnd           [Optional] Unix timestamp of the end time.
+	 * @param boolean      $final             [Optional] Actually run comps.
+	 * @param boolean      $email             [Optional] Send email to affected users.
 	 *
 	 * @return void
 	 */
-	public function run($minPointThreshold = null, $maxPointThreshold = null, $timeStart = 0, $timeEnd = 0, $final = false, $email = false) {
+	public function run(?int $minPointThreshold = null, ?int $maxPointThreshold = null, int $timeStart = 0, int $timeEnd = 0, bool $final = false, bool $email = false) {
 		if (!ExtensionRegistry::getInstance()->isLoaded('Subscription')) {
 			throw new MWException(__METHOD__ . ": Extension:Subscription must be loaded for this functionality.");
 		}
@@ -564,13 +565,13 @@ class PointsCompReport {
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 
 		if ($minPointThreshold !== null) {
-			$minPointThreshold = intval($minPointThreshold);
+			$minPointThreshold = $minPointThreshold;
 		} else {
 			$minPointThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		}
 
 		if ($maxPointThreshold !== null) {
-			$maxPointThreshold = intval($maxPointThreshold);
+			$maxPointThreshold = $maxPointThreshold;
 		}
 		$status = self::validatePointThresholds($minPointThreshold, $maxPointThreshold);
 		if (!$status->isGood()) {
@@ -580,8 +581,8 @@ class PointsCompReport {
 		// Number of complimentary months someone is given.
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 
-		$timeStart = intval($timeStart);
-		$timeEnd = intval($timeEnd);
+		$timeStart = $timeStart;
+		$timeEnd = $timeEnd;
 		if ($timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0) {
 			throw new MWException(__METHOD__ . ': The time range is invalid.');
 		}
@@ -624,7 +625,6 @@ class PointsCompReport {
 				continue;
 			}
 
-			$serviceUserId = $progress->getUser_Id();
 			$user = Cheevos::getUserForServiceUserId($progress->getUser_Id());
 			if (!$user || $user->getId() < 1) {
 				continue;
@@ -635,7 +635,7 @@ class PointsCompReport {
 			$subscription = $this->getSubscription($user, $gamepediaPro);
 			if ($subscription['paid']) {
 				// Do not mess with paid subscriptions.
-				$this->addRow($serviceUserId, $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
+				$this->addRow($user->getId(), $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
 				continue;
 			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 				$isExtended = true;
@@ -651,12 +651,12 @@ class PointsCompReport {
 				if ($comp !== false) {
 					$success = true;
 					if ($email) {
-						$emailSent = self::sendUserEmail($serviceUserId);
+						$emailSent = self::sendUserEmail($user->getId());
 					}
 				}
 			}
 
-			$this->addRow($serviceUserId, $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
+			$this->addRow($user->getId(), $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();
@@ -697,8 +697,8 @@ class PointsCompReport {
 	public function compAllSubscriptions() {
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-		foreach ($this->reportUser as $globalId => $data) {
-			$this->compSubscription($globalId, $compedSubscriptionMonths);
+		foreach ($this->reportUser as $userId => $data) {
+			$this->compSubscription(User::newFromId($userId), $compedSubscriptionMonths);
 		}
 	}
 
@@ -706,17 +706,12 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @param integer	Global User ID
-	 * @param integer	Number of months into the future to compensate.
+	 * @param User    $user
+	 * @param integer $numberOfMonths Number of months into the future to compensate.
 	 *
-	 * @return boolean	Success
+	 * @return boolean Success
 	 */
-	public function compSubscription(int $globalId, int $numberOfMonths): bool {
-		$user = Cheevos::getUserForServiceUserId($globalId);
-		if (!$user || $user->getId() < 1) {
-			return false;
-		}
-
+	public function compSubscription(User $user, int $numberOfMonths): bool {
 		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
 
 		$newExpiresDT = new DateTime('now');
@@ -743,7 +738,7 @@ class PointsCompReport {
 				],
 				[
 					'report_id'	=> $this->reportData['report_id'],
-					'global_id'	=> $globalId
+					'user_id'	=> $user->getId()
 				],
 				__METHOD__
 			);
@@ -759,25 +754,20 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function sendAllEmails() {
-		foreach ($this->reportUser as $globalId => $data) {
-			$this->sendUserEmail($globalId);
+		foreach ($this->reportUser as $userId => $data) {
+			$this->sendUserEmail(User::newFromId($userId));
 		}
 	}
 
 	/**
 	 * Send user comp email.
 	 *
-	 * @param integer	Global ID
+	 * @param User $user
 	 *
-	 * @return boolean	Success
+	 * @return boolean Success
 	 */
-	public function sendUserEmail($globalId) {
+	public function sendUserEmail(User $user): bool {
 		$success = false;
-
-		$user = Cheevos::getUserForServiceUserId($globalId);
-		if (!$user) {
-			return false;
-		}
 
 		$body = [
 			'text' => wfMessage('automatic_comp_email_body_text', $user->getName())->text(),
@@ -795,7 +785,7 @@ class PointsCompReport {
 				['email_sent' => 1],
 				[
 					'report_id'	=> $this->reportData['report_id'],
-					'global_id'	=> $globalId
+					'user_id'	=> $user->getId()
 				],
 				__METHOD__
 			);
@@ -810,18 +800,18 @@ class PointsCompReport {
 	 *
 	 * @return integer	Number of active subscriptions.
 	 */
-	public static function getNumberOfActiveSubscriptions() {
+	public static function getNumberOfActiveSubscriptions(): int {
 		$db = wfGetDB(DB_MASTER);
 		$result = $db->select(
 			['points_comp_report_user'],
-			['global_id'],
+			['user_id'],
 			[
 				'comp_performed' => 1,
 				"current_comp_expires > " . time() . " OR new_comp_expires > " . time()
 			],
 			__METHOD__,
 			[
-				'GROUP BY'	=> 'global_id',
+				'GROUP BY'	=> 'user_id',
 				'SQL_CALC_FOUND_ROWS'
 			]
 		);

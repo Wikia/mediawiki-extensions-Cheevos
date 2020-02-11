@@ -364,18 +364,17 @@ class CheevosHooks {
 	 * @return boolean
 	 */
 	public static function onCurseProfileCanComment(User $fromUser, User $toUser, int $editsToComment): bool {
-		$userId = Cheevos::getUserIdForService($fromUser);
 		$editCount = 0;
 		try {
 			$stats = Cheevos::getStatProgress(
 				[
-					'user_id'	=> $userId,
 					'global'	=> true,
 					'stat'		=> 'article_edit'
-				]
+				],
+				$fromUser
 			);
 			$stats = CheevosHelper::makeNiceStatProgressArray($stats);
-			$editCount = (isset($stats[$userId]['article_edit']['count']) && $stats[$userId]['article_edit']['count'] > $editCount ? $stats[$userId]['article_edit']['count'] : $editCount);
+			$editCount = (isset($stats[$fromUser->getId()]['article_edit']['count']) && $stats[$fromUser->getId()]['article_edit']['count'] > $editCount ? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount);
 		} catch (CheevosException $e) {
 			wfDebug("Encountered Cheevos API error getting article_edit count.");
 		}
@@ -833,6 +832,13 @@ class CheevosHooks {
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report', 'max_points', "{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql", true]);
 			$updater->addExtensionUpdate(['addField', 'points_comp_report_user', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql", true]);
 			$updater->addExtensionUpdate(['modifyField', 'points_comp_report_user', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql", true]);
+			$updater->addExtensionUpdate(['addField', 'points_comp_report_user', 'user_id', "{$extDir}/upgrade/sql/points_comp_report_user/add_field_user_id.sql", true]);
+			$updater->addExtensionUpdate(['addIndex', 'points_comp_report_user', 'report_id_user_id', "{$extDir}/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql", true]);
+			$updater->addExtensionUpdate(['dropIndex', 'points_comp_report_user', 'report_id_global_id', "{$extDir}/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql", true]);
+			$updater->addPostDatabaseUpdateMaintenance(\Cheevos\Maintenance\ReplaceGlobalIdWithUserId::class);
+
+			// Uncomment in the future to remove global ID column once migration is complete. - 2020-02-07 Alexia E. Smith
+			// $updater->addExtensionUpdate(['dropField', 'points_comp_report_user', 'global_id', "{$extDir}/upgrade/sql/points_comp_report_user/drop_field_global_id.sql", true]);
 
 			// Point Levels
 			$updater->addExtensionUpdate(['addTable', 'wiki_points_levels', "{$extDir}/install/sql/table_wiki_points_levels.sql", true]);

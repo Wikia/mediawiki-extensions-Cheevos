@@ -649,24 +649,29 @@ class Cheevos {
 	/**
 	 * Return StatProgress for selected filters.
 	 *
-	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
-	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
-	 * 		$filters = [
-	 * 			'user_id'			=> 0, //Limit by global user ID.
-	 * 			'site_key'			=> 'example', //Limit by site key.
-	 * 			'global'			=> false, //Set to true to aggregate stats from all sites.(Also causes site_key to be ignored.)
-	 * 			'stat'				=> 'example', //Filter by a specific stat name.
-	 * 			'sort_direction'	=> 'asc' or 'desc', //If supplied, the result will be sorted on the stats' count field.
-	 * 			'start_time'		=> 'example', //If supplied, only stat deltas after this unix timestamp are considered.
-	 * 			'end_time'			=> 'example', //If supplied, only stat deltas before this unix timestamp are considered.
-	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
-	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
-	 * 		];
+	 * @param array $filters  Limit Filters - All filters are optional and can omitted from the array.
+	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 *                        - $filters = [
+	 *                        -     'user_id' => 0, //Limit by global user ID.
+	 *                        -     'site_key' => 'example', //Limit by site key.
+	 *                        -     'global' => false, //Set to true to aggregate stats from all sites.(Also causes site_key to be ignored.)
+	 *                        -     'stat' => 'example', //Filter by a specific stat name.
+	 *                        -     'sort_direction' => 'asc' or 'desc', //If supplied, the result will be sorted on the stats' count field.
+	 *                        -     'start_time' => 'example', //If supplied, only stat deltas after this unix timestamp are considered.
+	 *                        -     'end_time' => 'example', //If supplied, only stat deltas before this unix timestamp are considered.
+	 *                        -     'limit' => 200, //Maximum number of results.  Defaults to 200.
+	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
+	 *                        - ];
+	 * @param User|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getStatProgress($filters = []) {
+	public static function getStatProgress(array $filters = [], ?User $user = null) {
+		if ($user !== null) {
+			$filters['user_id'] = self::getUserIdForService($user);
+		}
+
 		foreach (['user_id', 'start_time', 'end_time', 'limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);
@@ -682,19 +687,24 @@ class Cheevos {
 	/**
 	 * Return WikiPointLog for selected filters.
 	 *
-	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
-	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
-	 * 		$filters = [
-	 * 			'user_id'			=> 0, //Limit by global user ID.
-	 * 			'site_key'			=> 'example', //Limit by site key.
-	 * 			'limit'				=> 200, //Maximum number of results.  Defaults to 200.
-	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
-	 * 		];
+	 * @param array	$filters  Limit Filters - All filters are optional and can omitted from the array.
+	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 *                        - $filters = [
+	 *                        -     'user_id' => 0, //Limit by global user ID.
+	 *                        -     'site_key' => 'example', //Limit by site key.
+	 *                        -     'limit' => 200, //Maximum number of results.  Defaults to 200.
+	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
+	 *                        - ];
+	 * @param User|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getWikiPointLog($filters = []) {
+	public static function getWikiPointLog(array $filters = [], ?User $user = null) {
+		if ($user !== null) {
+			$filters['user_id'] = self::getUserIdForService($user);
+		}
+
 		foreach (['user_id', 'limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);
@@ -710,16 +720,16 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param integer	Global User ID
-	 * @param string	[Optional] Filter by site key.
+	 * @param User        $user    Global User ID
+	 * @param string|null $siteKey [Optional] Filter by site key.
 	 *
 	 * @return mixed
 	 */
-	public static function getUserPointRank($globalId, $siteKey = null) {
+	public static function getUserPointRank(User $user, ?string $siteKey = null) {
 		$return = self::get(
 			'points/user_rank',
 			[
-				'user_id'	=> $globalId,
+				'user_id'	=> self::getUserIdForService($user),
 				'site_key'	=> $siteKey
 			]
 		);
@@ -730,19 +740,19 @@ class Cheevos {
 	/**
 	 * Return StatDailyCount for selected filters.
 	 *
-	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
-	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
-	 * 		$filters = [
-	 * 			'site_key'	=> 'example', //Limit by site key.
-	 * 			'stat'		=> 'example', //Filter by a specific stat name.
-	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
-	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
-	 * 		];
+	 * @param array	$filters Limit Filters - All filters are optional and can omitted from the array.
+	 *                       This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
+	 *                       This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 *                       - $filters = [
+	 *                       -     'site_key' => 'example', //Limit by site key.
+	 *                       -     'stat' => 'example', //Filter by a specific stat name.
+	 *                       -     'limit' => 200, //Maximum number of results.  Defaults to 200.
+	 *                       -     'offset' => 0, //Offset to start from the beginning of the result set.
+	 *                       - ];
 	 *
 	 * @return mixed
 	 */
-	public static function getStatDailyCount($filters = []) {
+	public static function getStatDailyCount(array $filters = []) {
 		foreach (['limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);
@@ -758,20 +768,28 @@ class Cheevos {
 	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
-	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
-	 * This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 * This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
-	 * 		$filters = [
-	 * 			'user_id'	=> 1, //Limit by user ID.
-	 * 			'site_key'	=> 'example', //Limit by site key.
-	 * 			'stat'		=> 'example', //Filter by a specific stat name.
-	 * 			'limit'		=> 200, //Maximum number of results.  Defaults to 200.
-	 * 			'offset'	=> 0, //Offset to start from the beginning of the result set.
-	 * 		];
+	 * @param array     $filter Limit Filters - All filters are optional and can omitted from the array.
+	 *                          This is an array since the amount of filter parameters is expected to be
+	 *                          reasonably volatile over the life span of the product. This function
+	 *                          does minimum validation of the filters.  For example, sending a numeric
+	 *                          string when the service is expecting an integer will result in an
+	 *                          exception being thrown.
+	 * 		                    - $filters = [
+	 *                          -     'user_id' => 1, //Limit by service user ID.
+	 *                          -     'site_key' => 'example', //Limit by site key.
+	 *                          -     'stat' => 'example', //Filter by a specific stat name.
+	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
+	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
+	 * 		                    - ];
+	 * @param User|null $user   Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getStatMonthlyCount($filters = []) {
+	public static function getStatMonthlyCount(array $filters = [], ?User $user = null) {
+		if ($user !== null) {
+			$filters['user_id'] = self::getUserIdForService($user);
+		}
+
 		foreach (['user_id', 'limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);
@@ -787,16 +805,16 @@ class Cheevos {
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param integer	Global User ID
-	 * @param string	Filter by stat name (Example: article_edit to get number of Wikis Edited)
+	 * @param User   $user User
+	 * @param string $stat Filter by stat name (Example: article_edit to get number of Wikis Edited)
 	 *
 	 * @return mixed
 	 */
-	public static function getUserSitesCountByStat($globalId, $stat) {
+	public static function getUserSitesCountByStat(User $user, string $stat) {
 		$return = self::get(
 			'stats/user_sites_count',
 			[
-				'user_id'	=> $globalId,
+				'user_id'	=> self::getUserIdForService($user),
 				'stat'		=> $stat
 			]
 		);
@@ -828,20 +846,25 @@ class Cheevos {
 	/**
 	 * Return AchievementProgress for selected filters.
 	 *
-	 * @param array	Limit Filters - All filters are optional and can omitted from the array.
-	 * 		$filters = [
-	 * 			'site_key'			=> 'example', //Limit by site key.
-	 * 			'achievement_id'	=> 0, //Limit by achievement ID.
-	 * 			'user_id'			=> 0, //Limit by global user ID.
-	 * 			'category_id'		=> 0, //Limit by category ID.
-	 * 			'earned'			=> false, //Only get progress for earned achievements.
-	 * 			'limit'				=> 100, //Maximum number of results.
-	 * 			'offset'			=> 0, //Offset to start from the beginning of the result set.
-	 * 		];
+	 * @param array     $filters Limit Filters - All filters are optional and can omitted from the array.
+	 *                           - $filters = [
+	 *                           -     'site_key' => 'example', //Limit by site key.
+	 *                           -     'achievement_id' => 0, //Limit by achievement ID.
+	 *                           -     'user_id' => 0, //Limit by global user ID.
+	 *                           -     'category_id' => 0, //Limit by category ID.
+	 *                           -     'earned' => false, //Only get progress for earned achievements.
+	 *                           -     'limit' => 100, //Maximum number of results.
+	 *                           -     'offset' => 0, //Offset to start from the beginning of the result set.
+	 *                           - ];
+	 * @param User|null $user    Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getAchievementProgress($filters = []) {
+	public static function getAchievementProgress(array $filters = [], ?User $user = null) {
+		if ($user !== null) {
+			$filters['user_id'] = self::getUserIdForService($user);
+		}
+
 		foreach (['user_id', 'achievement_id', 'category_id', 'limit', 'offset'] as $key) {
 			if (isset($filter[$key]) && !is_int($filter[$key])) {
 				$filter[$key] = intval($filter[$key]);

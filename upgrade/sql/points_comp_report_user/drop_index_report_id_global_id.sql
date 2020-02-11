@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/points_comp_report_user DROP INDEX `report_id_global_id`;

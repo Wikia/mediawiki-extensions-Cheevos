@@ -94,17 +94,17 @@ class SpecialPointsComp extends SpecialPage {
 				}
 			}
 
-			$doCompUser = $this->getRequest()->getInt('compUser');
-			$doEmailUser = $this->getRequest()->getVal('emailUser');
-			if (($doCompUser > 0 || $doEmailUser > 0) && $report !== null) {
+			$doCompUser = User::newFromId($this->getRequest()->getInt('compUser'));
+			$doEmailUser = User::newFromId($this->getRequest()->getInt('emailUser'));
+			if (($doCompUser->getId() || $doEmailUser->getId()) && $report !== null) {
 				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $reportId);
-				if ($doCompUser > 0) {
+				if ($doCompUser->getId()) {
 					$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 					$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 					$userComped = $report->compSubscription($doCompUser, $compedSubscriptionMonths);
 					$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
 				}
-				if ($doEmailUser > 0) {
+				if ($doEmailUser->getId()) {
 					$emailSent = $report->sendUserEmail($doEmailUser);
 					$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
 				}

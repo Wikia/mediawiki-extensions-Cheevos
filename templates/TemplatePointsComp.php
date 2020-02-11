@@ -10,8 +10,6 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
-use Cheevos\Cheevos;
-
 class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
@@ -178,10 +176,10 @@ class TemplatePointsComp {
 				</thead>
 				<tbody>";
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = Cheevos::getUserForServiceUserId($reportRow['global_id']);
+			$user = User::newFromId($reportRow['user_id']);
 			$html .= "
 					<tr>
-						<td>" . ($user ? $user->getName() : 'GID: ' . $reportRow['global_id']) . "</td>
+						<td>" . ($user ? $user->getName() : 'User ID: ' . $user->getId()) . "</td>
 						<td>{$reportRow['points']}</td>
 						<td>{$reportRow['comp_new']}</td>
 						<td>{$reportRow['comp_extended']}</td>
@@ -189,8 +187,8 @@ class TemplatePointsComp {
 						<td>{$reportRow['comp_skipped']}</td>
 						<td>" . ($reportRow['current_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['current_comp_expires']) : '&nbsp;') . "</td>
 						<td>" . ($reportRow['new_comp_expires'] > 0 ? gmdate('Y-m-d', $reportRow['new_comp_expires']) : '&nbsp;') . "</td>
-						<td>" . ($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$reportRow['global_id']}'/>" . wfMessage('grant_comp')->escaped() . "</button>") . "</td>
-						<td>" . ($reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$reportRow['global_id']}'/>" . wfMessage('send_comp_email')->escaped() . "</button>") . "</td>
+						<td>" . ($reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$user->getId()}'/>" . wfMessage('grant_comp')->escaped() . "</button>") . "</td>
+						<td>" . ($reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$user->getId()}'/>" . wfMessage('send_comp_email')->escaped() . "</button>") . "</td>
 					</tr>";
 		}
 		$html .= "
@@ -204,16 +202,16 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Report CSV
 	 *
-	 * @return string	CSV
+	 * @return string CSV
 	 */
 	public static function pointsCompReportCSV($report) {
 		$headers = wfMessage('wpa_user')->escaped() . "," . wfMessage('comp_points')->escaped() . "," . wfMessage('comp_new')->escaped() . "," . wfMessage('comp_extended')->escaped() . "," . wfMessage('comp_failed')->escaped() . "," . wfMessage('comp_skipped')->escaped() . "," . wfMessage('current_comp_expires')->escaped() . "," . wfMessage('new_comp_expires')->escaped() . "," . wfMessage('comp_done')->escaped() . "," . wfMessage('emailed')->escaped();
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = Cheevos::getUserForServiceUserId($reportRow['global_id']);
+			$user = User::newFromId($reportRow['user_id']);
 			$rows[] = implode(
 				',',
 				[
-					$user ? $user->getName() : 'GID: ' . $reportRow['global_id'],
+					$user ? $user->getName() : 'User ID: ' . $user->getId(),
 					$reportRow['points'],
 					$reportRow['comp_new'],
 					$reportRow['comp_extended'],
