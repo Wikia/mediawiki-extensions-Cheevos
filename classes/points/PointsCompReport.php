@@ -656,7 +656,7 @@ class PointsCompReport {
 				}
 			}
 
-			$this->addRow($user->getId(), $progress->getCount(), !$isExtended, $isExtended, !$success, $subscription['expires'], $newExpires, $success, $emailSent);
+			$this->addRow($user->getId(), $progress->getCount(), !$isExtended, $isExtended, !$success, intval($subscription['expires']), $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();
