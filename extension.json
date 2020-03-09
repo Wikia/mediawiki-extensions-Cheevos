@@ -409,16 +409,6 @@
 			"path": false,
 			"descriptionmsg": "cheevos-config-compedsubscriptionmonths",
 			"public": false
-		},
-		"SyncServices": {
-			"value": {
-				"CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
-				"PointsCompJob": "Cheevos\\Job\\PointsCompJob"
-			},
-			"path": false,
-			"descriptionmsg": "cheevos-config-syncservices",
-			"public": false,
-			"merge_strategy": "array_merge"
 		}
 	},
 	"callback": "CheevosHooks::onRegistration",
