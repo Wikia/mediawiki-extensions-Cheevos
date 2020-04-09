@@ -81,7 +81,8 @@
 		"cheevosstats": "CheevosStatsAPI"
 	},
 	"JobClasses": {
-		"Cheevos\\Job\\CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob"
+		"Cheevos\\Job\\CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
+		"Cheevos\\Job\\PointsCompJob": "Cheevos\\Job\\PointsCompJob"
 	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",

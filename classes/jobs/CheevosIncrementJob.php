@@ -26,6 +26,8 @@ class CheevosIncrementJob extends Job {
 	 * Queue a new job.
 	 *
 	 * @param array $parameters Job Parameters
+	 *
+	 * @return void
 	 */
 	public static function queue(array $parameters = []) {
 		$job = new self(__CLASS__, $parameters);
@@ -34,9 +36,6 @@ class CheevosIncrementJob extends Job {
 
 	/**
 	 * Cheevos Increment Job
-	 *
-	 * @param string           $command    Unused, specific thing to do.
-	 * @param array|Title|null $parameters Named arguments passed by the command that queued this job.
 	 *
 	 * @return boolean Success
 	 */
@@ -59,7 +58,8 @@ class CheevosIncrementJob extends Job {
 				return true;
 			}
 			if ($e->getCode() != 409) {
-				self::queue($increment); // Requeue in case of unintended failure.
+				// Requeue in case of unintended failure.
+				self::queue($increment);
 			}
 		}
 		return true;

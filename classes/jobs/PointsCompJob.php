@@ -15,23 +15,36 @@ namespace Cheevos\Job;
 
 use Cheevos\Points\PointsCompReport;
 use MWException;
-use SyncService\Job;
+use Job;
+use JobQueueGroup;
 
 class PointsCompJob extends Job {
 	/**
-	 * Runs points compensation reports and grants through the command line maintenance script.
+	 * Queue a new job.
 	 *
-	 * @param array	Named Arguments:
-	 * - threshold		[Integer] Point threshold for the report.
-	 * - start_time		[Integer] Unix timestamp of the report start range.
-	 * - end_time		[Integer] Unix timestamp of the report end range.
-	 * - final			[Boolean] Finalize this report by granting compensations.
-	 * - email			[Boolean] Email users affected.
-	 * - report_id		[Optional] Existing report ID to update.
+	 * @param array $parameters Named arguments passed by the command that queued this job.
+	 *                          - threshold		[Integer] Point threshold for the report.
+	 *                          - start_time	[Integer] Unix timestamp of the report start range.
+	 *                          - end_time		[Integer] Unix timestamp of the report end range.
+	 *                          - final			[Boolean] Finalize this report by granting compensations.
+	 *                          - email			[Boolean] Email users affected.
+	 *                          - report_id		[Optional] Existing report ID to update.
 	 *
-	 * @return integer	Exit value for this thread.
+	 * @return void
 	 */
-	public function execute($args = []) {
+	public static function queue(array $parameters = []) {
+		$job = new self(__CLASS__, $parameters);
+		JobQueueGroup::singleton()->push($job);
+	}
+
+	/**
+	 * Points Comp Job
+	 *
+	 * @return boolean Success
+	 */
+	public function run() {
+		$args = $this->getParams();
+
 		$minPointThreshold = (isset($args['min_point_threshold']) ? intval($args['min_point_threshold']) : null);
 		$maxPointThreshold = (isset($args['max_point_threshold']) ? intval($args['max_point_threshold']) : null);
 		$startTime = (isset($args['start_time']) ? intval($args['start_time']) : 0);
@@ -40,13 +53,14 @@ class PointsCompJob extends Job {
 		$email = (isset($args['email']) ? boolval($args['email']) : false);
 		$reportId = (isset($args['report_id']) ? intval($args['report_id']) : null);
 
-		sleep(2); // Database transaction commits on AWS are slow.
+		// Database transaction commits on AWS are slow.
+		sleep(2);
 
 		if ($reportId > 0) {
 			$report = PointsCompReport::newFromId($reportId);
 			if (!$report) {
-				$this->outputLine(__METHOD__ . ": Bad report ID.", time());
-				return 1;
+				$this->setLastError("Bad report ID.");
+				return false;
 			}
 		} else {
 			$report = new PointsCompReport();
@@ -67,10 +81,19 @@ class PointsCompJob extends Job {
 				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
 			}
 		} catch (MWException $e) {
-			$this->outputLine(__METHOD__ . ": Failed to run report due to: " . $e->getMessage(), time());
-			return 1;
+			$this->setLastError("Failed to run report due to: " . $e->getMessage());
+			return false;
 		}
 
-		return 0;
+		return true;
+	}
+
+	/**
+	 * Don't allow retrying this job.
+	 *
+	 * @return boolean False
+	 */
+	public function allowRetries() {
+		return false;
 	}
 }
