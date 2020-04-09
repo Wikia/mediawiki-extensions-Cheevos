@@ -46,7 +46,7 @@ class CheevosHooks {
 	 * @return void
 	 */
 	public static function onRegistration() {
-		global $wgDefaultUserOptions, $wgNamespacesForEditPoints, $wgReverbNotifications, $wgSyncServices;
+		global $wgDefaultUserOptions, $wgNamespacesForEditPoints, $wgReverbNotifications;
 
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
@@ -61,9 +61,6 @@ class CheevosHooks {
 			]
 		];
 		$wgReverbNotifications = array_merge($wgReverbNotifications, $reverbNotifications);
-
-		$wgSyncServices["CheevosIncrementJob"] = "Cheevos\\Job\\CheevosIncrementJob";
-		$wgSyncServices["PointsCompJob"] = "Cheevos\\Job\\PointsCompJob";
 	}
 
 	/**
