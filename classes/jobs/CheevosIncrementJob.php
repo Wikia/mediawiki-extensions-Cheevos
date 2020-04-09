@@ -12,41 +12,36 @@
 
 namespace Cheevos\Job;
 
+use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
-use CheevosHooks;
 use Hooks;
+use Job;
+use JobQueueGroup;
 use MediaWiki\MediaWikiServices;
-use SyncService\Job;
 
 class CheevosIncrementJob extends Job {
 	/**
-	 * Sets the default priority to normal. Overwrite in subclasses to run at a different priority.
+	 * Queue a new job.
 	 *
-	 * @var int		sets the priority at which this service will run
+	 * @param array $parameters Job Parameters
 	 */
-	public static $priority = self::PRIORITY_NORMAL;
+	public static function queue(array $parameters = []) {
+		$job = new self(__CLASS__, $parameters);
+		JobQueueGroup::singleton()->push($job);
+	}
 
 	/**
-	 * Overwrite in subclasses and set to true to use a key in redis as a lock file.
-	 * While the lock exists, other instances will immediately die with an error message.
+	 * Cheevos Increment Job
 	 *
-	 * @var bool	enables single-instance mode for a job
+	 * @param string           $command    Unused, specific thing to do.
+	 * @param array|Title|null $parameters Named arguments passed by the command that queued this job.
+	 *
+	 * @return boolean Success
 	 */
-	public static $forceSingleInstance = false;
-
-	/**
-	 * Example Job
-	 *
-	 * @param array	Named arguments passed by the command that queued this job.
-	 * - example_1	First argument passed to ExampleJob::queue().
-	 * - example_2	Second argument passed to ExampleJob::queue().
-	 * - ...
-	 *
-	 * @return boolean	Success, reported to Worker class to set the exit status of the process.
-	 */
-	public function execute($increment) {
+	public function run() {
+		$increment = $this->getParams();
 		try {
 			$return = Cheevos::increment($increment);
 			if (isset($return['earned'])) {
@@ -61,12 +56,12 @@ class CheevosIncrementJob extends Job {
 			// Allows requeue to be turned off
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {
-				return 0;
+				return true;
 			}
 			if ($e->getCode() != 409) {
 				self::queue($increment); // Requeue in case of unintended failure.
-				return 1;
 			}
 		}
+		return true;
 	}
 }

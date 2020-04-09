@@ -80,6 +80,9 @@
 	"APIModules": {
 		"cheevosstats": "CheevosStatsAPI"
 	},
+	"JobClasses": {
+		"Cheevos\\Job\\CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob"
+	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
 		"CheevosStatsAPI": "CheevosStats.api.php",
