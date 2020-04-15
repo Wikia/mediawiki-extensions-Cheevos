@@ -101,7 +101,6 @@
 		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
 		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",
 		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
-		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
 		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
