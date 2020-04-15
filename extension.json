@@ -64,9 +64,7 @@
 		"ManageAchievements": "SpecialManageAchievements",
 		"PointsComp": "SpecialPointsComp",
 		"WikiPoints": "SpecialWikiPoints",
-		"WikiPointsAdmin": "SpecialWikiPointsAdmin",
-		"WikiPointsLevels": "SpecialWikiPointsLevels",
-		"WikiPointsMultipliers": "SpecialWikiPointsMultipliers"
+		"WikiPointsAdmin": "SpecialWikiPointsAdmin"
 	},
 	"MessagesDirs": {
 		"Cheevos": [
@@ -102,7 +100,6 @@
 		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
 		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",
 		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
-		"Cheevos\\Points\\PointLevels": "classes/points/PointLevels.php",
 		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
@@ -111,16 +108,12 @@
 		"SpecialPointsComp": "specials/SpecialPointsComp.php",
 		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
 		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
-		"SpecialWikiPointsLevels": "specials/SpecialWikiPointsLevels.php",
-		"SpecialWikiPointsMultipliers": "specials/SpecialWikiPointsMultipliers.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
 		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
 		"TemplatePointsComp": "templates/TemplatePointsComp.php",
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
-		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
-		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
-		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
+		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php"
 	},
 	"ResourceModules": {
 		"ext.cheevos.styles": {
@@ -255,15 +248,6 @@
 				"mediawiki.ui",
 				"mediawiki.ui.input",
 				"mediawiki.ui.button"
-			],
-			"position": "top"
-		},
-		"ext.cheevos.wikiPoints.scripts": {
-			"scripts": [
-				"js/cheevos.wikipoints.js"
-			],
-			"dependencies": [
-				"jquery.ui.datepicker"
 			],
 			"position": "top"
 		},

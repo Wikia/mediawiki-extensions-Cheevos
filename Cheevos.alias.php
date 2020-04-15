@@ -23,7 +23,5 @@ $specialPageAliases['en'] = [
 	'MegaAchievements'		=> ['MegaAchievements'],
 	'PointsComp'			=> ['PointsComp'],
 	'WikiPoints'			=> ['WikiPoints'],
-	'WikiPointsAdmin'		=> ['WikiPointsAdmin'],
-	'WikiPointsLevels'		=> ['WikiPointsLevels'],
-	'WikiPointsMultipliers'	=> ['WikiPointsMultipliers']
+	'WikiPointsAdmin'		=> ['WikiPointsAdmin']
 ];
