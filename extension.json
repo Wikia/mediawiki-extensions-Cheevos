@@ -64,8 +64,7 @@
 		"ManageAchievements": "SpecialManageAchievements",
 		"PointsComp": "SpecialPointsComp",
 		"WikiPoints": "SpecialWikiPoints",
-		"WikiPointsAdmin": "SpecialWikiPointsAdmin",
-		"WikiPointsMultipliers": "SpecialWikiPointsMultipliers"
+		"WikiPointsAdmin": "SpecialWikiPointsAdmin"
 	},
 	"MessagesDirs": {
 		"Cheevos": [
@@ -109,14 +108,12 @@
 		"SpecialPointsComp": "specials/SpecialPointsComp.php",
 		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
 		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
-		"SpecialWikiPointsMultipliers": "specials/SpecialWikiPointsMultipliers.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
 		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
 		"TemplatePointsComp": "templates/TemplatePointsComp.php",
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
-		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
-		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
+		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php"
 	},
 	"ResourceModules": {
 		"ext.cheevos.styles": {
@@ -251,15 +248,6 @@
 				"mediawiki.ui",
 				"mediawiki.ui.input",
 				"mediawiki.ui.button"
-			],
-			"position": "top"
-		},
-		"ext.cheevos.wikiPoints.scripts": {
-			"scripts": [
-				"js/cheevos.wikipoints.js"
-			],
-			"dependencies": [
-				"jquery.ui.datepicker"
 			],
 			"position": "top"
 		},
