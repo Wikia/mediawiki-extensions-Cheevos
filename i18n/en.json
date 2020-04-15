@@ -70,6 +70,7 @@
 	"part_of_default_mega_achievement": "Make this achievement required for the default site mega achievement.",
 	"image_hint": "Click or Drag & Drop to upload image.",
 	"action-achievement_admin": "view the achievement admin interface",
+	"action-achievement_stats": "view the achievement statistics",
 	"action-edit_achievements": "add or edit achievements",
 	"action-edit_meta_achievements": "add or edit meta achievements",
 	"action-delete_achievements": "delete achievements",

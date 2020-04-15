@@ -27,6 +27,7 @@
 		},
 		"hydra_staff": {
 			"achievement_admin": true,
+			"achievement_stats": true,
 			"award_achievements": true,
 			"delete_achievements": true,
 			"edit_achievements": true,
@@ -38,6 +39,7 @@
 		},
 		"hydra_admin": {
 			"achievement_admin": true,
+			"achievement_stats": true,
 			"award_achievements": true,
 			"delete_achievements": true,
 			"edit_achievements": true,
@@ -50,6 +52,7 @@
 	},
 	"AvailableRights": [
 		"achievement_admin",
+		"achievement_stats",
 		"award_achievements",
 		"delete_achievements",
 		"edit_achievements",

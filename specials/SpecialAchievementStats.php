@@ -11,7 +11,6 @@
  **/
 
 use Cheevos\Cheevos;
-use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
 
 class SpecialAchievementStats extends SpecialPage {
@@ -30,7 +29,7 @@ class SpecialAchievementStats extends SpecialPage {
 	public function __construct() {
 		global $dsSiteKey;
 
-		parent::__construct('AchievementStats', 'achievement_admin', ($this->getUser()->isAllowed('achievement_admin') && Environment::isMasterWiki()));
+		parent::__construct('AchievementStats', 'achievement_stats', ($this->getUser()->isAllowed('achievement_stats')));
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -55,11 +54,6 @@ class SpecialAchievementStats extends SpecialPage {
 	public function execute($subpage) {
 		if (!$this->userCanExecute($this->getUser())) {
 			$this->displayRestrictionError();
-			return;
-		}
-
-		if (!Environment::isMasterWiki()) {
-			$this->output->redirect("/");
 			return;
 		}
 
