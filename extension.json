@@ -65,7 +65,6 @@
 		"PointsComp": "SpecialPointsComp",
 		"WikiPoints": "SpecialWikiPoints",
 		"WikiPointsAdmin": "SpecialWikiPointsAdmin",
-		"WikiPointsLevels": "SpecialWikiPointsLevels",
 		"WikiPointsMultipliers": "SpecialWikiPointsMultipliers"
 	},
 	"MessagesDirs": {
@@ -111,7 +110,6 @@
 		"SpecialPointsComp": "specials/SpecialPointsComp.php",
 		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
 		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
-		"SpecialWikiPointsLevels": "specials/SpecialWikiPointsLevels.php",
 		"SpecialWikiPointsMultipliers": "specials/SpecialWikiPointsMultipliers.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
 		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
@@ -119,7 +117,6 @@
 		"TemplatePointsComp": "templates/TemplatePointsComp.php",
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
 		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php",
-		"TemplateWikiPointsLevels": "templates/TemplateWikiPointsLevels.php",
 		"TemplateWikiPointsMultipliers": "templates/TemplateWikiPointsMultipliers.php"
 	},
 	"ResourceModules": {

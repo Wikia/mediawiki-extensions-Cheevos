@@ -24,6 +24,5 @@ $specialPageAliases['en'] = [
 	'PointsComp'			=> ['PointsComp'],
 	'WikiPoints'			=> ['WikiPoints'],
 	'WikiPointsAdmin'		=> ['WikiPointsAdmin'],
-	'WikiPointsLevels'		=> ['WikiPointsLevels'],
 	'WikiPointsMultipliers'	=> ['WikiPointsMultipliers']
 ];
