@@ -27,7 +27,6 @@
 		},
 		"hydra_staff": {
 			"achievement_admin": true,
-			"achievement_stats": true,
 			"award_achievements": true,
 			"delete_achievements": true,
 			"edit_achievements": true,
@@ -39,7 +38,6 @@
 		},
 		"hydra_admin": {
 			"achievement_admin": true,
-			"achievement_stats": true,
 			"award_achievements": true,
 			"delete_achievements": true,
 			"edit_achievements": true,
@@ -52,7 +50,6 @@
 	},
 	"AvailableRights": [
 		"achievement_admin",
-		"achievement_stats",
 		"award_achievements",
 		"delete_achievements",
 		"edit_achievements",
@@ -63,7 +60,6 @@
 	],
 	"SpecialPages": {
 		"Achievements": "SpecialAchievements",
-		"AchievementStats": "SpecialAchievementStats",
 		"ManageAchievements": "SpecialManageAchievements",
 		"PointsComp": "SpecialPointsComp",
 		"WikiPoints": "SpecialWikiPoints",
@@ -78,12 +74,8 @@
 		"SpecialCheevos": "Cheevos.alias.php",
 		"CheevosMagic": "Cheevos.i18n.magic.php"
 	},
-	"APIModules": {
-		"cheevosstats": "CheevosStatsAPI"
-	},
 	"AutoloadClasses": {
 		"CheevosHooks": "Cheevos.hooks.php",
-		"CheevosStatsAPI": "CheevosStats.api.php",
 		"Cheevos\\Cheevos": "classes/Cheevos.php",
 		"Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
 		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
@@ -106,13 +98,11 @@
 		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
 		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
 		"SpecialAchievements": "specials/SpecialAchievements.php",
-		"SpecialAchievementStats": "specials/SpecialAchievementStats.php",
 		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
 		"SpecialPointsComp": "specials/SpecialPointsComp.php",
 		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
 		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
 		"TemplateAchievements": "templates/TemplateAchievements.php",
-		"TemplateAchievementStats": "templates/TemplateAchievementStats.php",
 		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
 		"TemplatePointsComp": "templates/TemplatePointsComp.php",
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
@@ -187,21 +177,6 @@
 				"error_connecting_to_site",
 				"bad_site_key",
 				"choose_existing_hook"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
-			],
-			"position": "top"
-		},
-		"ext.cheevos.stats.js": {
-			"scripts": [
-				"js/cheevos.stats.js"
-			],
-			"dependencies": [
-				"mediawiki.api",
-				"ext.cheevos.chart.js",
-				"ext.cheevos.dataTables"
 			],
 			"targets": [
 				"desktop",
@@ -342,41 +317,6 @@
 			"value": 96,
 			"path": false,
 			"descriptionmsg": "cheevos-config-cheevosmasterachievementid",
-			"public": false
-		},
-		"CheevosStats": {
-			"value": [
-				"visit",
-				"article_edit",
-				"article_watch",
-				"article_create",
-				"article_delete",
-				"article_move",
-				"article_merge",
-				"article_protect",
-				"admin_block_ip",
-				"admin_patrol",
-				"curse_profile_comment",
-				"curse_profile_add_friend",
-				"curse_profile_accept_friend",
-				"curse_profile_edit",
-				"send_email",
-				"file_upload",
-				"wiki_points",
-				"curse_profile_edit_fav_wiki",
-				"curse_profile_comment_reply",
-				"curse_profile_edit_link_facebook",
-				"curse_profile_edit_link_psn",
-				"curse_profile_edit_link_reddit",
-				"curse_profile_edit_link_steam",
-				"curse_profile_edit_link_twitch",
-				"curse_profile_edit_link_twitter",
-				"curse_profile_edit_link_vk",
-				"curse_profile_edit_link_xbl",
-				"achievement_engagement"
-			],
-			"path": false,
-			"descriptionmsg": "cheevos-config-cheevosstats",
 			"public": false
 		},
 		"NamespacesForEditPoints": {

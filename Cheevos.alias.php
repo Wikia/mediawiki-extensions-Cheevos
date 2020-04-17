@@ -17,7 +17,6 @@ $specialPageAliases = [];
  */
 $specialPageAliases['en'] = [
 	'Achievements'			=> ['Achievements'],
-	'AchievementStats'		=> ['AchievementStats'],
 	'AwardAchievement'		=> ['AwardAchievement'],
 	'ManageAchievements'	=> ['ManageAchievements'],
 	'MegaAchievements'		=> ['MegaAchievements'],
