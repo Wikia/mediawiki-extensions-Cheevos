@@ -93,7 +93,6 @@
 		"Cheevos\\CheevosException": "classes/CheevosException.php",
 		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
 		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
-		"Cheevos\\CheevosSiteEditPointsPromotion": "classes/CheevosSiteEditPointsPromotion.php",
 		"Cheevos\\CheevosStatDailyCount": "classes/CheevosStatDailyCount.php",
 		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
 		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
