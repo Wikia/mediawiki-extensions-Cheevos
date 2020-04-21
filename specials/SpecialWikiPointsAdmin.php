@@ -42,7 +42,6 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$this->checkPermissions();
 
 		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles']);
-		$this->output->addModules(['ext.cheevos.wikiPoints.scripts']);
 
 		$this->setHeaders();
 
