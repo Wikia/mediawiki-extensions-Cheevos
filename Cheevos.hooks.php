@@ -104,6 +104,9 @@ class CheevosHooks {
 		}
 
 		$globalId = Cheevos::getUserIdForService($user);
+		if ($globalId <= 0) {
+			return true;
+		}
 
 		self::$increments[$globalId]['user_id'] = $globalId;
 		self::$increments[$globalId]['user_name'] = $user->getName();
