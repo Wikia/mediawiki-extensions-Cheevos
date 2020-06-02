@@ -56,7 +56,7 @@ class Cheevos {
 				CURLOPT_SSL_VERIFYPEER		=> false,
 				CURLOPT_CUSTOMREQUEST		=> $type,
 				CURLOPT_CONNECTTIMEOUT		=> 1,
-				CURLOPT_TIMEOUT				=> 6,
+				CURLOPT_TIMEOUT				=> PHP_SAPI === 'cli' ? 30 : 6,
 				CURLOPT_ENCODING			=> 'gzip'
 			]
 		);
