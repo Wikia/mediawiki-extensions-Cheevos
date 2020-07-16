@@ -107,7 +107,9 @@ class TemplateManageAchievements {
 	* @return string	Built HTML
 	*/
 	public function achievementsForm($achievement, $categories, $allAchievements, $errors) {
-		global $wgUser, $wgScriptPath, $wgCheevosStats, $dsSiteKey;
+		global $wgUser, $wgScriptPath, $wgCheevosStats;
+
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();

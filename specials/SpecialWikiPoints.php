@@ -57,7 +57,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return void
 	 */
 	public function wikiPoints($subpage = null) {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$start = $this->wgRequest->getInt('st');
 		$itemsPerPage = 100;

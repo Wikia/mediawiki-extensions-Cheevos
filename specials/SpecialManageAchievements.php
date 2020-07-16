@@ -31,9 +31,9 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		global $dsSiteKey;
-
 		parent::__construct('ManageAchievements', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
+
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -41,7 +41,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->siteKey		= $dsSiteKey;
 		$this->isMaster 	= false;
 
-		if (!$dsSiteKey || empty($dsSiteKey)) {
+		if (!$this->siteKey || empty($this->siteKey)) {
 			throw new MWException('Could not determined the site key for use for Achievements.');
 			return;
 		}
@@ -189,7 +189,7 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function acheivementsSave() {
-		global $achImageDomainWhiteList, $dsSiteKey;
+		global $achImageDomainWhiteList;
 
 		$save = [];
 		$errors = [];
@@ -208,7 +208,7 @@ class SpecialManageAchievements extends SpecialPage {
 			$criteria->setStreak($this->wgRequest->getText("criteria_streak"));
 			$criteria->setStreak_Progress_Required($this->wgRequest->getInt("criteria_streak_progress_required"));
 			$criteria->setStreak_Reset_To_Zero($this->wgRequest->getBool("criteria_streak_reset_to_zero"));
-			if ($dsSiteKey === 'master') {
+			if ($this->siteKey === 'master') {
 				$criteria->setPer_Site_Progress_Maximum($this->wgRequest->getInt("criteria_per_site_progress_maximum"));
 			}
 			$criteria->setDate_Range_Start($this->wgRequest->getInt("date_range_start"));
@@ -276,7 +276,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			$this->achievement->setSecret($this->wgRequest->getBool('secret'));
-			if ($dsSiteKey === 'master') {
+			if ($this->siteKey === 'master') {
 				// Set global to true should always happen after setting the site ID and site key.  Otherwise it could create a global achievement with a site ID and site key.
 				$this->achievement->setGlobal($this->wgRequest->getBool('global'));
 				$this->achievement->setProtected($this->wgRequest->getBool('protected'));
@@ -426,8 +426,6 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function awardForm() {
-		global $dsSiteKey;
-
 		if (!$this->getUser()->isAllowed('award_achievements')) {
 			throw new PermissionsError('award_achievements');
 		}
@@ -436,7 +434,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$return = $this->awardSave();
 
 		// Using the 'master' site key for the awarding form.
-		list($allAchievements, ) = CheevosAchievement::pruneAchievements([Cheevos::getAchievements($dsSiteKey), []], true, true);
+		list($allAchievements, ) = CheevosAchievement::pruneAchievements([Cheevos::getAchievements($this->siteKey), []], true, true);
 
 		$this->output->setPageTitle(wfMessage('awardachievement')->escaped());
 		$this->content = $this->templates->awardForm($return, $allAchievements);
@@ -448,8 +446,6 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @return array	Array containing an array of processed form information and array of corresponding errors.
 	 */
 	private function awardSave() {
-		global $dsSiteKey;
-
 		$do = strtolower($this->wgRequest->getText('do', '')); // This will break logic below if "Award" and "Unaward" are ever localized.  --Alexia 2017-04-07
 		$save = [];
 		$errors = [];
@@ -490,7 +486,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 					$award = [];
 
-					$currentProgress = Cheevos::getAchievementProgress(['user_id' => $globalId, 'achievement_id' => $achievement->getId(), 'site_key' => $dsSiteKey]);
+					$currentProgress = Cheevos::getAchievementProgress(['user_id' => $globalId, 'achievement_id' => $achievement->getId(), 'site_key' => $this->siteKey]);
 					if (is_array($currentProgress)) {
 						$currentProgress = array_pop($currentProgress);
 					} else {
@@ -501,7 +497,7 @@ class SpecialManageAchievements extends SpecialPage {
 							$award = Cheevos::putProgress(
 								[
 									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> (!$achievement->isGlobal() ? $dsSiteKey : ''),
+									'site_key'			=> (!$achievement->isGlobal() ? $this->siteKey : ''),
 									'user_id'			=> $globalId,
 									'earned'			=> true,
 									'manual_award' 		=> true,
@@ -509,7 +505,7 @@ class SpecialManageAchievements extends SpecialPage {
 									'notified'			=> false
 								]
 							);
-							CheevosHooks::broadcastAchievement($achievement, $dsSiteKey, $globalId);
+							CheevosHooks::broadcastAchievement($achievement, $this->siteKey, $globalId);
 							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [

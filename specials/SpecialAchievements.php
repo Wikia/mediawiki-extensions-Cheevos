@@ -28,8 +28,9 @@ class SpecialAchievements extends SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		global $dsSiteKey;
 		parent::__construct('Achievements');
+
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$this->wgRequest	= $this->getRequest();
 		$this->output		= $this->getOutput();
@@ -60,8 +61,6 @@ class SpecialAchievements extends SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function achievementsList($subpage = null) {
-		global $dsSiteKey;
-
 		$globalId = false;
 		if ($this->getUser()->isLoggedIn()) {
 			if ($this->getUser()->getId() > 0) {
@@ -105,7 +104,7 @@ class SpecialAchievements extends SpecialPage {
 				}
 			}
 			$_statuses = Cheevos::getAchievementStatus($globalId, $this->siteKey);
-			$achievements = Cheevos::getAchievements($dsSiteKey);
+			$achievements = Cheevos::getAchievements($this->siteKey);
 		} catch (CheevosException $e) {
 			throw new ErrorPageError('achievements', 'error_cheevos_service', [$e->getMessage()]);
 		}

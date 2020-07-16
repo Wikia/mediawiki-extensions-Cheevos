@@ -37,7 +37,7 @@ class SyncFriendStat extends Maintenance {
 	 * @return void
 	 */
 	public function execute() {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		if (!Environment::isMasterWiki()) {
 			throw new MWException('This script is intended to be ran from the master wiki.');

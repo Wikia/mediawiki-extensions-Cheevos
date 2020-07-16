@@ -13,6 +13,7 @@
 
 namespace Cheevos\Points;
 
+use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use DynamicSettings\Environment;
@@ -54,7 +55,7 @@ class PointsDisplay {
 	 * @return array	generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$limit = intval($limit);
 		if (!$limit || $limit < 0) {
@@ -115,7 +116,8 @@ class PointsDisplay {
 	 * @return string	HTML
 	 */
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
-		global $dsSiteKey, $wgUser;
+		global $wgUser;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
 		$start = intval($start);
@@ -167,21 +169,16 @@ class PointsDisplay {
 		$wikis = [];
 		if ($isSitesMode && !empty($siteKeys)) {
 			global $wgServer;
-			if (Environment::isMasterWiki()) {
-				// Skip the cache.
-				$wikis = Wiki::loadFromHash($siteKeys);
-			} else {
-				$redis = RedisCache::getClient('cache');
-				if ($redis !== false) {
-					foreach ($siteKeys as $siteKey) {
-						if (!empty($siteKey)) {
-							$wiki = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
-							if (!empty($wiki)) {
-								foreach ($wiki as $field => $value) {
-									$wiki[$field] = unserialize($value);
-								}
-								$wikis[$siteKey] = $wiki;
+			$redis = RedisCache::getClient('cache');
+			if ($redis !== false) {
+				foreach ($siteKeys as $siteKey) {
+					if (!empty($siteKey)) {
+						$wiki = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
+						if (!empty($wiki)) {
+							foreach ($wiki as $field => $value) {
+								$wiki[$field] = unserialize($value);
 							}
+							$wikis[$siteKey] = $wiki;
 						}
 					}
 				}

@@ -36,7 +36,7 @@ class SyncArticleStats extends Maintenance {
 	 * @return void
 	 */
 	public function execute() {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$achievements = Cheevos::getAchievements($dsSiteKey);
 

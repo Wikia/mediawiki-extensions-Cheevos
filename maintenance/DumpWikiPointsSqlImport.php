@@ -31,7 +31,9 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	 * @return void
 	 */
 	public function execute() {
-		global $dsSiteKey, $wgDBname;
+		global $wgDBname;
+
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$folder = false;
 		if ($this->getOption('folder')) {

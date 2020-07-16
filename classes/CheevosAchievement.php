@@ -12,6 +12,7 @@
 
 namespace Cheevos;
 
+use CheevosHooks;
 use ConfigFactory;
 use Title;
 
@@ -114,8 +115,6 @@ class CheevosAchievement extends CheevosModel {
 	 * @return string	Achievement Name
 	 */
 	public function getName($siteKey = null) {
-		global $dsSiteKey;
-
 		if ($this->container['name'] == null || !count($this->container['name'])) {
 			return "";
 		}
@@ -408,7 +407,7 @@ class CheevosAchievement extends CheevosModel {
 	 * @return array	Array achievement IDs that require this achievement.
 	 */
 	public function getRequiredBy() {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		if ($this->requiredBy !== null) {
 			return $this->requiredBy;

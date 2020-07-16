@@ -64,7 +64,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	private function lookUpUser() {
-		global $dsSiteKey;
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$user = null;
 		$pointsLog = [];

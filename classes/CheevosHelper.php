@@ -12,6 +12,7 @@
 
 namespace Cheevos;
 
+use CheevosHooks;
 use Exception;
 use RedisCache;
 use RequestContext;
@@ -79,7 +80,9 @@ class CheevosHelper {
 	 * @return string	Site Name with Language
 	 */
 	public static function getSiteName($siteKey) {
-		global $dsSiteKey, $wgSitename, $wgLanguageCode;
+		global $wgSitename, $wgLanguageCode;
+
+		$dsSiteKey = CheevosHooks::getSiteKey();
 
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
