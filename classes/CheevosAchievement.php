@@ -110,7 +110,7 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Get the achievement name for display.
 	 *
-	 * @param string	[Optional] Site Key - Pass in a different site key to substite different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
+	 * @param string	[Optional] Site Key - Pass in a different site key to substitute different $wgSitenames in cases of an earned achievement being displayed on a different wiki.
 	 *
 	 * @return string	Achievement Name
 	 */

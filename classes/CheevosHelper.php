@@ -16,6 +16,8 @@ use CheevosHooks;
 use Exception;
 use RedisCache;
 use RequestContext;
+use WikiDomain\WikiConfigData;
+use WikiDomain\WikiConfigDataService;
 
 class CheevosHelper {
 	/**
@@ -80,34 +82,44 @@ class CheevosHelper {
 	 * @return string	Site Name with Language
 	 */
 	public static function getSiteName($siteKey) {
-		global $wgSitename, $wgLanguageCode;
+		$services = MediaWikiServices::getInstance();
+		$config = $services->getMainConfig();
+		$sitename = $config->get('Sitename');
+		$languageCode = $config->get('LanguageCode');
 
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
-			try {
-				$redis = RedisCache::getClient('cache');
-				if ($redis !== false) {
-					$info = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
-					if (!empty($info)) {
-						foreach ($info as $field => $value) {
-							$info[$field] = unserialize($value);
-						}
-					}
-					if (isset($info['wiki_name'])) {
-						$sitename = $info['wiki_name'] . " (" . strtoupper($info['wiki_language']) . ")";
-					}
+			if (strlen($siteKey) === 32) {
+				// Handle legecy $dsSiteKey MD5 hash.
+				$wikiVariablesService = $services->getService( WikiVariablesDataService::class );
+				$variableId = $wikiVariablesService->getVarIdByName('dsSiteKey');
+				$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
+					$variableId,
+					'=',
+					$siteKey,
+					'$',
+					0,
+					1
+				);
+				if ($listOfWikisWithVar['total_count'] === 1) {
+					$wikiRaw = reset($listOfWikisWithVar['result']);
+					$sitename = $wikiRaw->city_title;
+					$languageCode = $wikiRaw->city_lang;
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} else {
+				$wikiConfigDataService = $services->getService(WikiConfigDataService::class);
+				$wiki = $wikiConfigDataService->getWikiDataById($id);
+				if (!empty($wiki)) {
+					$sitename = $wiki->getTitle();
+					$languageCode = $wiki->getLangCode();
+				}
 			}
 		}
 
-		if (empty($sitename)) {
-			$sitename = $wgSitename . " (" . strtoupper($wgLanguageCode) . ")";
-			;
-		}
+		$sitename = sprintf('%s (%s)', $sitename, mb_strtoupper($languageCode, 'UTF-8'));
+
 		return $sitename;
 	}
 
