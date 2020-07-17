@@ -407,7 +407,7 @@ class CheevosAchievement extends CheevosModel {
 	 * @return array	Array achievement IDs that require this achievement.
 	 */
 	public function getRequiredBy() {
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		if ($this->requiredBy !== null) {
 			return $this->requiredBy;

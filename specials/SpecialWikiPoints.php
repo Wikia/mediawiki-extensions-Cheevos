@@ -12,6 +12,7 @@
 **/
 
 use Cheevos\Cheevos;
+use Cheevos\CheevosHelper;
 use Cheevos\Points\PointsDisplay;
 use DynamicSettings\Environment;
 
@@ -57,7 +58,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return void
 	 */
 	public function wikiPoints($subpage = null) {
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$start = $this->wgRequest->getInt('st');
 		$itemsPerPage = 100;

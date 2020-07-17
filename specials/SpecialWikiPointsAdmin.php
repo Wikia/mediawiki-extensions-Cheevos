@@ -13,6 +13,7 @@
 
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 
 class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
@@ -64,7 +65,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	private function lookUpUser() {
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$user = null;
 		$pointsLog = [];

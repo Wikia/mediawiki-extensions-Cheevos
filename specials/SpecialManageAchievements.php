@@ -15,6 +15,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 use DynamicSettings\Environment;
 
 class SpecialManageAchievements extends SpecialPage {
@@ -33,7 +34,7 @@ class SpecialManageAchievements extends SpecialPage {
 	public function __construct() {
 		parent::__construct('ManageAchievements', 'achievement_admin', $this->getUser()->isAllowed('achievement_admin'));
 
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();

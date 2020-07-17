@@ -13,6 +13,7 @@
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 
 class SpecialAchievements extends SpecialPage {
 	/**
@@ -30,7 +31,7 @@ class SpecialAchievements extends SpecialPage {
 	public function __construct() {
 		parent::__construct('Achievements');
 
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$this->wgRequest	= $this->getRequest();
 		$this->output		= $this->getOutput();

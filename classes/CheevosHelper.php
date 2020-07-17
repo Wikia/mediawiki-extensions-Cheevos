@@ -82,7 +82,7 @@ class CheevosHelper {
 	public static function getSiteName($siteKey) {
 		global $wgSitename, $wgLanguageCode;
 
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
@@ -109,5 +109,25 @@ class CheevosHelper {
 			;
 		}
 		return $sitename;
+	}
+
+	/**
+	 * Get site key.
+	 *
+	 * @return mixed	Site key string or false if empty.
+	 */
+	public static function getSiteKey() {
+		global $dsSiteKey;
+		if (!$dsSiteKey || empty($dsSiteKey)) {
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+			$cityId = $config->get('CityId');
+
+			if (empty($cityId)) {
+				return false;
+			}
+			$dsSiteKey = $cityId;
+		}
+
+		return $dsSiteKey;
 	}
 }

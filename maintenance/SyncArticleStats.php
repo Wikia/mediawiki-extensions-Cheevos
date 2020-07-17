@@ -17,6 +17,7 @@ use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 
 class SyncArticleStats extends Maintenance {
 	/**
@@ -36,7 +37,7 @@ class SyncArticleStats extends Maintenance {
 	 * @return void
 	 */
 	public function execute() {
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$achievements = Cheevos::getAchievements($dsSiteKey);
 

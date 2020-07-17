@@ -10,6 +10,8 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\CheevosHelper;
+
 class TemplateManageAchievements {
 	/**
 	 * Achievement List
@@ -109,7 +111,7 @@ class TemplateManageAchievements {
 	public function achievementsForm($achievement, $categories, $allAchievements, $errors) {
 		global $wgUser, $wgScriptPath, $wgCheevosStats;
 
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();

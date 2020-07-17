@@ -16,6 +16,7 @@ namespace Cheevos\Points;
 use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
+use Cheevos\CheevosHelper;
 use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
 use Html;
@@ -55,7 +56,7 @@ class PointsDisplay {
 	 * @return array	generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$limit = intval($limit);
 		if (!$limit || $limit < 0) {
@@ -117,7 +118,7 @@ class PointsDisplay {
 	 */
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
 		global $wgUser;
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
 		$start = intval($start);

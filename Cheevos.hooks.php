@@ -16,6 +16,7 @@ use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Job\CheevosIncrementJob;
 use DynamicSettings\Environment;
+use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcast;
 
 class CheevosHooks {
@@ -74,20 +75,6 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Get site key.
-	 *
-	 * @return mixed	Site key string or false if empty.
-	 */
-	private static function getSiteKey() {
-		global $dsSiteKey;
-		if (!$dsSiteKey || empty($dsSiteKey)) {
-			return false;
-		}
-
-		return $dsSiteKey;
-	}
-
-	/**
 	 * Do incrementing for a statistic.
 	 *
 	 * @param string  $stat  Stat Name
@@ -98,7 +85,7 @@ class CheevosHooks {
 	 * @return mixed	Array of return status including earned achievements or false on error.
 	 */
 	public static function increment(string $stat, int $delta, User $user, array $edits = []) {
-		$siteKey = self::getSiteKey();
+		$siteKey = CheevosHelper::getSiteKey();
 		if ($siteKey === false) {
 			return false;
 		}
@@ -226,7 +213,7 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onArticleRollbackComplete(WikiPage $wikiPage, User $user, Revision $revision, Revision $current) {
-		$siteKey = self::getSiteKey();
+		$siteKey = CheevosHelper::getSiteKey();
 		if ($siteKey === false) {
 			return true;
 		}
@@ -795,7 +782,7 @@ class CheevosHooks {
 	private static function getTotalContributors() {
 		$redis = RedisCache::getClient('cache');
 
-		$redisKey = 'cheevos:contributors:' . self::getSiteKey();
+		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
 		if ($redis !== false) {
 			$cache = $redis->get($redisKey);
 			if ($cache !== false) {

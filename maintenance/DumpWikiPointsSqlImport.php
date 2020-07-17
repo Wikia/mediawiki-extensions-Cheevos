@@ -13,6 +13,8 @@
 
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
+use Cheevos\CheevosHelper;
+
 class DumpWikiPointsSqlImport extends Maintenance {
 	/**
 	 * Constructor
@@ -33,7 +35,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	public function execute() {
 		global $wgDBname;
 
-		$dsSiteKey = CheevosHooks::getSiteKey();
+		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$folder = false;
 		if ($this->getOption('folder')) {
