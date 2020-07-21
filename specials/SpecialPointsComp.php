@@ -12,7 +12,6 @@
 
 use Cheevos\Job\PointsCompJob;
 use Cheevos\Points\PointsCompReport;
-use DynamicSettings\Environment;
 
 class SpecialPointsComp extends SpecialPage {
 	/**
@@ -205,7 +204,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return boolean
 	 */
 	public function isListed() {
-		if (Environment::isMasterWiki() && $this->getUser()->isAllowed('points_comp_reports')) {
+		if ($this->getUser()->isAllowed('points_comp_reports')) {
 			return true;
 		}
 		return false;

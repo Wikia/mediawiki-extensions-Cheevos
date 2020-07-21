@@ -12,7 +12,6 @@
 **/
 
 use Cheevos\CheevosHelper;
-use DynamicSettings\Environment;
 
 class TemplateWikiPoints {
 	/**
@@ -84,10 +83,6 @@ class TemplateWikiPoints {
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
 			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'global'), wfMessage('top_wiki_editors_global')->escaped())
 		];
-		if (Environment::isMasterWiki()) {
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites'), wfMessage('top_wiki_editors_sites')->escaped());
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
-		}
 
 		return implode(' | ', $links) . "<hr>";
 	}

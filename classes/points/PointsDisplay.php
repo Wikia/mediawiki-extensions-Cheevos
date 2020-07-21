@@ -17,7 +17,6 @@ use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use DynamicSettings\Environment;
 use DynamicSettings\Wiki;
 use Html;
 use Linker;

@@ -10,7 +10,6 @@
 	"requires": {
 		"MediaWiki": ">= 1.29.0",
 		"extensions": {
-			"DynamicSettings": ">= 3.0.0",
 			"HydraCore": ">= 3.0.0"
 		}
 	},

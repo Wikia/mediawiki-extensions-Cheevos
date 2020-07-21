@@ -18,7 +18,6 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use DynamicSettings\Environment;
 
 class SyncFriendStat extends Maintenance {
 	/**
@@ -39,10 +38,6 @@ class SyncFriendStat extends Maintenance {
 	 */
 	public function execute() {
 		$dsSiteKey = CheevosHelper::getSiteKey();
-
-		if (!Environment::isMasterWiki()) {
-			throw new MWException('This script is intended to be ran from the master wiki.');
-		}
 
 		$achievements = Cheevos::getAchievements($dsSiteKey);
 

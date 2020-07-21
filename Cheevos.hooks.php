@@ -15,7 +15,6 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Job\CheevosIncrementJob;
-use DynamicSettings\Environment;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcast;
 
