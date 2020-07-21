@@ -825,7 +825,7 @@ class Cheevos {
 	 * Get achievement status for an user.
 	 *
 	 * @param integer	Global User ID
-	 * @param string	Site Key - From DynamicSettings
+	 * @param string	Site Key
 	 *
 	 * @return mixed
 	 */
