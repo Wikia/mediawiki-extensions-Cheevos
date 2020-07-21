@@ -11,6 +11,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
 **/
 
+use Cheevos\CheevosHelper;
 use DynamicSettings\Environment;
 
 class TemplateWikiPoints {
@@ -45,11 +46,7 @@ class TemplateWikiPoints {
 			foreach ($userPoints as $userPointsRow) {
 				$wikiName = $userPointsRow->siteKey;
 				if ($isSitesMode && isset($wikis[$userPointsRow->siteKey])) {
-					if ($wikis[$userPointsRow->siteKey] instanceof \DynamicSettings\Wiki) {
-						$wikiName = $wikis[$userPointsRow->siteKey]->getNameForDisplay();
-					} elseif (isset($wikis[$userPointsRow->siteKey]['wiki_name_display'])) {
-						$wikiName = $wikis[$userPointsRow->siteKey]['wiki_name_display'];
-					}
+					$wikiName = CheevosHelper::getSiteName($userPointsRow->siteKey, $wikis[$userPointsRow->siteKey]);
 				}
 				$i++;
 				$html .= "

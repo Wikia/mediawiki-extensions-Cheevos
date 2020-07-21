@@ -174,11 +174,8 @@ class PointsDisplay {
 			if ($redis !== false) {
 				foreach ($siteKeys as $siteKey) {
 					if (!empty($siteKey)) {
-						$wiki = $redis->hGetAll('dynamicsettings:siteInfo:' . $siteKey);
+						$wiki = CheevosHelper::getWikiInformation($siteKey);
 						if (!empty($wiki)) {
-							foreach ($wiki as $field => $value) {
-								$wiki[$field] = unserialize($value);
-							}
 							$wikis[$siteKey] = $wiki;
 						}
 					}
@@ -188,11 +185,7 @@ class PointsDisplay {
 			$localDomain = trim($wgServer, '/');
 			foreach ($userPoints as $key => $userPointsRow) {
 				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
-					if (is_array($wikis[$userPointsRow->siteKey])) {
-						$domain = $wikis[$userPointsRow->siteKey]['wiki_domain'];
-					} else {
-						$domain = $wikis[$userPointsRow->siteKey]->getDomains()->getDomain();
-					}
+					$domain = parse_url($wikis[$userPointsRow->siteKey]->getWikiUrl())['host'];
 					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $domain, $userPoints[$key]->userToolsLinks);
 					$userPoints[$key]->userLink = str_replace($localDomain, "https://" . $domain, $userPoints[$key]->userLink);
 					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks);

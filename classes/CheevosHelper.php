@@ -77,11 +77,12 @@ class CheevosHelper {
 	/**
 	 * Get a site name for a site key.
 	 *
-	 * @param string	Site Key
+	 * @param string	     Site Key
+	 * @param WikiConfigData [Optional] Provide already retrieved wiki object.
 	 *
 	 * @return string	Site Name with Language
 	 */
-	public static function getSiteName($siteKey) {
+	public static function getSiteName(string $siteKey, ?WikiConfigData $wiki): string {
 		$services = MediaWikiServices::getInstance();
 		$config = $services->getMainConfig();
 		$sitename = $config->get('Sitename');
@@ -91,36 +92,53 @@ class CheevosHelper {
 
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
-			if (strlen($siteKey) === 32) {
-				// Handle legecy $dsSiteKey MD5 hash.
-				$wikiVariablesService = $services->getService( WikiVariablesDataService::class );
-				$variableId = $wikiVariablesService->getVarIdByName('dsSiteKey');
-				$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
-					$variableId,
-					'=',
-					$siteKey,
-					'$',
-					0,
-					1
-				);
-				if ($listOfWikisWithVar['total_count'] === 1) {
-					$wikiRaw = reset($listOfWikisWithVar['result']);
-					$sitename = $wikiRaw->city_title;
-					$languageCode = $wikiRaw->city_lang;
-				}
-			} else {
-				$wikiConfigDataService = $services->getService(WikiConfigDataService::class);
-				$wiki = $wikiConfigDataService->getWikiDataById($id);
-				if (!empty($wiki)) {
-					$sitename = $wiki->getTitle();
-					$languageCode = $wiki->getLangCode();
-				}
+			if (empty($wiki)) {
+				$wiki = self::getWikiInformation($siteKey);
+			}
+			if (!empty($wiki)) {
+				$sitename = $wiki->getTitle();
+				$languageCode = $wiki->getLangCode();
 			}
 		}
 
 		$sitename = sprintf('%s (%s)', $sitename, mb_strtoupper($languageCode, 'UTF-8'));
 
 		return $sitename;
+	}
+
+	/**
+	 * Get wiki information based on the provided site identifier.($dsSiteKey or $cityId)
+	 *
+	 * @param string $siteKey
+	 *
+	 * @return WikiConfigData|null
+	 */
+	static public function getWikiInformation(string $siteKey): ?WikiConfigData {
+		$wikiConfigDataService = $services->getService(WikiConfigDataService::class);
+		if (strlen($siteKey) === 32) {
+			// Handle legecy $dsSiteKey MD5 hash.
+			$wikiVariablesService = $services->getService( WikiVariablesDataService::class );
+			$variableId = $wikiVariablesService->getVarIdByName('dsSiteKey');
+			$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
+				$variableId,
+				'=',
+				$siteKey,
+				'$',
+				0,
+				1
+			);
+			if ($listOfWikisWithVar['total_count'] === 1) {
+				$cityId = key($listOfWikisWithVar['result']);
+				$wiki = $wikiConfigDataService->getWikiDataById($cityId);
+			}
+		} else {
+			$wiki = $wikiConfigDataService->getWikiDataById($id);
+		}
+		if (empty($wiki)) {
+			$wiki = null;
+		}
+
+		return $wiki;
 	}
 
 	/**
