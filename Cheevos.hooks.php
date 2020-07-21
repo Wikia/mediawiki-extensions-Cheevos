@@ -60,7 +60,7 @@ class CheevosHooks {
 				"importance" => 8
 			]
 		];
-		$wgReverbNotifications = array_merge($wgReverbNotifications, $reverbNotifications);
+		$wgReverbNotifications = array_merge((array)$wgReverbNotifications, $reverbNotifications);
 	}
 
 	/**
