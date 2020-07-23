@@ -278,6 +278,12 @@
 		"WikiPointsSave": "CheevosHooks::onWikiPointsSave"
 	},
 	"config": {
+		"CheevosIsCentral": {
+			"value": false,
+			"path": false,
+			"descriptionmsg": "cheevos-config-cheevosiscentral",
+			"public": false
+		},
 		"CheevosHost": {
 			"value": "",
 			"path": false,

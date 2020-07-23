@@ -39,6 +39,10 @@ class SyncFriendStat extends Maintenance {
 	public function execute() {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
+		if (!CheevosHelper::isCentralWiki()) {
+			throw new MWException('This script is intended to be ran from the master wiki.');
+		}
+
 		$achievements = Cheevos::getAchievements($dsSiteKey);
 
 		$db = wfGetDB(DB_MASTER);

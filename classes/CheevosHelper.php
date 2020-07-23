@@ -160,4 +160,14 @@ class CheevosHelper {
 
 		return $dsSiteKey;
 	}
+
+	/**
+	 * Return if we are operating in the context of the central wiki.
+	 *
+	 * @return boolean
+	 */
+	public function isCentralWiki(): bool {
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+		return (bool)$config->get('CheevosIsCentral', false);
+	}
 }

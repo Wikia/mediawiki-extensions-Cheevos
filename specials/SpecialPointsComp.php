@@ -10,6 +10,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use Cheevos\CheevosHelper;
 use Cheevos\Job\PointsCompJob;
 use Cheevos\Points\PointsCompReport;
 
@@ -204,7 +205,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return boolean
 	 */
 	public function isListed() {
-		if ($this->getUser()->isAllowed('points_comp_reports')) {
+		if (CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed('points_comp_reports')) {
 			return true;
 		}
 		return false;

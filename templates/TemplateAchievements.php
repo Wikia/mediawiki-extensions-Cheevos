@@ -10,7 +10,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
-use DynamicSettings\Environment;
+use Cheevos\CheevosHelper;
 
 class TemplateAchievements {
 	/**
@@ -194,7 +194,7 @@ class TemplateAchievements {
 			$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
 			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
 			if ($wgUser->isAllowed('achievement_admin') &&
-				(Environment::isMasterWiki() || (!Environment::isMasterWiki() && !$achievement->isProtected() && !$achievement->isGlobal()))
+				(CheevosHelper::isCentralWiki() || (!CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal()))
 			) {
 				if (!$achievement->isDeleted()) {
 					$HTML .= "
@@ -212,7 +212,7 @@ class TemplateAchievements {
 
 			}
 
-			if (!Environment::isMasterWiki() && ($achievement->isProtected() || $achievement->isGlobal())) {
+			if (!CheevosHelper::isCentralWiki() && ($achievement->isProtected() || $achievement->isGlobal())) {
 				$HTML .= "<div class='p-achievement-admin'>";
 				if ($achievement->isProtected()) {
 					$HTML .= "<p>" . wfMessage('edit_disabled_protected')->escaped() . "</p>";

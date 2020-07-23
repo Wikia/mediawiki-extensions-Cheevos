@@ -14,7 +14,6 @@
 use Cheevos\Cheevos;
 use Cheevos\CheevosHelper;
 use Cheevos\Points\PointsDisplay;
-use DynamicSettings\Environment;
 
 class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
@@ -81,7 +80,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		}
 
 		$modifiers = explode('/', trim(trim($subpage), '/'));
-		$isSitesMode = in_array('sites', $modifiers) && Environment::isMasterWiki();
+		$isSitesMode = in_array('sites', $modifiers) && CheevosHelper::isCentralWiki();
 		$isMonthly = in_array('monthly', $modifiers);
 		$isGlobal = in_array('global', $modifiers);
 

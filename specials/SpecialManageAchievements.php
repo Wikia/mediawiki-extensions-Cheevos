@@ -16,7 +16,6 @@ use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use DynamicSettings\Environment;
 
 class SpecialManageAchievements extends SpecialPage {
 	/**
@@ -165,7 +164,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$this->output->showErrorPage('achievements_error', 'error_bad_achievement_id');
 				return;
 			}
-			if (!Environment::isMasterWiki() && ($this->achievement->isProtected() || $this->achievement->isGlobal())) {
+			if (!CheevosHelper::isCentralWiki() && ($this->achievement->isProtected() || $this->achievement->isGlobal())) {
 				$this->output->showErrorPage('achievements_error', 'error_achievement_protected_global');
 				return;
 			}
