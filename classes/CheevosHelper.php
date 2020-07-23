@@ -13,6 +13,7 @@
 namespace Cheevos;
 
 use Exception;
+use MediaWiki\MediaWikiServices;
 use RequestContext;
 use WikiDomain\WikiConfigData;
 use WikiDomain\WikiConfigDataService;
