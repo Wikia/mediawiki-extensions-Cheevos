@@ -12,7 +12,6 @@
 
 namespace Cheevos;
 
-use CheevosHooks;
 use ConfigFactory;
 use Title;
 

@@ -13,7 +13,6 @@
 
 namespace Cheevos\Points;
 
-use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;

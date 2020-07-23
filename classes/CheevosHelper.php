@@ -12,9 +12,7 @@
 
 namespace Cheevos;
 
-use CheevosHooks;
 use Exception;
-use RedisCache;
 use RequestContext;
 use WikiDomain\WikiConfigData;
 use WikiDomain\WikiConfigDataService;
@@ -88,7 +86,7 @@ class CheevosHelper {
 		$sitename = $config->get('Sitename');
 		$languageCode = $config->get('LanguageCode');
 
-		$dsSiteKey = CheevosHelper::getSiteKey();
+		$dsSiteKey = self::getSiteKey();
 
 		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
@@ -113,11 +111,11 @@ class CheevosHelper {
 	 *
 	 * @return WikiConfigData|null
 	 */
-	static public function getWikiInformation(string $siteKey): ?WikiConfigData {
+	public static function getWikiInformation(string $siteKey): ?WikiConfigData {
 		$wikiConfigDataService = $services->getService(WikiConfigDataService::class);
 		if (strlen($siteKey) === 32) {
 			// Handle legecy $dsSiteKey MD5 hash.
-			$wikiVariablesService = $services->getService( WikiVariablesDataService::class );
+			$wikiVariablesService = $services->getService(WikiVariablesDataService::class);
 			$variableId = $wikiVariablesService->getVarIdByName('dsSiteKey');
 			$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
 				$variableId,
@@ -166,7 +164,7 @@ class CheevosHelper {
 	 *
 	 * @return boolean
 	 */
-	public function isCentralWiki(): bool {
+	public static function isCentralWiki(): bool {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		return (bool)$config->get('CheevosIsCentral', false);
 	}
