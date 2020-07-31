@@ -39,7 +39,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->getOutput()->addModuleStyles(['ext.cheevos.styles']);
+		$this->getOutput()->addModuleStyles(['ext.cheevos.styles', "ext.hydraCore.button.styles", 'ext.hydraCore.pagination.styles', 'mediawiki.ui.button', 'mediawiki.ui.input']);
 		$this->getOutput()->addModules(['ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
 		$this->checkPermissions();
 		$this->setHeaders();

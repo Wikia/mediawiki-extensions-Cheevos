@@ -114,12 +114,6 @@
 			"styles": [
 				"css/cheevos.css"
 			],
-			"dependencies": [
-				"ext.hydraCore.button.styles",
-				"ext.hydraCore.pagination.styles",
-				"mediawiki.ui.button",
-				"mediawiki.ui.input"
-			],
 			"targets": [
 				"desktop",
 				"mobile"
@@ -221,12 +215,6 @@
 		"ext.cheevos.wikiPoints.styles": {
 			"styles": [
 				"css/cheevos.wikipoints.css"
-			],
-			"dependencies": [
-				"ext.hydraCore.pagination.styles",
-				"mediawiki.ui",
-				"mediawiki.ui.input",
-				"mediawiki.ui.button"
 			],
 			"position": "top"
 		},

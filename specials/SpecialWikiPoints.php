@@ -40,7 +40,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return void	[Outputs to screen]
 	 */
 	public function execute($subpage) {
-		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles']);
+		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles', 'ext.hydraCore.pagination.styles', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button']);
 
 		$this->setHeaders();
 

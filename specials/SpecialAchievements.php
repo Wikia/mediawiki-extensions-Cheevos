@@ -47,7 +47,7 @@ class SpecialAchievements extends SpecialPage {
 	 */
 	public function execute($subpage) {
 		$this->templates = new TemplateAchievements;
-		$this->output->addModuleStyles(['ext.cheevos.styles']);
+		$this->output->addModuleStyles(['ext.cheevos.styles', "ext.hydraCore.button.styles", 'ext.hydraCore.pagination.styles', 'mediawiki.ui.button', 'mediawiki.ui.input']);
 		$this->output->addModules(['ext.cheevos.js']);
 		$this->setHeaders();
 		$this->achievementsList($subpage);
