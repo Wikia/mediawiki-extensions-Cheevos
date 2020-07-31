@@ -84,7 +84,7 @@ class CheevosHooks {
 	 */
 	public static function increment(string $stat, int $delta, User $user, array $edits = []) {
 		$siteKey = CheevosHelper::getSiteKey();
-		if ($siteKey === false) {
+		if (!$siteKey) {
 			return false;
 		}
 
@@ -212,7 +212,7 @@ class CheevosHooks {
 	 */
 	public static function onArticleRollbackComplete(WikiPage $wikiPage, User $user, Revision $revision, Revision $current) {
 		$siteKey = CheevosHelper::getSiteKey();
-		if ($siteKey === false) {
+		if (!$siteKey) {
 			return true;
 		}
 

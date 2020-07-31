@@ -143,21 +143,21 @@ class CheevosHelper {
 	/**
 	 * Get site key.
 	 *
-	 * @return mixed	Site key string or false if empty.
+	 * @return mixed	Site key string or null if empty.
 	 */
-	public static function getSiteKey() {
+	public static function getSiteKey(): ?string {
 		global $dsSiteKey;
 		if (!$dsSiteKey || empty($dsSiteKey)) {
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$cityId = $config->get('CityId');
 
 			if (empty($cityId)) {
-				return false;
+				return null;
 			}
 			$dsSiteKey = $cityId;
 		}
 
-		return $dsSiteKey;
+		return (string)$dsSiteKey;
 	}
 
 	/**
