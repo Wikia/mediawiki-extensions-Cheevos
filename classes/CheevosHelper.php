@@ -81,7 +81,7 @@ class CheevosHelper {
 	 *
 	 * @return string	Site Name with Language
 	 */
-	public static function getSiteName(string $siteKey, ?WikiConfigData $wiki): string {
+	public static function getSiteName(string $siteKey, ?WikiConfigData $wiki = null): string {
 		$services = MediaWikiServices::getInstance();
 		$config = $services->getMainConfig();
 		$sitename = $config->get('Sitename');
