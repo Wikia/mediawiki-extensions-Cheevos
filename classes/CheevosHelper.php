@@ -132,7 +132,7 @@ class CheevosHelper {
 				$wiki = $wikiConfigDataService->getWikiDataById($cityId);
 			}
 		} else {
-			$wiki = $wikiConfigDataService->getWikiDataById($id);
+			$wiki = $wikiConfigDataService->getWikiDataById($siteKey);
 		}
 		if (empty($wiki)) {
 			$wiki = null;
