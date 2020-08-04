@@ -113,6 +113,7 @@ class CheevosHelper {
 	 * @return WikiConfigData|null
 	 */
 	public static function getWikiInformation(string $siteKey): ?WikiConfigData {
+		$services = MediaWikiServices::getInstance();
 		$wikiConfigDataService = $services->getService(WikiConfigDataService::class);
 		if (strlen($siteKey) === 32) {
 			// Handle legecy $dsSiteKey MD5 hash.
