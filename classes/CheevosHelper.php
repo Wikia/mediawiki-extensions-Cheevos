@@ -15,6 +15,7 @@ namespace Cheevos;
 use Exception;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
+use WikiConfig\WikiVariablesDataService;
 use WikiDomain\WikiConfigData;
 use WikiDomain\WikiConfigDataService;
 
@@ -119,6 +120,9 @@ class CheevosHelper {
 			// Handle legecy $dsSiteKey MD5 hash.
 			$wikiVariablesService = $services->getService(WikiVariablesDataService::class);
 			$variableId = $wikiVariablesService->getVarIdByName('dsSiteKey');
+			if (!$variableId) {
+				return null;
+			}
 			$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
 				$variableId,
 				'=',
