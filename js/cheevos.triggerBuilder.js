@@ -138,7 +138,7 @@
 		deleteTrigger: function() {
 			var self = this;
 
-			var deleteTrigger = $('<img>').attr('src', mw.config.get('wgScriptPath')+'/extensions/Achievements/images/delete.png').attr('title', mw.message('delete_trigger').escaped()).addClass('delete_trigger');
+			var deleteTrigger = $('<img>').attr('src', mw.config.get('wgExtensionAssetsPath')+'/Achievements/images/delete.png').attr('title', mw.message('delete_trigger').escaped()).addClass('delete_trigger');
 
 			$(deleteTrigger).on("click", function(event) {
 				var triggerLi = $(this).parent();
@@ -173,7 +173,7 @@
 		},
 
 		deleteCondition: function() {
-			var deleteCondition = $('<img>').attr('src', mw.config.get('wgScriptPath')+'/extensions/Achievements/images/delete.png').attr('title', mw.message('delete_condition').escaped()).addClass('delete_condition');
+			var deleteCondition = $('<img>').attr('src', mw.config.get('wgExtensionAssetsPath')+'/Achievements/images/delete.png').attr('title', mw.message('delete_condition').escaped()).addClass('delete_condition');
 			$(deleteCondition).on("click", function(event) {
 				var conditionHolder = $(this).parent();
 				$(conditionHolder).remove();
