@@ -109,7 +109,7 @@ class TemplateManageAchievements {
 	* @return string	Built HTML
 	*/
 	public function achievementsForm($achievement, $categories, $allAchievements, $errors) {
-		global $wgUser, $wgScriptPath, $wgCheevosStats;
+		global $wgUser, $wgScriptPath, $wgCheevosStats, $wgExtensionAssetsPath;
 
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
@@ -150,7 +150,7 @@ class TemplateManageAchievements {
 
 		$HTML .= (isset($errors['image']) ? '<span class="error">' . $errors['image'] . '</span>' : '') . "
 			<div id='image_upload'>
-				<img id='image_loading' src='" . wfExpandUrl($wgScriptPath . "/extensions/Achievements/images/loading.gif") . "'/>
+				<img id='image_loading' src='" . wfExpandUrl($wgExtensionAssetsPath . "/Cheevos/images/loading.gif") . "'/>
 				<p class='image_hint'>" . wfMessage('image_hint')->escaped() . "</p>
 			</div>
 			<label for='image' class='label_above'>" . wfMessage('achievement_image')->escaped() . "<div class='helper_mark'><span>" . wfMessage('image_upload_help') . "</span></div></label>

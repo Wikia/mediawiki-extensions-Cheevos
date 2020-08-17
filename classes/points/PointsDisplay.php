@@ -114,7 +114,7 @@ class PointsDisplay {
 	 * @return string	HTML
 	 */
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
-		global $wgUser;
+		global $wgUser, $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
@@ -205,7 +205,7 @@ class PointsDisplay {
 						$html .= ' ' . Html::element(
 							'img',
 							[
-								'src' => '/extensions/Cheevos/images/gp30.png',
+								'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
 								'alt' => 'GP',
 								'class' => 'GP-brand',
 								'title' => wfMessage('pointsicon-tooltip')
