@@ -133,10 +133,10 @@ class CheevosHelper {
 			);
 			if ($listOfWikisWithVar['total_count'] === 1) {
 				$cityId = key($listOfWikisWithVar['result']);
-				$wiki = $wikiConfigDataService->getWikiDataById($cityId);
+				$wiki = $wikiConfigDataService->getWikiDataById((int)$cityId);
 			}
 		} else {
-			$wiki = $wikiConfigDataService->getWikiDataById($siteKey);
+			$wiki = $wikiConfigDataService->getWikiDataById((int)$siteKey);
 		}
 		if (empty($wiki)) {
 			$wiki = null;
