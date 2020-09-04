@@ -103,7 +103,7 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
-		global $wgAchPointAbbreviation;
+		global $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
 		$achievementsPage = SpecialPage::getTitleFor('Special:Achievements');
 
@@ -115,7 +115,7 @@ class TemplateAchievements {
 					<div class='reverb-npn-ach-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</div>
 					<div class='reverb-npn-ach-description'>" . htmlentities($achievement->getDescription(), ENT_QUOTES) . "</div>
 				</div>
-				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "{$wgAchPointAbbreviation}</div>
+				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></div>
 			</div>";
 
 		return $HTML;
@@ -134,7 +134,7 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public static function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
-		global $wgUser, $wgAchPointAbbreviation;
+		global $wgUser, $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
 
@@ -243,7 +243,7 @@ class TemplateAchievements {
 		}
 		$HTML .= "
 				</div>
-				<span class='p-achievement-points'>" . intval($achievement->getPoints()) . "{$wgAchPointAbbreviation}</span>
+				<span class='p-achievement-points'>" . intval($achievement->getPoints()) . "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></span>
 			</div>";
 
 		return $HTML;
