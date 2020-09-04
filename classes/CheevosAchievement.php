@@ -209,6 +209,8 @@ class CheevosAchievement extends CheevosModel {
 	 * @return mixed	Image URL; false if unable to locate the file.
 	 */
 	public function getImageUrl() {
+		global $wgExtensionAssetsPath;
+
 		$title = Title::newFromText($this->getImage());
 		$file = wfFindFile($title);
 		if ($file) {
@@ -217,7 +219,7 @@ class CheevosAchievement extends CheevosModel {
 		}
 
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$url = $config->get('AchImageFallback');
+		$url = $wgExtensionAssetsPath . $config->get('AchImageFallback');
 		if (!empty($url)) {
 			return $url;
 		}

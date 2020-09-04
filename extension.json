@@ -291,13 +291,13 @@
 			"public": false
 		},
 		"AchImageFallback": {
-			"value": "/extensions/Cheevos/images/fallback.svg",
+			"value": "/Cheevos/images/fallback.svg",
 			"path": false,
 			"descriptionmsg": "cheevos-config-achimagefallback",
 			"public": false
 		},
 		"AchPointAbbreviation": {
-			"value": "<img src=\"/extensions/Cheevos/images/gp30.png\"/>",
+			"value": "/Cheevos/images/gp30.png",
 			"path": false,
 			"descriptionmsg": "cheevos-config-achpointabbreviation",
 			"public": false
