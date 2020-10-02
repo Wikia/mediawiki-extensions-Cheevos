@@ -99,11 +99,11 @@ class PointsCompReport {
 			['report_id' => $this->reportData['report_id']],
 			__METHOD__
 		);
-		$report = (array)$result->fetchObject();
+		$report = $result->fetchObject();
 		if (empty($report)) {
 			return false;
 		}
-		$this->reportData = $report;
+		$this->reportData = (array)$report;
 
 		$result = $db->select(
 			['points_comp_report_user'],
@@ -118,12 +118,12 @@ class PointsCompReport {
 		if (!empty($this->reportUser)) {
 			$this->reportUser = [];
 		}
-		while ($row = (array)$result->fetchObject()) {
-			if ($row['user_id'] == 0) {
+		while ($row = $result->fetchObject()) {
+			if (empty($row) || $row->user_id == 0) {
 				continue;
 			}
 
-			$this->reportUser[$row['user_id']] = $row;
+			$this->reportUser[$row->user_id] = (array)$row;
 		}
 
 		return boolval($this->reportData['report_id']);
@@ -240,8 +240,8 @@ class PointsCompReport {
 		);
 
 		$reports = [];
-		while ($row = (array)$result->fetchObject()) {
-			$reports[$row['report_id']] = self::newFromRow($row);
+		while ($row = $result->fetchObject()) {
+			$reports[$row->report_id] = self::newFromRow((array)$row);
 		}
 
 		$result = $db->select(
