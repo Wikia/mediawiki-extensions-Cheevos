@@ -90,7 +90,6 @@ class CheevosHelper {
 
 		$dsSiteKey = self::getSiteKey();
 
-		$sitename = '';
 		if (!empty($siteKey) && $siteKey !== $dsSiteKey) {
 			if (empty($wiki)) {
 				$wiki = self::getWikiInformation($siteKey);
