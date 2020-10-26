@@ -122,10 +122,11 @@ class CheevosHelper {
 			if (!$variableId) {
 				return null;
 			}
+			// JSON encoding the $siteKey has a potential performance benefit over LIKE.
 			$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
 				$variableId,
-				'LIKE',
-				$siteKey,
+				'=',
+				json_encode($siteKey),
 				'$',
 				0,
 				1
