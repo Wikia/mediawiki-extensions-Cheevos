@@ -124,7 +124,7 @@ class CheevosHelper {
 			}
 			$listOfWikisWithVar = $wikiVariablesService->getListOfWikisWithVar(
 				$variableId,
-				'=',
+				'LIKE',
 				$siteKey,
 				'$',
 				0,
