@@ -217,6 +217,7 @@ class PointsDisplay {
 				break;
 			case 'table':
 			default:
+				$pagination = '';
 				if ($title !== null) {
 					$pagination = TemplateWikiPoints::getSimplePagination($title, $itemsPerPage, $start);
 				}

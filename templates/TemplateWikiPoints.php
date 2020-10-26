@@ -18,11 +18,11 @@ class TemplateWikiPoints {
 	 * Points table
 	 *
 	 * @param array	Array of rows of top points
-	 * @param string	Pagination HTML
-	 * @param integer	Current starting position.
-	 * @param array	[Optional] Load wiki information for sites mode.
-	 * @param boolean	[Optional] Including all wikis or not.
-	 * @param boolean	[Optional] Showing monthly totals.
+	 * @param string  Pagination HTML
+	 * @param integer Current starting position.
+	 * @param array   [Optional] Load wiki information for sites mode.
+	 * @param boolean [Optional] Including all wikis or not.
+	 * @param boolean [Optional] Showing monthly totals.
 	 *
 	 * @return string	Built HTML
 	 */
