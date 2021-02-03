@@ -15,7 +15,7 @@ namespace Cheevos;
 use Exception;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
-use WikiConfig\WikiVariablesDataService;
+use Fandom\WikiConfig\WikiVariablesDataService;
 use WikiDomain\WikiConfigData;
 use WikiDomain\WikiConfigDataService;
 
