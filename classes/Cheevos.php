@@ -27,7 +27,7 @@ class Cheevos {
 	 * @return void
 	 */
 	private static function request($type, $path, $data = []) {
-		global $wgCheevosHost, $wgCheevosClientId;
+		global $wgCheevosHost, $wgCheevosClientId, $wgCheevosEnvoySocketPath;
 
 		if (empty($wgCheevosHost)) {
 			throw new CheevosException('$wgCheevosHost is not configured.');
@@ -46,19 +46,25 @@ class Cheevos {
 			'Client-ID: ' . $wgCheevosClientId
 		];
 
+		$curlOpts = [
+			CURLOPT_RETURNTRANSFER		=> 1,
+			CURLOPT_URL					=> $url,
+			CURLOPT_SSL_VERIFYHOST		=> false,
+			CURLOPT_SSL_VERIFYPEER		=> false,
+			CURLOPT_CUSTOMREQUEST		=> $type,
+			CURLOPT_CONNECTTIMEOUT		=> 1,
+			CURLOPT_TIMEOUT				=> PHP_SAPI === 'cli' ? 30 : 6,
+			CURLOPT_ENCODING			=> 'gzip'
+		];
+
+		if (!empty($wgCheevosEnvoySocketPath)) {
+			$curlOpts[CURLOPT_UNIX_SOCKET_PATH] = $wgCheevosEnvoySocketPath;
+		}
+
 		$ch = curl_init();
 		curl_setopt_array(
 			$ch,
-			[
-				CURLOPT_RETURNTRANSFER		=> 1,
-				CURLOPT_URL					=> $url,
-				CURLOPT_SSL_VERIFYHOST		=> false,
-				CURLOPT_SSL_VERIFYPEER		=> false,
-				CURLOPT_CUSTOMREQUEST		=> $type,
-				CURLOPT_CONNECTTIMEOUT		=> 1,
-				CURLOPT_TIMEOUT				=> PHP_SAPI === 'cli' ? 30 : 6,
-				CURLOPT_ENCODING			=> 'gzip'
-			]
+			$curlOpts
 		);
 		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
 			$url = $url . "/?" . http_build_query($data);
