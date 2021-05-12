@@ -789,15 +789,24 @@ class CheevosHooks {
 		}
 
 		$db = wfGetDB(DB_MASTER);
+		if (class_exists(\ActorMigration::class)) {
+			$actorQuery = \ActorMigration::newMigration()->getJoin('rev_user');
+			$userField = $actorQuery['fields']['rev_user'];
+		} else {
+			$actorQuery = ['tables' => [], 'joins' => []];
+			$userField = 'rev_user';
+		}
+
 		$result = $db->select(
-			['revision'],
+			['revision'] + $actorQuery['tables'],
 			['count(*)'],
 			[],
 			__METHOD__,
 			[
-				'GROUP BY'	=> 'rev_user',
+				'GROUP BY' => $userField,
 				'SQL_CALC_FOUND_ROWS'
-			]
+			],
+			$actorQuery['joins']
 		);
 		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount;');
 		$total = $db->fetchRow($calcRowsResult);
