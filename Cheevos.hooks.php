@@ -636,7 +636,7 @@ class CheevosHooks {
 			'user-interest-achievement-earned',
 			$targetUser,
 			[
-				'url' => SpecialPage::getTitleFor('Special:Achievements')->getFullURL(),
+				'url' => SpecialPage::getTitleFor('Achievements')->getFullURL(),
 				'message' => [
 					[
 						'user_note',
