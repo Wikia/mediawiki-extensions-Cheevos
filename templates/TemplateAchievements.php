@@ -105,7 +105,7 @@ class TemplateAchievements {
 	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
-		$achievementsPage = SpecialPage::getTitleFor('Special:Achievements');
+		$achievementsPage = SpecialPage::getTitleFor('Achievements');
 
 		$imageUrl = $achievement->getImageUrl();
 
