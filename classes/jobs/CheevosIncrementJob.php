@@ -19,6 +19,7 @@ use Cheevos\CheevosException;
 use Hooks;
 use Job;
 use JobQueueGroup;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
 class CheevosIncrementJob extends Job {
@@ -52,6 +53,8 @@ class CheevosIncrementJob extends Job {
 			}
 			return ($return === false ? 1 : 0);
 		} catch (CheevosException $e) {
+			LoggerFactory::getInstance('cheevos')->error( (string)$e, [ 'exception' => $e ] );
+
 			// Allows requeue to be turned off
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {
