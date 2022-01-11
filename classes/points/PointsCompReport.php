@@ -595,37 +595,35 @@ class PointsCompReport {
 		Subscription::skipCache(true);
 
 		$filters = [
-			'stat'				=> 'wiki_points',
-			'limit'				=> 0,
-			'sort_direction'	=> 'desc',
-			'global'			=> true,
-			'start_time'		=> $timeStart,
-			'end_time'			=> $timeEnd
+			'stat'		=> 'wiki_points',
+			'limit'		=> 0,
+			'global'	=> true,
+			'month'		=> $timeStart,
 		];
 
 		try {
-			$statProgress = Cheevos::getStatProgress($filters);
+			$statMonthly = Cheevos::getStatMonthlyCount($filters);
 		} catch (CheevosException $e) {
 			throw new MWException($e->getMessage());
 		}
 
 		$this->setMinPointThreshold($minPointThreshold);
 		$this->setMaxPointThreshold($maxPointThreshold);
-		$this->setStartTime($filters['start_time']);
-		$this->setEndTime($filters['end_time']);
+		$this->setStartTime($timeStart);
+		$this->setEndTime($timeEnd);
 
-		foreach ($statProgress as $progress) {
+		foreach ($statMonthly as $monthly) {
 			$isExtended = false;
 			$currentExpires = 0; // $newExpires is set outside of the loop up above.
 
-			if ($progress->getCount() < $minPointThreshold) {
+			if ($monthly->getCount() < $minPointThreshold) {
 				continue;
 			}
-			if ($maxPointThreshold !== null && $progress->getCount() > $maxPointThreshold) {
+			if ($maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold) {
 				continue;
 			}
 
-			$user = Cheevos::getUserForServiceUserId($progress->getUser_Id());
+			$user = Cheevos::getUserForServiceUserId($monthly->getUser_Id());
 			if (!$user || $user->getId() < 1) {
 				continue;
 			}
@@ -635,7 +633,7 @@ class PointsCompReport {
 			$subscription = $this->getSubscription($user, $gamepediaPro);
 			if ($subscription['paid']) {
 				// Do not mess with paid subscriptions.
-				$this->addRow($user->getId(), $progress->getCount(), false, false, false, $subscription['expires'], 0, false, false);
+				$this->addRow($user->getId(), $monthly->getCount(), false, false, false, $subscription['expires'], 0, false, false);
 				continue;
 			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
 				$isExtended = true;
@@ -656,7 +654,7 @@ class PointsCompReport {
 				}
 			}
 
-			$this->addRow($user->getId(), $progress->getCount(), !$isExtended, $isExtended, !$success, intval($subscription['expires']), $newExpires, $success, $emailSent);
+			$this->addRow($user->getId(), $monthly->getCount(), !$isExtended, $isExtended, !$success, intval($subscription['expires']), $newExpires, $success, $emailSent);
 		}
 		$this->setFinished(true);
 		$this->save();

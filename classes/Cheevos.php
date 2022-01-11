@@ -24,7 +24,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function request($type, $path, $data = []) {
 		global $wgCheevosHost, $wgCheevosClientId;
@@ -83,7 +83,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function get($path, $data = []) {
 		return self::request('GET', $path, $data);
@@ -776,6 +776,7 @@ class Cheevos {
 	 * 		                    - $filters = [
 	 *                          -     'user_id' => 1, //Limit by service user ID.
 	 *                          -     'site_key' => 'example', //Limit by site key.
+	 *                          -     'global' => true, //Overrides site_key to aggregate across all sites.
 	 *                          -     'stat' => 'example', //Filter by a specific stat name.
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
