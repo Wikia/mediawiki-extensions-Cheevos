@@ -776,8 +776,9 @@ class Cheevos {
 	 * 		                    - $filters = [
 	 *                          -     'user_id' => 1, //Limit by service user ID.
 	 *                          -     'site_key' => 'example', //Limit by site key.
-	 *                          -     'global' => true, //Overrides site_key to aggregate across all sites.
 	 *                          -     'stat' => 'example', //Filter by a specific stat name.
+	 *                          -     'global' => true, //Overrides site_key to aggregate across all sites.
+	 *                          -     'month' => 1601510400, //Limit to one month (starting timestamp)
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 * 		                    - ];
