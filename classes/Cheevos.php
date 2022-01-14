@@ -77,6 +77,7 @@ class Cheevos {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 		$result = curl_exec($ch);
+throw new CheevosException('MATTK TEST // result = '.$result.'  // info = '.print_r(curl_getinfo($ch), true), 503);
 		curl_close($ch);
 		$result = json_decode($result, true);
 
