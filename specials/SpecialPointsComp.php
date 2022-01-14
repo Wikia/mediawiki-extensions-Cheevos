@@ -136,10 +136,18 @@ class SpecialPointsComp extends SpecialPage {
 			}
 
 			if ($report === false) {
-				$startTime = $this->getRequest()->getInt('start_time');
-				$startTime = strtotime(date('Y-m-d', $startTime) . 'T00:00:00+00:00');
-				$endTime = $this->getRequest()->getInt('end_time');
-				$endTime = strtotime(date('Y-m-d', $endTime) . 'T23:59:59+00:00');
+				$startTimestamp = $this->getRequest()->getInt('start_time');
+				// Infer end time as last second of the month. Since switching to monthly
+				// stats, the end time isn't needed to generate the report, but it could
+				// be useful for data keeping.
+				$month = date('n', $startTimestamp);
+				$year = date('Y', $startTimestamp);
+				$daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+				$endTimestamp = mktime(23, 59, 59, $month, $daysInMonth, $year);
+
+				$startTime = strtotime(date('Y-m-d', $startTimestamp) . 'T00:00:00+00:00');
+				$endTime = strtotime(date('Y-m-d', $endTimestamp) . 'T23:59:59+00:00');
+
 				$status = PointsCompReport::validateTimeRange($startTime, $endTime);
 				if (!$status->isGood()) {
 					throw new ErrorPageError('points_comp_report_error', $status->getMessage());

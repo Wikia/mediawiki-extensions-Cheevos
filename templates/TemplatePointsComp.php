@@ -47,10 +47,6 @@ class TemplatePointsComp {
 				<input id='start_time_datepicker' data-input='start_time' type='text' value=''/>
 				<input id='start_time' name='start_time' type='hidden' value=''/>
 
-				<label for='end_time'>" . wfMessage('end_time')->escaped() . "</label>
-				<input id='end_time_datepicker' data-input='end_time' type='text' value=''/>
-				<input id='end_time' name='end_time' type='hidden' value=''/>
-
 				<label for='min_point_threshold'>" . wfMessage('min_point_threshold')->escaped() . "</label>
 				<input id='min_point_threshold' name='min_point_threshold' type='text' value='" . intval($config->get('CompedSubscriptionThreshold')) . "'/>
 
