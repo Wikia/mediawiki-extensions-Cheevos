@@ -24,7 +24,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function request($type, $path, $data = []) {
 		global $wgCheevosHost, $wgCheevosClientId, $wgCheevosEnvoySocketPath;
@@ -89,7 +89,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function get($path, $data = []) {
 		return self::request('GET', $path, $data);
@@ -101,7 +101,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function put($path, $data = []) {
 		return self::request('PUT', $path, $data);
@@ -113,7 +113,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function post($path, $data = []) {
 		return self::request('POST', $path, $data);
@@ -125,7 +125,7 @@ class Cheevos {
 	 * @param string $path
 	 * @param array  $data
 	 *
-	 * @return void
+	 * @return array
 	 */
 	private static function delete($path, $data = []) {
 		return self::request('DELETE', $path, $data);
@@ -783,6 +783,8 @@ class Cheevos {
 	 *                          -     'user_id' => 1, //Limit by service user ID.
 	 *                          -     'site_key' => 'example', //Limit by site key.
 	 *                          -     'stat' => 'example', //Filter by a specific stat name.
+	 *                          -     'global' => true, //Overrides site_key to aggregate across all sites.
+	 *                          -     'month' => 1601510400, //Limit to one month (starting timestamp).
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 * 		                    - ];
