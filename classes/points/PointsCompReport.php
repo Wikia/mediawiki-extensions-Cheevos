@@ -15,12 +15,12 @@ namespace Cheevos\Points;
 
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
-use ConfigFactory;
 use DateInterval;
 use DateTime;
 use ExtensionRegistry;
 use Hydra\SubscriptionProvider;
 use Hydra\Subscription;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use Status;
 use User;
@@ -560,9 +560,7 @@ class PointsCompReport {
 			$timeEnd = $this->getEndTime();
 		}
 
-		$db = wfGetDB(DB_MASTER);
-
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getMainConfig();
 
 		if ($minPointThreshold !== null) {
 			$minPointThreshold = $minPointThreshold;
@@ -614,7 +612,6 @@ class PointsCompReport {
 
 		foreach ($statMonthly as $monthly) {
 			$isExtended = false;
-			$currentExpires = 0; // $newExpires is set outside of the loop up above.
 
 			if ($monthly->getCount() < $minPointThreshold) {
 				continue;
@@ -693,7 +690,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function compAllSubscriptions() {
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 		foreach ($this->reportUser as $userId => $data) {
 			$this->compSubscription(User::newFromId($userId), $compedSubscriptionMonths);
