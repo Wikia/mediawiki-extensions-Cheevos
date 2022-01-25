@@ -59,6 +59,8 @@ class Cheevos {
 
 		if (!empty($wgCheevosEnvoySocketPath)) {
 			$curlOpts[CURLOPT_UNIX_SOCKET_PATH] = $wgCheevosEnvoySocketPath;
+			// curl seems to use this timeout for the response phase when using unix socket transport.
+			$curlOpts[CURLOPT_CONNECTTIMEOUT] = 300;
 		}
 
 		$ch = curl_init();
