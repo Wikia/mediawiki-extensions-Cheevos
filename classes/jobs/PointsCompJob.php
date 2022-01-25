@@ -17,6 +17,7 @@ use Cheevos\Points\PointsCompReport;
 use MWException;
 use Job;
 use JobQueueGroup;
+use MediaWiki\MediaWikiServices;
 
 class PointsCompJob extends Job {
 	/**
@@ -53,8 +54,10 @@ class PointsCompJob extends Job {
 		$email = (isset($args['email']) ? boolval($args['email']) : false);
 		$reportId = (isset($args['report_id']) ? intval($args['report_id']) : null);
 
-		// Database transaction commits on AWS are slow.
-		sleep(2);
+		// Wait for any lag, since this job was created immediately after the report was written:
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $lb->getConnection( DB_REPLICA );
+		$lb->safeWaitForMasterPos( $dbr );
 
 		if ($reportId > 0) {
 			$report = PointsCompReport::newFromId($reportId);
