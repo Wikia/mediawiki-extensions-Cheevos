@@ -35,7 +35,7 @@ class PointsCompJob extends Job {
 	 */
 	public static function queue(array $parameters = []) {
 		$job = new self(__CLASS__, $parameters);
-		JobQueueGroup::singleton()->push($job);
+		JobQueueGroup::singleton()->lazyPush($job);
 	}
 
 	/**
