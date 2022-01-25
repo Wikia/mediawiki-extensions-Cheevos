@@ -649,7 +649,7 @@ class PointsCompReport {
 				if ($comp !== false) {
 					$success = true;
 					if ($email) {
-						$emailSent = self::sendUserEmail($user->getId());
+						$emailSent = $this->sendUserEmail($user);
 					}
 				}
 			}
