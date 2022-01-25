@@ -14,7 +14,7 @@
 namespace Cheevos\Points;
 
 use Cheevos\Cheevos;
-use Cheevos\CheevosException;
+use Cheevos\CheevosStatMonthlyCount;
 use DateInterval;
 use DateTime;
 use ExtensionRegistry;
@@ -576,33 +576,8 @@ class PointsCompReport {
 			throw new MWException(__METHOD__ . ': ' . $status->getMessage());
 		}
 
-		// Number of complimentary months someone is given.
-		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-
-		$timeStart = $timeStart;
-		$timeEnd = $timeEnd;
 		if ($timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0) {
 			throw new MWException(__METHOD__ . ': The time range is invalid.');
-		}
-
-		$newExpiresDT = new DateTime('now');
-		$newExpiresDT->add(new DateInterval('P' . $compedSubscriptionMonths . 'M'));
-		$newExpires = $newExpiresDT->getTimestamp();
-
-		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
-		Subscription::skipCache(true);
-
-		$filters = [
-			'stat'		=> 'wiki_points',
-			'limit'		=> 0,
-			'global'	=> true,
-			'month'		=> $timeStart,
-		];
-
-		try {
-			$statMonthly = Cheevos::getStatMonthlyCount($filters);
-		} catch (CheevosException $e) {
-			throw new MWException($e->getMessage());
 		}
 
 		$this->setMinPointThreshold($minPointThreshold);
@@ -610,51 +585,95 @@ class PointsCompReport {
 		$this->setStartTime($timeStart);
 		$this->setEndTime($timeEnd);
 
-		foreach ($statMonthly as $monthly) {
-			$isExtended = false;
+		// Number of complimentary months someone is given.
+		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
+		$newExpiresDT = new DateTime('now');
+		$newExpiresDT->add(new DateInterval('P' . $compedSubscriptionMonths . 'M'));
+		$newExpires = $newExpiresDT->getTimestamp();
 
-			if ($monthly->getCount() < $minPointThreshold) {
-				continue;
-			}
-			if ($maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold) {
-				continue;
-			}
+		$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
+		Subscription::skipCache(true);
 
-			$user = Cheevos::getUserForServiceUserId($monthly->getUser_Id());
-			if (!$user || $user->getId() < 1) {
-				continue;
-			}
+		$limit = 200;
+		$filters = [
+			'stat'		=> 'wiki_points',
+			'limit'		=> $limit,
+			'offset'	=> 0,
+			'global'	=> true,
+			'month'		=> $timeStart,
+		];
 
-			$success = false;
+		while (true) {
+			$statMonthly = Cheevos::getStatMonthlyCount($filters);
+			$finished = false;
 
-			$subscription = $this->getSubscription($user, $gamepediaPro);
-			if ($subscription['paid']) {
-				// Do not mess with paid subscriptions.
-				$this->addRow($user->getId(), $monthly->getCount(), false, false, false, $subscription['expires'], 0, false, false);
-				continue;
-			} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
-				$isExtended = true;
-			}
+			foreach ($statMonthly as $monthly) {
+				$this->updateUser($gamepediaPro, $newExpires, $final, $email, $monthly);
 
-			$emailSent = false;
-			if ($final) {
-				if ($isExtended) {
-					$gamepediaPro->cancelCompedSubscription($user->getId());
-				}
-				$comp = $gamepediaPro->createCompedSubscription($user->getId(), $compedSubscriptionMonths);
-
-				if ($comp !== false) {
-					$success = true;
-					if ($email) {
-						$emailSent = $this->sendUserEmail($user);
-					}
+				if ($monthly->getCount() < $this->getMinPointThreshold()) {
+					$finished = true;
+					break;
 				}
 			}
 
-			$this->addRow($user->getId(), $monthly->getCount(), !$isExtended, $isExtended, !$success, intval($subscription['expires']), $newExpires, $success, $emailSent);
+			if ($finished || count($statMonthly) < $limit) {
+				break;
+			}
+			$filters['offset'] += $limit;
 		}
 		$this->setFinished(true);
 		$this->save();
+	}
+
+
+	/**
+	 * Handle an individual user's stat count.
+	 */
+	private function updateUser(SubscriptionProvider $gamepediaPro, int $newExpires, bool $final, bool $email, CheevosStatMonthlyCount $monthly) {
+		$isExtended = false;
+
+		if ($monthly->getCount() < $this->getMinPointThreshold()) {
+			return;
+		}
+
+		$maxPointThreshold = $this->getMaxPointThreshold();
+		if ($maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold) {
+			return;
+		}
+
+		$user = Cheevos::getUserForServiceUserId($monthly->getUser_Id());
+		if (!$user || $user->getId() < 1) {
+			return;
+		}
+
+		$success = false;
+
+		$subscription = $this->getSubscription($user, $gamepediaPro);
+		if ($subscription['paid']) {
+			// Do not mess with paid subscriptions.
+			$this->addRow($user->getId(), $monthly->getCount(), false, false, false, $subscription['expires'], 0, false, false);
+			return;
+		} elseif ($subscription['hasSubscription'] && $newExpires > $subscription['expires']) {
+			$isExtended = true;
+		}
+
+		$emailSent = false;
+		if ($final) {
+			if ($isExtended) {
+				$gamepediaPro->cancelCompedSubscription($user->getId());
+			}
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+			$comp = $gamepediaPro->createCompedSubscription($user->getId(), intval($config->get('CompedSubscriptionMonths')));
+
+			if ($comp !== false) {
+				$success = true;
+				if ($email) {
+					$emailSent = $this->sendUserEmail($user);
+				}
+			}
+		}
+
+		$this->addRow($user->getId(), $monthly->getCount(), !$isExtended, $isExtended, !$success, intval($subscription['expires']), $newExpires, $success, $emailSent);
 	}
 
 	/**
@@ -797,7 +816,7 @@ class PointsCompReport {
 	 */
 	public static function getNumberOfActiveSubscriptions(): int {
 		$db = wfGetDB(DB_MASTER);
-		$result = $db->select(
+		return $db->selectRowCount(
 			['points_comp_report_user'],
 			['user_id'],
 			[
@@ -806,13 +825,8 @@ class PointsCompReport {
 			],
 			__METHOD__,
 			[
-				'GROUP BY'	=> 'user_id',
-				'SQL_CALC_FOUND_ROWS'
+				'GROUP BY'	=> 'user_id'
 			]
 		);
-
-		$calcRowsResult = $db->query('SELECT FOUND_ROWS() AS rowcount;');
-		$total = $db->fetchRow($calcRowsResult);
-		return intval($total['rowcount']);
 	}
 }
