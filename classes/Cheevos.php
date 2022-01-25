@@ -53,14 +53,12 @@ class Cheevos {
 			CURLOPT_SSL_VERIFYPEER		=> false,
 			CURLOPT_CUSTOMREQUEST		=> $type,
 			CURLOPT_CONNECTTIMEOUT		=> 1,
-			CURLOPT_TIMEOUT				=> (defined('MEDIAWIKI_JOB_RUNNER')) ? 30 : 6,
+			CURLOPT_TIMEOUT				=> 10,
 			CURLOPT_ENCODING			=> 'gzip'
 		];
 
 		if (!empty($wgCheevosEnvoySocketPath)) {
 			$curlOpts[CURLOPT_UNIX_SOCKET_PATH] = $wgCheevosEnvoySocketPath;
-			// curl seems to use this timeout for the response phase when using unix socket transport.
-			$curlOpts[CURLOPT_CONNECTTIMEOUT] = 300;
 		}
 
 		$ch = curl_init();
