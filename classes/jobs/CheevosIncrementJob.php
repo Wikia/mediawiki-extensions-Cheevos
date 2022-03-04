@@ -12,15 +12,12 @@
 
 namespace Cheevos\Job;
 
-use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
-use Cheevos\CheevosException;
+use CheevosHooks;
 use Hooks;
 use Job;
 use JobQueueGroup;
-use MediaWiki\Logger\LoggerFactory;
-use MediaWiki\MediaWikiServices;
 
 class CheevosIncrementJob extends Job {
 	/**
@@ -42,29 +39,15 @@ class CheevosIncrementJob extends Job {
 	 */
 	public function run() {
 		$increment = $this->getParams();
-		try {
-			$return = Cheevos::increment($increment);
-			if (isset($return['earned'])) {
-				foreach ($return['earned'] as $achievement) {
-					$achievement = new CheevosAchievement($achievement);
-					CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-					Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
-				}
-			}
-			return ($return === false ? 1 : 0);
-		} catch (CheevosException $e) {
-			LoggerFactory::getInstance('cheevos')->error( (string)$e, [ 'exception' => $e ] );
 
-			// Allows requeue to be turned off
-			$config = MediaWikiServices::getInstance()->getMainConfig();
-			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {
-				return true;
-			}
-			if ($e->getCode() != 409) {
-				// Requeue in case of unintended failure.
-				self::queue($increment);
+		$return = Cheevos::increment($increment);
+		if (isset($return['earned'])) {
+			foreach ($return['earned'] as $achievement) {
+				$achievement = new CheevosAchievement($achievement);
+				CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
+				Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
 			}
 		}
-		return true;
+		return (bool)$return;
 	}
 }
