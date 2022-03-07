@@ -12,12 +12,13 @@
 
 namespace Cheevos\Job;
 
+use CheevosHooks;
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
-use CheevosHooks;
-use Hooks;
+use Cheevos\CheevosException;
 use Job;
-use JobQueueGroup;
+use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
 
 class CheevosIncrementJob extends Job {
 	/**
@@ -29,7 +30,7 @@ class CheevosIncrementJob extends Job {
 	 */
 	public static function queue(array $parameters = []) {
 		$job = new self(__CLASS__, $parameters);
-		JobQueueGroup::singleton()->push($job);
+		MediaWikiServices::getInstance()->getJobQueueGroup()->push($job);
 	}
 
 	/**
@@ -39,15 +40,30 @@ class CheevosIncrementJob extends Job {
 	 */
 	public function run() {
 		$increment = $this->getParams();
+		try {
+			$return = Cheevos::increment($increment);
+			if (isset($return['earned'])) {
+				$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+				foreach ($return['earned'] as $achievement) {
+					$achievement = new CheevosAchievement($achievement);
+					CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
+					$hookContainer->run('AchievementAwarded', [$achievement, $increment['user_id']]);
+				}
+			}
+			return ($return === false ? 1 : 0);
+		} catch (CheevosException $e) {
+			LoggerFactory::getInstance('cheevos')->error( (string)$e, [ 'exception' => $e ] );
 
-		$return = Cheevos::increment($increment);
-		if (isset($return['earned'])) {
-			foreach ($return['earned'] as $achievement) {
-				$achievement = new CheevosAchievement($achievement);
-				CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-				Hooks::run('AchievementAwarded', [$achievement, $increment['user_id']]);
+			// Allows requeue to be turned off
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+			if ($config->has('CheevosNoRequeue') && $config->get('CheevosNoRequeue') === true) {
+				return true;
+			}
+			if ($e->getCode() != 409) {
+				// Requeue in case of unintended failure.
+				self::queue($increment);
 			}
 		}
-		return (bool)$return;
+		return true;
 	}
 }

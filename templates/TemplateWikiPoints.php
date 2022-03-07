@@ -12,6 +12,7 @@
 **/
 
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class TemplateWikiPoints {
 	/**
@@ -78,14 +79,15 @@ class TemplateWikiPoints {
 	 * @return array	Anchor links.
 	 */
 	public static function getWikiPointsLinks() {
+		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 		$links = [
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
-			Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'global'), wfMessage('top_wiki_editors_global')->escaped())
+			$linkRenderer->makeKnownLink(SpecialPage::getTitleFor('WikiPoints'), wfMessage('top_wiki_editors')->escaped()),
+			$linkRenderer->makeKnownLink(SpecialPage::getTitleFor('WikiPoints', 'monthly'), wfMessage('top_wiki_editors_monthly')->escaped()),
+			$linkRenderer->makeKnownLink(SpecialPage::getTitleFor('WikiPoints', 'global'), wfMessage('top_wiki_editors_global')->escaped())
 		];
 		if (CheevosHelper::isCentralWiki()) {
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites'), wfMessage('top_wiki_editors_sites')->escaped());
-			$links[] = Linker::linkKnown(SpecialPage::getTitleFor('WikiPoints', 'sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
+			$links[] = $linkRenderer->makeKnownLink(SpecialPage::getTitleFor('WikiPoints', 'sites'), wfMessage('top_wiki_editors_sites')->escaped());
+			$links[] = $linkRenderer->makeKnownLink(SpecialPage::getTitleFor('WikiPoints', 'sites/monthly'), wfMessage('top_wiki_editors_sites_monthly')->escaped());
 		}
 
 		return implode(' | ', $links) . "<hr>";

@@ -14,6 +14,7 @@
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
@@ -75,7 +76,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 		$form['username'] = $this->wgRequest->getVal('user');
 
 		if (!empty($form['username'])) {
-			$user = User::newFromName($form['username']);
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($form['username']);
 
 			if ($user !== false && $user->getId()) {
 				$globalId = Cheevos::getUserIdForService($user);
@@ -119,7 +120,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			} else {
 				$amount = max($amount, -10000);
 			}
-			$user = User::newFromName($userName);
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($userName);
 
 			if ($amount && $user->getId()) {
 				CheevosHooks::increment('wiki_points', intval($amount), $user);

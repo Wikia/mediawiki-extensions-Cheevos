@@ -12,7 +12,7 @@
 
 namespace Cheevos;
 
-use ConfigFactory;
+use MediaWiki\MediaWikiServices;
 use Title;
 
 class CheevosAchievement extends CheevosModel {
@@ -212,13 +212,13 @@ class CheevosAchievement extends CheevosModel {
 		global $wgExtensionAssetsPath;
 
 		$title = Title::newFromText($this->getImage());
-		$file = wfFindFile($title);
+		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile($title);
 		if ($file) {
 			$url = $file->getCanonicalUrl();
 			return $url;
 		}
 
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 		$url = $wgExtensionAssetsPath . $config->get('AchImageFallback');
 		if (!empty($url)) {
 			return $url;

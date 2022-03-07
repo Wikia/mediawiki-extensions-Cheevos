@@ -12,6 +12,7 @@ namespace Cheevos\Maintenance;
 
 use HydraAuthUser;
 use LoggedUpdateMaintenance;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\IDatabase;
 
 require_once dirname(dirname(dirname(dirname(__DIR__)))) . '/maintenance/Maintenance.php';
@@ -71,7 +72,7 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	protected function cleanup(
 		string $table, string $primaryKey, array $globalIdFields, array $orderby
 	) {
-		$dbw = $this->getDB(DB_MASTER);
+		$dbw = $this->getDB(DB_PRIMARY);
 
 		foreach ($globalIdFields as $key => $value) {
 			if (!$dbw->fieldExists($table, $key)) {
@@ -130,7 +131,7 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 
 			list($next, $display) = $this->makeNextCond($dbw, $orderby, $row);
 			$this->output("... $display\n");
-			wfWaitForSlaves();
+			MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->waitForReplication();
 		}
 
 		$this->output(

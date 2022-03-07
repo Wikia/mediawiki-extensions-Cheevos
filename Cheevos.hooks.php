@@ -15,6 +15,12 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Job\CheevosIncrementJob;
+use MediaWiki\Block\DatabaseBlock;
+use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Storage\EditResult;
+use MediaWiki\User\UserIdentity;
 use Reverb\Notification\NotificationBroadcast;
 
 class CheevosHooks {
@@ -51,7 +57,8 @@ class CheevosHooks {
 
 		// Allowed namespaces.
 		if (!isset($wgNamespacesForEditPoints) || empty($wgNamespacesForEditPoints)) {
-			$wgNamespacesForEditPoints = MWNamespace::getContentNamespaces();
+			$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
+			$wgNamespacesForEditPoints = $namespaceInfo->getContentNamespaces();
 		}
 
 		$reverbNotifications = [
@@ -134,19 +141,27 @@ class CheevosHooks {
 	 * Updates user's points after they've made an edit in a namespace that is listed in the $wgNamespacesForEditPoints array.
 	 * This hook will not be called if a null revision is created.
 	 *
-	 * @param WikiPage $wikiPage  Article
-	 * @param Revision $revision  Revision
-	 * @param mixed    $baseRevId [Do Not Use, Unreliable] ID of revision this new edit started with.  May also be 0 or false for no previous revision.
-	 * @param User     $user      User that performed the action.
+	 * @param WikiPage $wikiPage Article
+	 * @param RevisionRecord $revision Revision
+	 * @param mixed $originalRevId (Unused)
+	 * @param User $user User that performed the action.
+	 * @param mixed &$tags (Unused)
 	 *
 	 * @return boolean True
 	 */
-	public static function onNewRevisionFromEditComplete(WikiPage $wikiPage, Revision $revision, $baseRevId, User $user) {
+	public static function onRevisionFromEditComplete(
+		WikiPage $wikiPage,
+		RevisionRecord $revision,
+		$originalRevId,
+		User $user,
+		&$tags
+	) {
 		global $wgNamespacesForEditPoints;
 
 		$isBot = $user->isAllowed('bot');
+		$parentRevisionId = $revision->getParentId();
 
-		if (!$revision->getParentId()) {
+		if (!$parentRevisionId) {
 			self::increment('article_create', 1, $user);
 		}
 
@@ -162,7 +177,7 @@ class CheevosHooks {
 		$isType = [];
 		// Note: Reordering this code will cause differently named statistics.
 		if (class_exists('MobileContext')) {
-			$mobileContext = MobileContext::singleton();
+			$mobileContext = MediaWikiServices::getInstance()->getService( 'MobileFrontend.Context' );
 			if ($mobileContext->shouldDisplayMobileView()) {
 				$isType[] = 'is_mobile';
 			} else {
@@ -183,8 +198,11 @@ class CheevosHooks {
 
 		$edits = [];
 		if (!$isBot && in_array($wikiPage->getTitle()->getNamespace(), $wgNamespacesForEditPoints)) {
-			$parentRevisionId = $revision->getParentId();
-			$previousRevision = $parentRevisionId ? Revision::newFromId($parentRevisionId) : null;
+			$previousRevision = null;
+			if ($parentRevisionId) {
+				$revStore = MediaWikiServices::getInstance()->getRevisionStore();
+				$previousRevision = $revStore->getRevisionById( $parentRevisionId );
+			}
 			$prevSize = $previousRevision ? $previousRevision->getSize() : 0;
 			$sizeDiff = $revision->getSize() - $prevSize;
 			$edits[] = [
@@ -201,25 +219,40 @@ class CheevosHooks {
 	}
 
 	/**
-	 * Revokes all edits between $revision and $current
+	 * Check for an article rollback, which then revokes all points for revisions that were reverted
 	 *
-	 * @param WikiPage $wikiPage Article reference, the article edited
-	 * @param User     $user     User reference, the user performing the rollback
-	 * @param Revision $revision Revision reference, the old revision to become current after the rollback
-	 * @param Revision $current  Revision reference, the revision that was current before the rollback
+	 * @param WikiPage $wikiPage The article edited
+	 * @param UserIdentity $user The user performing the change
+	 * @param string $summary Edit summary
+	 * @param int $flags Edit flags
+	 * @param RevisionRecord $revision The new revision
+	 * @param EditResult $editResult Contains information about a potential revert
 	 *
 	 * @return boolean True
 	 */
-	public static function onArticleRollbackComplete(WikiPage $wikiPage, User $user, Revision $revision, Revision $current) {
+	public static function onPageSaveComplete(
+		WikiPage $wikiPage,
+		UserIdentity $user,
+		string $summary,
+		int $flags,
+		RevisionRecord $revision,
+		EditResult $editResult
+	) {
+		if (!$editResult->isRevert()) {
+			// Not a rollback so we don't care
+			return true;
+		}
 		$siteKey = CheevosHelper::getSiteKey();
 		if (!$siteKey) {
 			return true;
 		}
 
+		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
+		$revertedRev = $revisionStore->getRevisionById($editResult->getNewestRevertedRevisionId());
 		$editsToRevoke = [];
-		while ($current && $current->getId() != $revision->getId()) {
-			$editsToRevoke[] = $current->getId();
-			$current = $current->getPrevious();
+		while ($revertedRev && $revertedRev->getId() != $revision->getId()) {
+			$editsToRevoke[] = $revertedRev->getId();
+			$revertedRev = $revisionStore->getRevisionById($revertedRev->getParentId());
 		}
 
 		try {
@@ -265,17 +298,25 @@ class CheevosHooks {
 	/**
 	 * Handle article move increment.
 	 *
-	 * @param Title    $title    Original Title
-	 * @param Title    $newTitle New Title
-	 * @param User     $user     The User object who did move.
-	 * @param integer  $oldid    Old Page ID
-	 * @param integer  $newid    New Page ID
-	 * @param string   $reason   Reason for protect
-	 * @param Revision $revision Revision created by the move.
+	 * @param LinkTarget $old Original Title
+	 * @param LinkTarget $new New Title
+	 * @param UserIdentity $user The User object who did move.
+	 * @param integer $pageId
+	 * @param integer $redirId
+	 * @param string $reason
+	 * @param RevisionRecord $revision
 	 *
 	 * @return boolean True
 	 */
-	public static function onTitleMoveComplete(Title &$title, Title &$newTitle, User $user, $oldid, $newid, $reason, Revision $revision) {
+	public static function onPageMoveComplete(
+		LinkTarget $old,
+		LinkTarget $new,
+		UserIdentity $user,
+		int $pageId,
+		int $redirId,
+		string $reason,
+		RevisionRecord $revision
+	) {
 		self::increment('article_move', 1, $user);
 		return true;
 	}
@@ -283,12 +324,12 @@ class CheevosHooks {
 	/**
 	 * Handle article protect increment.
 	 *
-	 * @param Block $block Block
-	 * @param User  $user  User object of who performed the block.
+	 * @param DatabaseBlock $block Block
+	 * @param User $user User object of who performed the block.
 	 *
 	 * @return boolean True
 	 */
-	public static function onBlockIpComplete(Block $block, User $user) {
+	public static function onBlockIpComplete(DatabaseBlock $block, User $user) {
 		self::increment('admin_block_ip', 1, $user);
 		return true;
 	}
@@ -586,6 +627,7 @@ class CheevosHooks {
 	 * @return void
 	 */
 	public static function doIncrements() {
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
 		try {
 			self::$shutdownRan = true;
@@ -596,7 +638,7 @@ class CheevosHooks {
 					foreach ($return['earned'] as $achievement) {
 						$achievement = new CheevosAchievement($achievement);
 						self::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-						Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+						$hookContainer->run('AchievementAwarded', [$achievement, $globalId]);
 					}
 				}
 			}
@@ -717,7 +759,7 @@ class CheevosHooks {
 			$userName = $userPageTitle;
 		}
 
-		$tools[] = Linker::linkKnown(
+		$tools[] = MediaWikiServices::getInstance()->getLinkRenderer()->makeKnownLink(
 			SpecialPage::getTitleFor('WikiPointsAdmin'),
 			wfMessage('sp_contributions_wikipoints_admin')->escaped(),
 			['class' => 'mw-usertoollinks-wikipointsadmin'],
@@ -788,7 +830,7 @@ class CheevosHooks {
 			}
 		}
 
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 		if (class_exists(\ActorMigration::class)) {
 			$actorQuery = \ActorMigration::newMigration()->getJoin('rev_user');
 			$userField = $actorQuery['fields']['rev_user'];

@@ -1,4 +1,7 @@
 <?php
+
+use MediaWiki\MediaWikiServices;
+
 /**
  * Cheevos
  * Cheevos Template Points Comp Page
@@ -25,7 +28,7 @@ class TemplatePointsComp {
 		$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
 		$pointsCompURL	= $pointsCompPage->getFullURL();
 
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 
 		$html = '';
 
@@ -77,10 +80,11 @@ class TemplatePointsComp {
 			</thead>
 			<tbody>";
 		if (count($reports)) {
+			$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 			foreach ($reports as $report) {
 				$html .= "
 				<tr>
-					<td>" . Linker::linkKnown(SpecialPage::getTitleFor('PointsComp', $report->getReportId()), wfMessage('comp_report_link', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped()) . "</td>
+					<td>" . $linkRenderer->makeKnownLink(SpecialPage::getTitleFor('PointsComp', $report->getReportId()), wfMessage('comp_report_link', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped()) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>
 					<td>" . gmdate('Y-m-d', $report->getStartTime()) . "</td>
@@ -171,8 +175,9 @@ class TemplatePointsComp {
 					</tr>
 				</thead>
 				<tbody>";
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = User::newFromId($reportRow['user_id']);
+			$user = $userFactory->newFromId($reportRow['user_id']);
 			$html .= "
 					<tr>
 						<td>" . ($user ? $user->getName() : 'User ID: ' . $user->getId()) . "</td>
@@ -201,9 +206,10 @@ class TemplatePointsComp {
 	 * @return string CSV
 	 */
 	public static function pointsCompReportCSV($report) {
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		$headers = wfMessage('wpa_user')->escaped() . "," . wfMessage('comp_points')->escaped() . "," . wfMessage('comp_new')->escaped() . "," . wfMessage('comp_extended')->escaped() . "," . wfMessage('comp_failed')->escaped() . "," . wfMessage('comp_skipped')->escaped() . "," . wfMessage('current_comp_expires')->escaped() . "," . wfMessage('new_comp_expires')->escaped() . "," . wfMessage('comp_done')->escaped() . "," . wfMessage('emailed')->escaped();
 		while (($reportRow = $report->getNextRow()) !== false) {
-			$user = User::newFromId($reportRow['user_id']);
+			$user = $userFactory->newFromId($reportRow['user_id']);
 			$rows[] = implode(
 				',',
 				[
