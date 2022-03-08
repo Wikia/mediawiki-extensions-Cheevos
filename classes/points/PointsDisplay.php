@@ -18,6 +18,7 @@ use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Html;
 use Linker;
+use MediaWiki\MediaWikiServices;
 use RedisCache;
 use stdClass;
 use TemplateWikiPoints;
@@ -62,7 +63,7 @@ class PointsDisplay {
 
 		$globalId = null;
 		if (!empty($user)) {
-			$user = User::newFromName($user);
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($user);
 			if (!$user || !$user->getId()) {
 				return [
 					wfMessage('user_not_found')->escaped(),
@@ -116,6 +117,8 @@ class PointsDisplay {
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
 		global $wgUser, $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
+		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 
 		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
 		$start = intval($start);
@@ -126,6 +129,7 @@ class PointsDisplay {
 
 		$userPoints = [];
 		$siteKeys = [$dsSiteKey];
+
 		foreach ($statProgress as $progress) {
 			$globalId = $progress->getUser_Id();
 			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' . ($isMonthly ? $progress->getMonth() : null);
@@ -141,11 +145,11 @@ class PointsDisplay {
 			$userPointsRow = new stdClass();
 			if ($user !== null) {
 				$userPointsRow->userName = $user->getName();
-				if (!User::isCreatableName($user->getName()) || $user->isHidden()) {
+				if (!$userNameUtils->isCreatable($user->getName()) || $user->isHidden()) {
 					continue;
 				}
 				$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = Linker::link(Title::newFromText("User:" . $user->getName()), $user->getName(), [], [], ['https']);
+				$userPointsRow->userLink = $linkRenderer->makeKnownLink(Title::newFromText("User:" . $user->getName()), $user->getName());
 				$userPointsRow->adminUrl = Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
 			} else {
 				$userPointsRow->userName = "GID: " . $progress->getUser_Id();

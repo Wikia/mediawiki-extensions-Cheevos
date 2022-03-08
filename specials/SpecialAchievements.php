@@ -14,6 +14,7 @@ use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class SpecialAchievements extends SpecialPage {
 	/**
@@ -63,7 +64,7 @@ class SpecialAchievements extends SpecialPage {
 	 */
 	public function achievementsList($subpage = null) {
 		$globalId = false;
-		if ($this->getUser()->isLoggedIn()) {
+		if ($this->getUser()->isRegistered()) {
 			if ($this->getUser()->getId() > 0) {
 				// This is unrelated to the user look up.  Just trigger this statistic if a logged in user visits an achievement page.
 				CheevosHooks::increment('achievement_engagement', 1, $this->getUser());
@@ -74,7 +75,7 @@ class SpecialAchievements extends SpecialPage {
 		}
 
 		if (!empty($subpage) && !is_numeric($subpage)) {
-			$lookupUser = User::newFromName($subpage);
+			$lookupUser = MediaWikiServices::getInstance()->getUserFactory()->newFromName($subpage);
 			if ($lookupUser && $lookupUser->getId()) {
 				$user = $lookupUser;
 				$globalId = Cheevos::getUserIdForService($user);
@@ -101,7 +102,7 @@ class SpecialAchievements extends SpecialPage {
 				foreach ($check['earned'] as $earned) {
 					$earnedAchievement = new CheevosAchievement($earned);
 					CheevosHooks::broadcastAchievement($earnedAchievement, $this->siteKey, $globalId);
-					Hooks::run('AchievementAwarded', [$earnedAchievement, $globalId]);
+					$this->getHookContainer()->run('AchievementAwarded', [$earnedAchievement, $globalId]);
 				}
 			}
 			$_statuses = Cheevos::getAchievementStatus($globalId, $this->siteKey);

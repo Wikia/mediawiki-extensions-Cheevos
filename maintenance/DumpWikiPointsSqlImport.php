@@ -51,7 +51,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 			}
 		}
 
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$where = [
 			'reason'	=> 1,

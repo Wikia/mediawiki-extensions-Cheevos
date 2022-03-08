@@ -16,7 +16,6 @@ namespace Cheevos\Job;
 use Cheevos\Points\PointsCompReport;
 use MWException;
 use Job;
-use JobQueueGroup;
 use MediaWiki\MediaWikiServices;
 
 class PointsCompJob extends Job {
@@ -35,7 +34,7 @@ class PointsCompJob extends Job {
 	 */
 	public static function queue(array $parameters = []) {
 		$job = new self(__CLASS__, $parameters);
-		JobQueueGroup::singleton()->lazyPush($job);
+		MediaWikiServices::getInstance()->getJobQueueGroup()->lazyPush($job);
 	}
 
 	/**
@@ -57,7 +56,7 @@ class PointsCompJob extends Job {
 		// Wait for any lag, since this job was created immediately after the report was written:
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr = $lb->getConnection( DB_REPLICA );
-		$lb->safeWaitForMasterPos( $dbr );
+		$lb->waitForPrimaryPos( $dbr );
 
 		if ($reportId > 0) {
 			$report = PointsCompReport::newFromId($reportId);

@@ -18,6 +18,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class SyncArticleStats extends Maintenance {
 	/**
@@ -38,10 +39,10 @@ class SyncArticleStats extends Maintenance {
 	 */
 	public function execute() {
 		$dsSiteKey = CheevosHelper::getSiteKey();
-
 		$achievements = Cheevos::getAchievements($dsSiteKey);
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$where = [
 			'global_id > 0',
@@ -237,7 +238,7 @@ class SyncArticleStats extends Maintenance {
 									$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
 								}
 								CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-								Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+								$hookContainer->run('AchievementAwarded', [$achievement, $globalId]);
 								if ($this->getOption('v')) {
 									$this->output("done.\n");
 								}
@@ -252,7 +253,7 @@ class SyncArticleStats extends Maintenance {
 								}
 								$deleted = Cheevos::deleteProgress($progress->getId(), $globalId);
 								if ($deleted['code'] == 200) {
-									Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+									$hookContainer->run('AchievementUnawarded', [$achievement, $globalId]);
 									if ($this->getOption('v')) {
 										$this->output("done.\n");
 									}

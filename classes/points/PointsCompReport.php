@@ -91,7 +91,7 @@ class PointsCompReport {
 	 * @return boolean	Sucess
 	 */
 	private function load() {
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$result = $db->select(
 			['points_comp_report'],
@@ -135,7 +135,7 @@ class PointsCompReport {
 	 * @return boolean	Success
 	 */
 	public function save() {
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$this->reportData['run_time'] = time();
 		$reportData = $this->reportData;
@@ -193,7 +193,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function updateStats() {
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		foreach (['comp_new', 'comp_extended', 'comp_failed', 'comp_skipped', 'comp_performed', 'email_sent'] as $stat) {
 			$result = $db->select(
@@ -225,7 +225,7 @@ class PointsCompReport {
 	 * @return array	Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
 	public static function getReportsList($start = 0, $itemsPerPage = 50) {
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$result = $db->select(
 			['points_comp_report'],
@@ -711,8 +711,9 @@ class PointsCompReport {
 	public function compAllSubscriptions() {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		foreach ($this->reportUser as $userId => $data) {
-			$this->compSubscription(User::newFromId($userId), $compedSubscriptionMonths);
+			$this->compSubscription($userFactory->newFromId($userId), $compedSubscriptionMonths);
 		}
 	}
 
@@ -743,7 +744,7 @@ class PointsCompReport {
 		$comp = $gamepediaPro->createCompedSubscription($user->getId(), $numberOfMonths);
 
 		if ($comp !== false) {
-			$db = wfGetDB(DB_MASTER);
+			$db = wfGetDB(DB_PRIMARY);
 			$success = $db->update(
 				'points_comp_report_user',
 				[
@@ -768,8 +769,9 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function sendAllEmails() {
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		foreach ($this->reportUser as $userId => $data) {
-			$this->sendUserEmail(User::newFromId($userId));
+			$this->sendUserEmail($userFactory->newFromId($userId));
 		}
 	}
 
@@ -793,7 +795,7 @@ class PointsCompReport {
 		}
 
 		if ($success) {
-			$db = wfGetDB(DB_MASTER);
+			$db = wfGetDB(DB_PRIMARY);
 			$success = $db->update(
 				'points_comp_report_user',
 				['email_sent' => 1],
@@ -815,7 +817,7 @@ class PointsCompReport {
 	 * @return integer	Number of active subscriptions.
 	 */
 	public static function getNumberOfActiveSubscriptions(): int {
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 		return $db->selectRowCount(
 			['points_comp_report_user'],
 			['user_id'],

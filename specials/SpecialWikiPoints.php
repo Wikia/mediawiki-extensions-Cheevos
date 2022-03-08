@@ -14,6 +14,7 @@
 use Cheevos\Cheevos;
 use Cheevos\CheevosHelper;
 use Cheevos\Points\PointsDisplay;
+use MediaWiki\MediaWikiServices;
 
 class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
@@ -66,7 +67,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 
 		$globalId = null;
 		if (!empty($form['username'])) {
-			$user = User::newFromName($form['username']);
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($form['username']);
 
 			if ($user->getId()) {
 				$globalId = Cheevos::getUserIdForService($user);
