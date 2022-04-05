@@ -1,10 +1,8 @@
-$(document).ready(function() {
-	$(window).load(function() {
-		if ($("li.achievement_category_select").length) {
-			updateTabs();
-		}
-		handleHashChange();
-	});
+$(function() {
+	if ($("li.achievement_category_select").length) {
+		updateTabs();
+	}
+	handleHashChange();
 
 	$("#achievement_form").submit(function(e){
 		var cat = $("#category").val();
