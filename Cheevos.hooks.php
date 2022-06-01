@@ -604,7 +604,6 @@ class CheevosHooks {
 			return true;
 		}
 
-		$user = RequestContext::getMain()->getUser();
 		// Do not track anonymous users for visits.  The Cheevos database can not handle it.
 		if (!defined('MW_API') && $user->getId() > 0) {
 			self::increment('visit', 1, $user);

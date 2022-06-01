@@ -25,13 +25,13 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
-		$user = RequestContext::getMain()->getUser();
+		$currentUser = RequestContext::getMain()->getUser();
 		$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
 		$manageAchievementsURL = $manageAchievementsPage->getFullURL();
 
 		$HTML = '';
 
-		if ($user->isAllowed('achievement_admin')) {
+		if ($currentUser->isAllowed('achievement_admin')) {
 			$HTML .= "
 			<div class='button_bar'>
 				<div class='button_break'></div>

@@ -48,7 +48,7 @@ class TemplateWikiPointsAdmin {
 	public static function lookup($user, $points = [], $form = []) {
 		$context = RequestContext::getMain();
 		$request = $context->getRequest();
-		$user = $context->getUser();
+		$currentUser = $context->getUser();
 		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
 		$html = self::userSearch($wikiPointsAdminPage, $form);
 
@@ -63,7 +63,7 @@ class TemplateWikiPointsAdmin {
 
 		$wpaPage = Title::newFromText('Special:WikiPointsAdmin');
 		$escapedUserName = ($user ? htmlspecialchars($user->getName(), ENT_QUOTES) : '');
-		if ($user->isAllowed('wpa_adjust_points')) {
+		if ($currentUser->isAllowed('wpa_adjust_points')) {
 			$html .= "
 		<div id='wpa_user_controls'>
 			<form method='post' action='" . $wpaPage->getFullURL() . "'>
