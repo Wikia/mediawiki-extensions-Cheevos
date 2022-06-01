@@ -10,6 +10,7 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  **/
 
+use AdvancedJsonRpc\Request;
 use Cheevos\CheevosHelper;
 
 class TemplateManageAchievements {
@@ -23,7 +24,10 @@ class TemplateManageAchievements {
 	 * @return string	Built HTML
 	 */
 	public function achievementsList($achievements, $categories, $revertHints) {
-		global $wgOut, $wgRequest, $wgUser;
+		$context = RequestContext::getMain();
+		$output = $context->getOutput();
+		$request = $context->getRequest();
+		$user = $context->getUser();
 
 		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
 		$achievementsURL	= $achievementsPage->getFullURL();
@@ -37,7 +41,7 @@ class TemplateManageAchievements {
 		}
 		$HTML .= "<script type=\"text/javascript\"> window.achievementsList = " . json_encode($jsList) . "; </script>";
 
-		if ($wgUser->isAllowed('achievement_admin')) {
+		if ($user->isAllowed('achievement_admin')) {
 			$HTML .= "
 		<div class='button_bar'>
 			<div class='buttons_left'>
@@ -49,9 +53,9 @@ class TemplateManageAchievements {
 			</div>
 			<div class='button_break'></div>
 			<div class='buttons_right'>
-				" . ($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>" . wfMessage('invalidatecache_achievement') . "</a>" : null) . "
-				" . ($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='mw-ui-button'>" . wfMessage('award_achievement') . "</a>" : null) . "
-				" . ($wgUser->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>" . wfMessage('add_achievement') . "</a>" : null) . "
+				" . ($user->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>" . wfMessage('invalidatecache_achievement') . "</a>" : null) . "
+				" . ($user->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/award' class='mw-ui-button'>" . wfMessage('award_achievement') . "</a>" : null) . "
+				" . ($user->isAllowed('achievement_admin') ? "<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>" . wfMessage('add_achievement') . "</a>" : null) . "
 			</div>
 		</div>";
 		}
@@ -109,12 +113,13 @@ class TemplateManageAchievements {
 	* @return string	Built HTML
 	*/
 	public function achievementsForm($achievement, $categories, $allAchievements, $errors) {
-		global $wgUser, $wgScriptPath, $wgCheevosStats, $wgExtensionAssetsPath;
+		global $wgCheevosStats, $wgExtensionAssetsPath;
 
+		$user = RequestContext::getMain()->getUser();
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
-		$achievementsPage	= Title::newFromText('Special:ManageAchievements');
-		$achievementsURL	= $achievementsPage->getFullURL();
+		$achievementsPage = Title::newFromText('Special:ManageAchievements');
+		$achievementsURL = $achievementsPage->getFullURL();
 		$category = $achievement->getCategory();
 
 		$HTML = TemplateAchievements::achievementBlockRow($achievement, false, [], $allAchievements, true);
@@ -170,7 +175,7 @@ class TemplateManageAchievements {
 
 		}
 
-		if ($wgUser->isAllowed('edit_meta_achievements')) {
+		if ($user->isAllowed('edit_meta_achievements')) {
 			$criteria = $achievement->getCriteria();
 			$stats = (isset($criteria['stats']) && is_array($criteria['stats'])) ? $criteria['stats'] : [];
 
@@ -280,20 +285,19 @@ class TemplateManageAchievements {
 	}
 
 	public function awardForm($form, $achievements) {
-		global $wgRequest;
-
-		$awardPage		= Title::newFromText('Special:ManageAchievements/award');
+		$request = RequestContext::getMain()->getRequest();
+		$awardPage = Title::newFromText('Special:ManageAchievements/award');
 		$this->awardURL	= $awardPage->getFullURL();
 
 		$HTML = '';
-		$wasAwarded = $wgRequest->getVal('do') == wfMessage('award')->escaped();
+		$wasAwarded = $request->getVal('do') == wfMessage('award')->escaped();
 		if (isset($form['success']) && is_array($form['success'])) {
 			foreach ($form['success'] as $s) {
 				if ($s['message'] == "success") {
-					$HTML .= "<div class='successbox'>" . wfMessage('achievement_awarded_to', $s['username'], ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped() . "</div><br />";
+					$HTML .= "<div class='successbox'>" . wfMessage('achievement_awarded_to', $s['username'], ($request->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped() . "</div><br />";
 				}
 				if ($s['message'] == "nochange") {
-					$HTML .= "<div class='successbox'>" . wfMessage('achievement_nochange_to', $s['username'], ($wgRequest->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped() . "</div><br />";
+					$HTML .= "<div class='successbox'>" . wfMessage('achievement_nochange_to', $s['username'], ($request->getVal('do') == wfMessage('award')->escaped() ? wfMessage('awarded') : wfMessage('unawarded')))->escaped() . "</div><br />";
 				}
 			}
 			if (isset($form['errors'])) {

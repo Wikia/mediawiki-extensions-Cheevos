@@ -20,6 +20,7 @@ use Html;
 use Linker;
 use MediaWiki\MediaWikiServices;
 use RedisCache;
+use RequestContext;
 use stdClass;
 use TemplateWikiPoints;
 use Title;
@@ -115,7 +116,7 @@ class PointsDisplay {
 	 * @return string	HTML
 	 */
 	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
-		global $wgUser, $wgExtensionAssetsPath;
+		global $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
 		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
@@ -195,6 +196,8 @@ class PointsDisplay {
 			}
 		}
 
+		$user = RequestContext::getMain()->getUser();
+
 		switch ($markup) {
 			case 'badged':
 			case 'raw':
@@ -204,7 +207,7 @@ class PointsDisplay {
 					$userPoints[] = $userPointsRow;
 				}
 				foreach ($userPoints as $userPointsRow) {
-					$html = (isset($userPointsRow->adminUrl) && $wgUser->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score);
+					$html = (isset($userPointsRow->adminUrl) && $user->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score);
 					if ($markup == 'badged') {
 						$html .= ' ' . Html::element(
 							'img',

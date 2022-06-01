@@ -25,14 +25,13 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public function achievementsList($achievements, $categories, $statuses = [], $user, $globalId) {
-		global $wgUser;
-
-		$manageAchievementsPage	= Title::newFromText('Special:ManageAchievements');
-		$manageAchievementsURL	= $manageAchievementsPage->getFullURL();
+		$user = RequestContext::getMain()->getUser();
+		$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
+		$manageAchievementsURL = $manageAchievementsPage->getFullURL();
 
 		$HTML = '';
 
-		if ($wgUser->isAllowed('achievement_admin')) {
+		if ($user->isAllowed('achievement_admin')) {
 			$HTML .= "
 			<div class='button_bar'>
 				<div class='button_break'></div>
@@ -105,11 +104,7 @@ class TemplateAchievements {
 	public static function achievementBlockPopUp($achievement, $siteKey, $globalId) {
 		global $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
-		$achievementsPage = SpecialPage::getTitleFor('Achievements');
-
-		$imageUrl = $achievement->getImageUrl();
-
-		$HTML = "
+		return "
 			<div class='reverb-npn-ach'>
 				<div class='reverb-npn-ach-text'>
 					<div class='reverb-npn-ach-name'>" . htmlentities($achievement->getName($siteKey), ENT_QUOTES) . "</div>
@@ -117,8 +112,6 @@ class TemplateAchievements {
 				</div>
 				<div class='reverb-npn-ach-points'>" . $achievement->getPoints() . "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></div>
 			</div>";
-
-		return $HTML;
 	}
 
 	/**
@@ -134,8 +127,9 @@ class TemplateAchievements {
 	 * @return string	Built HTML
 	 */
 	public static function achievementBlockRow($achievement, $showControls = true, $statuses = [], $achievements = [], $ignoreHiddenBySecretRequiredBy = false, $showRevert = false) {
-		global $wgUser, $wgAchPointAbbreviation, $wgExtensionAssetsPath;
+		global $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
+		$user = RequestContext::getMain()->getUser();
 		$status = (isset($statuses[$achievement->getId()]) ? $statuses[$achievement->getId()] : false);
 
 		$image = $achievement->getImage();
@@ -193,7 +187,7 @@ class TemplateAchievements {
 		if ($showControls) {
 			$manageAchievementsPage = Title::newFromText('Special:ManageAchievements');
 			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
-			if ($wgUser->isAllowed('achievement_admin') &&
+			if ($user->isAllowed('achievement_admin') &&
 				(CheevosHelper::isCentralWiki() || (!CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal()))
 			) {
 				if (!$achievement->isDeleted()) {
@@ -203,7 +197,7 @@ class TemplateAchievements {
 						<span class='p-achievement-delete'><a href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}' class='mw-ui-button mw-ui-destructive'>" . wfMessage('delete_achievement')->escaped() . "</a></span>
 						<span class='p-achievement-edit'><a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}' class='mw-ui-button mw-ui-constructive'>" . wfMessage('edit_achievement')->escaped() . "</a></span>
 					</div>";
-				} elseif ($achievement->isDeleted() && $wgUser->isAllowed('restore_achievements')) {
+				} elseif ($achievement->isDeleted() && $user->isAllowed('restore_achievements')) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
 						<span class='p-achievement-restore'><a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}' class='mw-ui-button'>" . wfMessage('restore_achievement')->escaped() . "</a></span>

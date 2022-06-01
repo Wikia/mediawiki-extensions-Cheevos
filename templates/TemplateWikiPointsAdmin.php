@@ -22,7 +22,6 @@ class TemplateWikiPointsAdmin {
 	 */
 	public static function userSearch(Title $title, $form = []) {
 		$username = htmlspecialchars($form['username']);
-		$wikiPointsPage = Title::newFromText('Special:WikiPoints');
 
 		$html = '';
 		if (!empty($form['error'])) {
@@ -47,8 +46,9 @@ class TemplateWikiPointsAdmin {
 	 * @return string	Built HTML
 	 */
 	public static function lookup($user, $points = [], $form = []) {
-		global $wgRequest, $wgUser;
-
+		$context = RequestContext::getMain();
+		$request = $context->getRequest();
+		$user = $context->getUser();
 		$wikiPointsAdminPage = Title::newFromText('Special:WikiPointsAdmin');
 		$html = self::userSearch($wikiPointsAdminPage, $form);
 
@@ -56,14 +56,14 @@ class TemplateWikiPointsAdmin {
 		$addSubtractTooltip    = wfMessage('wikipointsaddsubtracttooltip')->escaped();
 		$pointsAdjusted        = wfMessage('wikipointsaddsubtractsuccess')->escaped();
 
-		if ($wgRequest->getVal('pointsAdjusted')) {
+		if ($request->getVal('pointsAdjusted')) {
 			$html .= "
 			<div><div class='successbox'>{$pointsAdjusted}</div></div>";
 		}
 
 		$wpaPage = Title::newFromText('Special:WikiPointsAdmin');
 		$escapedUserName = ($user ? htmlspecialchars($user->getName(), ENT_QUOTES) : '');
-		if ($wgUser->isAllowed('wpa_adjust_points')) {
+		if ($user->isAllowed('wpa_adjust_points')) {
 			$html .= "
 		<div id='wpa_user_controls'>
 			<form method='post' action='" . $wpaPage->getFullURL() . "'>
