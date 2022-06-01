@@ -274,9 +274,8 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onArticleMergeComplete(Title $targetTitle, Title $destTitle) {
-		global $wgUser;
-
-		self::increment('article_merge', 1, $wgUser);
+		$user = RequestContext::getMain()->getUser();
+		self::increment('article_merge', 1, $user);
 		return true;
 	}
 
@@ -473,9 +472,8 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onEmailUserComplete(MailAddress $address, MailAddress $from, $subject, $text) {
-		global $wgUser;
-
-		self::increment('send_email', 1, $wgUser);
+		$user = RequestContext::getMain()->getUser();
+		self::increment('send_email', 1, $user);
 		return true;
 	}
 
@@ -501,9 +499,8 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onUploadComplete(&$image) {
-		global $wgUser;
-
-		self::increment('file_upload', 1, $wgUser);
+		$user = RequestContext::getMain()->getUser();
+		self::increment('file_upload', 1, $user);
 		return true;
 	}
 
@@ -546,10 +543,9 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onWikiPointsSave(int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = '') {
-		global $wgUser;
-
-		if (($score > 0 || $score < 0) && $wgUser->getId() == $userId && $userId > 0) {
-			self::increment('wiki_points', intval($score), $wgUser);
+		$user = RequestContext::getMain()->getUser();
+		if (($score > 0 || $score < 0) && $user->getId() == $userId && $userId > 0) {
+			self::increment('wiki_points', intval($score), $user);
 		}
 
 		return true;
@@ -608,10 +604,9 @@ class CheevosHooks {
 			return true;
 		}
 
-		global $wgUser;
 		// Do not track anonymous users for visits.  The Cheevos database can not handle it.
-		if (!defined('MW_API') && $wgUser->getId() > 0) {
-			self::increment('visit', 1, $wgUser);
+		if (!defined('MW_API') && $user->getId() > 0) {
+			self::increment('visit', 1, $user);
 		}
 
 		register_shutdown_function('CheevosHooks::doIncrements');
@@ -741,13 +736,12 @@ class CheevosHooks {
 	 * @return boolean True
 	 */
 	public static function onContributionsToolLinks($userId, $userPageTitle, &$tools) {
-		global $wgUser;
-
 		if (!$userId) {
 			return true;
 		}
 
-		if (!$wgUser->isAllowed('wiki_points_admin')) {
+		$user = RequestContext::getMain()->getUser();
+		if (!$user->isAllowed('wiki_points_admin')) {
 			return true;
 		}
 
