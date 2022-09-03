@@ -7,9 +7,9 @@ var setupPointsCompDatepickers = function() {
 			dataInput: $('#start_time_datepicker').attr('data-input')
 		}
 	);
-	$("#start_time_datepicker").replaceWith(startDate.$element);
+	$('#start_time_datepicker').replaceWith(startDate.$element);
 	startDate.on('change', function() {
-		$('#'+startDate.dataInput).val(new Date(startDate.getValue()).getTime() / 1000);
+		document.getElementById('start_time').value = (new Date(startDate.getValue()).getTime()) / 1000;
 	});
 }
 setupPointsCompDatepickers();
