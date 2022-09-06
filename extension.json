@@ -223,7 +223,7 @@
 				"js/cheevos.pointscomp.js"
 			],
 			"dependencies": [
-				"jquery.ui.datepicker",
+				"mediawiki.widgets.DateInputWidget",
 				"ext.hydraCore.pagination.styles"
 			],
 			"position": "top"
