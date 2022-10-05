@@ -238,7 +238,7 @@ class CheevosHooks {
 		RevisionRecord $revision,
 		EditResult $editResult
 	) {
-		if (!$editResult->isRevert()) {
+		if (!$editResult->isRevert() || $editResult->getRevertMethod() !== EditResult::REVERT_ROLLBACK) {
 			// Not a rollback so we don't care
 			return true;
 		}
@@ -249,9 +249,14 @@ class CheevosHooks {
 
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revertedRev = $revisionStore->getRevisionById($editResult->getNewestRevertedRevisionId());
+		$oldestRevId = $editResult->getOldestRevertedRevisionId();
 		$editsToRevoke = [];
-		while ($revertedRev && $revertedRev->getId() != $revision->getId()) {
+		// Revoke every edit that was reverted as a result of this rollback
+		while ($revertedRev) {
 			$editsToRevoke[] = $revertedRev->getId();
+			if ($revertedRev->getId() == $oldestRevId) {
+				break;
+			}
 			$revertedRev = $revisionStore->getRevisionById($revertedRev->getParentId());
 		}
 
