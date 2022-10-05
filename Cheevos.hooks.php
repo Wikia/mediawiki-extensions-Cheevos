@@ -251,6 +251,7 @@ class CheevosHooks {
 		$revertedRev = $revisionStore->getRevisionById($editResult->getNewestRevertedRevisionId());
 		$oldestRevId = $editResult->getOldestRevertedRevisionId();
 		$editsToRevoke = [];
+		// Revoke every edit that was reverted as a result of this rollback
 		while ($revertedRev) {
 			$editsToRevoke[] = $revertedRev->getId();
 			if ($revertedRev->getId() == $oldestRevId) {
