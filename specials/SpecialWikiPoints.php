@@ -9,7 +9,7 @@
  * @copyright (c) 2014 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
-**/
+ */
 
 use Cheevos\Cheevos;
 use Cheevos\CheevosHelper;
@@ -30,7 +30,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		parent::__construct('WikiPoints');
+		parent::__construct( 'WikiPoints' );
 	}
 
 	/**
@@ -40,14 +40,14 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function execute($subpage) {
-		$this->output->addModuleStyles(['ext.cheevos.wikiPoints.styles', 'ext.hydraCore.pagination.styles', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button']);
+	public function execute( $subpage ) {
+		$this->output->addModuleStyles( [ 'ext.cheevos.wikiPoints.styles', 'ext.hydraCore.pagination.styles', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button' ] );
 
 		$this->setHeaders();
 
-		$this->wikiPoints($subpage);
+		$this->wikiPoints( $subpage );
 
-		$this->output->addHTML($this->content);
+		$this->output->addHTML( $this->content );
 	}
 
 	/**
@@ -57,41 +57,41 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 *
 	 * @return void
 	 */
-	public function wikiPoints($subpage = null) {
+	public function wikiPoints( $subpage = null ) {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
-		$start = $this->wgRequest->getInt('st');
+		$start = $this->wgRequest->getInt( 'st' );
 		$itemsPerPage = 100;
 
-		$form['username'] = $this->wgRequest->getVal('user');
+		$form['username'] = $this->wgRequest->getVal( 'user' );
 
 		$globalId = null;
-		if (!empty($form['username'])) {
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($form['username']);
+		if ( !empty( $form['username'] ) ) {
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $form['username'] );
 
-			if ($user->getId()) {
-				$globalId = Cheevos::getUserIdForService($user);
+			if ( $user->getId() ) {
+				$globalId = Cheevos::getUserIdForService( $user );
 			}
 
 			$pointsLog = [];
-			if (!$globalId) {
+			if ( !$globalId ) {
 				$globalId = null;
-				$form['error'] = wfMessage('error_wikipoints_user_not_found')->escaped();
+				$form['error'] = wfMessage( 'error_wikipoints_user_not_found' )->escaped();
 			}
 		}
 
-		$modifiers = explode('/', trim(trim($subpage), '/'));
-		$isSitesMode = in_array('sites', $modifiers) && CheevosHelper::isCentralWiki();
-		$isMonthly = in_array('monthly', $modifiers);
-		$isGlobal = in_array('global', $modifiers);
+		$modifiers = explode( '/', trim( trim( $subpage ), '/' ) );
+		$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
+		$isMonthly = in_array( 'monthly', $modifiers );
+		$isGlobal = in_array( 'global', $modifiers );
 
-		$thisPage = SpecialPage::getTitleFor('WikiPoints', $subpage);
-		$this->output->setPageTitle(wfMessage('top_wiki_editors' . ($isGlobal ? '_global' : '') . ($isSitesMode ? '_sites' : '') . ($isMonthly ? '_monthly' : '')));
+		$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subpage );
+		$this->output->setPageTitle( wfMessage( 'top_wiki_editors' . ( $isGlobal ? '_global' : '' ) . ( $isSitesMode ? '_sites' : '' ) . ( $isMonthly ? '_monthly' : '' ) ) );
 		$this->content = TemplateWikiPoints::getWikiPointsLinks();
-		if (!$isMonthly) {
-			$this->content .= TemplateWikiPointsAdmin::userSearch($thisPage, $form) . "<hr/>";
+		if ( !$isMonthly ) {
+			$this->content .= TemplateWikiPointsAdmin::userSearch( $thisPage, $form ) . "<hr/>";
 		}
-		$this->content .= PointsDisplay::pointsBlockHtml(($isSitesMode || $isGlobal ? null : $dsSiteKey), $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly, 'table', $thisPage);
+		$this->content .= PointsDisplay::pointsBlockHtml( ( $isSitesMode || $isGlobal ? null : $dsSiteKey ), $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly, 'table', $thisPage );
 	}
 
 	/**

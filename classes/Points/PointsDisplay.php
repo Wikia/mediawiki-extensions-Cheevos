@@ -9,7 +9,7 @@
  * @copyright (c) 2014 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
-**/
+ */
 
 namespace Cheevos\Points;
 
@@ -52,45 +52,45 @@ class PointsDisplay {
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
 	 *
-	 * @return array	generated HTML string as element 0, followed by parser options
+	 * @return array generated HTML string as element 0, followed by parser options
 	 */
-	public static function pointsBlock(&$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table') {
+	public static function pointsBlock( &$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table' ) {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
-		$limit = intval($limit);
-		if (!$limit || $limit < 0) {
+		$limit = intval( $limit );
+		if ( !$limit || $limit < 0 ) {
 			$limit = 25;
 		}
 
 		$globalId = null;
-		if (!empty($user)) {
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($user);
-			if (!$user || !$user->getId()) {
+		if ( !empty( $user ) ) {
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $user );
+			if ( !$user || !$user->getId() ) {
 				return [
-					wfMessage('user_not_found')->escaped(),
+					wfMessage( 'user_not_found' )->escaped(),
 					'isHTML' => true,
 				];
 			}
 
-			$globalId = Cheevos::getUserIdForService($user);
-			if (!$globalId) {
+			$globalId = Cheevos::getUserIdForService( $user );
+			if ( !$globalId ) {
 				return [
-					wfMessage('global_user_not_found')->escaped(),
+					wfMessage( 'global_user_not_found' )->escaped(),
 					'isHTML' => true,
 				];
 			}
 		}
 
 		$siteKey = null;
-		if ($wikis !== 'all' && $wikis !== 'global') {
+		if ( $wikis !== 'all' && $wikis !== 'global' ) {
 			$siteKey = $dsSiteKey;
 		}
 		$isSitesMode = false;
-		if ($wikis === 'all' && $wikis !== 'global') {
+		if ( $wikis === 'all' && $wikis !== 'global' ) {
 			$isSitesMode = true;
 		}
 
-		$html = self::pointsBlockHtml($siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup);
+		$html = self::pointsBlockHtml( $siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup );
 
 		return [
 			$html,
@@ -113,109 +113,109 @@ class PointsDisplay {
 	 * 					'table' Uses a standard wikitable class HTML table.
 	 * @param object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
 	 *
-	 * @return string	HTML
+	 * @return string HTML
 	 */
-	public static function pointsBlockHtml($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null) {
+	public static function pointsBlockHtml( $siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null ) {
 		global $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
 		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 
-		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
-		$start = intval($start);
-		$isSitesMode = boolval($isSitesMode);
-		$isMonthly = boolval($isMonthly);
+		$itemsPerPage = max( 1, min( intval( $itemsPerPage ), 200 ) );
+		$start = intval( $start );
+		$isSitesMode = boolval( $isSitesMode );
+		$isMonthly = boolval( $isMonthly );
 
-		$statProgress = self::getPoints($siteKey, $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly);
+		$statProgress = self::getPoints( $siteKey, $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly );
 
 		$userPoints = [];
-		$siteKeys = [$dsSiteKey];
+		$siteKeys = [ $dsSiteKey ];
 
-		foreach ($statProgress as $progress) {
+		foreach ( $statProgress as $progress ) {
 			$globalId = $progress->getUser_Id();
-			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' . ($isMonthly ? $progress->getMonth() : null);
-			if (isset($userPoints[$lookupKey])) {
+			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' . ( $isMonthly ? $progress->getMonth() : null );
+			if ( isset( $userPoints[$lookupKey] ) ) {
 				continue;
 			}
 
-			$user = Cheevos::getUserForServiceUserId($globalId);
-			if ($globalId < 1) {
+			$user = Cheevos::getUserForServiceUserId( $globalId );
+			if ( $globalId < 1 ) {
 				continue;
 			}
 
 			$userPointsRow = new stdClass();
-			if ($user !== null) {
+			if ( $user !== null ) {
 				$userPointsRow->userName = $user->getName();
-				if (!$userNameUtils->isCreatable($user->getName()) || $user->isHidden()) {
+				if ( !$userNameUtils->isCreatable( $user->getName() ) || $user->isHidden() ) {
 					continue;
 				}
-				$userPointsRow->userToolsLinks = Linker::userToolLinks($user->getId(), $user->getName());
-				$userPointsRow->userLink = $linkRenderer->makeKnownLink(Title::newFromText("User:" . $user->getName()), $user->getName());
-				$userPointsRow->adminUrl = Title::newFromText("Special:WikiPointsAdmin")->getFullUrl(['user' => $user->getName()]);
+				$userPointsRow->userToolsLinks = Linker::userToolLinks( $user->getId(), $user->getName() );
+				$userPointsRow->userLink = $linkRenderer->makeKnownLink( Title::newFromText( "User:" . $user->getName() ), $user->getName() );
+				$userPointsRow->adminUrl = Title::newFromText( "Special:WikiPointsAdmin" )->getFullUrl( [ 'user' => $user->getName() ] );
 			} else {
 				$userPointsRow->userName = "GID: " . $progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
 				$userPointsRow->userLink = '';
 			}
-			if ($isMonthly) {
-				$userPointsRow->yyyymm = gmdate('F Y', $progress->getMonth());
+			if ( $isMonthly ) {
+				$userPointsRow->yyyymm = gmdate( 'F Y', $progress->getMonth() );
 			}
 			$userPointsRow->score = $progress->getCount();
 			$userPointsRow->siteKey = $progress->getSite_Key();
 			$userPoints[$lookupKey] = $userPointsRow;
-			if ($isSitesMode) {
+			if ( $isSitesMode ) {
 				$siteKeys[] = $progress->getSite_Key();
 			}
 		}
-		$siteKeys = array_unique($siteKeys);
+		$siteKeys = array_unique( $siteKeys );
 
 		$wikis = [];
-		if ($isSitesMode && !empty($siteKeys)) {
+		if ( $isSitesMode && !empty( $siteKeys ) ) {
 			global $wgServer;
-			$redis = RedisCache::getClient('cache');
-			if ($redis !== false) {
-				foreach ($siteKeys as $siteKey) {
-					if (!empty($siteKey)) {
-						$wiki = CheevosHelper::getWikiInformation($siteKey);
-						if (!empty($wiki)) {
+			$redis = RedisCache::getClient( 'cache' );
+			if ( $redis !== false ) {
+				foreach ( $siteKeys as $siteKey ) {
+					if ( !empty( $siteKey ) ) {
+						$wiki = CheevosHelper::getWikiInformation( $siteKey );
+						if ( !empty( $wiki ) ) {
 							$wikis[$siteKey] = $wiki;
 						}
 					}
 				}
 			}
 
-			$localDomain = trim($wgServer, '/');
-			foreach ($userPoints as $key => $userPointsRow) {
-				if ($userPointsRow->siteKey != $dsSiteKey && !empty($userPointsRow->userLink) && isset($wikis[$userPointsRow->siteKey])) {
-					$domain = parse_url($wikis[$userPointsRow->siteKey]->getWikiUrl())['host'];
-					$userPoints[$key]->userToolsLinks = str_replace($localDomain, $domain, $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace($localDomain, "https://" . $domain, $userPoints[$key]->userLink);
-					$userPoints[$key]->userToolsLinks = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks);
-					$userPoints[$key]->userLink = str_replace('href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userLink);
+			$localDomain = trim( $wgServer, '/' );
+			foreach ( $userPoints as $key => $userPointsRow ) {
+				if ( $userPointsRow->siteKey != $dsSiteKey && !empty( $userPointsRow->userLink ) && isset( $wikis[$userPointsRow->siteKey] ) ) {
+					$domain = parse_url( $wikis[$userPointsRow->siteKey]->getWikiUrl() )['host'];
+					$userPoints[$key]->userToolsLinks = str_replace( $localDomain, $domain, $userPoints[$key]->userToolsLinks );
+					$userPoints[$key]->userLink = str_replace( $localDomain, "https://" . $domain, $userPoints[$key]->userLink );
+					$userPoints[$key]->userToolsLinks = str_replace( 'href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks );
+					$userPoints[$key]->userLink = str_replace( 'href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userLink );
 				}
 			}
 		}
 
 		$user = RequestContext::getMain()->getUser();
 
-		switch ($markup) {
+		switch ( $markup ) {
 			case 'badged':
 			case 'raw':
-				if (empty($userPoints)) {
+				if ( empty( $userPoints ) ) {
 					$userPointsRow = new stdClass();
 					$userPointsRow->score = 0;
 					$userPoints[] = $userPointsRow;
 				}
-				foreach ($userPoints as $userPointsRow) {
-					$html = (isset($userPointsRow->adminUrl) && $user->isAllowed('wiki_points_admin') ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score);
-					if ($markup == 'badged') {
+				foreach ( $userPoints as $userPointsRow ) {
+					$html = ( isset( $userPointsRow->adminUrl ) && $user->isAllowed( 'wiki_points_admin' ) ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score );
+					if ( $markup == 'badged' ) {
 						$html .= ' ' . Html::element(
 							'img',
 							[
 								'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
 								'alt' => 'GP',
 								'class' => 'GP-brand',
-								'title' => wfMessage('pointsicon-tooltip')
+								'title' => wfMessage( 'pointsicon-tooltip' )
 							]
 						);
 					}
@@ -225,10 +225,10 @@ class PointsDisplay {
 			case 'table':
 			default:
 				$pagination = '';
-				if ($title !== null) {
-					$pagination = TemplateWikiPoints::getSimplePagination($title, $itemsPerPage, $start);
+				if ( $title !== null ) {
+					$pagination = TemplateWikiPoints::getSimplePagination( $title, $itemsPerPage, $start );
 				}
-				$html = TemplateWikiPoints::pointsBlockHtml($userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly);
+				$html = TemplateWikiPoints::pointsBlockHtml( $userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly );
 				break;
 		}
 
@@ -245,13 +245,13 @@ class PointsDisplay {
 	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
 	 * @param boolean	[Optional] Show monthly totals.
 	 *
-	 * @return array	CheevosStatProgress Objects
+	 * @return array CheevosStatProgress Objects
 	 */
-	public static function getPoints($siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false) {
-		$itemsPerPage = max(1, min(intval($itemsPerPage), 200));
-		$start = intval($start);
-		$isSitesMode = boolval($isSitesMode);
-		$isMonthly = boolval($isMonthly);
+	public static function getPoints( $siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false ) {
+		$itemsPerPage = max( 1, min( intval( $itemsPerPage ), 200 ) );
+		$start = intval( $start );
+		$isSitesMode = boolval( $isSitesMode );
+		$isMonthly = boolval( $isMonthly );
 
 		$total = 0;
 
@@ -262,30 +262,30 @@ class PointsDisplay {
 			'sort_direction'	=> 'desc'
 		];
 
-		if (!$isSitesMode && empty($siteKey)) {
+		if ( !$isSitesMode && empty( $siteKey ) ) {
 			$filters['global'] = true;
 		}
 
-		if ($siteKey !== null && !empty($siteKey)) {
+		if ( $siteKey !== null && !empty( $siteKey ) ) {
 			$filters['site_key'] = $siteKey;
 		}
 
-		if ($globalId > 0) {
-			$filters['user_id'] = intval($globalId);
+		if ( $globalId > 0 ) {
+			$filters['user_id'] = intval( $globalId );
 		}
 
 		$statProgress = [];
-		if ($isMonthly) {
+		if ( $isMonthly ) {
 			try {
-				$statProgress = Cheevos::getStatMonthlyCount($filters);
-			} catch (CheevosException $e) {
-				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
+				$statProgress = Cheevos::getStatMonthlyCount( $filters );
+			} catch ( CheevosException $e ) {
+				wfDebug( __METHOD__ . ": " . wfMessage( 'cheevos_api_error', $e->getMessage() ) );
 			}
 		} else {
 			try {
-				$statProgress = Cheevos::getStatProgress($filters);
-			} catch (CheevosException $e) {
-				wfDebug(__METHOD__ . ": " . wfMessage('cheevos_api_error', $e->getMessage()));
+				$statProgress = Cheevos::getStatProgress( $filters );
+			} catch ( CheevosException $e ) {
+				wfDebug( __METHOD__ . ": " . wfMessage( 'cheevos_api_error', $e->getMessage() ) );
 			}
 		}
 		return $statProgress;
@@ -300,19 +300,19 @@ class PointsDisplay {
 	 *
 	 * @param string $fragment The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
 	 *
-	 * @return string	Bare host name extracted or false if unable to parse.
+	 * @return string Bare host name extracted or false if unable to parse.
 	 */
-	public static function extractDomain(string $fragment) {
-		$fragment = mb_strtolower($fragment, 'UTF-8');
+	public static function extractDomain( string $fragment ) {
+		$fragment = mb_strtolower( $fragment, 'UTF-8' );
 
-		$host = parse_url($fragment, PHP_URL_HOST);
-		if ($host !== null) {
+		$host = parse_url( $fragment, PHP_URL_HOST );
+		if ( $host !== null ) {
 			// If parse_url() went fine then return it.
 			return $host;
 		}
 
-		$fragment = trim(trim($fragment), '/');
-		if (preg_match('#^([\w|\.]+?)$#', $fragment, $matches)) {
+		$fragment = trim( trim( $fragment ), '/' );
+		if ( preg_match( '#^([\w|\.]+?)$#', $fragment, $matches ) ) {
 			return $matches[1];
 		}
 
@@ -322,16 +322,16 @@ class PointsDisplay {
 	/**
 	 * Get wiki points for user by month.
 	 *
-	 * @param User         $user      User to look up.
-	 * @param string|null  $siteKey   [Optional] Site Key
-	 * @param integer|null $monthsAgo [Optional] Aggregate months into the past.
+	 * @param User $user User to look up.
+	 * @param string|null $siteKey [Optional] Site Key
+	 * @param int|null $monthsAgo [Optional] Aggregate months into the past.
 	 *
-	 * @return integer	Wiki Points
+	 * @return int Wiki Points
 	 */
-	public static function getWikiPointsForRange(User $user, string $siteKey = null, int $monthsAgo = null) {
-		$globalId = Cheevos::getUserIdForService($user);
+	public static function getWikiPointsForRange( User $user, string $siteKey = null, int $monthsAgo = null ) {
+		$globalId = Cheevos::getUserIdForService( $user );
 
-		if ($globalId < 1) {
+		if ( $globalId < 1 ) {
 			return 0;
 		}
 
@@ -339,25 +339,25 @@ class PointsDisplay {
 			'stat'		=> 'wiki_points',
 			'site_key'	=> $siteKey,
 			'user_id'	=> $globalId,
-			'global'	=> ($siteKey === null ? true : false)
+			'global'	=> ( $siteKey === null ? true : false )
 		];
 
-		$monthsAgo = intval($monthsAgo);
-		if ($monthsAgo > 0) {
-			$filters['start_time'] = strtotime(date('Y-m-d', strtotime($monthsAgo . ' month ago')) . 'T00:00:00+00:00');
-			$filters['end_time'] = strtotime(date('Y-m-d', strtotime('yesterday')) . 'T23:59:59+00:00');
+		$monthsAgo = intval( $monthsAgo );
+		if ( $monthsAgo > 0 ) {
+			$filters['start_time'] = strtotime( date( 'Y-m-d', strtotime( $monthsAgo . ' month ago' ) ) . 'T00:00:00+00:00' );
+			$filters['end_time'] = strtotime( date( 'Y-m-d', strtotime( 'yesterday' ) ) . 'T23:59:59+00:00' );
 		}
 
 		$statProgress = [];
 		try {
-			$statProgress = Cheevos::getStatProgress($filters);
-		} catch (CheevosException $e) {
-			wfDebug("Encountered Cheevos API error {$e->getMessage()}\n");
+			$statProgress = Cheevos::getStatProgress( $filters );
+		} catch ( CheevosException $e ) {
+			wfDebug( "Encountered Cheevos API error {$e->getMessage()}\n" );
 		}
 
-		foreach ($statProgress as $progress) {
-			if ($progress->getStat() === 'wiki_points') {
-				return intval($progress->getCount());
+		foreach ( $statProgress as $progress ) {
+			if ( $progress->getStat() === 'wiki_points' ) {
+				return intval( $progress->getCount() );
 			}
 		}
 

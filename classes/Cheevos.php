@@ -8,7 +8,7 @@
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
- **/
+ */
 
 namespace Cheevos;
 
@@ -23,22 +23,22 @@ class Cheevos {
 	 *
 	 * @param string $type
 	 * @param string $path
-	 * @param array  $data
+	 * @param array $data
 	 *
 	 * @return array
 	 */
-	private static function request($type, $path, $data = []) {
+	private static function request( $type, $path, $data = [] ) {
 		global $wgCheevosHost, $wgCheevosClientId, $wgCheevosEnvoySocketPath;
 
-		if (empty($wgCheevosHost)) {
-			throw new CheevosException('$wgCheevosHost is not configured.');
+		if ( empty( $wgCheevosHost ) ) {
+			throw new CheevosException( '$wgCheevosHost is not configured.' );
 		}
-		if (empty($wgCheevosClientId)) {
-			throw new CheevosException('$wgCheevosClientId is not configured.');
+		if ( empty( $wgCheevosClientId ) ) {
+			throw new CheevosException( '$wgCheevosClientId is not configured.' );
 		}
 
 		$host = $wgCheevosHost;
-		$type = strtoupper($type);
+		$type = strtoupper( $type );
 
 		$url = "{$host}/{$path}";
 		$headers = [
@@ -58,7 +58,7 @@ class Cheevos {
 			CURLOPT_ENCODING			=> 'gzip'
 		];
 
-		if (!empty($wgCheevosEnvoySocketPath)) {
+		if ( !empty( $wgCheevosEnvoySocketPath ) ) {
 			$curlOpts[CURLOPT_UNIX_SOCKET_PATH] = $wgCheevosEnvoySocketPath;
 		}
 
@@ -67,19 +67,19 @@ class Cheevos {
 			$ch,
 			$curlOpts
 		);
-		if (in_array($type, ['DELETE', 'GET']) && !empty($data)) {
-			$url = $url . "/?" . http_build_query($data);
+		if ( in_array( $type, [ 'DELETE', 'GET' ] ) && !empty( $data ) ) {
+			$url = $url . "/?" . http_build_query( $data );
 		} else {
-			$postData = json_encode($data);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-			$headers[] = 'Content-Length: ' . strlen($postData);
+			$postData = json_encode( $data );
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, $postData );
+			$headers[] = 'Content-Length: ' . strlen( $postData );
 		}
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 
-		$result = curl_exec($ch);
-		curl_close($ch);
-		$result = json_decode($result, true);
+		$result = curl_exec( $ch );
+		curl_close( $ch );
+		$result = json_decode( $result, true );
 
 		return $result;
 	}
@@ -88,96 +88,96 @@ class Cheevos {
 	 * Wrapper for Request Function for GET method.
 	 *
 	 * @param string $path
-	 * @param array  $data
+	 * @param array $data
 	 *
 	 * @return array
 	 */
-	private static function get($path, $data = []) {
-		return self::request('GET', $path, $data);
+	private static function get( $path, $data = [] ) {
+		return self::request( 'GET', $path, $data );
 	}
 
 	/**
 	 * Wrapper for Request Function for PUT method.
 	 *
 	 * @param string $path
-	 * @param array  $data
+	 * @param array $data
 	 *
 	 * @return array
 	 */
-	private static function put($path, $data = []) {
-		return self::request('PUT', $path, $data);
+	private static function put( $path, $data = [] ) {
+		return self::request( 'PUT', $path, $data );
 	}
 
 	/**
 	 * Wrapper for Request Function for POST method.
 	 *
 	 * @param string $path
-	 * @param array  $data
+	 * @param array $data
 	 *
 	 * @return array
 	 */
-	private static function post($path, $data = []) {
-		return self::request('POST', $path, $data);
+	private static function post( $path, $data = [] ) {
+		return self::request( 'POST', $path, $data );
 	}
 
 	/**
 	 * Wrapper for Request Function for DELETE method.
 	 *
 	 * @param string $path
-	 * @param array  $data
+	 * @param array $data
 	 *
 	 * @return array
 	 */
-	private static function delete($path, $data = []) {
-		return self::request('DELETE', $path, $data);
+	private static function delete( $path, $data = [] ) {
+		return self::request( 'DELETE', $path, $data );
 	}
 
 	/**
 	 * Handle the return from a CURL request.
 	 *
-	 * @param array   $return   - Return from CURL request.
-	 * @param string  $expected - Expected array key to return.
-	 * @param string  $class    - Class to initialize with returned data.
-	 * @param boolean $single   - Only return the first request of an initialized class.
+	 * @param array $return - Return from CURL request.
+	 * @param string|null $expected - Expected array key to return.
+	 * @param string|null $class - Class to initialize with returned data.
+	 * @param bool $single - Only return the first request of an initialized class.
 	 *
 	 * @return mixed
 	 */
-	private static function return($return, $expected = null, $class = null, $single = false) {
+	private static function return( $return, $expected = null, $class = null, $single = false ) {
 		// Throw Errors if we have API errors.
-		if ($return === null || $return === false) {
-			throw new CheevosException('Cheevos Service Unavailable', 503);
+		if ( $return === null || $return === false ) {
+			throw new CheevosException( 'Cheevos Service Unavailable', 503 );
 		}
-		if (isset($return['code']) && $return['code'] !== 200) {
-			throw new CheevosException($return['message'], $return['code']);
+		if ( isset( $return['code'] ) && $return['code'] !== 200 ) {
+			throw new CheevosException( $return['message'], $return['code'] );
 		}
 
 		// Handles getting only the data we want
-		if ($expected && isset($return[$expected])) {
+		if ( $expected && isset( $return[$expected] ) ) {
 			$return = $return[$expected];
 		}
 
 		// Return data as classes instead of arrays.
-		if ($class && class_exists($class)) {
+		if ( $class && class_exists( $class ) ) {
 			$holder = [];
-			foreach ($return as $classme) {
-				if (is_array($classme)) {
-					$object = new $class($classme);
-					if ($object->hasId()) {
+			foreach ( $return as $classme ) {
+				if ( is_array( $classme ) ) {
+					$object = new $class( $classme );
+					if ( $object->hasId() ) {
 						$holder[$object->getId()] = $object;
 					} else {
 						$holder[] = $object;
 					}
 				}
-				if ($single) {
+				if ( $single ) {
 					break;
 				}
 			}
 			$return = $holder;
 
 			// If we classify things, single will only return the first.
-			if ($single) {
-				reset($return);
-				$return = current($return);
+			if ( $single ) {
+				reset( $return );
+				$return = current( $return );
 			}
 		}
 		return $return;
@@ -190,10 +190,10 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	private static function validateBody($body) {
-		if (!is_array($body)) {
-			$body = json_decode($body, 1);
-			if (is_null($body)) {
+	private static function validateBody( $body ) {
+		if ( !is_array( $body ) ) {
+			$body = json_decode( $body, 1 );
+			if ( $body === null ) {
 				return false;
 			} else {
 				return $body;
@@ -206,29 +206,29 @@ class Cheevos {
 	/**
 	 * Invalid API Cache
 	 *
-	 * @return boolean	Success
+	 * @return bool Success
 	 */
 	public static function invalidateCache() {
 		global $wgRedisServers;
 
-		$redis = RedisCache::getClient('cache');
+		$redis = RedisCache::getClient( 'cache' );
 
-		if ($redis === false) {
+		if ( $redis === false ) {
 			return false;
 		}
 
 		$cache = false;
 		$redisKey = 'cheevos:apicache:*';
-		$prefix = isset($wgRedisServers['cache']['options']['prefix']) ? $wgRedisServers['cache']['options']['prefix'] : "";
+		$prefix = isset( $wgRedisServers['cache']['options']['prefix'] ) ? $wgRedisServers['cache']['options']['prefix'] : "";
 
 		try {
-			$cache = $redis->getKeys($redisKey);
-			foreach ($cache as $key) {
-				$key = str_replace($prefix . "cheevos", "cheevos", $key); // remove prefix if exists, because weird.
-				$redis->del($key);
+			$cache = $redis->getKeys( $redisKey );
+			foreach ( $cache as $key ) {
+				$key = str_replace( $prefix . "cheevos", "cheevos", $key ); // remove prefix if exists, because weird.
+				$redis->del( $key );
 			}
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+		} catch ( RedisException $e ) {
+			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			return false;
 		}
 
@@ -242,16 +242,16 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function getFriends(User $user): array {
-		$globalId = self::getUserIdForService($user);
-		$friendTypes = self::return(self::get("friends/{$globalId}"));
-		if (is_array($friendTypes)) {
-			foreach ($friendTypes as $category => $serviceUserIds) {
-				if (is_array($serviceUserIds)) {
-					foreach ($serviceUserIds as $key => $serviceUserId) {
-						$user = self::getUserForServiceUserId($serviceUserId);
-						if (!$user) {
-							unset($friendTypes[$category][$key]);
+	public static function getFriends( User $user ): array {
+		$globalId = self::getUserIdForService( $user );
+		$friendTypes = self::return( self::get( "friends/{$globalId}" ) );
+		if ( is_array( $friendTypes ) ) {
+			foreach ( $friendTypes as $category => $serviceUserIds ) {
+				if ( is_array( $serviceUserIds ) ) {
+					foreach ( $serviceUserIds as $key => $serviceUserId ) {
+						$user = self::getUserForServiceUserId( $serviceUserId );
+						if ( !$user ) {
+							unset( $friendTypes[$category][$key] );
 						} else {
 							$friendTypes[$category][$key] = $user;
 						}
@@ -273,11 +273,11 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function getFriendStatus(User $from, User $to) {
-		$fromGlobalId = self::getUserIdForService($from);
-		$toGlobalId = self::getUserIdForService($to);
-		$return = self::get("friends/{$fromGlobalId}/{$toGlobalId}");
-		return self::return($return);
+	public static function getFriendStatus( User $from, User $to ) {
+		$fromGlobalId = self::getUserIdForService( $from );
+		$toGlobalId = self::getUserIdForService( $to );
+		$return = self::get( "friends/{$fromGlobalId}/{$toGlobalId}" );
+		return self::return( $return );
 	}
 
 	/**
@@ -288,11 +288,11 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function createFriendRequest(User $from, User $to) {
-		$fromGlobalId = self::getUserIdForService($from);
-		$toGlobalId = self::getUserIdForService($to);
-		$return = self::put("friends/{$fromGlobalId}/{$toGlobalId}");
-		return self::return($return);
+	public static function createFriendRequest( User $from, User $to ) {
+		$fromGlobalId = self::getUserIdForService( $from );
+		$toGlobalId = self::getUserIdForService( $to );
+		$return = self::put( "friends/{$fromGlobalId}/{$toGlobalId}" );
+		return self::return( $return );
 	}
 
 	/**
@@ -303,8 +303,8 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function acceptFriendRequest(User $from, User $to) {
-		return self::createFriendRequest($from, $to);
+	public static function acceptFriendRequest( User $from, User $to ) {
+		return self::createFriendRequest( $from, $to );
 	}
 
 	/**
@@ -315,11 +315,11 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function removeFriend(User $from, User $to) {
-		$fromGlobalId = self::getUserIdForService($from);
-		$toGlobalId = self::getUserIdForService($to);
-		$return = self::delete("friends/{$fromGlobalId}/{$toGlobalId}");
-		return self::return($return);
+	public static function removeFriend( User $from, User $to ) {
+		$fromGlobalId = self::getUserIdForService( $from );
+		$toGlobalId = self::getUserIdForService( $to );
+		$return = self::delete( "friends/{$fromGlobalId}/{$toGlobalId}" );
+		return self::return( $return );
 	}
 
 	/**
@@ -330,32 +330,32 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function cancelFriendRequest(User $from, User $to) {
-		return self::removeFriend($from, $to);
+	public static function cancelFriendRequest( User $from, User $to ) {
+		return self::removeFriend( $from, $to );
 	}
 
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @param string $siteKey MD5 Hash Site Key
+	 * @param string|null $siteKey MD5 Hash Site Key
 	 *
 	 * @return mixed Ouput of self::return.
 	 */
-	public static function getAchievements($siteKey = null) {
-		$redis = RedisCache::getClient('cache');
+	public static function getAchievements( $siteKey = null ) {
+		$redis = RedisCache::getClient( 'cache' );
 		$cache = false;
-		$redisKey = 'cheevos:apicache:getAchievements:' . ($siteKey ? $siteKey : 'all');
+		$redisKey = 'cheevos:apicache:getAchievements:' . ( $siteKey ? $siteKey : 'all' );
 
-		if ($redis !== false) {
+		if ( $redis !== false ) {
 			try {
-				$cache = $redis->get($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+				$cache = $redis->get( $redisKey );
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		$return = unserialize($cache, [false]);
-		if (!$cache || !$return) {
+		$return = unserialize( $cache, [ false ] );
+		if ( !$cache || !$return ) {
 			$return = self::get(
 				'achievements/all',
 				[
@@ -365,15 +365,15 @@ class Cheevos {
 			);
 
 			try {
-				if ($redis !== false && isset($return['achievements'])) {
-					$redis->setEx($redisKey, 300, serialize($return));
+				if ( $redis !== false && isset( $return['achievements'] ) ) {
+					$redis->setEx( $redisKey, 300, serialize( $return ) );
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		return self::return($return, 'achievements', '\Cheevos\CheevosAchievement');
+		return self::return( $return, 'achievements', '\Cheevos\CheevosAchievement' );
 	}
 
 	/**
@@ -381,36 +381,36 @@ class Cheevos {
 	 *
 	 * @param integer	Achievement ID
 	 *
-	 * @return mixed	Ouput of self::return.
+	 * @return mixed Ouput of self::return.
 	 */
-	public static function getAchievement($id) {
-		$redis = RedisCache::getClient('cache');
+	public static function getAchievement( $id ) {
+		$redis = RedisCache::getClient( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievement:' . $id;
 
-		if ($redis !== false) {
+		if ( $redis !== false ) {
 			try {
-				$cache = $redis->get($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+				$cache = $redis->get( $redisKey );
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		if (!$cache || !unserialize($cache)) {
-			$return = self::get("achievement/{$id}");
+		if ( !$cache || !unserialize( $cache ) ) {
+			$return = self::get( "achievement/{$id}" );
 			try {
-				if ($redis !== false) {
-					$redis->setEx($redisKey, 300, serialize($return));
+				if ( $redis !== false ) {
+					$redis->setEx( $redisKey, 300, serialize( $return ) );
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		} else {
-			$return = unserialize($cache);
+			$return = unserialize( $cache );
 		}
 
-		$return = [$return]; // The return function expects an array of results.
-		return self::return($return, 'achievements', '\Cheevos\CheevosAchievement', true);
+		$return = [ $return ]; // The return function expects an array of results.
+		return self::return( $return, 'achievements', '\Cheevos\CheevosAchievement', true );
 	}
 
 	/**
@@ -419,47 +419,47 @@ class Cheevos {
 	 * @param integer	Achievement ID
 	 * @param integer	Global ID
 	 *
-	 * @return mixed	Array
+	 * @return mixed Array
 	 */
-	public static function deleteAchievement($id, $globalId) {
+	public static function deleteAchievement( $id, $globalId ) {
 		$return = self::delete(
 			"achievement/{$id}",
 			[
-				"author_id" => intval($globalId)
+				"author_id" => intval( $globalId )
 			]
 		);
-		return self::return($return);
+		return self::return( $return );
 	}
 
 	/**
 	 * PUT Achievement into Cheevos
 	 *
-	 * @param array   $body
-	 * @param integer $id
+	 * @param array $body
+	 * @param int|null $id
 	 *
 	 * @return void
 	 */
-	private static function putAchievement($body, $id = null) {
-		$body = self::validateBody($body);
-		if (!$body) {
+	private static function putAchievement( $body, $id = null ) {
+		$body = self::validateBody( $body );
+		if ( !$body ) {
 			return false;
 		}
 
-		$path = ($id) ? "achievement/{$id}" : "achievement";
-		$return = self::put($path, $body);
-		return self::return($return);
+		$path = ( $id ) ? "achievement/{$id}" : "achievement";
+		$return = self::put( $path, $body );
+		return self::return( $return );
 	}
 
 	/**
 	 * Update an existing achievement on the service.
 	 *
 	 * @param integer	Achievement ID
-	 * @param array                    $body
+	 * @param array $body
 	 *
 	 * @return void
 	 */
-	public static function updateAchievement($id, $body) {
-		return self::putAchievement($body, $id);
+	public static function updateAchievement( $id, $body ) {
+		return self::putAchievement( $body, $id );
 	}
 
 	/**
@@ -469,8 +469,8 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	public static function createAchievement($body) {
-		return self::putAchievement($body);
+	public static function createAchievement( $body ) {
+		return self::putAchievement( $body );
 	}
 
 	/**
@@ -481,20 +481,20 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getCategories($skipCache = false) {
+	public static function getCategories( $skipCache = false ) {
 		$cache = false;
-		$redis = RedisCache::getClient('cache');
+		$redis = RedisCache::getClient( 'cache' );
 		$redisKey = 'cheevos:apicache:getCategories';
 
-		if (!$skipCache && $redis !== false) {
+		if ( !$skipCache && $redis !== false ) {
 			try {
-				$cache = $redis->get($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+				$cache = $redis->get( $redisKey );
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		if (!$cache || !unserialize($cache)) {
+		if ( !$cache || !unserialize( $cache ) ) {
 			$return = self::get(
 				'achievement_categories/all',
 				[
@@ -502,101 +502,100 @@ class Cheevos {
 				]
 			);
 			try {
-				if ($redis !== false) {
-					$redis->setEx($redisKey, 300, serialize($return));
+				if ( $redis !== false ) {
+					$redis->setEx( $redisKey, 300, serialize( $return ) );
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		} else {
-			$return = unserialize($cache);
+			$return = unserialize( $cache );
 		}
 
-		return self::return($return, 'categories', '\Cheevos\CheevosAchievementCategory');
+		return self::return( $return, 'categories', '\Cheevos\CheevosAchievementCategory' );
 	}
 
 	/**
 	 * Get Category by ID
 	 *
-	 * @param integer $id
+	 * @param int $id
 	 *
 	 * @return mixed
 	 */
-	public static function getCategory($id) {
-		$redis = RedisCache::getClient('cache');
+	public static function getCategory( $id ) {
+		$redis = RedisCache::getClient( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getCategory:' . $id;
 
-		if ($redis !== false) {
+		if ( $redis !== false ) {
 			try {
-				$cache = $redis->get($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+				$cache = $redis->get( $redisKey );
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		if (!$cache || !unserialize($cache)) {
-			$return = self::get("achievement_category/{$id}");
+		if ( !$cache || !unserialize( $cache ) ) {
+			$return = self::get( "achievement_category/{$id}" );
 			try {
-				if ($redis !== false) {
-					$redis->setEx($redisKey, 300, serialize($return));
+				if ( $redis !== false ) {
+					$redis->setEx( $redisKey, 300, serialize( $return ) );
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		} else {
-			$return = unserialize($cache);
+			$return = unserialize( $cache );
 		}
 
-		$return = [$return]; // return expect array of results. fake it.
-		return self::return($return, 'categories', '\Cheevos\CheevosAchievementCategory', true);
+		$return = [ $return ]; // return expect array of results. fake it.
+		return self::return( $return, 'categories', '\Cheevos\CheevosAchievementCategory', true );
 	}
 
 	/**
 	 * Delete Category by ID (with optional user_id for user that deleted the category)
 	 *
-	 * @param integer $id
-	 * @param integer $userId
+	 * @param int $id
+	 * @param int $userId
 	 *
 	 * @return void
 	 */
-	public static function deleteCategory($id, $userId = 0) {
-		$return = self::delete("achievement_category/{$id}", [
+	public static function deleteCategory( $id, $userId = 0 ) {
+		$return = self::delete( "achievement_category/{$id}", [
 			"author_id" => $userId
-		]);
-		return self::return($return);
-		;
+		] );
+		return self::return( $return );
 	}
 
 	/**
 	 * Create a Category
 	 *
-	 * @param array   $body
-	 * @param integer $id
+	 * @param array $body
+	 * @param int|null $id
 	 *
 	 * @return void
 	 */
-	private static function putCategory($body, $id = null) {
-		$body = self::validateBody($body);
-		if (!$body) {
+	private static function putCategory( $body, $id = null ) {
+		$body = self::validateBody( $body );
+		if ( !$body ) {
 			return false;
 		}
 
-		$path = ($id) ? "achievement_category/{$id}" : "achievement_category";
-		$return = self::put($path, $body);
-		return self::return($return);
+		$path = ( $id ) ? "achievement_category/{$id}" : "achievement_category";
+		$return = self::put( $path, $body );
+		return self::return( $return );
 	}
 
 	/**
 	 * Update Category by ID
 	 *
-	 * @param integer $id
-	 * @param array   $body
+	 * @param int $id
+	 * @param array $body
 	 *
 	 * @return void
 	 */
-	public static function updateCategory($id, $body) {
-		return self::putCategory($body, $id);
+	public static function updateCategory( $id, $body ) {
+		return self::putCategory( $body, $id );
 	}
 
 	/**
@@ -606,8 +605,8 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	public static function createCategory($body) {
-		return self::putCategory($body);
+	public static function createCategory( $body ) {
+		return self::putCategory( $body );
 	}
 
 	/**
@@ -617,29 +616,29 @@ class Cheevos {
 	 *
 	 * @return mixed Array of return status including earned achievements or false on error.
 	 */
-	public static function increment($body) {
-		$body = self::validateBody($body);
-		if (!$body) {
+	public static function increment( $body ) {
+		$body = self::validateBody( $body );
+		if ( !$body ) {
 			return false;
 		}
 
-		$return = self::post('increment', $body);
+		$return = self::post( 'increment', $body );
 
-		return self::return($return);
+		return self::return( $return );
 	}
 
 	/**
 	 * Call increment to check for any unnotified achievement rewards.
 	 *
-	 * @param integer $globalId
-	 * @param string  $siteKey
-	 * @param boolean $forceRecalculate
+	 * @param int $globalId
+	 * @param string $siteKey
+	 * @param bool $forceRecalculate
 	 *
 	 * @return void
 	 */
-	public static function checkUnnotified($globalId, $siteKey, $forceRecalculate = false) {
-		$globalId = intval($globalId);
-		if (empty($globalId) || empty($siteKey)) {
+	public static function checkUnnotified( $globalId, $siteKey, $forceRecalculate = false ) {
+		$globalId = intval( $globalId );
+		if ( empty( $globalId ) || empty( $siteKey ) ) {
 			return;
 		}
 
@@ -649,13 +648,13 @@ class Cheevos {
 			'recalculate' => $forceRecalculate,
 			'deltas' => []
 		];
-		return self::increment($data);
+		return self::increment( $data );
 	}
 
 	/**
 	 * Return StatProgress for selected filters.
 	 *
-	 * @param array $filters  Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
 	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 *                        - $filters = [
@@ -673,27 +672,27 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getStatProgress(array $filters = [], ?User $user = null) {
-		if ($user !== null) {
-			$filters['user_id'] = self::getUserIdForService($user);
+	public static function getStatProgress( array $filters = [], ?User $user = null ) {
+		if ( $user !== null ) {
+			$filters['user_id'] = self::getUserIdForService( $user );
 		}
 
-		foreach (['user_id', 'start_time', 'end_time', 'limit', 'offset'] as $key) {
-			if (isset($filter[$key]) && !is_int($filter[$key])) {
-				$filter[$key] = intval($filter[$key]);
+		foreach ( [ 'user_id', 'start_time', 'end_time', 'limit', 'offset' ] as $key ) {
+			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
+				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 200);
+		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
 
-		$return = self::get('stats', $filters);
+		$return = self::get( 'stats', $filters );
 
-		return self::return($return, 'stats', '\Cheevos\CheevosStatProgress');
+		return self::return( $return, 'stats', '\Cheevos\CheevosStatProgress' );
 	}
 
 	/**
 	 * Return WikiPointLog for selected filters.
 	 *
-	 * @param array	$filters  Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
 	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
 	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
 	 *                        - $filters = [
@@ -706,41 +705,41 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getWikiPointLog(array $filters = [], ?User $user = null) {
-		if ($user !== null) {
-			$filters['user_id'] = self::getUserIdForService($user);
+	public static function getWikiPointLog( array $filters = [], ?User $user = null ) {
+		if ( $user !== null ) {
+			$filters['user_id'] = self::getUserIdForService( $user );
 		}
 
-		foreach (['user_id', 'limit', 'offset'] as $key) {
-			if (isset($filter[$key]) && !is_int($filter[$key])) {
-				$filter[$key] = intval($filter[$key]);
+		foreach ( [ 'user_id', 'limit', 'offset' ] as $key ) {
+			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
+				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 25);
+		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 25 );
 
-		$return = self::get('points/user', $filters);
+		$return = self::get( 'points/user', $filters );
 
-		return self::return($return, 'points', '\Cheevos\CheevosWikiPointLog');
+		return self::return( $return, 'points', '\Cheevos\CheevosWikiPointLog' );
 	}
 
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param User        $user    Global User ID
+	 * @param User $user Global User ID
 	 * @param string|null $siteKey [Optional] Filter by site key.
 	 *
 	 * @return mixed
 	 */
-	public static function getUserPointRank(User $user, ?string $siteKey = null) {
+	public static function getUserPointRank( User $user, ?string $siteKey = null ) {
 		$return = self::get(
 			'points/user_rank',
 			[
-				'user_id'	=> self::getUserIdForService($user),
+				'user_id'	=> self::getUserIdForService( $user ),
 				'site_key'	=> $siteKey
 			]
 		);
 
-		return self::return($return, 'rank');
+		return self::return( $return, 'rank' );
 	}
 
 	/**
@@ -758,23 +757,23 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getStatDailyCount(array $filters = []) {
-		foreach (['limit', 'offset'] as $key) {
-			if (isset($filter[$key]) && !is_int($filter[$key])) {
-				$filter[$key] = intval($filter[$key]);
+	public static function getStatDailyCount( array $filters = [] ) {
+		foreach ( [ 'limit', 'offset' ] as $key ) {
+			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
+				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 200);
+		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
 
-		$return = self::get('stats/daily', $filters);
+		$return = self::get( 'stats/daily', $filters );
 
-		return self::return($return, 'stats', '\Cheevos\CheevosStatDailyCount');
+		return self::return( $return, 'stats', '\Cheevos\CheevosStatDailyCount' );
 	}
 
 	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
-	 * @param array     $filter Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filter Limit Filters - All filters are optional and can omitted from the array.
 	 *                          This is an array since the amount of filter parameters is expected to be
 	 *                          reasonably volatile over the life span of the product. This function
 	 *                          does minimum validation of the filters.  For example, sending a numeric
@@ -789,45 +788,45 @@ class Cheevos {
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 * 		                    - ];
-	 * @param User|null $user   Filter by user.  Overwrites 'user_id' in $filters if provided.
+	 * @param User|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getStatMonthlyCount(array $filters = [], ?User $user = null) {
-		if ($user !== null) {
-			$filters['user_id'] = self::getUserIdForService($user);
+	public static function getStatMonthlyCount( array $filters = [], ?User $user = null ) {
+		if ( $user !== null ) {
+			$filters['user_id'] = self::getUserIdForService( $user );
 		}
 
-		foreach (['user_id', 'limit', 'offset'] as $key) {
-			if (isset($filter[$key]) && !is_int($filter[$key])) {
-				$filter[$key] = intval($filter[$key]);
+		foreach ( [ 'user_id', 'limit', 'offset' ] as $key ) {
+			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
+				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = (isset($filters['limit']) ? $filters['limit'] : 200);
+		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
 
-		$return = self::get('stats/monthly', $filters);
+		$return = self::get( 'stats/monthly', $filters );
 
-		return self::return($return, 'stats', '\Cheevos\CheevosStatMonthlyCount');
+		return self::return( $return, 'stats', '\Cheevos\CheevosStatMonthlyCount' );
 	}
 
 	/**
 	 * Return stats/user_site_count for selected filters.
 	 *
-	 * @param User   $user User
+	 * @param User $user User
 	 * @param string $stat Filter by stat name (Example: article_edit to get number of Wikis Edited)
 	 *
 	 * @return mixed
 	 */
-	public static function getUserSitesCountByStat(User $user, string $stat) {
+	public static function getUserSitesCountByStat( User $user, string $stat ) {
 		$return = self::get(
 			'stats/user_sites_count',
 			[
-				'user_id'	=> self::getUserIdForService($user),
+				'user_id'	=> self::getUserIdForService( $user ),
 				'stat'		=> $stat
 			]
 		);
 
-		return self::return($return, 'count');
+		return self::return( $return, 'count' );
 	}
 
 	/**
@@ -838,23 +837,23 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getAchievementStatus($globalId, $siteKey = null) {
+	public static function getAchievementStatus( $globalId, $siteKey = null ) {
 		$return = self::get(
 			'achievements/status',
 			[
 				'limit'	=> 0,
-				'user_id' => intval($globalId),
+				'user_id' => intval( $globalId ),
 				'site_key' => $siteKey
 			]
 		);
 
-		return self::return($return, 'status', '\Cheevos\CheevosAchievementStatus');
+		return self::return( $return, 'status', '\Cheevos\CheevosAchievementStatus' );
 	}
 
 	/**
 	 * Return AchievementProgress for selected filters.
 	 *
-	 * @param array     $filters Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
 	 *                           - $filters = [
 	 *                           -     'site_key' => 'example', //Limit by site key.
 	 *                           -     'achievement_id' => 0, //Limit by achievement ID.
@@ -864,61 +863,61 @@ class Cheevos {
 	 *                           -     'limit' => 100, //Maximum number of results.
 	 *                           -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                           - ];
-	 * @param User|null $user    Filter by user.  Overwrites 'user_id' in $filters if provided.
+	 * @param User|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return mixed
 	 */
-	public static function getAchievementProgress(array $filters = [], ?User $user = null) {
-		if ($user !== null) {
-			$filters['user_id'] = self::getUserIdForService($user);
+	public static function getAchievementProgress( array $filters = [], ?User $user = null ) {
+		if ( $user !== null ) {
+			$filters['user_id'] = self::getUserIdForService( $user );
 		}
 
-		foreach (['user_id', 'achievement_id', 'category_id', 'limit', 'offset'] as $key) {
-			if (isset($filter[$key]) && !is_int($filter[$key])) {
-				$filter[$key] = intval($filter[$key]);
+		foreach ( [ 'user_id', 'achievement_id', 'category_id', 'limit', 'offset' ] as $key ) {
+			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
+				$filter[$key] = intval( $filter[$key] );
 			}
 		}
 
-		$return = self::get('achievements/progress', $filters);
+		$return = self::get( 'achievements/progress', $filters );
 
-		return self::return($return, 'progress', '\Cheevos\CheevosAchievementProgress');
+		return self::return( $return, 'progress', '\Cheevos\CheevosAchievementProgress' );
 	}
 
 	/**
 	 * Get progress for an achievement
 	 *
-	 * @param integer $id
+	 * @param int|null $id
 	 *
 	 * @return mixed
 	 */
-	public static function getProgressCount($site_key = null, $achievement_id = null) {
-		$return = self::get("achievements/progress/count", [
+	public static function getProgressCount( $site_key = null, $achievement_id = null ) {
+		$return = self::get( "achievements/progress/count", [
 			"achievement_id" => $achievement_id,
 			"site_key"	=> $site_key
-		]); // return expect array of results. fake it.
-		return self::return($return);
+		] ); // return expect array of results. fake it.
+		return self::return( $return );
 	}
 
-	public static function getProgressTop($site_key = null, $ignore_users = [], $achievement_id = null, $limit = 1) {
-		$return = self::get("achievements/progress/top", [
-			"ignore_users" => implode(",", $ignore_users),
+	public static function getProgressTop( $site_key = null, $ignore_users = [], $achievement_id = null, $limit = 1 ) {
+		$return = self::get( "achievements/progress/top", [
+			"ignore_users" => implode( ",", $ignore_users ),
 			"site_key"	=> $site_key,
 			"achievement_id" => $achievement_id,
 			"limit"	=> $limit
-		]); // return expect array of results. fake it.
-		return self::return($return);
+		] ); // return expect array of results. fake it.
+		return self::return( $return );
 	}
 
 	/**
 	 * Get process for achievement
 	 *
-	 * @param integer $id
+	 * @param int $id
 	 *
 	 * @return mixed
 	 */
-	public static function getProgress($id) {
-		$return = [self::get("achievements/progress/{$id}")]; // return expect array of results. fake it.
-		return self::return($return, 'progress', '\Cheevos\CheevosAchievementProgress', true);
+	public static function getProgress( $id ) {
+		$return = [ self::get( "achievements/progress/{$id}" ) ]; // return expect array of results. fake it.
+		return self::return( $return, 'progress', '\Cheevos\CheevosAchievementProgress', true );
 	}
 
 	/**
@@ -928,40 +927,40 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function deleteProgress($id) {
-		$return = self::delete("achievements/progress/{$id}");
-		return self::return($return);
+	public static function deleteProgress( $id ) {
+		$return = self::delete( "achievements/progress/{$id}" );
+		return self::return( $return );
 	}
 
 	/**
 	 * Put process for achievement. Either create or updates.
 	 *
-	 * @param array   $body
-	 * @param integer $id
+	 * @param array $body
+	 * @param int|null $id
 	 *
 	 * @return void
 	 */
-	public static function putProgress($body, $id = null) {
-		$body = self::validateBody($body);
-		if (!$body) {
+	public static function putProgress( $body, $id = null ) {
+		$body = self::validateBody( $body );
+		if ( !$body ) {
 			return false;
 		}
 
-		$path = ($id) ? "achievements/progress/{$id}" : "achievements/progress";
-		$return = self::put($path, $body);
-		return self::return($return);
+		$path = ( $id ) ? "achievements/progress/{$id}" : "achievements/progress";
+		$return = self::put( $path, $body );
+		return self::return( $return );
 	}
 
 	/**
 	 * Update progress
 	 *
-	 * @param integer $id
-	 * @param array   $body
+	 * @param int $id
+	 * @param array $body
 	 *
 	 * @return void
 	 */
-	public static function updateProgress($id, $body) {
-		return self::putProgress($body, $id);
+	public static function updateProgress( $id, $body ) {
+		return self::putProgress( $body, $id );
 	}
 
 	/**
@@ -971,8 +970,8 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	public static function createProgress($body) {
-		return self::putProgress($body);
+	public static function createProgress( $body ) {
+		return self::putProgress( $body );
 	}
 
 	/**
@@ -982,33 +981,33 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getUserOptions($globalId) {
-		$redis = RedisCache::getClient('cache');
+	public static function getUserOptions( $globalId ) {
+		$redis = RedisCache::getClient( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:useroptions:' . $globalId;
 
-		if ($redis !== false) {
+		if ( $redis !== false ) {
 			try {
-				$cache = $redis->get($redisKey);
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+				$cache = $redis->get( $redisKey );
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		}
 
-		if (!$cache || !unserialize($cache)) {
-			$return = self::get('user_options/' . intval($globalId));
+		if ( !$cache || !unserialize( $cache ) ) {
+			$return = self::get( 'user_options/' . intval( $globalId ) );
 			try {
-				if ($redis !== false) {
-					$redis->setEx($redisKey, 86400, serialize($return));
+				if ( $redis !== false ) {
+					$redis->setEx( $redisKey, 86400, serialize( $return ) );
 				}
-			} catch (RedisException $e) {
-				wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+			} catch ( RedisException $e ) {
+				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 			}
 		} else {
-			$return = unserialize($cache);
+			$return = unserialize( $cache );
 		}
 
-		return self::return($return, 'useroptions');
+		return self::return( $return, 'useroptions' );
 	}
 
 	/**
@@ -1019,25 +1018,25 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function setUserOptions($body) {
-		$body = self::validateBody($body);
-		if (!$body) {
+	public static function setUserOptions( $body ) {
+		$body = self::validateBody( $body );
+		if ( !$body ) {
 			return false;
 		}
 
-		$redis = RedisCache::getClient('cache');
+		$redis = RedisCache::getClient( 'cache' );
 		$redisKey = 'cheevos:apicache:useroptions:' . $body['user_id'];
 		try {
-			if ($redis !== false) {
-				$redis->del($redisKey);
+			if ( $redis !== false ) {
+				$redis->del( $redisKey );
 			}
-		} catch (RedisException $e) {
-			wfDebug(__METHOD__ . ": Caught RedisException - " . $e->getMessage());
+		} catch ( RedisException $e ) {
+			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 		}
 
 		$path = "user_options/" . $body['user_id'];
-		$return = self::put($path, $body);
-		return self::return($return);
+		$return = self::put( $path, $body );
+		return self::return( $return );
 	}
 
 	/**
@@ -1047,19 +1046,19 @@ class Cheevos {
 	 * @param array	Revision IDs
 	 * @param string	Site Key
 	 *
-	 * @return mixed	Array
+	 * @return mixed Array
 	 */
-	public static function revokeEditPoints($pageId, $revisionIds, $siteKey) {
-		$revisionIds = array_map('intval', $revisionIds);
+	public static function revokeEditPoints( $pageId, $revisionIds, $siteKey ) {
+		$revisionIds = array_map( 'intval', $revisionIds );
 		$return = self::post(
 			"points/revoke_revisions",
 			[
-				'page_id'		=> intval($pageId),
+				'page_id'		=> intval( $pageId ),
 				'revision_ids'	=> $revisionIds,
 				'site_key'		=> $siteKey
 			]
 		);
-		return self::return($return);
+		return self::return( $return );
 	}
 
 	/**
@@ -1067,20 +1066,20 @@ class Cheevos {
 	 *
 	 * @param User $user
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public static function getUserIdForService(User $user): int {
+	public static function getUserIdForService( User $user ): int {
 		return $user->getId();
 	}
 
 	/**
 	 * Get a local User object for this user ID in the Cheevos service.
 	 *
-	 * @param integer $serviceUserId
+	 * @param int $serviceUserId
 	 *
 	 * @return User|null
 	 */
-	public static function getUserForServiceUserId(int $serviceUserId): ?User {
-		return MediaWikiServices::getInstance()->getUserFactory()->newFromId($serviceUserId);
+	public static function getUserForServiceUserId( int $serviceUserId ): ?User {
+		return MediaWikiServices::getInstance()->getUserFactory()->newFromId( $serviceUserId );
 	}
 }

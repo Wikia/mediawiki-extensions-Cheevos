@@ -9,14 +9,14 @@
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
-**/
+ */
 
 namespace Cheevos\Job;
 
 use Cheevos\Points\PointsCompReport;
-use MWException;
 use Job;
 use MediaWiki\MediaWikiServices;
+use MWException;
 
 class PointsCompJob extends Job {
 	/**
@@ -32,36 +32,36 @@ class PointsCompJob extends Job {
 	 *
 	 * @return void
 	 */
-	public static function queue(array $parameters = []) {
-		$job = new self(__CLASS__, $parameters);
-		MediaWikiServices::getInstance()->getJobQueueGroup()->lazyPush($job);
+	public static function queue( array $parameters = [] ) {
+		$job = new self( __CLASS__, $parameters );
+		MediaWikiServices::getInstance()->getJobQueueGroup()->lazyPush( $job );
 	}
 
 	/**
 	 * Points Comp Job
 	 *
-	 * @return boolean Success
+	 * @return bool Success
 	 */
 	public function run() {
 		$args = $this->getParams();
 
-		$minPointThreshold = (isset($args['min_point_threshold']) ? intval($args['min_point_threshold']) : null);
-		$maxPointThreshold = (isset($args['max_point_threshold']) ? intval($args['max_point_threshold']) : null);
-		$startTime = (isset($args['start_time']) ? intval($args['start_time']) : 0);
-		$endTime = (isset($args['end_time']) ? intval($args['end_time']) : 0);
-		$final = (isset($args['final']) ? boolval($args['final']) : false);
-		$email = (isset($args['email']) ? boolval($args['email']) : false);
-		$reportId = (isset($args['report_id']) ? intval($args['report_id']) : null);
+		$minPointThreshold = ( isset( $args['min_point_threshold'] ) ? intval( $args['min_point_threshold'] ) : null );
+		$maxPointThreshold = ( isset( $args['max_point_threshold'] ) ? intval( $args['max_point_threshold'] ) : null );
+		$startTime = ( isset( $args['start_time'] ) ? intval( $args['start_time'] ) : 0 );
+		$endTime = ( isset( $args['end_time'] ) ? intval( $args['end_time'] ) : 0 );
+		$final = ( isset( $args['final'] ) ? boolval( $args['final'] ) : false );
+		$email = ( isset( $args['email'] ) ? boolval( $args['email'] ) : false );
+		$reportId = ( isset( $args['report_id'] ) ? intval( $args['report_id'] ) : null );
 
 		// Wait for any lag, since this job was created immediately after the report was written:
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr = $lb->getConnection( DB_REPLICA );
 		$lb->waitForPrimaryPos( $dbr );
 
-		if ($reportId > 0) {
-			$report = PointsCompReport::newFromId($reportId);
-			if (!$report) {
-				$this->setLastError("Bad report ID.");
+		if ( $reportId > 0 ) {
+			$report = PointsCompReport::newFromId( $reportId );
+			if ( !$report ) {
+				$this->setLastError( "Bad report ID." );
 				return false;
 			}
 		} else {
@@ -70,20 +70,20 @@ class PointsCompJob extends Job {
 
 		try {
 			$skipReport = false;
-			if (isset($args['grantAll']) && $args['grantAll'] = true) {
+			if ( isset( $args['grantAll'] ) && $args['grantAll'] = true ) {
 				$report->compAllSubscriptions();
 				$skipReport = true;
 			}
-			if (isset($args['emailAll']) && $args['emailAll'] = true) {
+			if ( isset( $args['emailAll'] ) && $args['emailAll'] = true ) {
 				$report->sendAllEmails();
 				$skipReport = true;
 			}
 
-			if (!$skipReport) {
-				$report->run($minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email);
+			if ( !$skipReport ) {
+				$report->run( $minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email );
 			}
-		} catch (MWException $e) {
-			$this->setLastError("Failed to run report due to: " . $e->getMessage());
+		} catch ( MWException $e ) {
+			$this->setLastError( "Failed to run report due to: " . $e->getMessage() );
 			return false;
 		}
 
@@ -93,7 +93,7 @@ class PointsCompJob extends Job {
 	/**
 	 * Don't allow retrying this job.
 	 *
-	 * @return boolean False
+	 * @return bool False
 	 */
 	public function allowRetries() {
 		return false;

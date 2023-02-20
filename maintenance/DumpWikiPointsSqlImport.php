@@ -9,7 +9,7 @@
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://www.gamepedia.com/
-**/
+ */
 
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
@@ -23,8 +23,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->addDescription('Dumps WikiPoints tables to SQL to import into Cheevos.');
-		$this->addOption('folder', 'Specify a folder to dump a file into instead of outputing to the terminal.', true, true);
+		$this->addDescription( 'Dumps WikiPoints tables to SQL to import into Cheevos.' );
+		$this->addOption( 'folder', 'Specify a folder to dump a file into instead of outputing to the terminal.', true, true );
 	}
 
 	/**
@@ -38,20 +38,20 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$folder = false;
-		if ($this->getOption('folder')) {
-			$folder = $this->getOption('folder');
-			$folder = realpath($folder);
-			if ($folder === false) {
-				$this->error("Selected folder is not valid.");
+		if ( $this->getOption( 'folder' ) ) {
+			$folder = $this->getOption( 'folder' );
+			$folder = realpath( $folder );
+			if ( $folder === false ) {
+				$this->error( "Selected folder is not valid." );
 				exit;
 			}
-			if (!is_writable($folder)) {
-				$this->error("Selected folder is not writable.");
+			if ( !is_writable( $folder ) ) {
+				$this->error( "Selected folder is not writable." );
 				exit;
 			}
 		}
 
-		$db = wfGetDB(DB_PRIMARY);
+		$db = wfGetDB( DB_PRIMARY );
 
 		$where = [
 			'reason'	=> 1,
@@ -59,8 +59,8 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		];
 
 		$result = $db->select(
-			['wiki_points', 'revision', 'user_global'],
-			['count(*) AS total', 'revision.rev_len', 'user_global.global_id'],
+			[ 'wiki_points', 'revision', 'user_global' ],
+			[ 'count(*) AS total', 'revision.rev_len', 'user_global.global_id' ],
 			$where,
 			__METHOD__,
 			[],
@@ -73,22 +73,22 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				]
 			]
 		);
-		$total = intval($result->fetchRow()['total']);
+		$total = intval( $result->fetchRow()['total'] );
 
-		$file = fopen($folder . '/' . $wgDBname . '_wiki_points.sql', 'w+');
-		fwrite($file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '" . $dsSiteKey . "');\n");
+		$file = fopen( $folder . '/' . $wgDBname . '_wiki_points.sql', 'w+' );
+		fwrite( $file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '" . $dsSiteKey . "');\n" );
 		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
-		fwrite($file, $sql);
+		fwrite( $file, $sql );
 		$inserts = [];
 
 		$userIdGlobalId = [];
 		$insert = false;
 		$maxLines = 0;
-		for ($i = 0; $i <= $total; $i = $i + 1000) {
+		for ( $i = 0; $i <= $total; $i = $i + 1000 ) {
 			$maxLines += 1000;
 			$result = $db->select(
-				['wiki_points', 'revision', 'user_global'],
-				['wiki_points.*', 'revision.rev_len', 'user_global.global_id'],
+				[ 'wiki_points', 'revision', 'user_global' ],
+				[ 'wiki_points.*', 'revision.rev_len', 'user_global.global_id' ],
 				$where,
 				__METHOD__,
 				[
@@ -106,41 +106,41 @@ class DumpWikiPointsSqlImport extends Maintenance {
 				]
 			);
 
-			while ($row = $result->fetchRow()) {
-				if ($insert !== false) {
-					fwrite($file, $insert . ",\n");
+			while ( $row = $result->fetchRow() ) {
+				if ( $insert !== false ) {
+					fwrite( $file, $insert . ",\n" );
 				}
 
-				if ($row['user_id'] < 1 || $row['article_id'] < 1) {
+				if ( $row['user_id'] < 1 || $row['article_id'] < 1 ) {
 					continue;
 				}
 
-				$globalId = intval($row['global_id']);
-				if (!$globalId) {
+				$globalId = intval( $row['global_id'] );
+				if ( !$globalId ) {
 					continue;
 				}
 
-				$size = intval($row['rev_len']);
+				$size = intval( $row['rev_len'] );
 
-				if (strpos($row['calculation_info'], '\"') !== false) {
-					$row['calculation_info'] = str_replace('\"', '"', $row['calculation_info']);
+				if ( strpos( $row['calculation_info'], '\"' ) !== false ) {
+					$row['calculation_info'] = str_replace( '\"', '"', $row['calculation_info'] );
 				}
-				$calcInfo = json_decode($row['calculation_info'], true);
+				$calcInfo = json_decode( $row['calculation_info'], true );
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' . wfTimestamp(TS_UNIX, $row['created']) . ', ' . $size . ', ' . $sizeDiff . ', ' . $row['score'] . ")";
+				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' . wfTimestamp( TS_UNIX, $row['created'] ) . ', ' . $size . ', ' . $sizeDiff . ', ' . $row['score'] . ")";
 			}
-			if ($maxLines >= 30000) {
+			if ( $maxLines >= 30000 ) {
 				$maxLines = 0;
-				fwrite($file, $insert . ";\n");
+				fwrite( $file, $insert . ";\n" );
 				$insert = false;
-				fwrite($file, $sql);
+				fwrite( $file, $sql );
 			}
 		}
-		if ($insert !== false) {
-			fwrite($file, $insert);
+		if ( $insert !== false ) {
+			fwrite( $file, $insert );
 		}
-		fwrite($file, ";\n");
-		fclose($file);
+		fwrite( $file, ";\n" );
+		fclose( $file );
 	}
 }
 

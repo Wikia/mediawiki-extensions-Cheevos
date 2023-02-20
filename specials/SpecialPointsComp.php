@@ -8,7 +8,7 @@
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
- **/
+ */
 
 use Cheevos\CheevosHelper;
 use Cheevos\Job\PointsCompJob;
@@ -29,7 +29,7 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		parent::__construct('PointsComp', 'points_comp_reports');
+		parent::__construct( 'PointsComp', 'points_comp_reports' );
 	}
 
 	/**
@@ -39,13 +39,13 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function execute($subpage) {
-		$this->getOutput()->addModuleStyles(['ext.cheevos.styles', "ext.hydraCore.button.styles", 'ext.hydraCore.pagination.styles', 'mediawiki.ui.button', 'mediawiki.ui.input']);
-		$this->getOutput()->addModules(['ext.cheevos.js', 'ext.cheevos.pointsComp.js']);
+	public function execute( $subpage ) {
+		$this->getOutput()->addModuleStyles( [ 'ext.cheevos.styles', "ext.hydraCore.button.styles", 'ext.hydraCore.pagination.styles', 'mediawiki.ui.button', 'mediawiki.ui.input' ] );
+		$this->getOutput()->addModules( [ 'ext.cheevos.js', 'ext.cheevos.pointsComp.js' ] );
 		$this->checkPermissions();
 		$this->setHeaders();
-		$this->pointsCompReports($subpage);
-		$this->getOutput()->addHTML($this->content);
+		$this->pointsCompReports( $subpage );
+		$this->getOutput()->addHTML( $this->content );
 	}
 
 	/**
@@ -55,27 +55,27 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function pointsCompReports($subpage = null) {
-		$start = $this->getRequest()->getInt('st');
+	public function pointsCompReports( $subpage = null ) {
+		$start = $this->getRequest()->getInt( 'st' );
 		$itemsPerPage = 50;
-		$reportId = intval($subpage);
+		$reportId = intval( $subpage );
 		$messages = $this->runReport();
-		if ($reportId > 0) {
-			$report = PointsCompReport::newFromId($reportId);
-			if (!$report) {
-				throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
+		if ( $reportId > 0 ) {
+			$report = PointsCompReport::newFromId( $reportId );
+			if ( !$report ) {
+				throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 			}
-			$this->getOutput()->setPageTitle(wfMessage('pointscomp_detail', $report->getReportId(), gmdate('Y-m-d', $report->getRunTime()))->escaped());
-			if ($this->getRequest()->getBool('csv')) {
-				return $this->downloadCSV(TemplatePointsComp::pointsCompReportCSV($report), $report->getReportId());
+			$this->getOutput()->setPageTitle( wfMessage( 'pointscomp_detail', $report->getReportId(), gmdate( 'Y-m-d', $report->getRunTime() ) )->escaped() );
+			if ( $this->getRequest()->getBool( 'csv' ) ) {
+				return $this->downloadCSV( TemplatePointsComp::pointsCompReportCSV( $report ), $report->getReportId() );
 			}
-			$this->content = TemplatePointsComp::pointsCompReportDetail($report);
+			$this->content = TemplatePointsComp::pointsCompReportDetail( $report );
 		} else {
-			$reportData = PointsCompReport::getReportsList($start, $itemsPerPage);
+			$reportData = PointsCompReport::getReportsList( $start, $itemsPerPage );
 
-			$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $reportData['total'], $itemsPerPage, $start);
-			$this->getOutput()->setPageTitle(wfMessage('pointscomp')->escaped());
-			$this->content = TemplatePointsComp::pointsCompReports($reportData['reports'], $pagination);
+			$pagination = HydraCore::generatePaginationHtml( $this->getFullTitle(), $reportData['total'], $itemsPerPage, $start );
+			$this->getOutput()->setPageTitle( wfMessage( 'pointscomp' )->escaped() );
+			$this->content = TemplatePointsComp::pointsCompReports( $reportData['reports'], $pagination );
 		}
 	}
 
@@ -85,30 +85,30 @@ class SpecialPointsComp extends SpecialPage {
 	 * @return void
 	 */
 	public function runReport() {
-		if ($this->getRequest()->wasPosted()) {
+		if ( $this->getRequest()->wasPosted() ) {
 			$report = false;
-			$reportId = $this->getRequest()->getInt('report_id');
-			if ($reportId > 0) {
-				$report = PointsCompReport::newFromId($reportId);
-				if (!$report) {
-					throw new ErrorPageError('points_comp_report_error', 'report_does_not_exist');
+			$reportId = $this->getRequest()->getInt( 'report_id' );
+			if ( $reportId > 0 ) {
+				$report = PointsCompReport::newFromId( $reportId );
+				if ( !$report ) {
+					throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 				}
 			}
 
 			$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-			$doCompUser = $userFactory->newFromId($this->getRequest()->getInt('compUser'));
-			$doEmailUser = $userFactory->newFromId($this->getRequest()->getInt('emailUser'));
-			if (($doCompUser->getId() || $doEmailUser->getId()) && $report !== null) {
-				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $reportId);
-				if ($doCompUser->getId()) {
-					$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
-					$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
-					$userComped = $report->compSubscription($doCompUser, $compedSubscriptionMonths);
-					$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));
+			$doCompUser = $userFactory->newFromId( $this->getRequest()->getInt( 'compUser' ) );
+			$doEmailUser = $userFactory->newFromId( $this->getRequest()->getInt( 'emailUser' ) );
+			if ( ( $doCompUser->getId() || $doEmailUser->getId() ) && $report !== null ) {
+				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $reportId );
+				if ( $doCompUser->getId() ) {
+					$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
+					$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
+					$userComped = $report->compSubscription( $doCompUser, $compedSubscriptionMonths );
+					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'userComped' => intval( $userComped ) ] ) );
 				}
-				if ($doEmailUser->getId()) {
-					$emailSent = $report->sendUserEmail($doEmailUser);
-					$this->getOutput()->redirect($pointsCompPage->getFullURL(['emailSent' => intval($emailSent)]));
+				if ( $doEmailUser->getId() ) {
+					$emailSent = $report->sendUserEmail( $doEmailUser );
+					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'emailSent' => intval( $emailSent ) ] ) );
 				}
 				return;
 			}
@@ -116,15 +116,15 @@ class SpecialPointsComp extends SpecialPage {
 			$final = false;
 			$email = false;
 
-			$do = $this->getRequest()->getVal('do');
-			if ($do === 'grantAll' || $do === 'grantAndEmailAll') {
+			$do = $this->getRequest()->getVal( 'do' );
+			if ( $do === 'grantAll' || $do === 'grantAndEmailAll' ) {
 				$final = true;
 			}
 
-			if ($do === 'emailAll' || $do === 'grantAndEmailAll') {
+			if ( $do === 'emailAll' || $do === 'grantAndEmailAll' ) {
 				$email = true;
 			}
-			if (($do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll') && $report !== null) {
+			if ( ( $do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll' ) && $report !== null ) {
 				$success = PointsCompJob::queue(
 					[
 						'report_id'	=> $reportId,
@@ -132,41 +132,41 @@ class SpecialPointsComp extends SpecialPage {
 						'emailAll'	=> $email
 					]
 				);
-				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
-				$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
+				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
+				$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => intval( $success ) ] ) );
 				return;
 			}
 
-			if ($report === false) {
-				$startTimestamp = $this->getRequest()->getInt('start_time');
-				$startTime = strtotime(date('Y-m-d', $startTimestamp) . 'T00:00:00+00:00');
+			if ( $report === false ) {
+				$startTimestamp = $this->getRequest()->getInt( 'start_time' );
+				$startTime = strtotime( date( 'Y-m-d', $startTimestamp ) . 'T00:00:00+00:00' );
 				// Infer end time as last second of the month. Since switching to monthly
 				// stats, the end time isn't needed to generate the report, but it could
 				// be useful for data keeping.
-				$endTime = strtotime(date('Y-m-t', $startTimestamp) . 'T23:59:59+00:00');
+				$endTime = strtotime( date( 'Y-m-t', $startTimestamp ) . 'T23:59:59+00:00' );
 
-				$status = PointsCompReport::validateTimeRange($startTime, $endTime);
-				if (!$status->isGood()) {
-					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
+				$status = PointsCompReport::validateTimeRange( $startTime, $endTime );
+				if ( !$status->isGood() ) {
+					throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
 				}
 
-				$minPointThreshold = $this->getRequest()->getInt('min_point_threshold');
-				$maxPointThreshold = $this->getRequest()->getVal('max_point_threshold');
-				if ($maxPointThreshold !== '0' && empty($maxPointThreshold)) {
+				$minPointThreshold = $this->getRequest()->getInt( 'min_point_threshold' );
+				$maxPointThreshold = $this->getRequest()->getVal( 'max_point_threshold' );
+				if ( $maxPointThreshold !== '0' && empty( $maxPointThreshold ) ) {
 					$maxPointThreshold = null;
 				} else {
-					$maxPointThreshold = intval($maxPointThreshold);
+					$maxPointThreshold = intval( $maxPointThreshold );
 				}
-				$status = PointsCompReport::validatePointThresholds($minPointThreshold, $maxPointThreshold);
-				if (!$status->isGood()) {
-					throw new ErrorPageError('points_comp_report_error', $status->getMessage());
+				$status = PointsCompReport::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
+				if ( !$status->isGood() ) {
+					throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
 				}
 
 				$report = new PointsCompReport();
-				$report->setMinPointThreshold($minPointThreshold);
-				$report->setMaxPointThreshold($maxPointThreshold);
-				$report->setStartTime($startTime);
-				$report->setEndTime($endTime);
+				$report->setMinPointThreshold( $minPointThreshold );
+				$report->setMaxPointThreshold( $maxPointThreshold );
+				$report->setStartTime( $startTime );
+				$report->setEndTime( $endTime );
 				$report->save();
 				$reportId = $report->getReportId();
 			}
@@ -179,8 +179,8 @@ class SpecialPointsComp extends SpecialPage {
 				]
 			);
 
-			$pointsCompPage	= SpecialPage::getTitleFor('PointsComp');
-			$this->getOutput()->redirect($pointsCompPage->getFullURL(['queued' => intval($success)]));
+			$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
+			$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => intval( $success ) ] ) );
 			return;
 		}
 	}
@@ -190,27 +190,27 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return void
 	 */
-	private function downloadCSV($csv, $reportId) {
+	private function downloadCSV( $csv, $reportId ) {
 		$filename = 'points_comp_report_' . $reportId;
 
-		header("Content-type: text/csv");
-		header("Content-Disposition: attachment; filename=$filename.csv");
-		header("Pragma: no-cache");
-		header("Expires: 0");
+		header( "Content-type: text/csv" );
+		header( "Content-Disposition: attachment; filename=$filename.csv" );
+		header( "Pragma: no-cache" );
+		header( "Expires: 0" );
 
-		$output = fopen("php://output", "w");
-		fwrite($output, $csv);
-		fclose($output);
+		$output = fopen( "php://output", "w" );
+		fwrite( $output, $csv );
+		fclose( $output );
 		exit;
 	}
 
 	/**
 	 * Hides special page from SpecialPages special page.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isListed() {
-		if (CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed('points_comp_reports')) {
+		if ( CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' ) ) {
 			return true;
 		}
 		return false;
@@ -219,7 +219,7 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Lets others determine that this special page is restricted.
 	 *
-	 * @return boolean	True
+	 * @return bool True
 	 */
 	public function isRestricted() {
 		return true;
