@@ -1,30 +1,15 @@
 var setupPointsCompDatepickers = function() {
-	$("input#start_time_datepicker, input#end_time_datepicker").datepicker(
+	var startDate = new mw.widgets.DateInputWidget(
 		{
-			dateFormat: "yy-mm-dd",
-			constrainInput: true,
-			onSelect: function(dateText) {
-				var epochInput = '#'+$(this).attr('data-input');
-				$(epochInput).val(epochDate(this));
-			}
+			inputFormat: 'YYYY-MM-DD',
+			displayFormat: 'YYYY-MM-DD',
+			value: $('#start_time_datepicker').val(),
+			dataInput: $('#start_time_datepicker').attr('data-input')
 		}
 	);
+	$('#start_time_datepicker').replaceWith(startDate.$element);
+	startDate.on('change', function() {
+		document.getElementById('start_time').value = (new Date(startDate.getValue()).getTime()) / 1000;
+	});
 }
 setupPointsCompDatepickers();
-
-var epochDate = function(dateField) {
-	var time = $(dateField).datepicker("getDate");
-	var offset = time.getTimezoneOffset() * 60;
-	var epoch = time.getTime() / 1000 - offset;
-
-	return epoch;
-}
-
-$('input#start_time, input#end_time').change(function() {
-	var currentVal = $(this).val();
-	if (currentVal > 0) {
-		var existEpochDate = new Date(currentVal * 1000);
-		var picker = '#'+$(this).attr('id')+'_datepicker';
-		$(picker).datepicker("setDate", existEpochDate);
-	}
-}).change();

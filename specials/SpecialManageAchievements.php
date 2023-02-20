@@ -16,6 +16,7 @@ use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class SpecialManageAchievements extends SpecialPage {
 	/**
@@ -472,8 +473,9 @@ class SpecialManageAchievements extends SpecialPage {
 
 			if (!count($errors)) {
 				$users = explode(",", $save['username']);
+				$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 				foreach ($users as $getUser) {
-					$user = User::newFromName(trim($getUser));
+					$user = $userFactory->newFromName(trim($getUser));
 					$user->load();
 					$globalId = Cheevos::getUserIdForService($user);
 					if (!$user || !$user->getId() || !$globalId) {
@@ -506,7 +508,7 @@ class SpecialManageAchievements extends SpecialPage {
 								]
 							);
 							CheevosHooks::broadcastAchievement($achievement, $this->siteKey, $globalId);
-							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+							$this->getHookContainer()->run('AchievementAwarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [
 								'username' => $save['username'],
@@ -521,7 +523,7 @@ class SpecialManageAchievements extends SpecialPage {
 					if ($currentProgress !== null && $currentProgress->getId() && $do === 'unaward') {
 						try {
 							$award = Cheevos::deleteProgress($currentProgress->getId(), $globalId);
-							Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+							$this->getHookContainer()->run('AchievementUnawarded', [$achievement, $globalId]);
 						} catch (CheevosException $e) {
 							$errors[] = [
 								'username' => $save['username'],

@@ -14,6 +14,7 @@
 require_once dirname(__DIR__, 3) . '/maintenance/Maintenance.php';
 
 use Cheevos\Points\PointsCompReport;
+use MediaWiki\MediaWikiServices;
 
 class CompSubscriptions extends Maintenance {
 	/**
@@ -43,9 +44,9 @@ class CompSubscriptions extends Maintenance {
 			exit;
 		}
 
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 
 		$compedSubscriptionThreshold = intval($config->get('CompedSubscriptionThreshold'));
 		if ($this->hasOption('threshold')) {

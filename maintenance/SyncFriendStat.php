@@ -18,6 +18,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class SyncFriendStat extends Maintenance {
 	/**
@@ -38,6 +39,7 @@ class SyncFriendStat extends Maintenance {
 	 */
 	public function execute() {
 		$dsSiteKey = CheevosHelper::getSiteKey();
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 
 		if (!CheevosHelper::isCentralWiki()) {
 			throw new MWException('This script is intended to be ran from the master wiki.');
@@ -45,7 +47,7 @@ class SyncFriendStat extends Maintenance {
 
 		$achievements = Cheevos::getAchievements($dsSiteKey);
 
-		$db = wfGetDB(DB_MASTER);
+		$db = wfGetDB(DB_PRIMARY);
 
 		$redis = \RedisCache::getClient('cache');
 		if ($redis !== false) {
@@ -136,7 +138,7 @@ class SyncFriendStat extends Maintenance {
 								$this->output("\tAwarding {$achievement->getId()} - {$achievement->getName()}...");
 							}
 							\CheevosHooks::broadcastAchievement($achievement, $increment['site_key'], $increment['user_id']);
-							Hooks::run('AchievementAwarded', [$achievement, $globalId]);
+							$hookContainer->run('AchievementAwarded', [$achievement, $globalId]);
 							if ($this->getOption('v')) {
 								$this->output("done.\n");
 							}
@@ -151,7 +153,7 @@ class SyncFriendStat extends Maintenance {
 							}
 							$deleted = Cheevos::deleteProgress($progress->getId(), $globalId);
 							if ($deleted['code'] == 200) {
-								Hooks::run('AchievementUnawarded', [$achievement, $globalId]);
+								$hookContainer->run('AchievementUnawarded', [$achievement, $globalId]);
 								if ($this->getOption('v')) {
 									$this->output("done.\n");
 								}

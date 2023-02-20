@@ -13,6 +13,7 @@
 use Cheevos\CheevosHelper;
 use Cheevos\Job\PointsCompJob;
 use Cheevos\Points\PointsCompReport;
+use MediaWiki\MediaWikiServices;
 
 class SpecialPointsComp extends SpecialPage {
 	/**
@@ -94,12 +95,13 @@ class SpecialPointsComp extends SpecialPage {
 				}
 			}
 
-			$doCompUser = User::newFromId($this->getRequest()->getInt('compUser'));
-			$doEmailUser = User::newFromId($this->getRequest()->getInt('emailUser'));
+			$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+			$doCompUser = $userFactory->newFromId($this->getRequest()->getInt('compUser'));
+			$doEmailUser = $userFactory->newFromId($this->getRequest()->getInt('emailUser'));
 			if (($doCompUser->getId() || $doEmailUser->getId()) && $report !== null) {
 				$pointsCompPage	= SpecialPage::getTitleFor('PointsComp', $reportId);
 				if ($doCompUser->getId()) {
-					$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+					$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 					$compedSubscriptionMonths = intval($config->get('CompedSubscriptionMonths'));
 					$userComped = $report->compSubscription($doCompUser, $compedSubscriptionMonths);
 					$this->getOutput()->redirect($pointsCompPage->getFullURL(['userComped' => intval($userComped)]));

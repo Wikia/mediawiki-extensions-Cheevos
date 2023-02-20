@@ -12,6 +12,7 @@
 
 namespace Cheevos;
 
+use MediaWiki\MediaWikiServices;
 use RedisCache;
 use RedisException;
 use User;
@@ -478,7 +479,7 @@ class Cheevos {
 	 * @acess public
 	 * @param boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public static function getCategories($skipCache = false) {
 		$cache = false;
@@ -519,7 +520,7 @@ class Cheevos {
 	 *
 	 * @param integer $id
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public static function getCategory($id) {
 		$redis = RedisCache::getClient('cache');
@@ -1080,6 +1081,6 @@ class Cheevos {
 	 * @return User|null
 	 */
 	public static function getUserForServiceUserId(int $serviceUserId): ?User {
-		return User::newFromId($serviceUserId);
+		return MediaWikiServices::getInstance()->getUserFactory()->newFromId($serviceUserId);
 	}
 }
