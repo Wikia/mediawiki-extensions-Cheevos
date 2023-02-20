@@ -15,6 +15,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Job\CheevosIncrementJob;
+use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
 use MediaWiki\Block\DatabaseBlock;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
@@ -29,34 +30,34 @@ class CheevosHooks {
 	 *
 	 * @var bool
 	 */
-	private static $shutdownRegistered = false;
+	private static bool $shutdownRegistered = false;
 
 	/**
 	 * Shutdown Function Ran Already
 	 *
 	 * @var bool
 	 */
-	private static $shutdownRan = false;
+	private static bool $shutdownRan = false;
 
 	/**
 	 * Data points to increment on shutdown.
 	 *
 	 * @var array
 	 */
-	private static $increments = [];
+	private static array $increments = [];
 
 	/**
 	 * Setup anything that needs to be configured before anything else runs.
 	 *
 	 * @return void
 	 */
-	public static function onRegistration() {
+	public static function onRegistration(): void {
 		global $wgDefaultUserOptions, $wgNamespacesForEditPoints, $wgReverbNotifications;
 
 		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
 
 		// Allowed namespaces.
-		if ( !isset( $wgNamespacesForEditPoints ) || empty( $wgNamespacesForEditPoints ) ) {
+		if ( empty( $wgNamespacesForEditPoints ) ) {
 			$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
 			$wgNamespacesForEditPoints = $namespaceInfo->getContentNamespaces();
 		}
@@ -72,24 +73,24 @@ class CheevosHooks {
 	/**
 	 * Undocumented function
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function invalidateCache() {
+	public static function invalidateCache(): bool {
 		// this is here for future functionality.
 		return Cheevos::invalidateCache();
 	}
 
 	/**
-	 * Do incrementing for a statistic.
+	 * Increment for a statistic.
 	 *
 	 * @param string $stat Stat Name
 	 * @param int $delta Stat Delta
-	 * @param object $user Local User object.
+	 * @param UserIdentity $user Local User object.
 	 * @param array $edits Array of edit information for article_create or article_edit statistics.
 	 *
-	 * @return mixed Array of return status including earned achievements or false on error.
+	 * @return bool Array of return status including earned achievements or false on error.
 	 */
-	public static function increment( string $stat, int $delta, User $user, array $edits = [] ) {
+	public static function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): bool {
 		$siteKey = CheevosHelper::getSiteKey();
 		if ( !$siteKey ) {
 			return false;
@@ -105,9 +106,17 @@ class CheevosHooks {
 		self::$increments[$globalId]['site_key'] = $siteKey;
 		self::$increments[$globalId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
 		self::$increments[$globalId]['timestamp'] = time();
-		self::$increments[$globalId]['request_uuid'] = sha1( self::$increments[$globalId]['user_id'] . self::$increments[$globalId]['site_key'] . self::$increments[$globalId]['timestamp'] . random_bytes( 4 ) );
+		self::$increments[$globalId]['request_uuid'] = sha1(
+			self::$increments[$globalId]['user_id'] .
+			self::$increments[$globalId]['site_key'] .
+			self::$increments[$globalId]['timestamp'] .
+			random_bytes( 4 )
+		);
 		if ( !empty( $edits ) ) {
-			if ( !isset( self::$increments[$globalId]['edits'] ) || !is_array( self::$increments[$globalId]['edits'] ) ) {
+			if (
+				!isset( self::$increments[$globalId]['edits'] ) ||
+				!is_array( self::$increments[$globalId]['edits'] )
+			) {
 				self::$increments[$globalId]['edits'] = [];
 			}
 			self::$increments[$globalId]['edits'] = array_merge( self::$increments[$globalId]['edits'], $edits );
@@ -132,13 +141,21 @@ class CheevosHooks {
 	 *
 	 * @return bool True
 	 */
-	public static function onArticleDeleteComplete( WikiPage &$article, User &$user, $reason, $id, Content $content = null, LogEntry $logEntry ) {
+	public static function onArticleDeleteComplete(
+		WikiPage &$article,
+		User &$user,
+		$reason,
+		$id,
+		Content $content,
+		LogEntry $logEntry
+	): bool {
 		self::increment( 'article_delete', 1, $user );
 		return true;
 	}
 
 	/**
-	 * Updates user's points after they've made an edit in a namespace that is listed in the $wgNamespacesForEditPoints array.
+	 * Updates user's points after they've made an edit in a namespace that is listed in the
+	 * $wgNamespacesForEditPoints array.
 	 * This hook will not be called if a null revision is created.
 	 *
 	 * @param WikiPage $wikiPage Article
@@ -186,7 +203,10 @@ class CheevosHooks {
 		}
 
 		$context = RequestContext::getMain();
-		if ( $context->getRequest()->getVal( 'veaction' ) === 'edit' || $context->getRequest()->getVal( 'action' ) === 'visualeditoredit' ) {
+		if (
+			$context->getRequest()->getVal( 'veaction' ) === 'edit' ||
+			$context->getRequest()->getVal( 'action' ) === 'visualeditoredit'
+		) {
 			$isType[] = 'is_visual';
 		} else {
 			$isType[] = 'is_source';
@@ -414,7 +434,12 @@ class CheevosHooks {
 				$fromUser
 			);
 			$stats = CheevosHelper::makeNiceStatProgressArray( $stats );
-			$editCount = ( isset( $stats[$fromUser->getId()]['article_edit']['count'] ) && $stats[$fromUser->getId()]['article_edit']['count'] > $editCount ? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount );
+			$editCount = (
+				isset( $stats[$fromUser->getId()]['article_edit']['count'] ) &&
+				$stats[$fromUser->getId()]['article_edit']['count'] > $editCount ?
+					$stats[$fromUser->getId()]['article_edit']['count'] :
+					$editCount
+			);
 		} catch ( CheevosException $e ) {
 			wfDebug( "Encountered Cheevos API error getting article_edit count." );
 		}
@@ -499,7 +524,7 @@ class CheevosHooks {
 	/**
 	 * Handle upload increment.
 	 *
-	 * @param object &$image UploadBase or child of UploadBase
+	 * @param UploadBase &$image
 	 *
 	 * @return bool True
 	 */
@@ -547,7 +572,14 @@ class CheevosHooks {
 	 *
 	 * @return bool True
 	 */
-	public static function onWikiPointsSave( int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = '' ) {
+	public static function onWikiPointsSave(
+		int $editId,
+		int $userId,
+		int $articleId,
+		int $score,
+		string $calculationInfo,
+		string $reason = ''
+	) {
 		$user = RequestContext::getMain()->getUser();
 		if ( ( $score > 0 || $score < 0 ) && $user->getId() == $userId && $userId > 0 ) {
 			self::increment( 'wiki_points', intval( $score ), $user );
@@ -564,7 +596,10 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onApiBeforeMain( ApiMain &$processor ) {
-		if ( 'MW_NO_SESSION' === 1 || 'MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
+		if (
+			PHP_SAPI === 'cli' ||
+			self::$shutdownRegistered
+		) {
 			return true;
 		}
 
@@ -604,8 +639,15 @@ class CheevosHooks {
 	 *
 	 * @return bool True
 	 */
-	public static function onBeforeInitialize( Title &$title, &$article, OutputPage &$output, User &$user, WebRequest $request, MediaWiki $mediaWiki ) {
-		if ( 'MW_NO_SESSION' === 'warn' || PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
+	public static function onBeforeInitialize(
+		Title &$title,
+		&$article,
+		OutputPage &$output,
+		User &$user,
+		WebRequest $request,
+		MediaWiki $mediaWiki
+	) {
+		if ( PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
 			return true;
 		}
 
@@ -735,7 +777,7 @@ class CheevosHooks {
 	 * Add a link to WikiPoints on contribution and edit tool links.
 	 *
 	 * @param int $userId User ID
-	 * @param object $userPageTitle Title object for the user's page.
+	 * @param mixed $userPageTitle Title object for the user's page.
 	 * @param array &$tools Array of tools links.
 	 *
 	 * @return bool True
@@ -798,7 +840,7 @@ class CheevosHooks {
 	/**
 	 * Handles custom MAGIC WORDS.
 	 *
-	 * @param object &$parser Parser reference
+	 * @param Parser &$parser Parser reference
 	 * @param array &$cache Variable Cache
 	 * @param string &$magicWord Magic Word
 	 * @param string &$value Return Value
@@ -819,7 +861,8 @@ class CheevosHooks {
 	 * @return int Total Contributors
 	 */
 	private static function getTotalContributors() {
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 
 		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
 		if ( $redis !== false ) {
@@ -829,16 +872,11 @@ class CheevosHooks {
 			}
 		}
 
-		$db = wfGetDB( DB_PRIMARY );
-		if ( class_exists( \ActorMigration::class ) ) {
-			$actorQuery = \ActorMigration::newMigration()->getJoin( 'rev_user' );
-			$userField = $actorQuery['fields']['rev_user'];
-		} else {
-			$actorQuery = [ 'tables' => [], 'joins' => [] ];
-			$userField = 'rev_user';
-		}
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$actorQuery = [ 'tables' => [], 'joins' => [] ];
+		$userField = 'rev_user';
 
-		$result = $db->select(
+		$db->select(
 			[ 'revision' ] + $actorQuery['tables'],
 			[ 'count(*)' ],
 			[],
@@ -850,7 +888,7 @@ class CheevosHooks {
 			$actorQuery['joins']
 		);
 		$calcRowsResult = $db->query( 'SELECT FOUND_ROWS() AS rowcount;' );
-		$total = $db->fetchRow( $calcRowsResult );
+		$total = $calcRowsResult->fetchRow();
 		$total = intval( $total['rowcount'] );
 		if ( $redis !== false ) {
 			$redis->setEx( $redisKey, 3600, $total );
@@ -861,51 +899,176 @@ class CheevosHooks {
 	/**
 	 * Setups and Modifies Database Information
 	 *
-	 * @param object $updater DatabaseUpdater Object
-	 *
 	 * @return bool True
 	 */
 	public static function onLoadExtensionSchemaUpdates( $updater ) {
 		$extDir = __DIR__;
 
 		if ( CheevosHelper::isCentralWiki() ) {
-			$updater->addExtensionUpdate( [ 'addTable', 'points_comp_report', "{$extDir}/install/sql/table_points_comp_report.sql", true ] );
-			$updater->addExtensionUpdate( [ 'addTable', 'points_comp_report_user', "{$extDir}/install/sql/table_points_comp_report_user.sql", true ] );
+			$updater->addExtensionUpdate( [
+				'addTable',
+				'points_comp_report',
+				"{$extDir}/install/sql/table_points_comp_report.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'addTable',
+				'points_comp_report_user',
+				"{$extDir}/install/sql/table_points_comp_report_user.sql",
+				true
+			] );
 
-			$updater->addExtensionUpdate( [ 'addField', 'points_comp_report', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql", true ] );
-			$updater->addExtensionUpdate( [ 'modifyField', 'points_comp_report', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql", true ] );
-			$updater->addExtensionUpdate( [ 'modifyField', 'points_comp_report', 'max_points', "{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql", true ] );
-			$updater->addExtensionUpdate( [ 'addField', 'points_comp_report_user', 'comp_skipped', "{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql", true ] );
-			$updater->addExtensionUpdate( [ 'modifyField', 'points_comp_report_user', 'comp_failed', "{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql", true ] );
-			$updater->addExtensionUpdate( [ 'addField', 'points_comp_report_user', 'user_id', "{$extDir}/upgrade/sql/points_comp_report_user/add_field_user_id.sql", true ] );
-			$updater->addExtensionUpdate( [ 'addIndex', 'points_comp_report_user', 'report_id_user_id', "{$extDir}/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql", true ] );
-			$updater->addExtensionUpdate( [ 'dropIndex', 'points_comp_report_user', 'report_id_global_id', "{$extDir}/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql", true ] );
-			$updater->addPostDatabaseUpdateMaintenance( \Cheevos\Maintenance\ReplaceGlobalIdWithUserId::class );
-
-			// Uncomment in the future to remove global ID column once migration is complete. - 2020-02-07 Alexia E. Smith
-			// $updater->addExtensionUpdate(['dropField', 'points_comp_report_user', 'global_id', "{$extDir}/upgrade/sql/points_comp_report_user/drop_field_global_id.sql", true]);
+			$updater->addExtensionUpdate( [
+				'addField',
+				'points_comp_report',
+				'comp_skipped',
+				"{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'modifyField',
+				'points_comp_report',
+				'comp_failed',
+				"{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'modifyField',
+				'points_comp_report',
+				'max_points',
+				"{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'addField',
+				'points_comp_report_user',
+				'comp_skipped',
+				"{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'modifyField',
+				'points_comp_report_user',
+				'comp_failed',
+				"{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'addField',
+				'points_comp_report_user',
+				'user_id',
+				"{$extDir}/upgrade/sql/points_comp_report_user/add_field_user_id.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'addIndex',
+				'points_comp_report_user',
+				'report_id_user_id',
+				"{$extDir}/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql",
+				true
+			] );
+			$updater->addExtensionUpdate( [
+				'dropIndex',
+				'points_comp_report_user',
+				'report_id_global_id',
+				"{$extDir}/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql",
+				true
+			] );
+			$updater->addPostDatabaseUpdateMaintenance( ReplaceGlobalIdWithUserId::class );
 
 			// Point Levels
-			$updater->addExtensionUpdate( [ 'addTable', 'wiki_points_levels', "{$extDir}/install/sql/table_wiki_points_levels.sql", true ] );
+			$updater->addExtensionUpdate( [
+				'addTable',
+				'wiki_points_levels',
+				"{$extDir}/install/sql/table_wiki_points_levels.sql",
+				true
+			] );
 		}
 
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement', $extDir . "/upgrade/sql/drop_table_achievement.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement_category', $extDir . "/upgrade/sql/drop_table_achievement_category.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement_earned', $extDir . "/upgrade/sql/drop_table_achievement_earned.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement_hook', $extDir . "/upgrade/sql/drop_table_achievement_hook.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement_link', $extDir . "/upgrade/sql/drop_table_achievement_link.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'achievement_site_mega', $extDir . "/upgrade/sql/drop_table_achievement_site_mega.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'dataminer_user_global_totals', $extDir . "/upgrade/sql/drop_table_dataminer_user_global_totals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'dataminer_user_wiki_periodicals', $extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'dataminer_user_wiki_totals', $extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'display_names', $extDir . "/upgrade/sql/drop_table_display_names.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points', $extDir . "/upgrade/sql/drop_table_wiki_points.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_monthly_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_monthly_totals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_multipliers', $extDir . "/upgrade/sql/drop_table_wiki_points_multipliers.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_multipliers_sites', $extDir . "/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_site_monthly_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_site_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_site_totals.sql", true ] );
-		$updater->addExtensionUpdate( [ 'dropTable', 'wiki_points_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_totals.sql", true ] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'achievement',
+			$extDir . "/upgrade/sql/drop_table_achievement.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'achievement_category',
+			$extDir . "/upgrade/sql/drop_table_achievement_category.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable', 'achievement_earned', $extDir . "/upgrade/sql/drop_table_achievement_earned.sql", true ]
+		);
+		$updater->addExtensionUpdate(
+			[ 'dropTable', 'achievement_hook', $extDir . "/upgrade/sql/drop_table_achievement_hook.sql", true ]
+		);
+		$updater->addExtensionUpdate(
+			[ 'dropTable', 'achievement_link', $extDir . "/upgrade/sql/drop_table_achievement_link.sql", true ]
+		);
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'achievement_site_mega',
+			$extDir . "/upgrade/sql/drop_table_achievement_site_mega.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'dataminer_user_global_totals',
+			$extDir . "/upgrade/sql/drop_table_dataminer_user_global_totals.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'dataminer_user_wiki_periodicals',
+			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'dataminer_user_wiki_totals',
+			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql",
+			true
+		] );
+		$updater->addExtensionUpdate(
+			[ 'dropTable', 'display_names', $extDir . "/upgrade/sql/drop_table_display_names.sql", true ]
+		);
+		$updater->addExtensionUpdate(
+			[ 'dropTable', 'wiki_points', $extDir . "/upgrade/sql/drop_table_wiki_points.sql", true ]
+		);
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_monthly_totals',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_monthly_totals.sql",
+			true ]
+		);
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_multipliers',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_multipliers_sites',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql",
+			true ]
+		);
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_site_monthly_totals',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql",
+			true
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_site_totals',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_site_totals.sql",
+			true ]
+		);
+		$updater->addExtensionUpdate(
+			[ 'dropTable', 'wiki_points_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_totals.sql", true ]
+		);
 
 		return true;
 	}

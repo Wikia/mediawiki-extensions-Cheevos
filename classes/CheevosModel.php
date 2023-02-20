@@ -18,16 +18,17 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Associative array for storing property values
 	 *
-	 * @var	mixed[]
+	 * @var array
 	 */
-	protected $container = [];
+	protected array $container = [];
 
 	/**
-	 * Sometimes data might have to be munged for display purposes only.  Setting this objec to read only will prevent it from being saved.
+	 * Sometimes data might have to be munged for display purposes only.
+	 * Setting this objec to read only will prevent it from being saved.
 	 *
 	 * @var	bool
 	 */
-	private $readOnly = false;
+	private bool $readOnly = false;
 
 	/**
 	 * Magic call method for:
@@ -38,12 +39,10 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @param string $name
 	 * @param array  $arguments
-	 *
-	 * @return void
 	 */
 	public function __call( $name, $arguments ) {
 		// Getter and Setter
-		if ( substr( $name, 0, 3 ) == "get" || substr( $name, 0, 3 ) == "set" ) {
+		if ( str_starts_with( $name, "get" ) || str_starts_with( $name, "set" ) ) {
 			$prop = $this->snipPropName( $name, 3 );
 			$act = substr( $name, 0, 3 );
 			if ( array_key_exists( $prop, $this->container ) ) {
@@ -52,47 +51,54 @@ class CheevosModel implements ArrayAccess {
 				} else {
 					$value = $arguments[0];
 					if ( gettype( $value ) !== gettype( $this->container[$prop] ) ) {
-						throw new CheevosException( "[" . get_class( $this ) . "->{$act}{$prop}()] The type " . gettype( $value ) . " is not valid for " . gettype( $this->container[$prop] ) . "." );
+						throw new CheevosException(
+							"[" . get_class( $this ) . "->{$act}{$prop}()] The type " . gettype( $value ) .
+							" is not valid for " . gettype( $this->container[$prop] ) . "."
+						);
 					}
 					$this->container[$prop] = $value;
-					return;
+					return null;
 				}
 			} else {
-				throw new CheevosException( "[" . get_class( $this ) . "->{$act}{$prop}()] The property {$prop} is not a valid property for this class." );
+				throw new CheevosException(
+					"[" . get_class( $this ) .
+					"->{$act}{$prop}()] The property {$prop} is not a valid property for this class."
+				);
 			}
-		} elseif ( substr( $name, 0, 2 ) == "is" ) {
+		} elseif ( str_starts_with( $name, "is" ) ) {
 			$prop = $this->snipPropName( $name, 2 );
 			if ( array_key_exists( $prop, $this->container ) ) {
 				$evaluate = $this->container[$prop];
 				// @TODO: this should be smarter. May not behave as expected in cases checking other stuff.
-				if ( $evaluate ) {
-					return true;
-				} else {
-					return false;
-				}
+				return $evaluate;
 			} else {
-				throw new CheevosException( "[" . get_class( $this ) . "->is{$prop}()] The property {$prop} is not a valid property for this class." );
+				throw new CheevosException(
+					"[" . get_class( $this ) .
+					"->is{$prop}()] The property {$prop} is not a valid property for this class."
+				);
 			}
-		} elseif ( substr( $name, 0, 3 ) == "has" ) {
+		} elseif ( str_starts_with( $name, "has" ) ) {
 			$prop = $this->snipPropName( $name, 3 );
 			if ( array_key_exists( $prop, $this->container ) ) {
 				return true;
 			}
 			return false;
 		} else {
-			throw new CheevosException( "No idea what method you thought you wanted, but {$name} isn't a valid one." );
+			throw new CheevosException(
+				"No idea what method you thought you wanted, but {$name} isn't a valid one."
+			);
 		}
 	}
 
 	/**
 	 * Snip property name off a function call.
 	 *
-	 * @param string	Unsnipped string.
-	 * @param integer	Amount to snip.
+	 * @param string $prop Unsnipped string.
+	 * @param int $length Amount to snip.
 	 *
 	 * @return string Property name.
 	 */
-	private function snipPropName( $prop, $length ) {
+	private function snipPropName( string $prop, int $length ): string {
 		$prop = substr( $prop, $length );
 		return strtolower( $prop );
 	}
@@ -100,11 +106,11 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Magic getter for container properties.
 	 *
-	 * @param string	Property
+	 * @param string $property Property
 	 *
-	 * @return mixed	Request property or null if it does not exist.
+	 * @return mixed Request property or null if it does not exist.
 	 */
-	public function __get( $property ) {
+	public function __get( string $property ) {
 		if ( isset( $this->container[$property] ) ) {
 			return $this->container[$property];
 		}
@@ -115,12 +121,12 @@ class CheevosModel implements ArrayAccess {
 	 * Magic setter for container properties.
 	 * Will only set the property if it was created during the child classes constructor setup.
 	 *
-	 * @param string	Property
-	 * @param mixed	Value to set.
+	 * @param string $property Property
+	 * @param mixed $value Value to set.
 	 *
-	 * @return object	This object.
+	 * @return object This object.
 	 */
-	public function __set( $property, $value ) {
+	public function __set( string $property, mixed $value ) {
 		if ( isset( $this->container[$property] ) ) {
 			$this->container[$property] = $value;
 		}
@@ -173,15 +179,15 @@ class CheevosModel implements ArrayAccess {
 	 * @return void
 	 */
 	public function offsetGet( $offset ) {
-		return isset( $this->container[$offset] ) ? $this->container[$offset] : null;
+		return $this->container[$offset] ?? null;
 	}
 
 	/**
 	 * Convert model to array
 	 *
-	 * @return void
+	 * @return array
 	 */
-	public function toArray() {
+	public function toArray(): array {
 		$container = $this->container;
 		foreach ( $container as $key => $value ) {
 			if ( $value instanceof CheevosModel ) {
@@ -196,7 +202,7 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @return array
 	 */
-	public function serializeForApiResult() {
+	public function serializeForApiResult(): array {
 		return $this->toArray();
 	}
 
@@ -210,11 +216,11 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Is this only read only?
+	 * Is this read only?
 	 *
 	 * @return bool
 	 */
-	public function isReadOnly() {
+	public function isReadOnly(): bool {
 		return $this->readOnly;
 	}
 
@@ -223,26 +229,27 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @return void
 	 */
-	public function setReadOnly() {
+	public function setReadOnly(): void {
 		$this->readOnly = true;
 	}
 
 	/**
 	 * Does this model roughly equal another model?
-	 * Such as criteria, points to be earned, ecterera.  Ignores fields such as created and updated timestamps.
-	 *
-	 * @param object	CheevosModel
+	 * Such as criteria, points to be earned, etc. Ignores fields such as created and updated timestamps.
 	 *
 	 * @return bool
 	 */
-	public function sameAs( $model ) {
+	public function sameAs( CheevosModel $model ): bool {
 		if ( get_class( $this ) != get_class( $model ) ) {
 			return false;
 		}
 
 		foreach ( $this->container as $field ) {
 			if ( $this->container[$field] instanceof CheevosModel ) {
-				if ( !$this->container[$field]->sameAs( $criteria[$field] ) ) {
+				if (
+					!( $model->container[$field] instanceof CheevosModel ) ||
+					!$this->container[$field]->sameAs( $model->container[$field] )
+				) {
 					return false;
 				}
 				continue;

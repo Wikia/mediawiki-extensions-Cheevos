@@ -22,7 +22,9 @@ class CheevosUserOptions extends CheevosModel {
 	 */
 	public function __construct( array $data = null ) {
 		$this->container['user_id'] = isset( $data['user_id'] ) && is_int( $data['user_id'] ) ? $data['user_id'] : 0;
-		$this->container['user_name'] = isset( $data['user_name'] ) && is_string( $data['user_name'] ) ? $data['user_name'] : '';
-		$this->container['options'] = isset( $data['options'] ) && is_array( $data['options'] ) ? $data['options'] : [];
+		$this->container['user_name'] = isset( $data['user_name'] ) &&
+										is_string( $data['user_name'] ) ? $data['user_name'] : '';
+		$this->container['options'] = isset( $data['options'] ) &&
+									  is_array( $data['options'] ) ? $data['options'] : [];
 	}
 }

@@ -21,7 +21,7 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @var string
 	 */
-	private $content;
+	private string $content;
 
 	/**
 	 * Main Constructor
@@ -35,46 +35,64 @@ class SpecialPointsComp extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param string	Sub page passed in the URL.
+	 * @param string $subPage SubPage passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function execute( $subpage ) {
-		$this->getOutput()->addModuleStyles( [ 'ext.cheevos.styles', "ext.hydraCore.button.styles", 'ext.hydraCore.pagination.styles', 'mediawiki.ui.button', 'mediawiki.ui.input' ] );
+	public function execute( $subPage ) {
+		$this->getOutput()->addModuleStyles( [
+			'ext.cheevos.styles',
+			"ext.hydraCore.button.styles",
+			'ext.hydraCore.pagination.styles',
+			'mediawiki.ui.button',
+			'mediawiki.ui.input'
+		] );
 		$this->getOutput()->addModules( [ 'ext.cheevos.js', 'ext.cheevos.pointsComp.js' ] );
 		$this->checkPermissions();
 		$this->setHeaders();
-		$this->pointsCompReports( $subpage );
+		$this->pointsCompReports( $subPage );
 		$this->getOutput()->addHTML( $this->content );
 	}
 
 	/**
 	 * Points Comp Reports
 	 *
-	 * @param mixed	Passed subpage parameter to be intval()'ed for a Global ID.
+	 * @param string|null $subPage Passed subpage parameter to be intval()'ed for a Global ID.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function pointsCompReports( $subpage = null ) {
+	public function pointsCompReports( ?string $subPage ) {
 		$start = $this->getRequest()->getInt( 'st' );
 		$itemsPerPage = 50;
-		$reportId = intval( $subpage );
-		$messages = $this->runReport();
+		$reportId = intval( $subPage );
+		$this->runReport();
 		if ( $reportId > 0 ) {
 			$report = PointsCompReport::newFromId( $reportId );
 			if ( !$report ) {
 				throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 			}
-			$this->getOutput()->setPageTitle( wfMessage( 'pointscomp_detail', $report->getReportId(), gmdate( 'Y-m-d', $report->getRunTime() ) )->escaped() );
+			$this->getOutput()->setPageTitle(
+				$this->msg(
+					'pointscomp_detail',
+					$report->getReportId(),
+					gmdate( 'Y-m-d', $report->getRunTime() )
+				)->escaped()
+			);
 			if ( $this->getRequest()->getBool( 'csv' ) ) {
-				return $this->downloadCSV( TemplatePointsComp::pointsCompReportCSV( $report ), $report->getReportId() );
+				$this->downloadCSV( TemplatePointsComp::pointsCompReportCSV( $report ), $report->getReportId() );
+				return;
 			}
 			$this->content = TemplatePointsComp::pointsCompReportDetail( $report );
 		} else {
 			$reportData = PointsCompReport::getReportsList( $start, $itemsPerPage );
 
-			$pagination = HydraCore::generatePaginationHtml( $this->getFullTitle(), $reportData['total'], $itemsPerPage, $start );
-			$this->getOutput()->setPageTitle( wfMessage( 'pointscomp' )->escaped() );
+			$pagination = HydraCore::generatePaginationHtml(
+				$this->getFullTitle(),
+				$reportData['total'],
+				$itemsPerPage,
+				$start
+			);
+			$this->getOutput()->setPageTitle( $this->msg( 'pointscomp' )->escaped() );
 			$this->content = TemplatePointsComp::pointsCompReports( $reportData['reports'], $pagination );
 		}
 	}
@@ -84,7 +102,7 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return void
 	 */
-	public function runReport() {
+	public function runReport(): void {
 		if ( $this->getRequest()->wasPosted() ) {
 			$report = false;
 			$reportId = $this->getRequest()->getInt( 'report_id' );
@@ -98,17 +116,21 @@ class SpecialPointsComp extends SpecialPage {
 			$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 			$doCompUser = $userFactory->newFromId( $this->getRequest()->getInt( 'compUser' ) );
 			$doEmailUser = $userFactory->newFromId( $this->getRequest()->getInt( 'emailUser' ) );
-			if ( ( $doCompUser->getId() || $doEmailUser->getId() ) && $report !== null ) {
+			if ( ( $doCompUser->getId() || $doEmailUser->getId() ) ) {
 				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $reportId );
 				if ( $doCompUser->getId() ) {
 					$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
 					$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
 					$userComped = $report->compSubscription( $doCompUser, $compedSubscriptionMonths );
-					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'userComped' => intval( $userComped ) ] ) );
+					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [
+						'userComped' => intval( $userComped )
+					] ) );
 				}
 				if ( $doEmailUser->getId() ) {
 					$emailSent = $report->sendUserEmail( $doEmailUser );
-					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'emailSent' => intval( $emailSent ) ] ) );
+					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [
+						'emailSent' => intval( $emailSent )
+					] ) );
 				}
 				return;
 			}
@@ -125,7 +147,7 @@ class SpecialPointsComp extends SpecialPage {
 				$email = true;
 			}
 			if ( ( $do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll' ) && $report !== null ) {
-				$success = PointsCompJob::queue(
+				PointsCompJob::queue(
 					[
 						'report_id'	=> $reportId,
 						'grantAll'	=> $final,
@@ -133,7 +155,7 @@ class SpecialPointsComp extends SpecialPage {
 					]
 				);
 				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
-				$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => intval( $success ) ] ) );
+				$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => 0 ] ) );
 				return;
 			}
 
@@ -171,7 +193,7 @@ class SpecialPointsComp extends SpecialPage {
 				$reportId = $report->getReportId();
 			}
 
-			$success = PointsCompJob::queue(
+			PointsCompJob::queue(
 				[
 					'report_id'	=> $reportId,
 					'final'		=> $final,
@@ -180,15 +202,12 @@ class SpecialPointsComp extends SpecialPage {
 			);
 
 			$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
-			$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => intval( $success ) ] ) );
-			return;
+			$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => 0 ] ) );
 		}
 	}
 
 	/**
 	 * Download CSV to client.
-	 *
-	 * @return void
 	 */
 	private function downloadCSV( $csv, $reportId ) {
 		$filename = 'points_comp_report_' . $reportId;
@@ -209,7 +228,7 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return bool
 	 */
-	public function isListed() {
+	public function isListed(): bool {
 		if ( CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' ) ) {
 			return true;
 		}
@@ -221,7 +240,7 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return bool True
 	 */
-	public function isRestricted() {
+	public function isRestricted(): bool {
 		return true;
 	}
 
@@ -230,7 +249,7 @@ class SpecialPointsComp extends SpecialPage {
 	 *
 	 * @return string
 	 */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'users';
 	}
 }

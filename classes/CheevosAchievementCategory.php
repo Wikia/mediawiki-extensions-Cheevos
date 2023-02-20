@@ -24,12 +24,18 @@ class CheevosAchievementCategory extends CheevosModel {
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
 		$this->container['name'] = isset( $data['name'] ) && is_array( $data['name'] ) ? $data['name'] : [];
 		$this->container['slug'] = isset( $data['slug'] ) && is_string( $data['slug'] ) ? $data['slug'] : '';
-		$this->container['created_at'] = isset( $data['created_at'] ) && is_int( $data['created_at'] ) ? $data['created_at'] : 0;
-		$this->container['updated_at'] = isset( $data['updated_at'] ) && is_int( $data['updated_at'] ) ? $data['updated_at'] : 0;
-		$this->container['deleted_at'] = isset( $data['deleted_at'] ) && is_int( $data['deleted_at'] ) ? $data['deleted_at'] : 0;
-		$this->container['created_by'] = isset( $data['created_by'] ) && is_int( $data['created_by'] ) ? $data['created_by'] : 0;
-		$this->container['updated_by'] = isset( $data['updated_by'] ) && is_int( $data['updated_by'] ) ? $data['updated_by'] : 0;
-		$this->container['deleted_by'] = isset( $data['deleted_by'] ) && is_int( $data['deleted_by'] ) ? $data['deleted_by'] : 0;
+		$this->container['created_at'] = isset( $data['created_at'] ) &&
+										 is_int( $data['created_at'] ) ? $data['created_at'] : 0;
+		$this->container['updated_at'] = isset( $data['updated_at'] ) &&
+										 is_int( $data['updated_at'] ) ? $data['updated_at'] : 0;
+		$this->container['deleted_at'] = isset( $data['deleted_at'] ) &&
+										 is_int( $data['deleted_at'] ) ? $data['deleted_at'] : 0;
+		$this->container['created_by'] = isset( $data['created_by'] ) &&
+										 is_int( $data['created_by'] ) ? $data['created_by'] : 0;
+		$this->container['updated_by'] = isset( $data['updated_by'] ) &&
+										 is_int( $data['updated_by'] ) ? $data['updated_by'] : 0;
+		$this->container['deleted_by'] = isset( $data['deleted_by'] ) &&
+										 is_int( $data['deleted_by'] ) ? $data['deleted_by'] : 0;
 	}
 
 	/**
@@ -37,7 +43,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	 *
 	 * @return array Success Result
 	 */
-	public function save() {
+	public function save(): array {
 		if ( $this->readOnly ) {
 			throw new CheevosException( "This object is read only and can not be saved." );
 		}
@@ -53,29 +59,30 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Check if category exists
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public function exists() {
+	public function exists(): bool {
 		if ( $this->getId() > 0 ) {
 			$return = true;
 			try {
 				// Throws an error if it doesn't exist.
-				$test = Cheevos::getCategory( $this->getId() );
+				Cheevos::getCategory( $this->getId() );
 			} catch ( CheevosException $e ) {
 				$return = false;
 			}
 			return $return;
 		}
 
-		return false; // no ID on this. Can't exist?
+		// no ID on this. Can't exist?
+		return false;
 	}
 
 	/**
 	 * Get name (by current language)
 	 *
-	 * @return void
+	 * @return string
 	 */
-	public function getName() {
+	public function getName(): string {
 		if ( $this->container['name'] == null || !count( $this->container['name'] ) ) {
 			return "";
 		}
@@ -90,11 +97,9 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Set the name for this category with automatic language code selection.
 	 *
-	 * @param string	Name
-	 *
 	 * @return void
 	 */
-	public function setName( $name ) {
+	public function setName( $name ): void {
 		$code = CheevosHelper::getUserLanguage();
 		if ( !is_array( $this->container['name'] ) ) {
 			$this->container['name'] = [ $code => $name ];
@@ -109,21 +114,21 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Same as getName
 	 *
-	 * @return void
+	 * @return string
 	 */
-	public function getTitle() {
+	public function getTitle(): string {
 		return $this->getName();
 	}
 
 	/**
 	 * Transforms text into canonical versions safe for usage in URLs and Javascript data attributes.
 	 *
-	 * @param integer	Text to filter
-	 * @param boolean	[Optional] Ignore spaces
+	 * @param int $text Text to filter
+	 * @param bool $ignoreSpaces Ignore spaces
 	 *
 	 * @return int Generated Canonical Title
 	 */
-	private function makeCanonicalTitle( $text, $ignoreSpaces = false ) {
+	private function makeCanonicalTitle( int $text, bool $ignoreSpaces = false ): int {
 		$text = html_entity_decode( rawurldecode( trim( $text ) ), ENT_QUOTES, 'UTF-8' );
 		$text = mb_strtolower( $text, 'UTF-8' );
 
@@ -149,19 +154,18 @@ class CheevosAchievementCategory extends CheevosModel {
 	/**
 	 * Does this category roughly equal another category?
 	 *
-	 * @param object	CheevosAchievementCategory
 	 *
 	 * @return bool
 	 */
-	public function sameAs( $category ) {
+	public function sameAs( CheevosModel $model ): bool {
 		foreach ( [ 'name', 'slug', 'deleted_at', 'deleted_by' ] as $field ) {
 			if ( $this->container[$field] instanceof CheevosModel ) {
-				if ( !$this->container[$field]->sameAs( $category[$field] ) ) {
+				if ( !$this->container[$field]->sameAs( $model->container[$field] ) ) {
 					return false;
 				}
 				continue;
 			}
-			if ( $this->container[$field] !== $category[$field] ) {
+			if ( $this->container[$field] !== $model[$field] ) {
 				return false;
 			}
 		}

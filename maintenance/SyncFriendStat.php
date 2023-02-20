@@ -137,7 +137,11 @@ class SyncFriendStat extends Maintenance {
 							if ( $this->getOption( 'v' ) ) {
 								$this->output( "\tAwarding {$achievement->getId()} - {$achievement->getName()}..." );
 							}
-							\CheevosHooks::broadcastAchievement( $achievement, $increment['site_key'], $increment['user_id'] );
+							CheevosHooks::broadcastAchievement(
+								$achievement,
+								$increment['site_key'],
+								$increment['user_id']
+							);
 							$hookContainer->run( 'AchievementAwarded', [ $achievement, $globalId ] );
 							if ( $this->getOption( 'v' ) ) {
 								$this->output( "done.\n" );

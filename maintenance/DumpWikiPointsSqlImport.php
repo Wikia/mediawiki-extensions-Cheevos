@@ -14,17 +14,19 @@
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 use Cheevos\CheevosHelper;
+use MediaWiki\MediaWikiServices;
 
 class DumpWikiPointsSqlImport extends Maintenance {
-	/**
-	 * Constructor
-	 *
-	 * @return void
-	 */
+
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription( 'Dumps WikiPoints tables to SQL to import into Cheevos.' );
-		$this->addOption( 'folder', 'Specify a folder to dump a file into instead of outputing to the terminal.', true, true );
+		$this->addOption(
+			'folder',
+			'Specify a folder to dump a file into instead of outputing to the terminal.',
+			true,
+			true
+		);
 	}
 
 	/**
@@ -32,9 +34,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 	 *
 	 * @return void
 	 */
-	public function execute() {
-		global $wgDBname;
-
+	public function execute(): void {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$folder = false;
@@ -51,7 +51,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 			}
 		}
 
-		$db = wfGetDB( DB_PRIMARY );
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$where = [
 			'reason'	=> 1,
@@ -75,13 +75,12 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		);
 		$total = intval( $result->fetchRow()['total'] );
 
-		$file = fopen( $folder . '/' . $wgDBname . '_wiki_points.sql', 'w+' );
+		$file = fopen( $folder . '/' . $this->getConfig()->get( 'DBname' ) . '_wiki_points.sql', 'w+' );
 		fwrite( $file, "SET @site_id = (SELECT id FROM site_key WHERE `key` = '" . $dsSiteKey . "');\n" );
-		$sql = "INSERT INTO `point_log` (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) VALUES\n";
+		$sql = "INSERT INTO `point_log` " .
+			   " (`user_id`, `site_id`, `revision_id`, `page_id`, `timestamp`, `size`, `size_diff`, `points`) " .
+			   " VALUES\n";
 		fwrite( $file, $sql );
-		$inserts = [];
-
-		$userIdGlobalId = [];
 		$insert = false;
 		$maxLines = 0;
 		for ( $i = 0; $i <= $total; $i = $i + 1000 ) {
@@ -122,12 +121,14 @@ class DumpWikiPointsSqlImport extends Maintenance {
 
 				$size = intval( $row['rev_len'] );
 
-				if ( strpos( $row['calculation_info'], '\"' ) !== false ) {
+				if ( str_contains( $row['calculation_info'], '\"' ) ) {
 					$row['calculation_info'] = str_replace( '\"', '"', $row['calculation_info'] );
 				}
 				$calcInfo = json_decode( $row['calculation_info'], true );
 				$sizeDiff = $calcInfo['inputs']['z'];
-				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' . wfTimestamp( TS_UNIX, $row['created'] ) . ', ' . $size . ', ' . $sizeDiff . ', ' . $row['score'] . ")";
+				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' .
+						  wfTimestamp( TS_UNIX, $row['created'] ) . ', ' . $size . ', ' . $sizeDiff . ', ' .
+						  $row['score'] . ")";
 			}
 			if ( $maxLines >= 30000 ) {
 				$maxLines = 0;

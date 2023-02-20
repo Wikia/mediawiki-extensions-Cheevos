@@ -195,8 +195,13 @@ class SyncArticleStats extends Maintenance {
 					'file_upload' => 0
 				];
 				if ( isset( $statProgress ) && !empty( $statProgress ) ) {
-					foreach ( $statProgress as $index => $userStat ) {
-						if ( in_array( $userStat->getStat(), [ 'article_create', 'article_edit', 'article_delete', 'file_upload' ] ) ) {
+					foreach ( $statProgress as $userStat ) {
+						if ( in_array( $userStat->getStat(), [
+							'article_create',
+							'article_edit',
+							'article_delete',
+							'file_upload'
+						] ) ) {
 							$cheevos[$userStat->getStat()] = $userStat->getCount();
 						}
 					}
@@ -235,9 +240,15 @@ class SyncArticleStats extends Maintenance {
 							foreach ( $return['earned'] as $achievement ) {
 								$achievement = new CheevosAchievement( $achievement );
 								if ( $this->getOption( 'v' ) ) {
-									$this->output( "\tAwarding {$achievement->getId()} - {$achievement->getName()}..." );
+									$this->output(
+										"\tAwarding {$achievement->getId()} - {$achievement->getName()}..."
+									);
 								}
-								CheevosHooks::broadcastAchievement( $achievement, $increment['site_key'], $increment['user_id'] );
+								CheevosHooks::broadcastAchievement(
+									$achievement,
+									$increment['site_key'],
+									$increment['user_id']
+								);
 								$hookContainer->run( 'AchievementAwarded', [ $achievement, $globalId ] );
 								if ( $this->getOption( 'v' ) ) {
 									$this->output( "done.\n" );
@@ -249,9 +260,11 @@ class SyncArticleStats extends Maintenance {
 								$progress = new CheevosAchievementProgress( $progress );
 								$achievement = $achievements[$progress->getAchievement_Id()];
 								if ( $this->getOption( 'v' ) ) {
-									$this->output( "\tUnawarding {$achievement->getId()} - {$achievement->getName()}..." );
+									$this->output(
+										"\tUnawarding {$achievement->getId()} - {$achievement->getName()}..."
+									);
 								}
-								$deleted = Cheevos::deleteProgress( $progress->getId(), $globalId );
+								$deleted = Cheevos::deleteProgress( $progress->getId() );
 								if ( $deleted['code'] == 200 ) {
 									$hookContainer->run( 'AchievementUnawarded', [ $achievement, $globalId ] );
 									if ( $this->getOption( 'v' ) ) {

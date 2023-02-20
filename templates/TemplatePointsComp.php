@@ -1,5 +1,6 @@
 <?php
 
+use Cheevos\Points\PointsCompReport;
 use MediaWiki\MediaWikiServices;
 
 /**
@@ -17,12 +18,12 @@ class TemplatePointsComp {
 	/**
 	 * Points Comp Reports List
 	 *
-	 * @param array	Reports
-	 * @param string	Pagination HTML
+	 * @param array $reports Reports
+	 * @param string $pagination Pagination HTML
 	 *
 	 * @return string HTML
 	 */
-	public static function pointsCompReports( $reports = [], $pagination = '' ) {
+	public static function pointsCompReports( array $reports = [], string $pagination = '' ): string {
 		global $wgRequest;
 
 		$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
@@ -40,7 +41,9 @@ class TemplatePointsComp {
 		$html .= "
 		<div>
 			<dl class='collapse_dl'>
-				<dt>" . wfMessage( 'current_active_comps' )->escaped() . "</dt><dd>" . \Cheevos\Points\PointsCompReport::getNumberOfActiveSubscriptions() . "</dd>
+				<dt>" . wfMessage( 'current_active_comps' )->escaped() . "</dt><dd>" .
+				 PointsCompReport::getNumberOfActiveSubscriptions() .
+				 "</dd>
 			</dl>
 		</div>
 		<form method='post' action='{$pointsCompURL}'>
@@ -51,7 +54,9 @@ class TemplatePointsComp {
 				<input id='start_time' name='start_time' type='hidden' value=''/>
 
 				<label for='min_point_threshold'>" . wfMessage( 'min_point_threshold' )->escaped() . "</label>
-				<input id='min_point_threshold' name='min_point_threshold' type='text' value='" . intval( $config->get( 'CompedSubscriptionThreshold' ) ) . "'/>
+				<input id='min_point_threshold' name='min_point_threshold' type='text' value='" .
+				 intval( $config->get( 'CompedSubscriptionThreshold' ) ) .
+				 "'/>
 
 				<label for='max_point_threshold'>" . wfMessage( 'max_point_threshold' )->escaped() . "</label>
 				<input id='max_point_threshold' name='max_point_threshold' type='text' value=''/>
@@ -84,7 +89,14 @@ class TemplatePointsComp {
 			foreach ( $reports as $report ) {
 				$html .= "
 				<tr>
-					<td>" . $linkRenderer->makeKnownLink( SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() ), wfMessage( 'comp_report_link', $report->getReportId(), gmdate( 'Y-m-d', $report->getRunTime() ) )->escaped() ) . "</td>
+					<td>" . $linkRenderer->makeKnownLink(
+						SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() ),
+						wfMessage(
+							'comp_report_link',
+							$report->getReportId(),
+							gmdate( 'Y-m-d', $report->getRunTime() )
+						)->escaped()
+					) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>
 					<td>" . gmdate( 'Y-m-d', $report->getStartTime() ) . "</td>
@@ -113,7 +125,7 @@ class TemplatePointsComp {
 	 *
 	 * @return string HTML
 	 */
-	public static function pointsCompReportDetail( $report ) {
+	public static function pointsCompReportDetail( $report ): string {
 		global $wgRequest;
 
 		$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() );
@@ -124,41 +136,63 @@ class TemplatePointsComp {
 		if ( $wgRequest->getVal( 'userComped', null ) !== null ) {
 			$successText = ( $wgRequest->getInt( 'userComped' ) ? 'success' : 'error' );
 			$html .= "
-			<div><div class='" . $successText . "box'>" . wfMessage( 'points_comp_report_user_comp_' . $successText )->escaped() . "</div></div>";
+			<div><div class='" . $successText . "box'>" .
+					 wfMessage( 'points_comp_report_user_comp_' . $successText )->escaped() .
+					 "</div></div>";
 		}
 
 		if ( $wgRequest->getVal( 'emailSent', null ) !== null ) {
 			$successText = ( $wgRequest->getInt( 'emailSent' ) ? 'success' : 'error' );
 			$html .= "
-			<div><div class='" . $successText . "box'>" . wfMessage( 'points_comp_report_email_' . $successText )->escaped() . "</div></div>";
+			<div><div class='" . $successText . "box'>" .
+					 wfMessage( 'points_comp_report_email_' . $successText )->escaped() .
+					 "</div></div>";
 		}
 
 		$html .= "
 		<div class='button_bar'>
 			<div class='buttons_left'>
-				<a href='{$pointsCompPage->getFullURL(['csv' => 1])}' class='mw-ui-button'>" . wfMessage( 'download_report_csv' ) . "</a>
+				<a href='{$pointsCompPage->getFullURL(['csv' => 1])}' class='mw-ui-button'>" .
+				 wfMessage( 'download_report_csv' ) .
+				 "</a>
 			</div>
 		</div>
 		<dl class='collapse_dl'>
-			<dt>" . wfMessage( 'run_time' )->escaped() . "</dt><dd>" . gmdate( 'Y-m-d', $report->getRunTime() ) . "</dd><br/>
-			<dt>" . wfMessage( 'min_point_threshold' )->escaped() . "</dt><dd>{$report->getMinPointThreshold()}</dd><br/>
-			<dt>" . wfMessage( 'max_point_threshold' )->escaped() . "</dt><dd>{$report->getMaxPointThreshold()}</dd><br/>
-			<dt>" . wfMessage( 'start_time' )->escaped() . "</dt><dd>" . gmdate( 'Y-m-d', $report->getStartTime() ) . "</dd><br/>
-			<dt>" . wfMessage( 'end_time' )->escaped() . "</dt><dd>" . gmdate( 'Y-m-d', $report->getEndTime() ) . "</dd><br/>
-			<dt>" . wfMessage( 'total_users' )->escaped() . "</dt><dd>" . ( $report->getTotalNew() + $report->getTotalExtended() ) . "</dd><br/>
-			<dt>" . wfMessage( 'total_new' )->escaped() . "</dt><dd>{$report->getTotalNew()}</dd><br/>
-			<dt>" . wfMessage( 'total_extended' )->escaped() . "</dt><dd>{$report->getTotalExtended()}</dd><br/>
-			<dt>" . wfMessage( 'total_failed' )->escaped() . "</dt><dd>{$report->getTotalFailed()}</dd><br/>
-			<dt>" . wfMessage( 'total_skipped' )->escaped() . "</dt><dd>{$report->getTotalSkipped()}</dd><br/>
-			<dt>" . wfMessage( 'total_performed' )->escaped() . "</dt><dd>{$report->getTotalPerformed()}</dd><br/>
-			<dt>" . wfMessage( 'total_emailed' )->escaped() . "</dt><dd>{$report->getTotalEmailed()}</dd><br/>
-			<dt>" . wfMessage( 'report_finished' )->escaped() . "</dt><dd>" . ( $report->isFinished() ? '✓' : '&nbsp;' ) . "</dd>
+			<dt>" . wfMessage( 'run_time' )->escaped() .
+				 "</dt><dd>" . gmdate( 'Y-m-d', $report->getRunTime() ) . "</dd><br/>
+			<dt>" . wfMessage( 'min_point_threshold' )->escaped() .
+				 "</dt><dd>{$report->getMinPointThreshold()}</dd><br/>
+			<dt>" . wfMessage( 'max_point_threshold' )->escaped() .
+				 "</dt><dd>{$report->getMaxPointThreshold()}</dd><br/>
+			<dt>" . wfMessage( 'start_time' )->escaped() .
+				 "</dt><dd>" . gmdate( 'Y-m-d', $report->getStartTime() ) . "</dd><br/>
+			<dt>" . wfMessage( 'end_time' )->escaped() .
+				 "</dt><dd>" . gmdate( 'Y-m-d', $report->getEndTime() ) . "</dd><br/>
+			<dt>" . wfMessage( 'total_users' )->escaped() .
+				 "</dt><dd>" . ( $report->getTotalNew() + $report->getTotalExtended() ) . "</dd><br/>
+			<dt>" . wfMessage( 'total_new' )->escaped() .
+				 "</dt><dd>{$report->getTotalNew()}</dd><br/>
+			<dt>" . wfMessage( 'total_extended' )->escaped() .
+				 "</dt><dd>{$report->getTotalExtended()}</dd><br/>
+			<dt>" . wfMessage( 'total_failed' )->escaped() .
+				 "</dt><dd>{$report->getTotalFailed()}</dd><br/>
+			<dt>" . wfMessage( 'total_skipped' )->escaped() .
+				 "</dt><dd>{$report->getTotalSkipped()}</dd><br/>
+			<dt>" . wfMessage( 'total_performed' )->escaped() .
+				 "</dt><dd>{$report->getTotalPerformed()}</dd><br/>
+			<dt>" . wfMessage( 'total_emailed' )->escaped() .
+				 "</dt><dd>{$report->getTotalEmailed()}</dd><br/>
+			<dt>" . wfMessage( 'report_finished' )->escaped() .
+				 "</dt><dd>" . ( $report->isFinished() ? '✓' : '&nbsp;' ) . "</dd>
 		</dl>
 		<form method='post' action='{$pointsCompURL}'>
 			<input name='report_id' type='hidden' value='{$report->getReportId()}'/>
-			<button name='do' type='submit' value='grantAll'>" . wfMessage( 'grant_all_comps' )->escaped() . "</button>
-			<button name='do' type='submit' value='emailAll'/>" . wfMessage( 'email_comped_users' )->escaped() . "</button>
-			<button name='do' type='submit' value='grantAndEmailAll'/>" . wfMessage( 'grant_all_comps_and_email' )->escaped() . "</button>
+			<button name='do' type='submit' value='grantAll'>" . wfMessage( 'grant_all_comps' )->escaped() .
+				 "</button>
+			<button name='do' type='submit' value='emailAll'/>" . wfMessage( 'email_comped_users' )->escaped() .
+				 "</button>
+			<button name='do' type='submit' value='grantAndEmailAll'/>" .
+				 wfMessage( 'grant_all_comps_and_email' )->escaped() . "</button>
 			<table class='wikitable'>
 				<thead>
 					<tr>
@@ -186,10 +220,18 @@ class TemplatePointsComp {
 						<td>{$reportRow['comp_extended']}</td>
 						<td>{$reportRow['comp_failed']}</td>
 						<td>{$reportRow['comp_skipped']}</td>
-						<td>" . ( $reportRow['current_comp_expires'] > 0 ? gmdate( 'Y-m-d', $reportRow['current_comp_expires'] ) : '&nbsp;' ) . "</td>
-						<td>" . ( $reportRow['new_comp_expires'] > 0 ? gmdate( 'Y-m-d', $reportRow['new_comp_expires'] ) : '&nbsp;' ) . "</td>
-						<td>" . ( $reportRow['comp_performed'] ? '✓' : "<button name='compUser' type='submit' value='{$user->getId()}'/>" . wfMessage( 'grant_comp' )->escaped() . "</button>" ) . "</td>
-						<td>" . ( $reportRow['email_sent'] ? '✓' : "<button name='emailUser' type='submit' value='{$user->getId()}'/>" . wfMessage( 'send_comp_email' )->escaped() . "</button>" ) . "</td>
+						<td>" . ( $reportRow['current_comp_expires'] > 0 ?
+							gmdate( 'Y-m-d', $reportRow['current_comp_expires'] ) :
+							'&nbsp;' ) . "</td>
+						<td>" . ( $reportRow['new_comp_expires'] > 0 ?
+							gmdate( 'Y-m-d', $reportRow['new_comp_expires'] ) :
+							'&nbsp;' ) . "</td>
+						<td>" . ( $reportRow['comp_performed'] ? '✓' :
+							"<button name='compUser' type='submit' value='{$user->getId()}'/>" .
+							wfMessage( 'grant_comp' )->escaped() . "</button>" ) . "</td>
+						<td>" . ( $reportRow['email_sent'] ? '✓' :
+							"<button name='emailUser' type='submit' value='{$user->getId()}'/>" .
+							wfMessage( 'send_comp_email' )->escaped() . "</button>" ) . "</td>
 					</tr>";
 		}
 		$html .= "
@@ -207,7 +249,16 @@ class TemplatePointsComp {
 	 */
 	public static function pointsCompReportCSV( $report ) {
 		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-		$headers = wfMessage( 'wpa_user' )->escaped() . "," . wfMessage( 'comp_points' )->escaped() . "," . wfMessage( 'comp_new' )->escaped() . "," . wfMessage( 'comp_extended' )->escaped() . "," . wfMessage( 'comp_failed' )->escaped() . "," . wfMessage( 'comp_skipped' )->escaped() . "," . wfMessage( 'current_comp_expires' )->escaped() . "," . wfMessage( 'new_comp_expires' )->escaped() . "," . wfMessage( 'comp_done' )->escaped() . "," . wfMessage( 'emailed' )->escaped();
+		$headers = wfMessage( 'wpa_user' )->escaped() . "," .
+				   wfMessage( 'comp_points' )->escaped() . "," .
+				   wfMessage( 'comp_new' )->escaped() . "," .
+				   wfMessage( 'comp_extended' )->escaped() . "," .
+				   wfMessage( 'comp_failed' )->escaped() . "," .
+				   wfMessage( 'comp_skipped' )->escaped() . "," .
+				   wfMessage( 'current_comp_expires' )->escaped() . "," .
+				   wfMessage( 'new_comp_expires' )->escaped() . "," .
+				   wfMessage( 'comp_done' )->escaped() . "," .
+				   wfMessage( 'emailed' )->escaped();
 		while ( ( $reportRow = $report->getNextRow() ) !== false ) {
 			$user = $userFactory->newFromId( $reportRow['user_id'] );
 			$rows[] = implode(
@@ -219,14 +270,16 @@ class TemplatePointsComp {
 					$reportRow['comp_extended'],
 					$reportRow['comp_failed'],
 					$reportRow['comp_skipped'],
-					$reportRow['current_comp_expires'] > 0 ? gmdate( 'Y-m-d', $reportRow['current_comp_expires'] ) : '',
-					$reportRow['new_comp_expires'] > 0 ? gmdate( 'Y-m-d', $reportRow['new_comp_expires'] ) : '',
+					$reportRow['current_comp_expires'] > 0 ?
+						gmdate( 'Y-m-d', $reportRow['current_comp_expires'] ) : '',
+					$reportRow['new_comp_expires'] > 0 ?
+						gmdate( 'Y-m-d', $reportRow['new_comp_expires'] ) : '',
 					$reportRow['comp_performed'] ? '✓' : '',
 					$reportRow['email_sent'] ? '✓' : ''
 				]
 			);
 		}
-		$csv = $headers . "\n" . implode( "\n", $rows );
-		return $csv;
+
+		return $headers . "\n" . implode( "\n", $rows );
 	}
 }

@@ -22,7 +22,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 *
 	 * @var string
 	 */
-	private $content;
+	private string $content;
 
 	/**
 	 * Main Constructor
@@ -36,16 +36,22 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param string	Sub page passed in the URL.
+	 * @param string $subPage Subpage passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function execute( $subpage ) {
-		$this->output->addModuleStyles( [ 'ext.cheevos.wikiPoints.styles', 'ext.hydraCore.pagination.styles', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button' ] );
+	public function execute( $subPage ) {
+		$this->output->addModuleStyles( [
+			'ext.cheevos.wikiPoints.styles',
+			'ext.hydraCore.pagination.styles',
+			'mediawiki.ui',
+			'mediawiki.ui.input',
+			'mediawiki.ui.button'
+		] );
 
 		$this->setHeaders();
 
-		$this->wikiPoints( $subpage );
+		$this->wikiPoints( $subPage );
 
 		$this->output->addHTML( $this->content );
 	}
@@ -53,11 +59,11 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	/**
 	 * Display the wiki points page.
 	 *
-	 * @param string	[Optional] Subpage
+	 * @param string|null $subPage Subpage
 	 *
 	 * @return void
 	 */
-	public function wikiPoints( $subpage = null ) {
+	public function wikiPoints( ?string $subPage = null ): void {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$start = $this->wgRequest->getInt( 'st' );
@@ -73,25 +79,39 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 				$globalId = Cheevos::getUserIdForService( $user );
 			}
 
-			$pointsLog = [];
 			if ( !$globalId ) {
 				$globalId = null;
 				$form['error'] = wfMessage( 'error_wikipoints_user_not_found' )->escaped();
 			}
 		}
 
-		$modifiers = explode( '/', trim( trim( $subpage ), '/' ) );
+		$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
 		$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
 		$isMonthly = in_array( 'monthly', $modifiers );
 		$isGlobal = in_array( 'global', $modifiers );
 
-		$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subpage );
-		$this->output->setPageTitle( wfMessage( 'top_wiki_editors' . ( $isGlobal ? '_global' : '' ) . ( $isSitesMode ? '_sites' : '' ) . ( $isMonthly ? '_monthly' : '' ) ) );
+		$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subPage );
+		$this->output->setPageTitle(
+			wfMessage(
+				'top_wiki_editors' .
+				( $isGlobal ? '_global' : '' ) .
+				( $isSitesMode ? '_sites' : '' ) .
+				( $isMonthly ? '_monthly' : '' )
+			) );
 		$this->content = TemplateWikiPoints::getWikiPointsLinks();
 		if ( !$isMonthly ) {
 			$this->content .= TemplateWikiPointsAdmin::userSearch( $thisPage, $form ) . "<hr/>";
 		}
-		$this->content .= PointsDisplay::pointsBlockHtml( ( $isSitesMode || $isGlobal ? null : $dsSiteKey ), $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly, 'table', $thisPage );
+		$this->content .= PointsDisplay::pointsBlockHtml(
+			( $isSitesMode || $isGlobal ? null : $dsSiteKey ),
+			$globalId,
+			$itemsPerPage,
+			$start,
+			$isSitesMode,
+			$isMonthly,
+			'table',
+			$thisPage
+		);
 	}
 
 	/**
@@ -99,7 +119,7 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 	 *
 	 * @return string
 	 */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'wikipoints';
 	}
 }

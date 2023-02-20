@@ -30,29 +30,20 @@ class CheevosHelper {
 			$user = RequestContext::getMain()->getUser();
 			$code = MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $user, 'language' );
 		} catch ( Exception $e ) {
-			$code = "en"; // "faulure? English is best anyway."  --Cameron Chunn, 2017-03-02 15:37:33 -0600
+			// "failure? English is the best anyway."  --Cameron Chunn, 2017-03-02 15:37:33 -0600
+			$code = "en";
 		}
 		return $code;
 	}
 
 	/**
-	 * Return the language for the wiki.
-	 *
-	 * @return string Language Code
-	 */
-	public static function getWikiLanuage() {
-		global $wgLanguageCode;
-		return $wgLanguageCode;
-	}
-
-	/**
 	 * Turns an array of CheevosStatProgress objects into an array that is easier to consume.
 	 *
-	 * @param array	Flat array.
+	 * @param array $stats Flat array.
 	 *
 	 * @return array Nice array.
 	 */
-	public static function makeNiceStatProgressArray( $stats ) {
+	public static function makeNiceStatProgressArray( array $stats ): array {
 		$nice = [];
 		$users = [];
 
@@ -77,8 +68,8 @@ class CheevosHelper {
 	/**
 	 * Get a site name for a site key.
 	 *
-	 * @param string	     Site Key
-	 * @param WikiConfigData [Optional] Provide already retrieved wiki object.
+	 * @param string $siteKey Site Key
+	 * @param WikiConfigData|null $wiki Provide already retrieved wiki object.
 	 *
 	 * @return string Site Name with Language
 	 */
@@ -148,11 +139,11 @@ class CheevosHelper {
 	/**
 	 * Get site key.
 	 *
-	 * @return mixed Site key string or null if empty.
+	 * @return string|null Site key string or null if empty.
 	 */
 	public static function getSiteKey(): ?string {
-		global $dsSiteKey;
-		if ( !$dsSiteKey || empty( $dsSiteKey ) ) {
+		global $dsSiteKey; // phpcs:ignore
+		if ( empty( $dsSiteKey ) ) {
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$cityId = $config->get( 'CityId' );
 
@@ -172,6 +163,6 @@ class CheevosHelper {
 	 */
 	public static function isCentralWiki(): bool {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
-		return (bool)$config->get( 'CheevosIsCentral', false );
+		return (bool)$config->get( 'CheevosIsCentral' );
 	}
 }

@@ -13,6 +13,7 @@ namespace Cheevos\Maintenance;
 use HydraAuthUser;
 use LoggedUpdateMaintenance;
 use MediaWiki\MediaWikiServices;
+use stdClass;
 use Wikimedia\Rdbms\IDatabase;
 
 require_once dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/maintenance/Maintenance.php';
@@ -129,7 +130,7 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 				}
 			}
 
-			list( $next, $display ) = $this->makeNextCond( $dbw, $orderby, $row );
+			[ $next, $display ] = $this->makeNextCond( $dbw, $orderby, $row );
 			$this->output( "... $display\n" );
 			MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->waitForReplication();
 		}
@@ -144,11 +145,11 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	 *
 	 * @param IDatabase $dbw
 	 * @param string[] $indexFields Fields in the index being ordered by
-	 * @param object $row Database row
+	 * @param stdClass $row Database row
 	 *
 	 * @return string[] [ string $next, string $display ]
 	 */
-	private function makeNextCond( $dbw, array $indexFields, $row ) {
+	private function makeNextCond( $dbw, array $indexFields, stdClass $row ) {
 		$next = '';
 		$display = [];
 		for ( $i = count( $indexFields ) - 1; $i >= 0; $i-- ) {

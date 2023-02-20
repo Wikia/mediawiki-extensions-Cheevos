@@ -29,13 +29,23 @@ use User;
  * Class containing some business and display logic for points blocks
  */
 class PointsCompReport {
+
+	private const STATS = [
+		'comp_new',
+		'comp_extended',
+		'comp_failed',
+		'comp_skipped',
+		'comp_performed',
+		'email_sent'
+	];
+
 	/**
 	 * Report Data
 	 * [{database row}]
 	 *
 	 * @var array
 	 */
-	private $reportData = [];
+	private array $reportData = [];
 
 	/**
 	 * Report User Data
@@ -43,27 +53,25 @@ class PointsCompReport {
 	 *
 	 * @var array
 	 */
-	private $reportUser = [];
+	private array $reportUser = [];
 
 	/**
 	 * Main Constructor
 	 *
-	 * @param array	Report ID
-	 *
 	 * @return void
 	 */
-	public function __construct( $reportId = 0 ) {
-		$this->reportData['report_id'] = intval( $reportId );
+	public function __construct( int $reportId = 0 ) {
+		$this->reportData['report_id'] = $reportId;
 	}
 
 	/**
 	 * Load a new report object from the report ID.
 	 *
-	 * @param integer	Report ID
+	 * @param int $id Report ID
 	 *
-	 * @return mixed PointsCompReport object or null if it does not exist.
+	 * @return PointsCompReport|null object or null if it does not exist.
 	 */
-	public static function newFromId( $id ) {
+	public static function newFromId( $id ): ?PointsCompReport {
 		$report = new self( $id );
 
 		$success = $report->load();
@@ -74,11 +82,9 @@ class PointsCompReport {
 	/**
 	 * Load a new report object from a database row.
 	 *
-	 * @param array	Report Row from the Database
-	 *
-	 * @return object PointsCompReport
+	 * @param array $row Report Row from the Database
 	 */
-	private static function newFromRow( $row ) {
+	private static function newFromRow( $row ): PointsCompReport {
 		$report = new self( $row['report_id'] );
 		$report->reportData = $row;
 
@@ -90,8 +96,8 @@ class PointsCompReport {
 	 *
 	 * @return bool Sucess
 	 */
-	private function load() {
-		$db = wfGetDB( DB_PRIMARY );
+	private function load(): bool {
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$result = $db->select(
 			[ 'points_comp_report' ],
@@ -134,8 +140,8 @@ class PointsCompReport {
 	 *
 	 * @return bool Success
 	 */
-	public function save() {
-		$db = wfGetDB( DB_PRIMARY );
+	public function save(): bool {
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$this->reportData['run_time'] = time();
 		$reportData = $this->reportData;
@@ -153,7 +159,7 @@ class PointsCompReport {
 				throw new MWException( __METHOD__ . ': Could not get a new report ID.' );
 			}
 		} else {
-			$success = $db->update(
+			$db->update(
 				'points_comp_report',
 				$reportData,
 				[ 'report_id' => $this->reportData['report_id'] ],
@@ -161,7 +167,7 @@ class PointsCompReport {
 			);
 		}
 
-		foreach ( $this->reportUser as $userId => $data ) {
+		foreach ( $this->reportUser as $data ) {
 			$data['report_id'] = $this->reportData['report_id'];
 			$data['start_time'] = $this->reportData['start_time'];
 			$data['end_time'] = $this->reportData['end_time'];
@@ -173,7 +179,7 @@ class PointsCompReport {
 					'comp_new'			=> $data['comp_new'],
 					'comp_extended'		=> $data['comp_extended'],
 					'comp_failed'		=> $data['comp_failed'],
-					'comp_skipped'		=> isset( $data['comp_skipped'] ) ? $data['comp_skipped'] : 0,
+					'comp_skipped'		=> $data['comp_skipped'] ?? 0,
 					'comp_performed'	=> $data['comp_performed'],
 					'email_sent'		=> $data['email_sent']
 				],
@@ -189,13 +195,11 @@ class PointsCompReport {
 
 	/**
 	 * Update the report statistics into the database.
-	 *
-	 * @return void
 	 */
-	public function updateStats() {
-		$db = wfGetDB( DB_PRIMARY );
+	public function updateStats(): void {
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
-		foreach ( [ 'comp_new', 'comp_extended', 'comp_failed', 'comp_skipped', 'comp_performed', 'email_sent' ] as $stat ) {
+		foreach ( self::STATS as $stat ) {
 			$result = $db->select(
 				[ 'points_comp_report_user' ],
 				[ 'count(' . $stat . ') as total' ],
@@ -219,13 +223,13 @@ class PointsCompReport {
 	/**
 	 * Load a list of basic report information.
 	 *
-	 * @param integer	Start Position
-	 * @param integer	Maximum Items to Return
+	 * @param int $start Start Position
+	 * @param int $itemsPerPage Maximum Items to Return
 	 *
 	 * @return array Multidimensional array of ['total' => $total, $reportId => [{reportUser}]]
 	 */
-	public static function getReportsList( $start = 0, $itemsPerPage = 50 ) {
-		$db = wfGetDB( DB_PRIMARY );
+	public static function getReportsList( int $start = 0, int $itemsPerPage = 50 ): array {
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$result = $db->select(
 			[ 'points_comp_report' ],
@@ -264,7 +268,7 @@ class PointsCompReport {
 	 *
 	 * @return int This report ID.
 	 */
-	public function getReportId() {
+	public function getReportId(): int {
 		return $this->reportData['report_id'];
 	}
 
@@ -273,7 +277,7 @@ class PointsCompReport {
 	 *
 	 * @return int Run time Unix timestamp.
 	 */
-	public function getRunTime() {
+	public function getRunTime(): int {
 		return $this->reportData['run_time'];
 	}
 
@@ -282,54 +286,51 @@ class PointsCompReport {
 	 *
 	 * @return int Minimum point threshold.
 	 */
-	public function getMinPointThreshold() {
+	public function getMinPointThreshold(): int {
 		return intval( $this->reportData['min_points'] );
 	}
 
 	/**
 	 * Set the minimum point threshold for this report.
 	 *
-	 * @param integer	Minimum point threshold for this report.
+	 * @param int $minPointThreshold Minimum point threshold for this report.
 	 *
 	 * @return void
 	 */
-	public function setMinPointThreshold( $minPointThreshold ) {
+	public function setMinPointThreshold( $minPointThreshold ): void {
 		$this->reportData['min_points'] = intval( $minPointThreshold );
 	}
 
 	/**
 	 * Get the maximum point threshold for this report.
 	 *
-	 * @return int Maximum point threshold.
+	 * @return int|null Maximum point threshold.
 	 */
-	public function getMaxPointThreshold() {
+	public function getMaxPointThreshold(): ?int {
 		return ( $this->reportData['max_points'] === null ? null : intval( $this->reportData['max_points'] ) );
 	}
 
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
-	 * @param mixed	Maximum point threshold for this report or null for no maximum.
+	 * @param mixed|null $maxPointThreshold Maximum point threshold for this report or null for no maximum.
 	 *
 	 * @return void
 	 */
-	public function setMaxPointThreshold( $maxPointThreshold = null ) {
+	public function setMaxPointThreshold( mixed $maxPointThreshold = null ): void {
 		$this->reportData['max_points'] = ( $maxPointThreshold === null ? null : intval( $maxPointThreshold ) );
 	}
 
 	/**
 	 * Validate point thresholds.
 	 *
-	 * @param integer Minimum Point Threshold
-	 * @param integer|null [Optional] Maximum Point Threshold
+	 * @param int $minPointThreshold Minimum Point Threshold
+	 * @param int|null $maxPointThreshold [Optional] Maximum Point Threshold
 	 *
 	 * @return Status
 	 */
-	public static function validatePointThresholds( int $minPointThreshold, ?int $maxPointThreshold = null ) {
-		$minPointThreshold = $minPointThreshold;
-
+	public static function validatePointThresholds( int $minPointThreshold, ?int $maxPointThreshold = null ): Status {
 		if ( $maxPointThreshold !== null ) {
-			$maxPointThreshold = $maxPointThreshold;
 			if ( $maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold ) {
 				return Status::newFatal( 'invalid_maximum_threshold' );
 			}
@@ -358,7 +359,7 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function setStartTime( int $startTime ) {
+	public function setStartTime( int $startTime ): void {
 		$this->reportData['start_time'] = $startTime;
 	}
 
@@ -378,7 +379,7 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function setEndTime( int $endTime ) {
+	public function setEndTime( int $endTime ): void {
 		$this->reportData['end_time'] = $endTime;
 	}
 
@@ -390,10 +391,7 @@ class PointsCompReport {
 	 *
 	 * @return Status
 	 */
-	public static function validateTimeRange( int $startTime, int $endTime ) {
-		$startTime = $startTime;
-		$endTime = $endTime;
-
+	public static function validateTimeRange( int $startTime, int $endTime ): Status {
 		if ( $endTime <= 0 || $endTime < $startTime ) {
 			return Status::newFatal( 'invalid_end_time' );
 		}
@@ -476,11 +474,11 @@ class PointsCompReport {
 	/**
 	 * Set if the report is finished running.
 	 *
-	 * @param boolean Report Finished
+	 * @param bool $finished Report Finished
 	 *
 	 * @return void
 	 */
-	public function setFinished( bool $finished = false ) {
+	public function setFinished( bool $finished = false ): void {
 		$this->reportData['finished'] = intval( boolval( $finished ) );
 	}
 
@@ -488,19 +486,29 @@ class PointsCompReport {
 	 * Add new report row.
 	 * Will overwrite existing rows with the same global ID.
 	 *
-	 * @param integer	Global User ID
-	 * @param integer	Aggegrate Points for the month range.
-	 * @param boolean	Is this a new comp for this month range?(User did not have previously or consecutively.)
-	 * @param boolean	Is this an extended comp from a previous one?
-	 * @param boolean	Did the billing system fail to do the comp?(Or did we just not run it yet?)
-	 * @param integer	Unix timestamp for when the current comp expires.
-	 * @param integer	Unix timestamp for when the new comp expires.(If applicable.)
-	 * @param boolean	Was the new comp actually performed?
-	 * @param boolean	User emailed to let them know about their comp?
+	 * @param int $userId Global User ID
+	 * @param int $points Aggegrate Points for the month range.
+	 * @param bool $compNew Is this a new comp for this month range?(User did not have previously or consecutively.)
+	 * @param bool $compExtended Is this an extended comp from a previous one?
+	 * @param bool $compFailed Did the billing system fail to do the comp?(Or did we just not run it yet?)
+	 * @param int $currentCompExpires Unix timestamp for when the current comp expires.
+	 * @param int $newCompExpires Unix timestamp for when the new comp expires.(If applicable.)
+	 * @param bool $compPerformed Was the new comp actually performed?
+	 * @param bool $emailSent User emailed to let them know about their comp?
 	 *
 	 * @return void
 	 */
-	public function addRow( int $userId, int $points, bool $compNew, bool $compExtended, bool $compFailed, int $currentCompExpires, int $newCompExpires, bool $compPerformed = false, bool $emailSent = false ) {
+	public function addRow(
+		int $userId,
+		int $points,
+		bool $compNew,
+		bool $compExtended,
+		bool $compFailed,
+		int $currentCompExpires,
+		int $newCompExpires,
+		bool $compPerformed = false,
+		bool $emailSent = false
+	): void {
 		$data = [
 			'user_id'				=> $userId,
 			'points'				=> $points,
@@ -529,7 +537,7 @@ class PointsCompReport {
 	 *
 	 * @return mixed Report row data or false for no more values.
 	 */
-	public function getNextRow() {
+	public function getNextRow(): mixed {
 		$return = current( $this->reportUser );
 		next( $this->reportUser );
 		return $return;
@@ -537,7 +545,8 @@ class PointsCompReport {
 
 	/**
 	 * Run the report.
-	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.  Their previous values will be used.
+	 * Threshold, Start Time, and End Time are ignored if the report was already run previously.
+	 * Their previous values will be used.
 	 *
 	 * @param int|null $minPointThreshold [Optional] Minimum Point Threshold
 	 * @param int|null $maxPointThreshold [Optional] Maximum Point Threshold
@@ -548,7 +557,14 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function run( ?int $minPointThreshold = null, ?int $maxPointThreshold = null, int $timeStart = 0, int $timeEnd = 0, bool $final = false, bool $email = false ) {
+	public function run(
+		?int $minPointThreshold = null,
+		?int $maxPointThreshold = null,
+		int $timeStart = 0,
+		int $timeEnd = 0,
+		bool $final = false,
+		bool $email = false
+	) {
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Subscription' ) ) {
 			throw new MWException( __METHOD__ . ": Extension:Subscription must be loaded for this functionality." );
 		}
@@ -562,15 +578,10 @@ class PointsCompReport {
 
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
-		if ( $minPointThreshold !== null ) {
-			$minPointThreshold = $minPointThreshold;
-		} else {
+		if ( $minPointThreshold === null ) {
 			$minPointThreshold = intval( $config->get( 'CompedSubscriptionThreshold' ) );
 		}
 
-		if ( $maxPointThreshold !== null ) {
-			$maxPointThreshold = $maxPointThreshold;
-		}
 		$status = self::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
 		if ( !$status->isGood() ) {
 			throw new MWException( __METHOD__ . ': ' . $status->getMessage() );
@@ -628,7 +639,13 @@ class PointsCompReport {
 	/**
 	 * Handle an individual user's stat count.
 	 */
-	private function updateUser( SubscriptionProvider $gamepediaPro, int $newExpires, bool $final, bool $email, CheevosStatMonthlyCount $monthly ) {
+	private function updateUser(
+		SubscriptionProvider $gamepediaPro,
+		int $newExpires,
+		bool $final,
+		bool $email,
+		CheevosStatMonthlyCount $monthly
+	): void {
 		$isExtended = false;
 
 		if ( $monthly->getCount() < $this->getMinPointThreshold() ) {
@@ -650,7 +667,15 @@ class PointsCompReport {
 		$subscription = $this->getSubscription( $user, $gamepediaPro );
 		if ( $subscription['paid'] ) {
 			// Do not mess with paid subscriptions.
-			$this->addRow( $user->getId(), $monthly->getCount(), false, false, false, $subscription['expires'], 0, false, false );
+			$this->addRow(
+				$user->getId(),
+				$monthly->getCount(),
+				false,
+				false,
+				false,
+				$subscription['expires'],
+				0
+			);
 			return;
 		} elseif ( $subscription['hasSubscription'] && $newExpires > $subscription['expires'] ) {
 			$isExtended = true;
@@ -662,7 +687,10 @@ class PointsCompReport {
 				$gamepediaPro->cancelCompedSubscription( $user->getId() );
 			}
 			$config = MediaWikiServices::getInstance()->getMainConfig();
-			$comp = $gamepediaPro->createCompedSubscription( $user->getId(), intval( $config->get( 'CompedSubscriptionMonths' ) ) );
+			$comp = $gamepediaPro->createCompedSubscription(
+				$user->getId(),
+				intval( $config->get( 'CompedSubscriptionMonths' ) )
+			);
 
 			if ( $comp !== false ) {
 				$success = true;
@@ -672,7 +700,17 @@ class PointsCompReport {
 			}
 		}
 
-		$this->addRow( $user->getId(), $monthly->getCount(), !$isExtended, $isExtended, !$success, intval( $subscription['expires'] ), $newExpires, $success, $emailSent );
+		$this->addRow(
+			$user->getId(),
+			$monthly->getCount(),
+			!$isExtended,
+			$isExtended,
+			!$success,
+			intval( $subscription['expires'] ),
+			$newExpires,
+			$success,
+			$emailSent
+		);
 	}
 
 	/**
@@ -690,7 +728,9 @@ class PointsCompReport {
 		$subscription = $provider->getSubscription( $user->getId() );
 		if ( $subscription !== false && is_array( $subscription ) ) {
 			$hasSubscription = true;
-			$expires = intval( $subscription['expires'] !== false ? $subscription['expires']->getTimestamp( TS_UNIX ) : null );
+			$expires = intval(
+				$subscription['expires'] !== false ? $subscription['expires']->getTimestamp( TS_UNIX ) : null
+			);
 			if ( $subscription['plan_id'] !== 'complimentary' ) {
 				$paid = true;
 			}
@@ -707,7 +747,7 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function compAllSubscriptions() {
+	public function compAllSubscriptions(): void {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
 		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
@@ -743,8 +783,8 @@ class PointsCompReport {
 		$comp = $gamepediaPro->createCompedSubscription( $user->getId(), $numberOfMonths );
 
 		if ( $comp !== false ) {
-			$db = wfGetDB( DB_PRIMARY );
-			$success = $db->update(
+			$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$db->update(
 				'points_comp_report_user',
 				[
 					'comp_failed'		=> 0,
@@ -767,7 +807,7 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function sendAllEmails() {
+	public function sendAllEmails(): void {
 		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		foreach ( $this->reportUser as $userId => $data ) {
 			$this->sendUserEmail( $userFactory->newFromId( $userId ) );
@@ -794,7 +834,7 @@ class PointsCompReport {
 		}
 
 		if ( $success ) {
-			$db = wfGetDB( DB_PRIMARY );
+			$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$success = $db->update(
 				'points_comp_report_user',
 				[ 'email_sent' => 1 ],
@@ -816,7 +856,7 @@ class PointsCompReport {
 	 * @return int Number of active subscriptions.
 	 */
 	public static function getNumberOfActiveSubscriptions(): int {
-		$db = wfGetDB( DB_PRIMARY );
+		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		return $db->selectRowCount(
 			[ 'points_comp_report_user' ],
 			[ 'user_id' ],

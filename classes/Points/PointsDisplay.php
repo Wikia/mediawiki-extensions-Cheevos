@@ -19,6 +19,7 @@ use Cheevos\CheevosHelper;
 use Html;
 use Linker;
 use MediaWiki\MediaWikiServices;
+use Parser;
 use RedisCache;
 use RequestContext;
 use stdClass;
@@ -36,28 +37,36 @@ class PointsDisplay {
 	 * {{#GPScore: 10}} displays top 10 scoring users from this wiki
 	 * {{#GPScore: 10 | all}} displays top 10 scoring users from all wikis
 	 * {{#GPScore: User:Cathadan}} displays my score from this wiki
-	 * {{#GPScore: 50 | destiny,dota2,theorder1886}} displays top 50 scoring users with points from any of those three wikis
+	 * {{#GPScore: 50 | destiny,dota2,theorder1886}}
+	 * displays top 50 scoring users with points from any of those three wikis
 	 * {{#GPScore: User:Cathadan | destiny,dota2,theorder1886}} displays the sum of my scores from the given wikis
 	 *
 	 * TODO: break this function down, make it easier to read
 	 *
-	 * @param Parser	mediawiki Parser reference
-	 * @param limit	[Optional] Limit results.
-	 * @param string	[optional, default: ''] comma separated list of wiki namespaces, defaults to the current wiki
+	 * @param Parser &$parser mediawiki Parser reference
+	 * @param string $user ???????
+	 * @param int $limit [Optional] Limit results.
+	 * @param string $wikis [optional, default: ''] comma separated list of wiki namespaces,
+	 * defaults to the current wiki
 	 *					Special namespaces are:
 	 *						'all' - Breaks down points per user per wiki.
 	 *						'global' - Breaks down points per user across all wikis.
-	 * @param string	[optional, default: 'table'] determines what type of markup is used for the output,
+	 * @param string $markup [optional, default: 'table'] determines what type of markup is used for the output,
 	 * 					'raw' returns an unformatted number for a single user and is ignored for multi-user results
 	 *					'badged' returns the same as raw, but with the GP badge branding following it in an <img> tag
 	 * 					'table' uses an unstyled HTML table
 	 *
 	 * @return array generated HTML string as element 0, followed by parser options
 	 */
-	public static function pointsBlock( &$parser, $user = '', $limit = 25, $wikis = '', $markup = 'table' ) {
+	public static function pointsBlock(
+		Parser &$parser,
+		string $user = '',
+		int $limit = 25,
+		string $wikis = '',
+		string $markup = 'table'
+	) {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
-		$limit = intval( $limit );
 		if ( !$limit || $limit < 0 ) {
 			$limit = 25;
 		}
@@ -101,21 +110,31 @@ class PointsDisplay {
 	/**
 	 * Get a standard points block HTML output.
 	 *
-	 * @param string	[Optional] Limit by or override the site key used.
-	 * @param integer	[Optional] Global ID to filter by.
-	 * @param integer	[Optional] Items Per Page
-	 * @param integer	[Optional] Offset to start at.
-	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param boolean	[Optional] Show monthly totals.
-	 * @param string	[Optional] Determines what type of markup is used for the output.
+	 * @param string|null $siteKey Limit by or override the site key used.
+	 * @param int|null $globalId Global ID to filter by.
+	 * @param int|null $itemsPerPage Items Per Page
+	 * @param int|null $start Offset to start at.
+	 * @param bool|null $isSitesMode Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param bool|null $isMonthly Show monthly totals.
+	 * @param string $markup Determines what type of markup is used for the output.
 	 * 					'raw' Returns an unformatted number for a single user and is ignored for multi-user results.
 	 *					'badged' Returns the same as raw, but with the GP badge branding following it in an <img> tag.
 	 * 					'table' Uses a standard wikitable class HTML table.
-	 * @param object	[Optional] Specify a Title to display pagination with.  No pagination will be displayed if this is left as null.
+	 * @param Title|null $title Specify a Title to display pagination with.
+	 * 					No pagination will be displayed if this is left as null.
 	 *
 	 * @return string HTML
 	 */
-	public static function pointsBlockHtml( $siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false, $markup = 'table', Title $title = null ) {
+	public static function pointsBlockHtml(
+		string $siteKey = null,
+		?int $globalId = null,
+		?int $itemsPerPage = 25,
+		?int $start = 0,
+		?bool $isSitesMode = false,
+		?bool $isMonthly = false,
+		string $markup = 'table',
+		Title $title = null
+	) {
 		global $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
 		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
@@ -133,7 +152,8 @@ class PointsDisplay {
 
 		foreach ( $statProgress as $progress ) {
 			$globalId = $progress->getUser_Id();
-			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' . ( $isMonthly ? $progress->getMonth() : null );
+			$lookupKey = $globalId . '-' . $progress->getSite_Key() . '-' .
+						 ( $isMonthly ? $progress->getMonth() : null );
 			if ( isset( $userPoints[$lookupKey] ) ) {
 				continue;
 			}
@@ -150,8 +170,12 @@ class PointsDisplay {
 					continue;
 				}
 				$userPointsRow->userToolsLinks = Linker::userToolLinks( $user->getId(), $user->getName() );
-				$userPointsRow->userLink = $linkRenderer->makeKnownLink( Title::newFromText( "User:" . $user->getName() ), $user->getName() );
-				$userPointsRow->adminUrl = Title::newFromText( "Special:WikiPointsAdmin" )->getFullUrl( [ 'user' => $user->getName() ] );
+				$userPointsRow->userLink = $linkRenderer->makeKnownLink(
+					Title::newFromText( "User:" . $user->getName() ), $user->getName()
+				);
+				$userPointsRow->adminUrl = Title::newFromText( "Special:WikiPointsAdmin" )->getFullUrl(
+					[ 'user' => $user->getName() ]
+				);
 			} else {
 				$userPointsRow->userName = "GID: " . $progress->getUser_Id();
 				$userPointsRow->userToolsLinks = $userPointsRow->userName;
@@ -172,7 +196,9 @@ class PointsDisplay {
 		$wikis = [];
 		if ( $isSitesMode && !empty( $siteKeys ) ) {
 			global $wgServer;
-			$redis = RedisCache::getClient( 'cache' );
+			$redis = MediaWikiServices::getInstance()
+				->getService( RedisCache::class )
+				->getConnection( 'cache' );
 			if ( $redis !== false ) {
 				foreach ( $siteKeys as $siteKey ) {
 					if ( !empty( $siteKey ) ) {
@@ -186,12 +212,32 @@ class PointsDisplay {
 
 			$localDomain = trim( $wgServer, '/' );
 			foreach ( $userPoints as $key => $userPointsRow ) {
-				if ( $userPointsRow->siteKey != $dsSiteKey && !empty( $userPointsRow->userLink ) && isset( $wikis[$userPointsRow->siteKey] ) ) {
+				if (
+					$userPointsRow->siteKey != $dsSiteKey &&
+					 !empty( $userPointsRow->userLink ) &&
+					 isset( $wikis[$userPointsRow->siteKey] )
+				) {
 					$domain = parse_url( $wikis[$userPointsRow->siteKey]->getWikiUrl() )['host'];
-					$userPoints[$key]->userToolsLinks = str_replace( $localDomain, $domain, $userPoints[$key]->userToolsLinks );
-					$userPoints[$key]->userLink = str_replace( $localDomain, "https://" . $domain, $userPoints[$key]->userLink );
-					$userPoints[$key]->userToolsLinks = str_replace( 'href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userToolsLinks );
-					$userPoints[$key]->userLink = str_replace( 'href="/', 'href="https://' . $domain . '/', $userPoints[$key]->userLink );
+					$userPoints[$key]->userToolsLinks = str_replace(
+						$localDomain,
+						$domain,
+						$userPoints[$key]->userToolsLinks
+					);
+					$userPoints[$key]->userLink = str_replace(
+						$localDomain,
+						"https://" . $domain,
+						$userPoints[$key]->userLink
+					);
+					$userPoints[$key]->userToolsLinks = str_replace(
+						'href="/',
+						'href="https://' . $domain . '/',
+						$userPoints[$key]->userToolsLinks
+					);
+					$userPoints[$key]->userLink = str_replace(
+						'href="/',
+						'href="https://' . $domain . '/',
+						$userPoints[$key]->userLink
+					);
 				}
 			}
 		}
@@ -207,7 +253,11 @@ class PointsDisplay {
 					$userPoints[] = $userPointsRow;
 				}
 				foreach ( $userPoints as $userPointsRow ) {
-					$html = ( isset( $userPointsRow->adminUrl ) && $user->isAllowed( 'wiki_points_admin' ) ? "<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" : $userPointsRow->score );
+					$html = (
+						isset( $userPointsRow->adminUrl ) &&
+						$user->isAllowed( 'wiki_points_admin' ) ?
+							"<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" :
+							$userPointsRow->score );
 					if ( $markup == 'badged' ) {
 						$html .= ' ' . Html::element(
 							'img',
@@ -228,7 +278,14 @@ class PointsDisplay {
 				if ( $title !== null ) {
 					$pagination = TemplateWikiPoints::getSimplePagination( $title, $itemsPerPage, $start );
 				}
-				$html = TemplateWikiPoints::pointsBlockHtml( $userPoints, $pagination, $start, $wikis, $isSitesMode, $isMonthly );
+				$html = TemplateWikiPoints::pointsBlockHtml(
+					$userPoints,
+					$pagination,
+					$start,
+					$wikis,
+					$isSitesMode,
+					$isMonthly
+				);
 				break;
 		}
 
@@ -238,16 +295,23 @@ class PointsDisplay {
 	/**
 	 * Get a list of earned wiki points grouped by criteria.
 	 *
-	 * @param string	[Optional] Limit by or override the site key used.
-	 * @param integer	[Optional] Global ID to filter by.
-	 * @param integer	[Optional] Items Per Page
-	 * @param integer	[Optional] Offset to start at.
-	 * @param boolean	[Optional] Show individual wikis in the results instead of combining with 'global' => true.
-	 * @param boolean	[Optional] Show monthly totals.
+	 * @param string|null $siteKey Limit by or override the site key used.
+	 * @param int|null $globalId Global ID to filter by.
+	 * @param int|null $itemsPerPage Items Per Page
+	 * @param int|null $start Offset to start at.
+	 * @param bool|null $isSitesMode Show individual wikis in the results instead of combining with 'global' => true.
+	 * @param bool|null $isMonthly Show monthly totals.
 	 *
 	 * @return array CheevosStatProgress Objects
 	 */
-	public static function getPoints( $siteKey = null, $globalId = null, $itemsPerPage = 25, $start = 0, $isSitesMode = false, $isMonthly = false ) {
+	public static function getPoints(
+		?string $siteKey = null,
+		?int $globalId = null,
+		?int $itemsPerPage = 25,
+		?int $start = 0,
+		?bool $isSitesMode = false,
+		?bool $isMonthly = false
+	): array {
 		$itemsPerPage = max( 1, min( intval( $itemsPerPage ), 200 ) );
 		$start = intval( $start );
 		$isSitesMode = boolval( $isSitesMode );
@@ -298,11 +362,12 @@ class PointsDisplay {
 	 * Example: //FakeDomain/ => FakeDomain
 	 * Example: FakeDomain => FakeDomain
 	 *
-	 * @param string $fragment The domain to extract from a fragment. (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
+	 * @param string $fragment The domain to extract from a fragment.
+	 * (e.g. http://fr.wowpedia.org, http://dota2.gamepedia.com)
 	 *
-	 * @return string Bare host name extracted or false if unable to parse.
+	 * @return bool|string Bare host name extracted or false if unable to parse.
 	 */
-	public static function extractDomain( string $fragment ) {
+	public static function extractDomain( string $fragment ): bool|string {
 		$fragment = mb_strtolower( $fragment, 'UTF-8' );
 
 		$host = parse_url( $fragment, PHP_URL_HOST );
@@ -328,7 +393,7 @@ class PointsDisplay {
 	 *
 	 * @return int Wiki Points
 	 */
-	public static function getWikiPointsForRange( User $user, string $siteKey = null, int $monthsAgo = null ) {
+	public static function getWikiPointsForRange( User $user, string $siteKey = null, int $monthsAgo = null ): int {
 		$globalId = Cheevos::getUserIdForService( $user );
 
 		if ( $globalId < 1 ) {
@@ -344,7 +409,9 @@ class PointsDisplay {
 
 		$monthsAgo = intval( $monthsAgo );
 		if ( $monthsAgo > 0 ) {
-			$filters['start_time'] = strtotime( date( 'Y-m-d', strtotime( $monthsAgo . ' month ago' ) ) . 'T00:00:00+00:00' );
+			$filters['start_time'] = strtotime(
+				date( 'Y-m-d', strtotime( $monthsAgo . ' month ago' ) ) . 'T00:00:00+00:00'
+			);
 			$filters['end_time'] = strtotime( date( 'Y-m-d', strtotime( 'yesterday' ) ) . 'T23:59:59+00:00' );
 		}
 

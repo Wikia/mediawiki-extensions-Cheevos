@@ -22,7 +22,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 *
 	 * @var string
 	 */
-	private $content;
+	private string $content;
 
 	/**
 	 * Main Constructor
@@ -36,14 +36,20 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param string	Sub page passed in the URL.
+	 * @param string $subPage Subpage passed in the URL.
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function execute( $subpage ) {
+	public function execute( $subPage ): void {
 		$this->checkPermissions();
 
-		$this->output->addModuleStyles( [ 'ext.cheevos.wikiPoints.styles', 'ext.hydraCore.pagination.styles', 'mediawiki.ui', 'mediawiki.ui.input', 'mediawiki.ui.button' ] );
+		$this->output->addModuleStyles( [
+			'ext.cheevos.wikiPoints.styles',
+			'ext.hydraCore.pagination.styles',
+			'mediawiki.ui',
+			'mediawiki.ui.input',
+			'mediawiki.ui.button'
+		] );
 
 		$this->setHeaders();
 
@@ -65,7 +71,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	private function lookUpUser() {
+	private function lookUpUser(): void {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$user = null;
@@ -85,19 +91,28 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			$pointsLog = [];
 			if ( $globalId > 0 ) {
 				try {
-					$pointsLog = Cheevos::getWikiPointLog( [ 'user_id' => $globalId, 'site_key' => $dsSiteKey, 'limit' => 100 ] );
+					$pointsLog = Cheevos::getWikiPointLog( [
+						'user_id' => $globalId,
+						'site_key' => $dsSiteKey,
+						'limit' => 100
+					] );
 				} catch ( CheevosException $e ) {
-					throw new ErrorPageError( wfMessage( 'cheevos_api_error_title' ), wfMessage( 'cheevos_api_error', $e->getMessage() ) );
-				}
-				if ( empty( $form['username'] ) ) {
-					$form['username'] = $user->getName();
+					throw new ErrorPageError(
+						wfMessage( 'cheevos_api_error_title' ),
+						wfMessage( 'cheevos_api_error', $e->getMessage() )
+					);
 				}
 			} elseif ( $globalId === false ) {
 				$form['error'] = wfMessage( 'error_wikipoints_user_not_found' )->escaped();
 			}
 		}
 
-		$this->output->setPageTitle( ( $user ? wfMessage( 'wiki_points_admin_lookup', $user->getName() ) : wfMessage( 'wikipointsadmin' ) ) );
+		$this->output->setPageTitle(
+			( $user ?
+				wfMessage( 'wiki_points_admin_lookup', $user->getName() ) :
+				wfMessage( 'wikipointsadmin' )
+			)
+		);
 		$this->content = TemplateWikiPointsAdmin::lookup( $user, $pointsLog, $form );
 	}
 
@@ -106,7 +121,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	private function adjustPoints() {
+	private function adjustPoints(): void {
 		if ( !$this->wgUser->isAllowed( 'wpa_adjust_points' ) ) {
 			throw new PermissionsError( 'wpa_adjust_points' );
 		}
@@ -138,7 +153,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 	 *
 	 * @return string
 	 */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'wikipoints';
 	}
 }

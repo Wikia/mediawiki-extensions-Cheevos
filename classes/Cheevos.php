@@ -27,7 +27,7 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	private static function request( $type, $path, $data = [] ) {
+	private static function request( string $type, string $path, array $data = [] ): array {
 		global $wgCheevosHost, $wgCheevosClientId, $wgCheevosEnvoySocketPath;
 
 		if ( empty( $wgCheevosHost ) ) {
@@ -92,7 +92,7 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	private static function get( $path, $data = [] ) {
+	private static function get( string $path, $data = [] ): array {
 		return self::request( 'GET', $path, $data );
 	}
 
@@ -211,20 +211,20 @@ class Cheevos {
 	public static function invalidateCache() {
 		global $wgRedisServers;
 
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )->getConnection( 'cache' );
 
 		if ( $redis === false ) {
 			return false;
 		}
 
-		$cache = false;
 		$redisKey = 'cheevos:apicache:*';
-		$prefix = isset( $wgRedisServers['cache']['options']['prefix'] ) ? $wgRedisServers['cache']['options']['prefix'] : "";
+		$prefix = $wgRedisServers['cache']['options']['prefix'] ?? "";
 
 		try {
 			$cache = $redis->getKeys( $redisKey );
 			foreach ( $cache as $key ) {
-				$key = str_replace( $prefix . "cheevos", "cheevos", $key ); // remove prefix if exists, because weird.
+				// remove prefix if exists, because weird.
+				$key = str_replace( $prefix . "cheevos", "cheevos", $key );
 				$redis->del( $key );
 			}
 		} catch ( RedisException $e ) {
@@ -273,7 +273,7 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function getFriendStatus( User $from, User $to ) {
+	public static function getFriendStatus( User $from, User $to ): int|array {
 		$fromGlobalId = self::getUserIdForService( $from );
 		$toGlobalId = self::getUserIdForService( $to );
 		$return = self::get( "friends/{$fromGlobalId}/{$toGlobalId}" );
@@ -342,7 +342,7 @@ class Cheevos {
 	 * @return mixed Ouput of self::return.
 	 */
 	public static function getAchievements( $siteKey = null ) {
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )->getConnection( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievements:' . ( $siteKey ? $siteKey : 'all' );
 
@@ -379,12 +379,13 @@ class Cheevos {
 	/**
 	 * Get achievement by database ID with caching.
 	 *
-	 * @param integer	Achievement ID
+	 * @param int $id Achievement ID
 	 *
 	 * @return mixed Ouput of self::return.
 	 */
-	public static function getAchievement( $id ) {
-		$redis = RedisCache::getClient( 'cache' );
+	public static function getAchievement( int $id ): mixed {
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievement:' . $id;
 
@@ -409,23 +410,24 @@ class Cheevos {
 			$return = unserialize( $cache );
 		}
 
-		$return = [ $return ]; // The return function expects an array of results.
+		// The return function expects an array of results.
+		$return = [ $return ];
 		return self::return( $return, 'achievements', '\Cheevos\CheevosAchievement', true );
 	}
 
 	/**
 	 * Soft delete an achievement from the service.
 	 *
-	 * @param integer	Achievement ID
-	 * @param integer	Global ID
+	 * @param int $id Achievement ID
+	 * @param int $globalId Global ID
 	 *
 	 * @return mixed Array
 	 */
-	public static function deleteAchievement( $id, $globalId ) {
+	public static function deleteAchievement( int $id, int $globalId ): mixed {
 		$return = self::delete(
 			"achievement/{$id}",
 			[
-				"author_id" => intval( $globalId )
+				"author_id" => $globalId
 			]
 		);
 		return self::return( $return );
@@ -437,9 +439,9 @@ class Cheevos {
 	 * @param array $body
 	 * @param int|null $id
 	 *
-	 * @return void
+	 * @return false
 	 */
-	private static function putAchievement( $body, $id = null ) {
+	private static function putAchievement( array $body, int $id = null ): mixed {
 		$body = self::validateBody( $body );
 		if ( !$body ) {
 			return false;
@@ -453,12 +455,12 @@ class Cheevos {
 	/**
 	 * Update an existing achievement on the service.
 	 *
-	 * @param integer	Achievement ID
+	 * @param int $id Achievement ID
 	 * @param array $body
 	 *
 	 * @return void
 	 */
-	public static function updateAchievement( $id, $body ) {
+	public static function updateAchievement( int $id, array $body ) {
 		return self::putAchievement( $body, $id );
 	}
 
@@ -469,21 +471,21 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	public static function createAchievement( $body ) {
+	public static function createAchievement( array $body ) {
 		return self::putAchievement( $body );
 	}
 
 	/**
 	 * Get all categories.
 	 *
-	 * @acess public
-	 * @param boolean	[Optional] Skip pulling data from the local cache.  Will still update the local cache.
+	 * @param bool $skipCache [Optional] Skip pulling data from the local cache. Will still update the local cache.
 	 *
 	 * @return mixed
 	 */
-	public static function getCategories( $skipCache = false ) {
+	public static function getCategories( bool $skipCache = false ): mixed {
 		$cache = false;
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 		$redisKey = 'cheevos:apicache:getCategories';
 
 		if ( !$skipCache && $redis !== false ) {
@@ -522,8 +524,9 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getCategory( $id ) {
-		$redis = RedisCache::getClient( 'cache' );
+	public static function getCategory( int $id ): mixed {
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getCategory:' . $id;
 
@@ -548,7 +551,8 @@ class Cheevos {
 			$return = unserialize( $cache );
 		}
 
-		$return = [ $return ]; // return expect array of results. fake it.
+		// return expect array of results. fake it.
+		$return = [ $return ];
 		return self::return( $return, 'categories', '\Cheevos\CheevosAchievementCategory', true );
 	}
 
@@ -560,7 +564,7 @@ class Cheevos {
 	 *
 	 * @return void
 	 */
-	public static function deleteCategory( $id, $userId = 0 ) {
+	public static function deleteCategory( int $id, int $userId = 0 ) {
 		$return = self::delete( "achievement_category/{$id}", [
 			"author_id" => $userId
 		] );
@@ -573,9 +577,9 @@ class Cheevos {
 	 * @param array $body
 	 * @param int|null $id
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	private static function putCategory( $body, $id = null ) {
+	private static function putCategory( array $body, int $id = null ): mixed {
 		$body = self::validateBody( $body );
 		if ( !$body ) {
 			return false;
@@ -591,10 +595,8 @@ class Cheevos {
 	 *
 	 * @param int $id
 	 * @param array $body
-	 *
-	 * @return void
 	 */
-	public static function updateCategory( $id, $body ) {
+	public static function updateCategory( int $id, array $body ) {
 		return self::putCategory( $body, $id );
 	}
 
@@ -602,10 +604,8 @@ class Cheevos {
 	 * Create Category
 	 *
 	 * @param array $body
-	 *
-	 * @return void
 	 */
-	public static function createCategory( $body ) {
+	public static function createCategory( array $body ) {
 		return self::putCategory( $body );
 	}
 
@@ -616,7 +616,7 @@ class Cheevos {
 	 *
 	 * @return mixed Array of return status including earned achievements or false on error.
 	 */
-	public static function increment( $body ) {
+	public static function increment( array $body ): mixed {
 		$body = self::validateBody( $body );
 		if ( !$body ) {
 			return false;
@@ -633,13 +633,11 @@ class Cheevos {
 	 * @param int $globalId
 	 * @param string $siteKey
 	 * @param bool $forceRecalculate
-	 *
-	 * @return void
 	 */
-	public static function checkUnnotified( $globalId, $siteKey, $forceRecalculate = false ) {
+	public static function checkUnnotified( int $globalId, string $siteKey, bool $forceRecalculate = false ) {
 		$globalId = intval( $globalId );
 		if ( empty( $globalId ) || empty( $siteKey ) ) {
-			return;
+			return null;
 		}
 
 		$data = [
@@ -654,17 +652,24 @@ class Cheevos {
 	/**
 	 * Return StatProgress for selected filters.
 	 *
-	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
-	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 * @param array $filters Limit Filters - All filters are optional and can be omitted from the array.
+	 *                        This is an array since the amount of filter parameters is expected to be reasonably
+	 * 						  volatile over the life span of the product.
+	 *                        This function does minimum validation of the filters.
+	 * 						  For example, sending a numeric string when the service is expecting an integer will
+	 * 						  result in an exception being thrown.
 	 *                        - $filters = [
 	 *                        -     'user_id' => 0, //Limit by global user ID.
 	 *                        -     'site_key' => 'example', //Limit by site key.
-	 *                        -     'global' => false, //Set to true to aggregate stats from all sites.(Also causes site_key to be ignored.)
+	 *                        -     'global' => false, //Set to true to aggregate stats from all sites.
+	 * 													(Also causes site_key to be ignored.)
 	 *                        -     'stat' => 'example', //Filter by a specific stat name.
-	 *                        -     'sort_direction' => 'asc' or 'desc', //If supplied, the result will be sorted on the stats' count field.
-	 *                        -     'start_time' => 'example', //If supplied, only stat deltas after this unix timestamp are considered.
-	 *                        -     'end_time' => 'example', //If supplied, only stat deltas before this unix timestamp are considered.
+	 *                        -     'sort_direction' => 'asc' or 'desc', //If supplied, the result will be sorted
+	 * 																	on the stats' count field.
+	 *                        -     'start_time' => 'example', //If supplied, only stat deltas after this
+	 * 															unix timestamp are considered.
+	 *                        -     'end_time' => 'example', //If supplied, only stat deltas before this unix
+	 * 															timestamp are considered.
 	 *                        -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                        - ];
@@ -672,7 +677,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getStatProgress( array $filters = [], ?User $user = null ) {
+	public static function getStatProgress( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
 			$filters['user_id'] = self::getUserIdForService( $user );
 		}
@@ -682,7 +687,7 @@ class Cheevos {
 				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
+		$filters['limit'] = ( $filters['limit'] ?? 200 );
 
 		$return = self::get( 'stats', $filters );
 
@@ -693,8 +698,11 @@ class Cheevos {
 	 * Return WikiPointLog for selected filters.
 	 *
 	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
-	 *                        This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 *                        This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 *                        This is an array since the amount of filter parameters is expected to be reasonably
+	 * 						  volatile over the life span of the product.
+	 *                        This function does minimum validation of the filters.
+	 * 						  For example, sending a numeric string when the service is expecting an integer will
+	 * 						  result in an exception being thrown.
 	 *                        - $filters = [
 	 *                        -     'user_id' => 0, //Limit by global user ID.
 	 *                        -     'site_key' => 'example', //Limit by site key.
@@ -705,7 +713,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getWikiPointLog( array $filters = [], ?User $user = null ) {
+	public static function getWikiPointLog( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
 			$filters['user_id'] = self::getUserIdForService( $user );
 		}
@@ -715,7 +723,7 @@ class Cheevos {
 				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 25 );
+		$filters['limit'] = ( $filters['limit'] ?? 25 );
 
 		$return = self::get( 'points/user', $filters );
 
@@ -730,7 +738,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getUserPointRank( User $user, ?string $siteKey = null ) {
+	public static function getUserPointRank( User $user, ?string $siteKey = null ): mixed {
 		$return = self::get(
 			'points/user_rank',
 			[
@@ -746,8 +754,11 @@ class Cheevos {
 	 * Return StatDailyCount for selected filters.
 	 *
 	 * @param array	$filters Limit Filters - All filters are optional and can omitted from the array.
-	 *                       This is an array since the amount of filter parameters is expected to be reasonably volatile over the life span of the product.
-	 *                       This function does minimum validation of the filters.  For example, sending a numeric string when the service is expecting an integer will result in an exception being thrown.
+	 *                       This is an array since the amount of filter parameters is expected to be reasonably
+	 * 						 volatile over the life span of the product.
+	 *                       This function does minimum validation of the filters.
+	 * 						 For example, sending a numeric string when the service is expecting an integer will
+	 * 						 result in an exception being thrown.
 	 *                       - $filters = [
 	 *                       -     'site_key' => 'example', //Limit by site key.
 	 *                       -     'stat' => 'example', //Filter by a specific stat name.
@@ -757,13 +768,13 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getStatDailyCount( array $filters = [] ) {
+	public static function getStatDailyCount( array $filters = [] ): mixed {
 		foreach ( [ 'limit', 'offset' ] as $key ) {
 			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
 				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
+		$filters['limit'] = ( $filters['limit'] ?? 200 );
 
 		$return = self::get( 'stats/daily', $filters );
 
@@ -773,7 +784,7 @@ class Cheevos {
 	/**
 	 * Return StatMonthlyCount for selected filters.
 	 *
-	 * @param array $filter Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
 	 *                          This is an array since the amount of filter parameters is expected to be
 	 *                          reasonably volatile over the life span of the product. This function
 	 *                          does minimum validation of the filters.  For example, sending a numeric
@@ -792,7 +803,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getStatMonthlyCount( array $filters = [], ?User $user = null ) {
+	public static function getStatMonthlyCount( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
 			$filters['user_id'] = self::getUserIdForService( $user );
 		}
@@ -802,7 +813,7 @@ class Cheevos {
 				$filter[$key] = intval( $filter[$key] );
 			}
 		}
-		$filters['limit'] = ( isset( $filters['limit'] ) ? $filters['limit'] : 200 );
+		$filters['limit'] = ( $filters['limit'] ?? 200 );
 
 		$return = self::get( 'stats/monthly', $filters );
 
@@ -817,7 +828,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getUserSitesCountByStat( User $user, string $stat ) {
+	public static function getUserSitesCountByStat( User $user, string $stat ): mixed {
 		$return = self::get(
 			'stats/user_sites_count',
 			[
@@ -832,12 +843,12 @@ class Cheevos {
 	/**
 	 * Get achievement status for an user.
 	 *
-	 * @param integer	Global User ID
-	 * @param string	Site Key
+	 * @param int $globalId Global User ID
+	 * @param string|null $siteKey Site Key
 	 *
 	 * @return mixed
 	 */
-	public static function getAchievementStatus( $globalId, $siteKey = null ) {
+	public static function getAchievementStatus( int $globalId, string $siteKey = null ): mixed {
 		$return = self::get(
 			'achievements/status',
 			[
@@ -853,7 +864,7 @@ class Cheevos {
 	/**
 	 * Return AchievementProgress for selected filters.
 	 *
-	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
+	 * @param array $filters Limit Filters - All filters are optional and can be omitted from the array.
 	 *                           - $filters = [
 	 *                           -     'site_key' => 'example', //Limit by site key.
 	 *                           -     'achievement_id' => 0, //Limit by achievement ID.
@@ -867,7 +878,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getAchievementProgress( array $filters = [], ?User $user = null ) {
+	public static function getAchievementProgress( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
 			$filters['user_id'] = self::getUserIdForService( $user );
 		}
@@ -885,8 +896,6 @@ class Cheevos {
 
 	/**
 	 * Get progress for an achievement
-	 *
-	 * @param int|null $id
 	 *
 	 * @return mixed
 	 */
@@ -915,7 +924,7 @@ class Cheevos {
 	 *
 	 * @return mixed
 	 */
-	public static function getProgress( $id ) {
+	public static function getProgress( $id ): mixed {
 		$return = [ self::get( "achievements/progress/{$id}" ) ]; // return expect array of results. fake it.
 		return self::return( $return, 'progress', '\Cheevos\CheevosAchievementProgress', true );
 	}
@@ -923,11 +932,11 @@ class Cheevos {
 	/**
 	 * Delete progress towards an achievement.
 	 *
-	 * @param integer	Progress ID
+	 * @param int $id Progress ID
 	 *
 	 * @return mixed
 	 */
-	public static function deleteProgress( $id ) {
+	public static function deleteProgress( int $id ) {
 		$return = self::delete( "achievements/progress/{$id}" );
 		return self::return( $return );
 	}
@@ -938,7 +947,7 @@ class Cheevos {
 	 * @param array $body
 	 * @param int|null $id
 	 *
-	 * @return void
+	 * @return false
 	 */
 	public static function putProgress( $body, $id = null ) {
 		$body = self::validateBody( $body );
@@ -956,8 +965,6 @@ class Cheevos {
 	 *
 	 * @param int $id
 	 * @param array $body
-	 *
-	 * @return void
 	 */
 	public static function updateProgress( $id, $body ) {
 		return self::putProgress( $body, $id );
@@ -967,8 +974,6 @@ class Cheevos {
 	 * Create Progress
 	 *
 	 * @param array $body
-	 *
-	 * @return void
 	 */
 	public static function createProgress( $body ) {
 		return self::putProgress( $body );
@@ -977,12 +982,13 @@ class Cheevos {
 	/**
 	 * Return user_options/{id} for selected filters.
 	 *
-	 * @param integer	Global User ID
+	 * @param int $globalId Global User ID
 	 *
 	 * @return mixed
 	 */
 	public static function getUserOptions( $globalId ) {
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:useroptions:' . $globalId;
 
@@ -1013,18 +1019,18 @@ class Cheevos {
 	/**
 	 * Put user options up to Cheevos.
 	 *
-	 * @param integer	Global User ID
-	 * @param array	POST Body
+	 * @param array $body POST Body
 	 *
 	 * @return mixed
 	 */
-	public static function setUserOptions( $body ) {
+	public static function setUserOptions( array $body ): mixed {
 		$body = self::validateBody( $body );
 		if ( !$body ) {
 			return false;
 		}
 
-		$redis = RedisCache::getClient( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
+			->getConnection( 'cache' );
 		$redisKey = 'cheevos:apicache:useroptions:' . $body['user_id'];
 		try {
 			if ( $redis !== false ) {
@@ -1042,13 +1048,13 @@ class Cheevos {
 	/**
 	 * Revokes edit points for the provided revision IDs related to the page ID.
 	 *
-	 * @param integer	Page ID
-	 * @param array	Revision IDs
-	 * @param string	Site Key
+	 * @param int $pageId Page ID
+	 * @param array $revisionIds Revision IDs
+	 * @param string $siteKey Site Key
 	 *
 	 * @return mixed Array
 	 */
-	public static function revokeEditPoints( $pageId, $revisionIds, $siteKey ) {
+	public static function revokeEditPoints( int $pageId, array $revisionIds, string $siteKey ): mixed {
 		$revisionIds = array_map( 'intval', $revisionIds );
 		$return = self::post(
 			"points/revoke_revisions",
