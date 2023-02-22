@@ -247,7 +247,7 @@ class SyncArticleStats extends Maintenance {
 								}
 								CheevosHooks::broadcastAchievement(
 									$achievement,
-									$increment['site_key'],
+									$increment['site_key'] ?? '',
 									$increment['user_id']
 								);
 								$hookContainer->run( 'AchievementAwarded', [ $achievement, $globalId ] );
