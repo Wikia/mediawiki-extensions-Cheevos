@@ -144,7 +144,7 @@ class Cheevos {
 	 */
 	private static function return( $return, $expected = null, $class = null, $single = false ) {
 		// Throw Errors if we have API errors.
-		if ( $return === null || $return === false ) {
+		if ( $return === null ) {
 			throw new CheevosException( 'Cheevos Service Unavailable', 503 );
 		}
 		if ( isset( $return['code'] ) && $return['code'] !== 200 ) {
@@ -187,12 +187,10 @@ class Cheevos {
 	 * Validate data recieved from Cheevos
 	 *
 	 * @param array $body
-	 *
-	 * @return void
 	 */
 	private static function validateBody( $body ) {
 		if ( !is_array( $body ) ) {
-			$body = json_decode( $body, 1 );
+			$body = json_decode( $body, true );
 			if ( $body === null ) {
 				return false;
 			} else {
