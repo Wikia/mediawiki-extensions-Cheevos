@@ -29,6 +29,6 @@
 		],
 		"phpcs": "phpcs",
 		"jsonlint": "jsonlint ./i18n/*.json && jsonlint extension.json",
-		"phan": "vendor/bin/phan -d . --long-progress-bar"
+		"phan": "vendor/bin/phan -d . -p --long-progress-bar"
 	}
 }
