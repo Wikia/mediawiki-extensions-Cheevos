@@ -11,6 +11,8 @@ jobs:
     strategy:
       matrix:
         php_version: ['8.0']
+        mw: ['REL1_39']
+
     runs-on: ubuntu-latest
     steps:
       - name: Setup PHP
@@ -23,6 +25,18 @@ jobs:
           extensions: ast
       - uses: actions/checkout@v3
 
+      - name: Checkout Mediawiki
+        uses: actions/checkout@v3
+        with:
+          repository: wikimedia/mediawiki
+          path: mediawiki
+          ref: ${{ matrix.mw }}
+
+      - name: Checkout Cheevos extension
+        uses: actions/checkout@v2
+        with:
+          path: mediawiki/extensions/Cheevos
+
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v3
@@ -32,12 +46,15 @@ jobs:
 
       - name: Install composer dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
+        working-directory: ./mediawiki/extensions/Cheevos
         run: composer install --prefer-dist --no-progress
 
       - name: Run PHPCS
+        working-directory: ./mediawiki/extensions/Cheevos
         run: composer phpcs
 
       - name: Run Phan static analysis
+        working-directory: ./mediawiki/extensions/Cheevos
         run: composer phan
 
       - name: Run Phan static analysis

@@ -77,7 +77,7 @@
 		"Cheevos\\Job\\PointsCompJob": "Cheevos\\Job\\PointsCompJob"
 	},
 	"AutoloadNamespaces": {
-		"Cheevos": "classes/"
+		"Cheevos": "src/"
 	},
 	"AutoloadClasses": {
 		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
