@@ -2,13 +2,15 @@
 
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
-$cfg['directory_list'] = [
-	'../../extensions/RedisCache',
-	'.'
+$cfg['suppress_issue_types'] = [
+	'PhanUndeclaredClassReference',
+	// Phan Gets lost with submodule setups dependencies
+	'SecurityCheck-LikelyFalsePositive'
 ];
 
-$cfg['exclude_analysis_directory_list'] = [
-	'../../extensions/RedisCache'
-];
+// Explicitly set minimum and target PHP versions for Phan to avoid suggesting features not yet available in all
+// versions we run while still offering forward-compatibility warnings.
+$cfg['minimum_target_php_version'] = '8.0';
+$cfg['target_php_version'] = '8.0';
 
 return $cfg;

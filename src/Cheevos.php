@@ -271,7 +271,7 @@ class Cheevos {
 	 *
 	 * @return array
 	 */
-	public static function getFriendStatus( User $from, User $to ): int|array {
+	public static function getFriendStatus( User $from, User $to ): mixed {
 		$fromGlobalId = self::getUserIdForService( $from );
 		$toGlobalId = self::getUserIdForService( $to );
 		$return = self::get( "friends/{$fromGlobalId}/{$toGlobalId}" );
