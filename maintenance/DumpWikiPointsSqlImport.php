@@ -83,7 +83,7 @@ class DumpWikiPointsSqlImport extends Maintenance {
 		fwrite( $file, $sql );
 		$insert = false;
 		$maxLines = 0;
-		for ( $i = 0; $i <= $total; $i = $i + 1000 ) {
+		for ( $i = 0; $i <= $total; $i += 1000 ) {
 			$maxLines += 1000;
 			$result = $db->select(
 				[ 'wiki_points', 'revision', 'user_global' ],
@@ -125,8 +125,9 @@ class DumpWikiPointsSqlImport extends Maintenance {
 					$row['calculation_info'] = str_replace( '\"', '"', $row['calculation_info'] );
 				}
 				$calcInfo = json_decode( $row['calculation_info'], true );
-				$sizeDiff = $calcInfo['inputs']['z'];
+				$sizeDiff = $calcInfo['inputs']['z'] ?? 0;
 				$insert = '(' . $globalId . ', @site_id, ' . $row['edit_id'] . ', ' . $row['article_id'] . ', ' .
+						  /* @phan-suppress-next-line PhanUndeclaredConstant */
 						  wfTimestamp( TS_UNIX, $row['created'] ) . ', ' . $size . ', ' . $sizeDiff . ', ' .
 						  $row['score'] . ")";
 			}

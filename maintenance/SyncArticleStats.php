@@ -18,6 +18,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\CheevosHooks;
 use MediaWiki\MediaWikiServices;
 
 class SyncArticleStats extends Maintenance {
@@ -61,7 +62,7 @@ class SyncArticleStats extends Maintenance {
 		$total = intval( $result->fetchRow()['total'] );
 		$this->output( "Updating article statistics for {$total} users in Cheevos...\n" );
 
-		for ( $i = 0; $i <= $total; $i = $i + 1000 ) {
+		for ( $i = 0; $i <= $total; $i += 1000 ) {
 			if ( $this->getOption( 'v' ) ) {
 				$this->output( "Iteration start {$i}\n" );
 			}

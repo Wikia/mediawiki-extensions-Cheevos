@@ -14,6 +14,7 @@ use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\CheevosHooks;
 use MediaWiki\MediaWikiServices;
 
 class SpecialAchievements extends SpecialPage {

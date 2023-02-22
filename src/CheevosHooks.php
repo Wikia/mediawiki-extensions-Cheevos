@@ -10,19 +10,37 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
-use Cheevos\Cheevos;
-use Cheevos\CheevosAchievement;
-use Cheevos\CheevosException;
-use Cheevos\CheevosHelper;
+namespace Cheevos;
+
+use ApiMain;
+use Article;
 use Cheevos\Job\CheevosIncrementJob;
 use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
+use Content;
+use HydraCore;
+use LogEntry;
+use MailAddress;
+use MediaWiki;
 use MediaWiki\Block\DatabaseBlock;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
+use OutputPage;
+use Parser;
+use RedisCache;
+use RequestContext;
 use Reverb\Notification\NotificationBroadcast;
+use Skin;
+use SkinTemplate;
+use SpecialPage;
+use TemplateAchievements;
+use Title;
+use UploadBase;
+use User;
+use WebRequest;
+use WikiPage;
 
 class CheevosHooks {
 	/**
@@ -64,8 +82,8 @@ class CheevosHooks {
 
 		$reverbNotifications = [
 			"user-interest-achievement-earned" => [
-				"importance" => 8
-			]
+				"importance" => 8,
+			],
 		];
 		$wgReverbNotifications = array_merge( (array)$wgReverbNotifications, $reverbNotifications );
 	}
@@ -106,17 +124,12 @@ class CheevosHooks {
 		self::$increments[$globalId]['site_key'] = $siteKey;
 		self::$increments[$globalId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
 		self::$increments[$globalId]['timestamp'] = time();
-		self::$increments[$globalId]['request_uuid'] = sha1(
-			self::$increments[$globalId]['user_id'] .
-			self::$increments[$globalId]['site_key'] .
-			self::$increments[$globalId]['timestamp'] .
-			random_bytes( 4 )
-		);
+		self::$increments[$globalId]['request_uuid'] =
+			sha1( self::$increments[$globalId]['user_id'] . self::$increments[$globalId]['site_key'] .
+				  self::$increments[$globalId]['timestamp'] . random_bytes( 4 ) );
 		if ( !empty( $edits ) ) {
-			if (
-				!isset( self::$increments[$globalId]['edits'] ) ||
-				!is_array( self::$increments[$globalId]['edits'] )
-			) {
+			if ( !isset( self::$increments[$globalId]['edits'] ) ||
+				 !is_array( self::$increments[$globalId]['edits'] ) ) {
 				self::$increments[$globalId]['edits'] = [];
 			}
 			self::$increments[$globalId]['edits'] = array_merge( self::$increments[$globalId]['edits'], $edits );
@@ -142,14 +155,10 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onArticleDeleteComplete(
-		WikiPage &$article,
-		User &$user,
-		$reason,
-		$id,
-		Content $content,
-		LogEntry $logEntry
+		WikiPage &$article, User &$user, $reason, $id, Content $content, LogEntry $logEntry
 	): bool {
 		self::increment( 'article_delete', 1, $user );
+
 		return true;
 	}
 
@@ -167,11 +176,7 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onRevisionFromEditComplete(
-		WikiPage $wikiPage,
-		RevisionRecord $revision,
-		$originalRevId,
-		User $user,
-		&$tags
+		WikiPage $wikiPage, RevisionRecord $revision, $originalRevId, User $user, &$tags
 	) {
 		global $wgNamespacesForEditPoints;
 
@@ -203,10 +208,8 @@ class CheevosHooks {
 		}
 
 		$context = RequestContext::getMain();
-		if (
-			$context->getRequest()->getVal( 'veaction' ) === 'edit' ||
-			$context->getRequest()->getVal( 'action' ) === 'visualeditoredit'
-		) {
+		if ( $context->getRequest()->getVal( 'veaction' ) === 'edit' ||
+			 $context->getRequest()->getVal( 'action' ) === 'visualeditoredit' ) {
 			$isType[] = 'is_visual';
 		} else {
 			$isType[] = 'is_source';
@@ -226,10 +229,10 @@ class CheevosHooks {
 			$prevSize = $previousRevision ? $previousRevision->getSize() : 0;
 			$sizeDiff = $revision->getSize() - $prevSize;
 			$edits[] = [
-				'size'			=> $revision->getSize(),
-				'size_diff'		=> $sizeDiff,
-				'page_id'		=> $wikiPage->getId(),
-				'revision_id'	=> $revision->getId()
+				'size' => $revision->getSize(),
+				'size_diff' => $sizeDiff,
+				'page_id' => $wikiPage->getId(),
+				'revision_id' => $revision->getId(),
 			];
 		}
 
@@ -251,11 +254,7 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onPageSaveComplete(
-		WikiPage $wikiPage,
-		UserIdentity $user,
-		string $summary,
-		int $flags,
-		RevisionRecord $revision,
+		WikiPage $wikiPage, UserIdentity $user, string $summary, int $flags, RevisionRecord $revision,
 		EditResult $editResult
 	) {
 		if ( !$editResult->isRevert() || $editResult->getRevertMethod() !== EditResult::REVERT_ROLLBACK ) {
@@ -282,7 +281,8 @@ class CheevosHooks {
 
 		try {
 			Cheevos::revokeEditPoints( $wikiPage->getId(), $editsToRevoke, $siteKey );
-		} catch ( CheevosException $e ) {
+		}
+		catch ( CheevosException $e ) {
 			// Honey Badger
 			wfLogWarning( "Cheevos Service is unavailable: " . $e->getMessage() );
 		}
@@ -301,6 +301,7 @@ class CheevosHooks {
 	public static function onArticleMergeComplete( Title $targetTitle, Title $destTitle ) {
 		$user = RequestContext::getMain()->getUser();
 		self::increment( 'article_merge', 1, $user );
+
 		return true;
 	}
 
@@ -316,6 +317,7 @@ class CheevosHooks {
 	 */
 	public static function onArticleProtectComplete( WikiPage &$wikiPage, User &$user, $limit, $reason ) {
 		self::increment( 'article_protect', 1, $user );
+
 		return true;
 	}
 
@@ -333,15 +335,11 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onPageMoveComplete(
-		LinkTarget $old,
-		LinkTarget $new,
-		UserIdentity $user,
-		int $pageId,
-		int $redirId,
-		string $reason,
+		LinkTarget $old, LinkTarget $new, UserIdentity $user, int $pageId, int $redirId, string $reason,
 		RevisionRecord $revision
 	) {
 		self::increment( 'article_move', 1, $user );
+
 		return true;
 	}
 
@@ -355,6 +353,7 @@ class CheevosHooks {
 	 */
 	public static function onBlockIpComplete( DatabaseBlock $block, User $user ) {
 		self::increment( 'admin_block_ip', 1, $user );
+
 		return true;
 	}
 
@@ -370,6 +369,7 @@ class CheevosHooks {
 	 */
 	public static function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
 		self::increment( 'curse_profile_comment', 1, $fromUser );
+
 		return true;
 	}
 
@@ -385,6 +385,7 @@ class CheevosHooks {
 	 */
 	public static function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
 		self::increment( 'curse_profile_comment_reply', 1, $fromUser );
+
 		return true;
 	}
 
@@ -398,6 +399,7 @@ class CheevosHooks {
 	 */
 	public static function onCurseProfileAddFriend( User $fromUser, User $toUser ) {
 		self::increment( 'curse_profile_add_friend', 1, $fromUser );
+
 		return true;
 	}
 
@@ -411,6 +413,7 @@ class CheevosHooks {
 	 */
 	public static function onCurseProfileAcceptFriend( User $fromUser, User $toUser ) {
 		self::increment( 'curse_profile_accept_friend', 1, $fromUser );
+
 		return true;
 	}
 
@@ -426,23 +429,20 @@ class CheevosHooks {
 	public static function onCurseProfileCanComment( User $fromUser, User $toUser, int $editsToComment ): bool {
 		$editCount = 0;
 		try {
-			$stats = Cheevos::getStatProgress(
-				[
-					'global'	=> true,
-					'stat'		=> 'article_edit'
-				],
-				$fromUser
-			);
+			$stats = Cheevos::getStatProgress( [
+				'global' => true,
+				'stat' => 'article_edit',
+			], $fromUser );
 			$stats = CheevosHelper::makeNiceStatProgressArray( $stats );
-			$editCount = (
-				isset( $stats[$fromUser->getId()]['article_edit']['count'] ) &&
-				$stats[$fromUser->getId()]['article_edit']['count'] > $editCount ?
-					$stats[$fromUser->getId()]['article_edit']['count'] :
-					$editCount
-			);
-		} catch ( CheevosException $e ) {
+			$editCount =
+				( isset( $stats[$fromUser->getId()]['article_edit']['count'] ) &&
+				  $stats[$fromUser->getId()]['article_edit']['count'] > $editCount
+					? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount );
+		}
+		catch ( CheevosException $e ) {
 			wfDebug( "Encountered Cheevos API error getting article_edit count." );
 		}
+
 		return $editCount >= $editsToComment;
 	}
 
@@ -488,6 +488,7 @@ class CheevosHooks {
 					break;
 			}
 		}
+
 		return true;
 	}
 
@@ -504,6 +505,7 @@ class CheevosHooks {
 	public static function onEmailUserComplete( MailAddress $address, MailAddress $from, $subject, $text ) {
 		$user = RequestContext::getMain()->getUser();
 		self::increment( 'send_email', 1, $user );
+
 		return true;
 	}
 
@@ -518,6 +520,7 @@ class CheevosHooks {
 	 */
 	public static function onMarkPatrolledComplete( int $rcid, User $user, bool $automatic ) {
 		self::increment( 'admin_patrol', 1, $user );
+
 		return true;
 	}
 
@@ -531,6 +534,7 @@ class CheevosHooks {
 	public static function onUploadComplete( &$image ) {
 		$user = RequestContext::getMain()->getUser();
 		self::increment( 'file_upload', 1, $user );
+
 		return true;
 	}
 
@@ -538,12 +542,13 @@ class CheevosHooks {
 	 * Handle watch article increment.
 	 *
 	 * @param User $user User watching the article.
-	 * @param WikiPage $article	Article being watched by the user.
+	 * @param WikiPage $article Article being watched by the user.
 	 *
 	 * @return bool True
 	 */
 	public static function onWatchArticleComplete( User $user, WikiPage $article ) {
 		self::increment( 'article_watch', 1, $user );
+
 		return true;
 	}
 
@@ -557,6 +562,7 @@ class CheevosHooks {
 	 */
 	public static function onLocalUserCreated( User $user, bool $autoCreated ) {
 		self::increment( 'account_create', 1, $user );
+
 		return true;
 	}
 
@@ -573,12 +579,7 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onWikiPointsSave(
-		int $editId,
-		int $userId,
-		int $articleId,
-		int $score,
-		string $calculationInfo,
-		string $reason = ''
+		int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = ''
 	) {
 		$user = RequestContext::getMain()->getUser();
 		if ( ( $score > 0 || $score < 0 ) && $user->getId() == $userId && $userId > 0 ) {
@@ -596,14 +597,11 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onApiBeforeMain( ApiMain &$processor ) {
-		if (
-			PHP_SAPI === 'cli' ||
-			self::$shutdownRegistered
-		) {
+		if ( PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
 			return true;
 		}
 
-		register_shutdown_function( 'CheevosHooks::doIncrements' );
+		register_shutdown_function( 'Cheevos\CheevosHooks' );
 
 		self::$shutdownRegistered = true;
 
@@ -624,6 +622,7 @@ class CheevosHooks {
 		}
 
 		$output->addModuleStyles( 'ext.cheevos.notifications.styles' );
+
 		return true;
 	}
 
@@ -640,12 +639,7 @@ class CheevosHooks {
 	 * @return bool True
 	 */
 	public static function onBeforeInitialize(
-		Title &$title,
-		&$article,
-		OutputPage &$output,
-		User &$user,
-		WebRequest $request,
-		MediaWiki $mediaWiki
+		Title &$title, &$article, OutputPage &$output, User &$user, WebRequest $request, MediaWiki $mediaWiki
 	) {
 		if ( PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
 			return true;
@@ -656,7 +650,7 @@ class CheevosHooks {
 			self::increment( 'visit', 1, $user );
 		}
 
-		register_shutdown_function( 'CheevosHooks::doIncrements' );
+		register_shutdown_function( 'Cheevos\CheevosHooks' );
 
 		self::$shutdownRegistered = true;
 
@@ -684,7 +678,8 @@ class CheevosHooks {
 					}
 				}
 			}
-		} catch ( CheevosException $e ) {
+		}
+		catch ( CheevosException $e ) {
 			foreach ( self::$increments as $globalId => $increment ) {
 				CheevosIncrementJob::queue( $increment );
 				unset( self::$increments[$globalId] );
@@ -716,19 +711,15 @@ class CheevosHooks {
 
 		$html = TemplateAchievements::achievementBlockPopUp( $achievement, $siteKey, $globalId );
 
-		$broadcast = NotificationBroadcast::newSystemSingle(
-			'user-interest-achievement-earned',
-			$targetUser,
-			[
-				'url' => SpecialPage::getTitleFor( 'Achievements' )->getFullURL(),
-				'message' => [
-					[
-						'user_note',
-						$html
-					]
-				]
-			]
-		);
+		$broadcast = NotificationBroadcast::newSystemSingle( 'user-interest-achievement-earned', $targetUser, [
+			'url' => SpecialPage::getTitleFor( 'Achievements' )->getFullURL(),
+			'message' => [
+				[
+					'user_note',
+					$html,
+				],
+			],
+		] );
 
 		if ( $broadcast ) {
 			$broadcast->transmit();
@@ -761,11 +752,11 @@ class CheevosHooks {
 		if ( !$skin->getUser()->isAnon() ) {
 			$url = Skin::makeSpecialUrl( 'Achievements' );
 			$achievements = [
-				'achievements'	=> [
-					'text'		=> wfMessage( 'achievements' )->text(),
-					'href'		=> $url,
-					'active'	=> true
-				]
+				'achievements' => [
+					'text' => wfMessage( 'achievements' )->text(),
+					'href' => $url,
+					'active' => true,
+				],
 			];
 			HydraCore::array_insert_before_key( $personalUrls, 'mycontris', $achievements );
 		}
@@ -800,15 +791,15 @@ class CheevosHooks {
 			$userName = $userPageTitle;
 		}
 
-		$tools[] = MediaWikiServices::getInstance()->getLinkRenderer()->makeKnownLink(
-			SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
-			wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),
-			[ 'class' => 'mw-usertoollinks-wikipointsadmin' ],
-			[
-				'action'	=> 'lookup',
-				'user'		=> $userName
-			]
-		);
+		$tools[] =
+			MediaWikiServices::getInstance()
+				->getLinkRenderer()
+				->makeKnownLink( SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
+					wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),
+					[ 'class' => 'mw-usertoollinks-wikipointsadmin' ], [
+						'action' => 'lookup',
+						'user' => $userName,
+					] );
 
 		return true;
 	}
@@ -822,6 +813,7 @@ class CheevosHooks {
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
+
 		return true;
 	}
 
@@ -834,6 +826,7 @@ class CheevosHooks {
 	 */
 	public static function onMagicWordwgVariableIDs( &$customVariableIds ) {
 		$customVariableIds[] = 'numberofcontributors';
+
 		return true;
 	}
 
@@ -852,6 +845,7 @@ class CheevosHooks {
 		if ( strtolower( $magicWord ) === 'numberofcontributors' ) {
 			$value = self::getTotalContributors();
 		}
+
 		return true;
 	}
 
@@ -861,8 +855,7 @@ class CheevosHooks {
 	 * @return int Total Contributors
 	 */
 	private static function getTotalContributors() {
-		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )
-			->getConnection( 'cache' );
+		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )->getConnection( 'cache' );
 
 		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
 		if ( $redis !== false ) {
@@ -876,23 +869,17 @@ class CheevosHooks {
 		$actorQuery = [ 'tables' => [], 'joins' => [] ];
 		$userField = 'rev_user';
 
-		$db->select(
-			[ 'revision' ] + $actorQuery['tables'],
-			[ 'count(*)' ],
-			[],
-			__METHOD__,
-			[
-				'GROUP BY' => $userField,
-				'SQL_CALC_FOUND_ROWS'
-			],
-			$actorQuery['joins']
-		);
+		$db->select( [ 'revision' ] + $actorQuery['tables'], [ 'count(*)' ], [], __METHOD__, [
+			'GROUP BY' => $userField,
+			'SQL_CALC_FOUND_ROWS',
+		], $actorQuery['joins'] );
 		$calcRowsResult = $db->query( 'SELECT FOUND_ROWS() AS rowcount;' );
 		$total = $calcRowsResult->fetchRow();
 		$total = intval( $total['rowcount'] );
 		if ( $redis !== false ) {
 			$redis->setEx( $redisKey, 3600, $total );
 		}
+
 		return $total;
 	}
 
@@ -909,13 +896,13 @@ class CheevosHooks {
 				'addTable',
 				'points_comp_report',
 				"{$extDir}/install/sql/table_points_comp_report.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'addTable',
 				'points_comp_report_user',
 				"{$extDir}/install/sql/table_points_comp_report_user.sql",
-				true
+				true,
 			] );
 
 			$updater->addExtensionUpdate( [
@@ -923,56 +910,56 @@ class CheevosHooks {
 				'points_comp_report',
 				'comp_skipped',
 				"{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'modifyField',
 				'points_comp_report',
 				'comp_failed',
 				"{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'modifyField',
 				'points_comp_report',
 				'max_points',
 				"{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'addField',
 				'points_comp_report_user',
 				'comp_skipped',
 				"{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'modifyField',
 				'points_comp_report_user',
 				'comp_failed',
 				"{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'addField',
 				'points_comp_report_user',
 				'user_id',
 				"{$extDir}/upgrade/sql/points_comp_report_user/add_field_user_id.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'addIndex',
 				'points_comp_report_user',
 				'report_id_user_id',
 				"{$extDir}/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql",
-				true
+				true,
 			] );
 			$updater->addExtensionUpdate( [
 				'dropIndex',
 				'points_comp_report_user',
 				'report_id_global_id',
 				"{$extDir}/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql",
-				true
+				true,
 			] );
 			$updater->addPostDatabaseUpdateMaintenance( ReplaceGlobalIdWithUserId::class );
 
@@ -981,7 +968,7 @@ class CheevosHooks {
 				'addTable',
 				'wiki_points_levels',
 				"{$extDir}/install/sql/table_wiki_points_levels.sql",
-				true
+				true,
 			] );
 		}
 
@@ -989,86 +976,104 @@ class CheevosHooks {
 			'dropTable',
 			'achievement',
 			$extDir . "/upgrade/sql/drop_table_achievement.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'achievement_category',
 			$extDir . "/upgrade/sql/drop_table_achievement_category.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
-			'dropTable', 'achievement_earned', $extDir . "/upgrade/sql/drop_table_achievement_earned.sql", true ]
-		);
-		$updater->addExtensionUpdate(
-			[ 'dropTable', 'achievement_hook', $extDir . "/upgrade/sql/drop_table_achievement_hook.sql", true ]
-		);
-		$updater->addExtensionUpdate(
-			[ 'dropTable', 'achievement_link', $extDir . "/upgrade/sql/drop_table_achievement_link.sql", true ]
-		);
+			'dropTable',
+			'achievement_earned',
+			$extDir . "/upgrade/sql/drop_table_achievement_earned.sql",
+			true,
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'achievement_hook',
+			$extDir . "/upgrade/sql/drop_table_achievement_hook.sql",
+			true,
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'achievement_link',
+			$extDir . "/upgrade/sql/drop_table_achievement_link.sql",
+			true,
+		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'achievement_site_mega',
 			$extDir . "/upgrade/sql/drop_table_achievement_site_mega.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'dataminer_user_global_totals',
 			$extDir . "/upgrade/sql/drop_table_dataminer_user_global_totals.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'dataminer_user_wiki_periodicals',
 			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'dataminer_user_wiki_totals',
 			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql",
-			true
+			true,
 		] );
-		$updater->addExtensionUpdate(
-			[ 'dropTable', 'display_names', $extDir . "/upgrade/sql/drop_table_display_names.sql", true ]
-		);
-		$updater->addExtensionUpdate(
-			[ 'dropTable', 'wiki_points', $extDir . "/upgrade/sql/drop_table_wiki_points.sql", true ]
-		);
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'display_names',
+			$extDir . "/upgrade/sql/drop_table_display_names.sql",
+			true,
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points',
+			$extDir . "/upgrade/sql/drop_table_wiki_points.sql",
+			true,
+		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'wiki_points_monthly_totals',
 			$extDir . "/upgrade/sql/drop_table_wiki_points_monthly_totals.sql",
-			true ]
-		);
+			true,
+		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'wiki_points_multipliers',
 			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'wiki_points_multipliers_sites',
 			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql",
-			true ]
-		);
+			true,
+		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'wiki_points_site_monthly_totals',
 			$extDir . "/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql",
-			true
+			true,
 		] );
 		$updater->addExtensionUpdate( [
 			'dropTable',
 			'wiki_points_site_totals',
 			$extDir . "/upgrade/sql/drop_table_wiki_points_site_totals.sql",
-			true ]
-		);
-		$updater->addExtensionUpdate(
-			[ 'dropTable', 'wiki_points_totals', $extDir . "/upgrade/sql/drop_table_wiki_points_totals.sql", true ]
-		);
+			true,
+		] );
+		$updater->addExtensionUpdate( [
+			'dropTable',
+			'wiki_points_totals',
+			$extDir . "/upgrade/sql/drop_table_wiki_points_totals.sql",
+			true,
+		] );
 
 		return true;
 	}

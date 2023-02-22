@@ -14,6 +14,7 @@
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\CheevosHooks;
 use MediaWiki\MediaWikiServices;
 
 class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {

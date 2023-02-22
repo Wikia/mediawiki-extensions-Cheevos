@@ -18,6 +18,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\CheevosHooks;
 use MediaWiki\MediaWikiServices;
 
 class SyncFriendStat extends Maintenance {

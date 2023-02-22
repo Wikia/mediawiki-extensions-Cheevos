@@ -14,7 +14,7 @@ namespace Cheevos\Job;
 
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
-use CheevosHooks;
+use Cheevos\CheevosHooks;
 use Job;
 use MediaWiki\MediaWikiServices;
 
