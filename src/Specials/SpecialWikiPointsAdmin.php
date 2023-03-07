@@ -86,7 +86,7 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $form['username'] );
 
 			if ( $user !== false && $user->getId() ) {
-				$globalId = Cheevos::getUserIdForService( $user );
+				$globalId = $user->getId();
 			}
 
 			$pointsLog = [];

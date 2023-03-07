@@ -81,7 +81,7 @@ class PointsDisplay {
 				];
 			}
 
-			$globalId = Cheevos::getUserIdForService( $user );
+			$globalId = $user->getId();
 			if ( !$globalId ) {
 				return [
 					wfMessage( 'global_user_not_found' )->escaped(),
@@ -158,7 +158,7 @@ class PointsDisplay {
 				continue;
 			}
 
-			$user = Cheevos::getUserForServiceUserId( $globalId );
+			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $globalId );
 			if ( $globalId < 1 ) {
 				continue;
 			}
@@ -394,7 +394,7 @@ class PointsDisplay {
 	 * @return int Wiki Points
 	 */
 	public static function getWikiPointsForRange( User $user, string $siteKey = null, int $monthsAgo = null ): int {
-		$globalId = Cheevos::getUserIdForService( $user );
+		$globalId = $user->getId();
 
 		if ( $globalId < 1 ) {
 			return 0;

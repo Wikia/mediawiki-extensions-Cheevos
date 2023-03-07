@@ -17,6 +17,9 @@ use RedisCache;
 use RedisException;
 use User;
 
+/**
+ * @deprecated
+ */
 class Cheevos {
 	/**
 	 * Main Request cURL wrapper.
@@ -242,13 +245,13 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function getFriends( User $user ): array {
-		$globalId = self::getUserIdForService( $user );
+		$globalId = $user->getId();
 		$friendTypes = self::return( self::get( "friends/{$globalId}" ) );
 		if ( is_array( $friendTypes ) ) {
 			foreach ( $friendTypes as $category => $serviceUserIds ) {
 				if ( is_array( $serviceUserIds ) ) {
 					foreach ( $serviceUserIds as $key => $serviceUserId ) {
-						$user = self::getUserForServiceUserId( $serviceUserId );
+						$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $serviceUserId );
 						if ( !$user ) {
 							unset( $friendTypes[$category][$key] );
 						} else {
@@ -273,8 +276,8 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function getFriendStatus( User $from, User $to ): mixed {
-		$fromGlobalId = self::getUserIdForService( $from );
-		$toGlobalId = self::getUserIdForService( $to );
+		$fromGlobalId = $from->getId();
+		$toGlobalId = $to->getId();
 		$return = self::get( "friends/{$fromGlobalId}/{$toGlobalId}" );
 		return self::return( $return );
 	}
@@ -288,8 +291,8 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function createFriendRequest( User $from, User $to ) {
-		$fromGlobalId = self::getUserIdForService( $from );
-		$toGlobalId = self::getUserIdForService( $to );
+		$fromGlobalId = $from->getId();
+		$toGlobalId = $to->getId();
 		$return = self::put( "friends/{$fromGlobalId}/{$toGlobalId}" );
 		return self::return( $return );
 	}
@@ -315,8 +318,8 @@ class Cheevos {
 	 * @return array
 	 */
 	public static function removeFriend( User $from, User $to ) {
-		$fromGlobalId = self::getUserIdForService( $from );
-		$toGlobalId = self::getUserIdForService( $to );
+		$fromGlobalId = $from->getId();
+		$toGlobalId = $to->getId();
 		$return = self::delete( "friends/{$fromGlobalId}/{$toGlobalId}" );
 		return self::return( $return );
 	}
@@ -677,12 +680,12 @@ class Cheevos {
 	 */
 	public static function getStatProgress( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
-			$filters['user_id'] = self::getUserIdForService( $user );
+			$filters['user_id'] = $user->getId();
 		}
 
 		foreach ( [ 'user_id', 'start_time', 'end_time', 'limit', 'offset' ] as $key ) {
 			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
-				$filter[$key] = intval( $filter[$key] );
+				$filter[$key] = (int)$filter[ $key ];
 			}
 		}
 		$filters['limit'] = ( $filters['limit'] ?? 200 );
@@ -713,12 +716,12 @@ class Cheevos {
 	 */
 	public static function getWikiPointLog( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
-			$filters['user_id'] = self::getUserIdForService( $user );
+			$filters['user_id'] = $user->getId();
 		}
 
 		foreach ( [ 'user_id', 'limit', 'offset' ] as $key ) {
 			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
-				$filter[$key] = intval( $filter[$key] );
+				$filter[$key] = (int)$filter[ $key ];
 			}
 		}
 		$filters['limit'] = ( $filters['limit'] ?? 25 );
@@ -740,7 +743,7 @@ class Cheevos {
 		$return = self::get(
 			'points/user_rank',
 			[
-				'user_id'	=> self::getUserIdForService( $user ),
+				'user_id'	=> $user->getId(),
 				'site_key'	=> $siteKey
 			]
 		);
@@ -803,12 +806,12 @@ class Cheevos {
 	 */
 	public static function getStatMonthlyCount( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
-			$filters['user_id'] = self::getUserIdForService( $user );
+			$filters['user_id'] = $user->getId();
 		}
 
 		foreach ( [ 'user_id', 'limit', 'offset' ] as $key ) {
 			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
-				$filter[$key] = intval( $filter[$key] );
+				$filter[$key] = (int)$filter[ $key ];
 			}
 		}
 		$filters['limit'] = ( $filters['limit'] ?? 200 );
@@ -830,7 +833,7 @@ class Cheevos {
 		$return = self::get(
 			'stats/user_sites_count',
 			[
-				'user_id'	=> self::getUserIdForService( $user ),
+				'user_id'	=> $user->getId(),
 				'stat'		=> $stat
 			]
 		);
@@ -878,12 +881,12 @@ class Cheevos {
 	 */
 	public static function getAchievementProgress( array $filters = [], ?User $user = null ): mixed {
 		if ( $user !== null ) {
-			$filters['user_id'] = self::getUserIdForService( $user );
+			$filters['user_id'] = $user->getId();
 		}
 
 		foreach ( [ 'user_id', 'achievement_id', 'category_id', 'limit', 'offset' ] as $key ) {
 			if ( isset( $filter[$key] ) && !is_int( $filter[$key] ) ) {
-				$filter[$key] = intval( $filter[$key] );
+				$filter[$key] = (int)$filter[ $key ];
 			}
 		}
 

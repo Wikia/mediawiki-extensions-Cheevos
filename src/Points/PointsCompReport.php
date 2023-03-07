@@ -657,7 +657,7 @@ class PointsCompReport {
 			return;
 		}
 
-		$user = Cheevos::getUserForServiceUserId( $monthly->getUser_Id() );
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $monthly->getUser_Id() );
 		if ( !$user || $user->getId() < 1 ) {
 			return;
 		}

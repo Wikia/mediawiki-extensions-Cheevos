@@ -296,7 +296,7 @@ class SpecialManageAchievements extends SpecialPage {
 					}
 				}
 				if ( !$found ) {
-					$globalId = Cheevos::getUserIdForService( $this->getUser() );
+					$globalId = $this->getUser()->getId();
 
 					$category = new CheevosAchievementCategory();
 					$category->setName( $categoryName );
@@ -386,7 +386,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		if ( $this->wgRequest->getVal( 'confirm' ) == 'true' && $this->wgRequest->wasPosted() ) {
-			$globalId = Cheevos::getUserIdForService( $this->wgUser );
+			$globalId = $this->wgUser->getId();
 			if ( !$globalId ) {
 				throw new MWException(
 					'Could not obtain the global ID for the user attempting to revert an achievement.'
@@ -458,7 +458,7 @@ class SpecialManageAchievements extends SpecialPage {
 			}
 
 			if ( $this->wgRequest->getVal( 'confirm' ) == 'true' && $this->wgRequest->wasPosted() ) {
-				$globalId = Cheevos::getUserIdForService( $this->wgUser );
+				$globalId = $this->wgUser->getId();
 				if ( !$globalId ) {
 					throw new MWException(
 						'Could not obtain the global ID for the user attempting to ' . $action . ' an achievement.'
@@ -551,7 +551,7 @@ class SpecialManageAchievements extends SpecialPage {
 				foreach ( $users as $getUser ) {
 					$user = $userFactory->newFromName( trim( $getUser ) );
 					$user->load();
-					$globalId = Cheevos::getUserIdForService( $user );
+					$globalId = $user->getId();
 					if ( !$user || !$user->getId() || !$globalId ) {
 						$errors[] = [
 							'username' => $getUser,

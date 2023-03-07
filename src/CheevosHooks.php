@@ -114,7 +114,7 @@ class CheevosHooks {
 			return false;
 		}
 
-		$globalId = Cheevos::getUserIdForService( $user );
+		$globalId = $user->getId();
 		if ( $globalId <= 0 ) {
 			return true;
 		}
@@ -701,7 +701,7 @@ class CheevosHooks {
 			return false;
 		}
 
-		$targetUser = Cheevos::getUserForServiceUserId( $globalId );
+		$targetUser = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $globalId );
 
 		if ( !$targetUser ) {
 			return false;
