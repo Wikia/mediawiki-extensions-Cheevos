@@ -11,17 +11,16 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
+namespace Cheevos;
+
 require_once dirname( __DIR__, 3 ) . '/maintenance/Maintenance.php';
 
 use Cheevos\Points\PointsCompReport;
-use MediaWiki\MediaWikiServices;
+use ExtensionRegistry;
+use Maintenance;
 
 class CompSubscriptions extends Maintenance {
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
+
 	public function __construct() {
 		parent::__construct();
 
@@ -42,37 +41,26 @@ class CompSubscriptions extends Maintenance {
 		$this->addOption( 'final', 'Finalize, do not do a test run.', false, false );
 	}
 
-	/**
-	 * Run comps.
-	 *
-	 * @return void
-	 */
+	/** @inheritDoc */
 	public function execute() {
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Subscription' ) ) {
 			$this->error( "Extension:Subscription must be loaded for this functionality." );
 			exit;
 		}
 
-		MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
-		$config = $this->getConfig();
+		$compedSubscriptionThreshold =
+			(int)$this->getOption( 'threshold', $this->getConfig()->get( 'CompedSubscriptionThreshold' ) );
 
-		$compedSubscriptionThreshold = intval( $config->get( 'CompedSubscriptionThreshold' ) );
-		if ( $this->hasOption( 'threshold' ) ) {
-			$compedSubscriptionThreshold = intval( $this->getOption( 'threshold' ) );
-		}
 		$status = PointsCompReport::validatePointThresholds( $compedSubscriptionThreshold );
 		if ( !$status->isGood() ) {
 			$this->error( $status->getMessage()->plain(), 1 );
 		}
 
-		$monthsAgo = 1;
-		if ( $this->hasOption( 'monthsAgo' ) ) {
-			$monthsAgo = intval( $this->getOption( 'monthsAgo' ) );
-
-			if ( $monthsAgo < 1 ) {
-				$this->error( "Number of monthsAgo is invalid.", 1 );
-			}
+		$monthsAgo = (int)$this->getOption( 'monthsAgo', 1 );
+		if ( $monthsAgo < 1 ) {
+			$this->error( "Number of monthsAgo is invalid.", 1 );
 		}
+
 		$startTime = strtotime(
 			date(
 				'Y-m-d',
@@ -81,9 +69,9 @@ class CompSubscriptions extends Maintenance {
 		$endTime = strtotime( date( 'Y-m-d', strtotime( 'last day of last month' ) ) . 'T23:59:59+00:00' );
 
 		if ( $this->hasOption( 'timeRange' ) ) {
-			list( $_startTime, $_endTime ) = explode( '-', $this->getOption( 'timeRange' ) );
-			$startTime = intval( $_startTime );
-			$endTime = intval( $_endTime );
+			[ $_startTime, $_endTime ] = explode( '-', $this->getOption( 'timeRange' ) );
+			$startTime = (int)$_startTime;
+			$endTime = (int)$_endTime;
 		}
 		$status = PointsCompReport::validateTimeRange( $startTime, $endTime );
 		if ( !$status->isGood() ) {
@@ -95,5 +83,5 @@ class CompSubscriptions extends Maintenance {
 	}
 }
 
-$maintClass = "CompSubscriptions";
+$maintClass = CompSubscriptions::class;
 require_once RUN_MAINTENANCE_IF_MAIN;
