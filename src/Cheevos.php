@@ -140,7 +140,8 @@ class Cheevos {
 	 * @param string|null $class - Class to initialize with returned data.
 	 * @param bool $single - Only return the first request of an initialized class.
 	 *
-	 * @return mixed
+	 * @return mixed when $class is specified and exists it will return
+	 *         array of objects or one object when $single is true
 	 */
 	private static function return( $return, $expected = null, $class = null, $single = false ) {
 		// Throw Errors if we have API errors.
@@ -337,9 +338,9 @@ class Cheevos {
 	 *
 	 * @param string|null $siteKey MD5 Hash Site Key
 	 *
-	 * @return mixed Ouput of self::return.
+	 * @return CheevosAchievement[]
 	 */
-	public static function getAchievements( $siteKey = null ) {
+	public static function getAchievements( $siteKey = null ): array {
 		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )->getConnection( 'cache' );
 		$cache = false;
 		$redisKey = 'cheevos:apicache:getAchievements:' . ( $siteKey ? $siteKey : 'all' );
@@ -371,7 +372,7 @@ class Cheevos {
 			}
 		}
 
-		return self::return( $return, 'achievements', '\Cheevos\CheevosAchievement' );
+		return self::return( $return, 'achievements', CheevosAchievement::class );
 	}
 
 	/**
@@ -633,7 +634,6 @@ class Cheevos {
 	 * @param bool $forceRecalculate
 	 */
 	public static function checkUnnotified( int $globalId, string $siteKey, bool $forceRecalculate = false ) {
-		$globalId = intval( $globalId );
 		if ( empty( $globalId ) || empty( $siteKey ) ) {
 			return null;
 		}
@@ -844,19 +844,19 @@ class Cheevos {
 	 * @param int $globalId Global User ID
 	 * @param string|null $siteKey Site Key
 	 *
-	 * @return mixed
+	 * @return CheevosAchievementStatus[]
 	 */
-	public static function getAchievementStatus( int $globalId, string $siteKey = null ): mixed {
+	public static function getAchievementStatus( int $globalId, string $siteKey ): array {
 		$return = self::get(
 			'achievements/status',
 			[
 				'limit'	=> 0,
-				'user_id' => intval( $globalId ),
+				'user_id' => $globalId,
 				'site_key' => $siteKey
 			]
 		);
 
-		return self::return( $return, 'status', '\Cheevos\CheevosAchievementStatus' );
+		return self::return( $return, 'status', CheevosAchievementStatus::class );
 	}
 
 	/**

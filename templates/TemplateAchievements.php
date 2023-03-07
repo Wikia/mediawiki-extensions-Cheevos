@@ -11,104 +11,110 @@
  */
 
 use Cheevos\CheevosAchievement;
+use Cheevos\CheevosAchievementCategory;
+use Cheevos\CheevosAchievementStatus;
 use Cheevos\CheevosHelper;
 
 class TemplateAchievements {
 	/**
 	 * Achievement List
 	 *
-	 * @param array $achievements Array of Achievement Object
-	 * @param array $categories Array of Category Information
-	 * @param array $statuses Array of User Status for loaded user.
+	 * @param User $currentUser
+	 * @param CheevosAchievement[] $achievements
+	 * @param CheevosAchievementCategory[] $categories
+	 * @param CheevosAchievementStatus[] $statuses
 	 *
-	 * @return string Built HTML
+	 * @return string html
 	 */
-	public function achievementsList( array $achievements, array $categories, array $statuses = [] ): string {
-		$currentUser = RequestContext::getMain()->getUser();
-		$manageAchievementsPage = Title::newFromText( 'Special:ManageAchievements' );
-		$manageAchievementsURL = $manageAchievementsPage->getFullURL();
-
+	public function achievementsList(
+		User $currentUser,
+		array $achievements,
+		array $categories,
+		array $statuses
+	): string {
 		$HTML = '';
-
 		if ( $currentUser->isAllowed( 'achievement_admin' ) ) {
+			$manageAchievementsURL = SpecialPage::getSafeTitleFor( 'ManageAchievements' )->getFullURL();
 			$HTML .= "
-			<div class='button_bar'>
-				<div class='button_break'></div>
-				<div class='buttons_right'>
-					<a href='{$manageAchievementsURL}' class='mw-ui-button'>
-					" . wfMessage( 'manageachievements' ) . "
-					</a>
-				</div>
-			</div>";
+				<div class='button_bar'>
+					<div class='button_break'></div>
+					<div class='buttons_right'>
+						<a href='$manageAchievementsURL' class='mw-ui-button'>
+						" . wfMessage( 'manageachievements' ) . "
+						</a>
+					</div>
+				</div>";
 		}
 
 		$HTML .= "
-		<div id='p-achievement-list'>";
-		if ( count( $achievements ) ) {
+			<div id='p-achievement-list'>";
+		if ( !count( $achievements ) ) {
 			$HTML .= "
+				<span class='p-achievement-error large'>" .
+					wfMessage( 'no_achievements_found' )->escaped() .
+					"</span>
+				<span class='p-achievement-error small'>" .
+					wfMessage( 'no_achievements_found_help' )->escaped() .
+					"</span>";
+			$HTML .= "
+				</div>";
+			return $HTML;
+		}
+
+		$HTML .= "
 			<ul id='achievement_categories'>";
-			$firstCategory = true;
-			foreach ( $categories as $category ) {
-				$categoryId = $category->getId();
-				$categoryHTML[$categoryId] = '';
-				foreach ( $achievements as $achievement ) {
-					if ( $achievement->getCategoryId() != $categoryId ) {
-						continue;
-					}
-
-					$achievementStatus = (
-						isset( $statuses[$achievement->getId()] ) ? $statuses[$achievement->getId()] : false
-					);
-
-					if ( ( $achievement->isSecret() && $achievementStatus === false )
-						|| (
-							$achievementStatus !== false &&
-							$achievement->isSecret() &&
-							!$achievementStatus->isEarned()
-						 )
-					) {
-						// Do not show secret achievements to regular users.
-						continue;
-					}
-
-					$categoryHTML[$categoryId] .= self::achievementBlockRow(
-						$achievement,
-						false,
-						$statuses,
-						$achievements
-					);
+		$firstCategory = true;
+		foreach ( $categories as $category ) {
+			$categoryId = $category->getId();
+			$categoryHTML[$categoryId] = '';
+			foreach ( $achievements as $achievement ) {
+				if ( $achievement->getCategoryId() != $categoryId ) {
+					continue;
 				}
-				if ( !empty( $categoryHTML[$categoryId] ) ) {
-					$HTML .= "<li
-						class='achievement_category_select" . ( $firstCategory ? ' begin' : '' ) . "'
-						data-slug='{$category->getSlug()}'>
-							{$category->getTitle()}
-						</li>";
-					$firstCategory = false;
+
+				$achievementStatus = $statuses[ $achievement->getId() ] ?? false;
+
+				if ( ( $achievement->isSecret() && !$achievementStatus )
+					|| (
+						$achievementStatus &&
+						$achievement->isSecret() &&
+						!$achievementStatus->isEarned()
+					 )
+				) {
+					// Do not show secret achievements to regular users.
+					continue;
 				}
+
+				$categoryHTML[$categoryId] .= self::achievementBlockRow(
+					$achievement,
+					false,
+					$statuses,
+					$achievements
+				);
 			}
-			$HTML .= "
+			if ( !empty( $categoryHTML[$categoryId] ) ) {
+				$HTML .= "<li
+					class='achievement_category_select" . ( $firstCategory ? ' begin' : '' ) . "'
+					data-slug='{$category->getSlug()}'>
+						{$category->getTitle()}
+					</li>";
+				$firstCategory = false;
+			}
+		}
+
+		$HTML .= "
 			</ul>";
-			foreach ( $categories as $category ) {
-				$categoryId = $category->getId();
-				if ( $categoryHTML[$categoryId] ) {
-					$HTML .= "
-			<div class='achievement_category' data-slug='{$category->getSlug()}'>
-				{$categoryHTML[$categoryId]}
-			</div>";
-				}
+		foreach ( $categories as $category ) {
+			$categoryId = $category->getId();
+			if ( $categoryHTML[$categoryId] ) {
+				$HTML .= "
+					<div class='achievement_category' data-slug='{$category->getSlug()}'>
+						$categoryHTML[$categoryId]
+					</div>";
 			}
-		} else {
-			$HTML .= "
-			<span class='p-achievement-error large'>" .
-					 wfMessage( 'no_achievements_found' )->escaped() .
-					 "</span>
-			<span class='p-achievement-error small'>" .
-					 wfMessage( 'no_achievements_found_help' )->escaped() .
-					 "</span>";
 		}
 		$HTML .= "
-		</div>";
+			</div>";
 
 		return $HTML;
 	}

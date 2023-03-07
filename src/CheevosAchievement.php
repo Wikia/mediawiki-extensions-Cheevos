@@ -199,8 +199,7 @@ class CheevosAchievement extends CheevosModel {
 		if ( $this->container['category'] instanceof CheevosAchievementCategory ) {
 			return $this->container['category'];
 		}
-		$category = new CheevosAchievementCategory( $this->container['category'] );
-		return $category;
+		return new CheevosAchievementCategory( $this->container['category'] );
 	}
 
 	public function getDescription() {
@@ -418,9 +417,9 @@ class CheevosAchievement extends CheevosModel {
 	 * When displaying "Requires" criteria it may refer to a parent achievement that has been succeeded by a child
 	 * achievement. This corrects it for display purposes.
 	 *
-	 * @param array $achievements CheevosAchievement objects.
+	 * @param CheevosAchievement[] $achievements CheevosAchievement objects.
 	 *
-	 * @return array CheevosAchievement objects.
+	 * @return CheevosAchievement[] CheevosAchievement objects.
 	 */
 	public static function correctCriteriaChildAchievements( array $achievements ): array {
 		if ( count( $achievements ) ) {

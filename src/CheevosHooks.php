@@ -697,8 +697,6 @@ class CheevosHooks {
 	 * @return bool Success
 	 */
 	public static function broadcastAchievement( CheevosAchievement $achievement, string $siteKey, int $globalId ) {
-		$globalId = intval( $globalId );
-
 		if ( empty( $siteKey ) || $globalId < 0 ) {
 			return false;
 		}

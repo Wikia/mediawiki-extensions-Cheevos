@@ -15,112 +15,52 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\CheevosHooks;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserIdentity;
+use MediaWiki\User\UserIdentityLookup;
 
 class SpecialAchievements extends SpecialPage {
-	/**
-	 * Output HTML
-	 *
-	 * @var string
-	 */
-	private string $content;
-
-	private OutputPage $output;
 
 	private ?string $siteKey;
 
-	private TemplateAchievements $templates;
-
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct( private UserIdentityLookup $userIdentityLookup ) {
 		parent::__construct( 'Achievements' );
 
-		$dsSiteKey = CheevosHelper::getSiteKey();
-
-		$this->output = $this->getOutput();
-		$this->siteKey = $dsSiteKey;
+		$this->siteKey = CheevosHelper::getSiteKey();
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $subPage SubPage passed in the URL.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
+	/** @inheritDoc */
 	public function execute( $subPage ) {
-		$this->templates = new TemplateAchievements;
-		$this->output->addModuleStyles( [
+		$output = $this->getOutput();
+		$output->addModuleStyles( [
 			'ext.cheevos.styles',
 			"ext.hydraCore.button.styles",
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui.button',
 			'mediawiki.ui.input'
 		] );
-		$this->output->addModules( [ 'ext.cheevos.js' ] );
+		$output->addModules( [ 'ext.cheevos.js' ] );
 		$this->setHeaders();
-		$this->achievementsList( $subPage );
-		$this->output->addHTML( $this->content );
+
+		if ( $this->getUser()->isRegistered() ) {
+			// This is unrelated to the user look up.
+			// Just trigger this statistic if a logged-in user visits an achievement page
+			CheevosHooks::increment( 'achievement_engagement', 1, $this->getUser() );
+		}
+
+		$targetUser = $this->getTargetUser( $subPage );
+
+		// Just a helper to fix cases of missed achievements.
+		$this->sendUnnotifiedAchievements( $targetUser );
+
+		$output->addHTML( $this->achievementsList( $targetUser ) );
+		$output->setPageTitle( $this->msg( 'achievements-title-for', $targetUser->getName() )->escaped() );
 	}
 
-	/**
-	 * Achievements List
-	 *
-	 * @param string|null $subPage Passed subPage parameter to be intval()'ed for a Global ID.
-	 *
-	 * @throws ErrorPageError
-	 * @throws UserNotLoggedIn
-	 */
-	public function achievementsList( string $subPage = null ): void {
-		$globalId = false;
-		if ( $this->getUser()->isRegistered() ) {
-			if ( $this->getUser()->getId() > 0 ) {
-				// This is unrelated to the user look up.
-				//  Just trigger this statistic if a logged-in user visits an achievement page.
-				CheevosHooks::increment( 'achievement_engagement', 1, $this->getUser() );
-			}
-
-			$globalId = Cheevos::getUserIdForService( $this->getUser() );
-			$user = $this->getUser();
-		}
-
-		if ( !empty( $subPage ) && !is_numeric( $subPage ) ) {
-			$lookupUser = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $subPage );
-			if ( $lookupUser && $lookupUser->getId() ) {
-				$user = $lookupUser;
-				$globalId = Cheevos::getUserIdForService( $user );
-			}
-			if ( $globalId < 1 || !$lookupUser->getId() ) {
-				throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
-			}
-		}
-		if ( intval( $subPage ) > 0 ) {
-			$globalId = intval( $subPage );
-			$user = Cheevos::getUserForServiceUserId( $globalId );
-			if ( $globalId < 1 || $user === null ) {
-				throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
-			}
-		}
-
-		if ( $globalId < 1 || $user === null ) {
-			throw new UserNotLoggedIn( 'login_to_display_achievements', 'achievements' );
-		}
+	private function achievementsList( UserIdentity $targetUser ): string {
+		$userId = $targetUser->getId();
 
 		try {
-			// Just a helper to fix cases of missed achievements.
-			$check = Cheevos::checkUnnotified( $globalId, $this->siteKey, true );
-			if ( isset( $check['earned'] ) ) {
-				foreach ( $check['earned'] as $earned ) {
-					$earnedAchievement = new CheevosAchievement( $earned );
-					CheevosHooks::broadcastAchievement( $earnedAchievement, $this->siteKey, $globalId );
-					$this->getHookContainer()->run( 'AchievementAwarded', [ $earnedAchievement, $globalId ] );
-				}
-			}
-			$_statuses = Cheevos::getAchievementStatus( $globalId, $this->siteKey );
+			$_statuses = Cheevos::getAchievementStatus( $userId, $this->siteKey );
 			$achievements = Cheevos::getAchievements( $this->siteKey );
 		} catch ( CheevosException $e ) {
 			throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
@@ -128,17 +68,11 @@ class SpecialAchievements extends SpecialPage {
 
 		$categories = [];
 		if ( !empty( $achievements ) ) {
-			foreach ( $achievements as $aid => $achievement ) {
+			foreach ( $achievements as $achievement ) {
 				if ( !array_key_exists( $achievement->getCategory()->getId(), $categories ) ) {
 					$categories[$achievement->getCategory()->getId()] = $achievement->getCategory();
 				}
 			}
-		}
-
-		if ( $user ) {
-			$title = $this->msg( 'achievements-title-for', $user->getName() )->escaped();
-		} else {
-			$title = $this->msg( 'achievements-title' )->escaped();
 		}
 
 		// Fix requires achievement child IDs for display purposes.
@@ -156,16 +90,56 @@ class SpecialAchievements extends SpecialPage {
 			}
 		}
 
-		$this->output->setPageTitle( $title );
-		$this->content = $this->templates->achievementsList( $achievements, $categories, $statuses );
+		return ( new TemplateAchievements() )->achievementsList(
+			$this->getUser(),
+			$achievements,
+			$categories,
+			$statuses
+		);
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
-	protected function getGroupName(): string {
+	private function sendUnnotifiedAchievements( UserIdentity $userIdentity ): void {
+		$userId = $userIdentity->getId();
+		try {
+			$check = Cheevos::checkUnnotified( $userId, $this->siteKey, true );
+			if ( isset( $check['earned'] ) ) {
+				foreach ( $check['earned'] as $earned ) {
+					$earnedAchievement = new CheevosAchievement( $earned );
+					CheevosHooks::broadcastAchievement( $earnedAchievement, $this->siteKey, $userId );
+					$this->getHookContainer()->run( 'AchievementAwarded', [ $earnedAchievement, $userId ] );
+				}
+			}
+		} catch ( CheevosException $e ) {
+			throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
+		}
+	}
+
+	private function getTargetUser( ?string $subPage ): UserIdentity {
+		if ( !empty( $subPage ) && !is_numeric( $subPage ) ) {
+			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $subPage );
+			if ( $userIdentity && $userIdentity->isRegistered() ) {
+				return $userIdentity;
+			}
+			throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
+		}
+
+		if ( (int)$subPage > 0 ) {
+			$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( (int)$subPage );
+			if ( $userIdentity && $userIdentity->isRegistered() ) {
+				return $userIdentity;
+			}
+			throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
+		}
+
+		if ( $this->getUser()->isRegistered() ) {
+			return $this->getUser();
+		}
+
+		throw new UserNotLoggedIn( 'login_to_display_achievements', 'achievements' );
+	}
+
+	/** @inheritDoc */
+	protected function getGroupName() {
 		return 'users';
 	}
 }
