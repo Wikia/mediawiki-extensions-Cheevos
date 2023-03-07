@@ -21,118 +21,20 @@ use User;
  * @deprecated
  */
 class Cheevos {
-	/**
-	 * Main Request cURL wrapper.
-	 *
-	 * @param string $type
-	 * @param string $path
-	 * @param array $data
-	 *
-	 * @return array
-	 */
-	private static function request( string $type, string $path, array $data = [] ): array {
-		global $wgCheevosHost, $wgCheevosClientId, $wgCheevosEnvoySocketPath;
-
-		if ( empty( $wgCheevosHost ) ) {
-			throw new CheevosException( '$wgCheevosHost is not configured.' );
-		}
-		if ( empty( $wgCheevosClientId ) ) {
-			throw new CheevosException( '$wgCheevosClientId is not configured.' );
-		}
-
-		$host = $wgCheevosHost;
-		$type = strtoupper( $type );
-
-		$url = "{$host}/{$path}";
-		$headers = [
-			'Accept: application/json',
-			'Content-Type: application/json',
-			'Client-ID: ' . $wgCheevosClientId
-		];
-
-		$curlOpts = [
-			CURLOPT_RETURNTRANSFER		=> 1,
-			CURLOPT_URL					=> $url,
-			CURLOPT_SSL_VERIFYHOST		=> false,
-			CURLOPT_SSL_VERIFYPEER		=> false,
-			CURLOPT_CUSTOMREQUEST		=> $type,
-			CURLOPT_CONNECTTIMEOUT		=> 1,
-			CURLOPT_TIMEOUT				=> 10,
-			CURLOPT_ENCODING			=> 'gzip'
-		];
-
-		if ( !empty( $wgCheevosEnvoySocketPath ) ) {
-			$curlOpts[CURLOPT_UNIX_SOCKET_PATH] = $wgCheevosEnvoySocketPath;
-		}
-
-		$ch = curl_init();
-		curl_setopt_array(
-			$ch,
-			$curlOpts
-		);
-		if ( in_array( $type, [ 'DELETE', 'GET' ] ) && !empty( $data ) ) {
-			$url = $url . "/?" . http_build_query( $data );
-		} else {
-			$postData = json_encode( $data );
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, $postData );
-			$headers[] = 'Content-Length: ' . strlen( $postData );
-		}
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-
-		$result = curl_exec( $ch );
-		curl_close( $ch );
-		$result = json_decode( $result, true );
-
-		return $result;
+	private static function get( string $path, array $data = [] ): array {
+		return MediaWikiServices::getInstance()->getService( CheevosClient::class )->get( $path, $data );
 	}
 
-	/**
-	 * Wrapper for Request Function for GET method.
-	 *
-	 * @param string $path
-	 * @param array $data
-	 *
-	 * @return array
-	 */
-	private static function get( string $path, $data = [] ): array {
-		return self::request( 'GET', $path, $data );
+	private static function put( string $path, array $data = [] ): array {
+		return MediaWikiServices::getInstance()->getService( CheevosClient::class )->put( $path, $data );
 	}
 
-	/**
-	 * Wrapper for Request Function for PUT method.
-	 *
-	 * @param string $path
-	 * @param array $data
-	 *
-	 * @return array
-	 */
-	private static function put( $path, $data = [] ) {
-		return self::request( 'PUT', $path, $data );
+	private static function post( string $path, array $data = [] ): array {
+		return MediaWikiServices::getInstance()->getService( CheevosClient::class )->post( $path, $data );
 	}
 
-	/**
-	 * Wrapper for Request Function for POST method.
-	 *
-	 * @param string $path
-	 * @param array $data
-	 *
-	 * @return array
-	 */
-	private static function post( $path, $data = [] ) {
-		return self::request( 'POST', $path, $data );
-	}
-
-	/**
-	 * Wrapper for Request Function for DELETE method.
-	 *
-	 * @param string $path
-	 * @param array $data
-	 *
-	 * @return array
-	 */
-	private static function delete( $path, $data = [] ) {
-		return self::request( 'DELETE', $path, $data );
+	private static function delete( string $path, array $data = [] ) {
+		return MediaWikiServices::getInstance()->getService( CheevosClient::class )->delete( $path, $data );
 	}
 
 	/**
@@ -146,45 +48,9 @@ class Cheevos {
 	 * @return mixed when $class is specified and exists it will return
 	 *         array of objects or one object when $single is true
 	 */
-	private static function return( $return, $expected = null, $class = null, $single = false ) {
-		// Throw Errors if we have API errors.
-		if ( $return === null ) {
-			throw new CheevosException( 'Cheevos Service Unavailable', 503 );
-		}
-		if ( isset( $return['code'] ) && $return['code'] !== 200 ) {
-			throw new CheevosException( $return['message'], $return['code'] );
-		}
-
-		// Handles getting only the data we want
-		if ( $expected && isset( $return[$expected] ) ) {
-			$return = $return[$expected];
-		}
-
-		// Return data as classes instead of arrays.
-		if ( $class && class_exists( $class ) ) {
-			$holder = [];
-			foreach ( $return as $classme ) {
-				if ( is_array( $classme ) ) {
-					$object = new $class( $classme );
-					if ( $object->hasId() ) {
-						$holder[$object->getId()] = $object;
-					} else {
-						$holder[] = $object;
-					}
-				}
-				if ( $single ) {
-					break;
-				}
-			}
-			$return = $holder;
-
-			// If we classify things, single will only return the first.
-			if ( $single ) {
-				reset( $return );
-				$return = current( $return );
-			}
-		}
-		return $return;
+	private static function return( array $return, string $expected = null, string $class = null, bool $single = false ) {
+		return MediaWikiServices::getInstance()->getService( CheevosClient::class )
+			->parse( $return, $expected, $class, $single );
 	}
 
 	/**

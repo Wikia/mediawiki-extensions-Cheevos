@@ -92,6 +92,7 @@
 		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
 		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php"
 	},
+	"ServiceWiringFiles": ["ServiceWiring.php"],
 	"ResourceModules": {
 		"ext.cheevos.styles": {
 			"styles": [
