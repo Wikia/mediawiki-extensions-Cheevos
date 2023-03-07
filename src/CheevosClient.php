@@ -14,23 +14,23 @@ class CheevosClient {
 	) {
 	}
 
-	public function get( string $path, array $data ): array {
+	public function get( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'GET', $path, $data );
 	}
 
-	public function post( string $path, array $data ): array {
+	public function post( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'POST', $path, $data );
 	}
 
-	public function put( string $path, array $data ): array {
+	public function put( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'PUT', $path, $data );
 	}
 
-	public function delete( string $path, array $data ): array {
+	public function delete( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'DELETE', $path, $data );
 	}
 
-	private function sendRequest( string $type, string $path, array $data = [] ): array {
+	private function sendRequest( string $type, string $path, array $data ): array {
 		$type = strtoupper( $type );
 		$uri = "$this->serviceUrl/$path";
 		$options = [
@@ -56,6 +56,13 @@ class CheevosClient {
 		return json_decode( $response->getBody(), true );
 	}
 
+	/**
+	 * @param array $data - provided data
+	 * @param string|null $field
+	 * @param string|null $class - returned type
+	 * @param bool $returnFirst - return first element or null when provided data is empty
+	 * @return array|mixed|null
+	 */
 	public function parse( array $data, ?string $field = null, ?string $class = null, bool $returnFirst = false ) {
 		if ( $field && isset( $data[ $field ] ) ) {
 			$data = $data[ $field ];
@@ -78,6 +85,6 @@ class CheevosClient {
 				}
 			}
 		}
-		return $response;
+		return $returnFirst ? null : $response;
 	}
 }
