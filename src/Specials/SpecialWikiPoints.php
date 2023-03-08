@@ -11,37 +11,27 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
-use Cheevos\Cheevos;
+namespace Cheevos\Specials;
+
 use Cheevos\CheevosHelper;
 use Cheevos\Points\PointsDisplay;
-use MediaWiki\MediaWikiServices;
+use Cheevos\Templates\TemplateWikiPoints;
+use Cheevos\Templates\TemplateWikiPointsAdmin;
+use MediaWiki\User\UserIdentityLookup;
+use OutputPage;
+use SpecialPage;
+use WebRequest;
 
-class SpecialWikiPoints extends HydraCore\SpecialPage {
-	/**
-	 * Output HTML
-	 *
-	 * @var string
-	 */
-	private string $content;
+class SpecialWikiPoints extends SpecialPage {
 
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct( private UserIdentityLookup $userIdentityLookup ) {
 		parent::__construct( 'WikiPoints' );
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $subPage Subpage passed in the URL.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
+	/** @inheritDoc */
 	public function execute( $subPage ) {
-		$this->output->addModuleStyles( [
+		$output = $this->getOutput();
+		$output->addModuleStyles( [
 			'ext.cheevos.wikiPoints.styles',
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui',
@@ -51,37 +41,19 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 
 		$this->setHeaders();
 
-		$this->wikiPoints( $subPage );
-
-		$this->output->addHTML( $this->content );
+		$this->wikiPoints( $subPage, $output, $this->getRequest() );
 	}
 
-	/**
-	 * Display the wiki points page.
-	 *
-	 * @param string|null $subPage Subpage
-	 *
-	 * @return void
-	 */
-	public function wikiPoints( ?string $subPage = null ): void {
-		$dsSiteKey = CheevosHelper::getSiteKey();
-
-		$start = $this->wgRequest->getInt( 'st' );
-		$itemsPerPage = 100;
-
-		$form['username'] = $this->wgRequest->getVal( 'user' );
-
+	public function wikiPoints( ?string $subPage = null, OutputPage $output, WebRequest $request ): void {
+		$username = $request->getVal( 'user' );
+		$error = null;
 		$globalId = null;
-		if ( !empty( $form['username'] ) ) {
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $form['username'] );
-
-			if ( $user->getId() ) {
-				$globalId = $user->getId();
-			}
-
-			if ( !$globalId ) {
-				$globalId = null;
-				$form['error'] = wfMessage( 'error_wikipoints_user_not_found' )->escaped();
+		if ( !empty( $username ) ) {
+			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $username );
+			if ( $userIdentity && $userIdentity->isRegistered() ) {
+				$globalId = $userIdentity->getId();
+			} else {
+				$error = $this->msg( 'error_wikipoints_user_not_found' )->escaped();
 			}
 		}
 
@@ -91,35 +63,38 @@ class SpecialWikiPoints extends HydraCore\SpecialPage {
 		$isGlobal = in_array( 'global', $modifiers );
 
 		$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subPage );
-		$this->output->setPageTitle(
-			wfMessage(
+		$output->setPageTitle(
+			$this->msg(
 				'top_wiki_editors' .
 				( $isGlobal ? '_global' : '' ) .
 				( $isSitesMode ? '_sites' : '' ) .
 				( $isMonthly ? '_monthly' : '' )
 			) );
-		$this->content = TemplateWikiPoints::getWikiPointsLinks();
+
+		$html = TemplateWikiPoints::getWikiPointsLinks();
 		if ( !$isMonthly ) {
-			$this->content .= TemplateWikiPointsAdmin::userSearch( $thisPage, $form ) . "<hr/>";
+			$html .= TemplateWikiPointsAdmin::userSearch( $thisPage, $username, $error ) . "<hr/>";
 		}
-		$this->content .= PointsDisplay::pointsBlockHtml(
-			( $isSitesMode || $isGlobal ? null : $dsSiteKey ),
+		$html .= PointsDisplay::pointsBlockHtml(
+			$isSitesMode || $isGlobal ? null : CheevosHelper::getSiteKey(),
 			$globalId,
-			$itemsPerPage,
-			$start,
+			100,
+			$request->getInt( 'st' ),
 			$isSitesMode,
 			$isMonthly,
 			'table',
 			$thisPage
 		);
+		$output->addHTML( $html );
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
-	protected function getGroupName(): string {
+	/** @inheritDoc */
+	protected function getGroupName() {
 		return 'wikipoints';
+	}
+
+	/** @inheritDoc */
+	public function isListed() {
+		return parent::isListed() && $this->userCanExecute( $this->getUser() );
 	}
 }

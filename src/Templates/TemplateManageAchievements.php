@@ -10,9 +10,13 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
+namespace Cheevos\Templates;
+
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosHelper;
 use MediaWiki\MediaWikiServices;
+use RequestContext;
+use SpecialPage;
 
 class TemplateManageAchievements {
 	private string $awardURL;
@@ -32,8 +36,7 @@ class TemplateManageAchievements {
 		$context = RequestContext::getMain();
 		$user = $context->getUser();
 
-		$achievementsPage	= Title::newFromText( 'Special:ManageAchievements' );
-		$achievementsURL	= $achievementsPage->getFullURL();
+		$achievementsURL = SpecialPage::getSafeTitleFor( 'ManageAchievements' )->getFullURL();
 
 		$HTML = '';
 
@@ -153,8 +156,7 @@ class TemplateManageAchievements {
 		$user = RequestContext::getMain()->getUser();
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
-		$achievementsPage = Title::newFromText( 'Special:ManageAchievements' );
-		$achievementsURL = $achievementsPage->getFullURL();
+		$achievementsURL = SpecialPage::getSafeTitleFor( 'ManageAchievements' )->getFullURL();
 		$category = $achievement->getCategory();
 
 		$HTML = TemplateAchievements::achievementBlockRow(
@@ -471,31 +473,24 @@ class TemplateManageAchievements {
 		return $HTML;
 	}
 
-	/**
-	 * Achievement Delete/Restore/Revert Form
-	 *
-	 * @param CheevosAchievement $achievement Achievement information.
-	 *
-	 * @return string Built HTML
-	 */
-	public function achievementStateChange( CheevosAchievement $achievement, $action ): string {
-		$target = Title::newFromText( 'Special:ManageAchievements/' . $action );
+	/** Achievement Delete/Restore/Revert Form */
+	public function achievementStateChange( CheevosAchievement $achievement, string $action ): string {
+		$targetUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', $action );
 
 		return "
-		<form method='post' action='" . $target->getFullUrl() . "'>
+		<form method='post' action='$targetUrl'>
 			" . wfMessage( $action . '_achievement_confirm' )->escaped() . "<br/>
 			<input type='hidden' name='confirm' value='true'/>
 			<input type='hidden' name='aid' value='{$achievement->getId()}'/>
 			<button type='submit' class='mw-ui-button mw-ui-destructive'>" .
-			   wfMessage( $action . '_achievement' )->escaped() .
-			   "</button>
+				wfMessage( $action . '_achievement' )->escaped() .
+				"</button>
 		</form>";
 	}
 
 	public function awardForm( $form, $achievements ): string {
 		$request = RequestContext::getMain()->getRequest();
-		$awardPage = Title::newFromText( 'Special:ManageAchievements/award' );
-		$this->awardURL	= $awardPage->getFullURL();
+		$awardUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', 'award' )->getFullURL();
 
 		$HTML = '';
 		$wasAwarded = $request->getVal( 'do' ) == wfMessage( 'award' )->escaped();
@@ -552,7 +547,7 @@ class TemplateManageAchievements {
 		}
 
 		$HTML .= "
-		<form action='{$this->awardURL}' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>
+		<form action='$awardUrl' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>
 			<fieldset>
 				<legend>" . wfMessage( 'award_hint' )->escaped() . "</legend>";
 		if ( isset( $form['errors']['username'] ) ) {

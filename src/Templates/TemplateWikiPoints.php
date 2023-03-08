@@ -11,8 +11,12 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
+namespace Cheevos\Templates;
+
 use Cheevos\CheevosHelper;
 use MediaWiki\MediaWikiServices;
+use SpecialPage;
+use Title;
 
 class TemplateWikiPoints {
 	/**
@@ -77,7 +81,7 @@ class TemplateWikiPoints {
 		$html .= "
 			</tbody>
 		</table>
-		<div>{$pagination}</div>";
+		<div>$pagination</div>";
 
 		return $html;
 	}

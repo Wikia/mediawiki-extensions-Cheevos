@@ -10,204 +10,181 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
+namespace Cheevos\Specials;
+
 use Cheevos\CheevosHelper;
 use Cheevos\Job\PointsCompJob;
 use Cheevos\Points\PointsCompReport;
-use MediaWiki\MediaWikiServices;
+use Cheevos\Templates\TemplatePointsComp;
+use Config;
+use ErrorPageError;
+use HydraCore;
+use MediaWiki\User\UserFactory;
+use MediaWiki\User\UserIdentityLookup;
+use OutputPage;
+use SpecialPage;
+use WebRequest;
 
 class SpecialPointsComp extends SpecialPage {
-	/**
-	 * Output HTML
-	 *
-	 * @var string
-	 */
-	private string $content;
 
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct(
+		private Config $config,
+		private UserIdentityLookup $userIdentityLookup,
+		private UserFactory $userFactory
+	) {
 		parent::__construct( 'PointsComp', 'points_comp_reports' );
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $subPage SubPage passed in the URL.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
+	/** @inheritDoc */
 	public function execute( $subPage ) {
-		$this->getOutput()->addModuleStyles( [
+		$output = $this->getOutput();
+		$output->addModuleStyles( [
 			'ext.cheevos.styles',
 			"ext.hydraCore.button.styles",
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui.button',
 			'mediawiki.ui.input'
 		] );
-		$this->getOutput()->addModules( [ 'ext.cheevos.js', 'ext.cheevos.pointsComp.js' ] );
+		$output->addModules( [ 'ext.cheevos.js', 'ext.cheevos.pointsComp.js' ] );
 		$this->checkPermissions();
 		$this->setHeaders();
-		$this->pointsCompReports( $subPage );
-		$this->getOutput()->addHTML( $this->content );
+		$this->pointsCompReports( $subPage, $output, $this->getRequest() );
 	}
 
-	/**
-	 * Points Comp Reports
-	 *
-	 * @param string|null $subPage Passed subpage parameter to be intval()'ed for a Global ID.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	public function pointsCompReports( ?string $subPage ) {
-		$start = $this->getRequest()->getInt( 'st' );
-		$itemsPerPage = 50;
-		$reportId = intval( $subPage );
-		$this->runReport();
+	/** Points Comp Reports */
+	public function pointsCompReports( ?string $subPage, OutputPage $output, WebRequest $request ) {
+		$this->runReport( $output, $request );
+		$reportId = (int)$subPage;
 		if ( $reportId > 0 ) {
 			$report = PointsCompReport::newFromId( $reportId );
 			if ( !$report ) {
 				throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 			}
-			$this->getOutput()->setPageTitle(
+			$output->setPageTitle(
 				$this->msg(
 					'pointscomp_detail',
 					$report->getReportId(),
 					gmdate( 'Y-m-d', $report->getRunTime() )
 				)->escaped()
 			);
-			if ( $this->getRequest()->getBool( 'csv' ) ) {
+			if ( $request->getBool( 'csv' ) ) {
 				$this->downloadCSV( TemplatePointsComp::pointsCompReportCSV( $report ), $report->getReportId() );
-				return;
 			}
-			$this->content = TemplatePointsComp::pointsCompReportDetail( $report );
-		} else {
-			$reportData = PointsCompReport::getReportsList( $start, $itemsPerPage );
-
-			$pagination = HydraCore::generatePaginationHtml(
-				$this->getFullTitle(),
-				$reportData['total'],
-				$itemsPerPage,
-				$start
-			);
-			$this->getOutput()->setPageTitle( $this->msg( 'pointscomp' )->escaped() );
-			$this->content = TemplatePointsComp::pointsCompReports( $reportData['reports'], $pagination );
+			$output->addHTML( TemplatePointsComp::pointsCompReportDetail( $report ) );
+			return;
 		}
+
+		$start = $request->getInt( 'st' );
+		$itemsPerPage = 50;
+		$reportData = PointsCompReport::getReportsList( $start, $itemsPerPage );
+
+		$pagination = HydraCore::generatePaginationHtml(
+			$this->getFullTitle(),
+			$reportData['total'],
+			$itemsPerPage,
+			$start
+		);
+		$output->setPageTitle( $this->msg( 'pointscomp' )->escaped() );
+		$output->addHTML( TemplatePointsComp::pointsCompReports( $reportData['reports'], $pagination ) );
 	}
 
-	/**
-	 * Run a report into the job queue.
-	 *
-	 * @return void
-	 */
-	public function runReport(): void {
-		if ( $this->getRequest()->wasPosted() ) {
-			$report = false;
-			$reportId = $this->getRequest()->getInt( 'report_id' );
-			if ( $reportId > 0 ) {
-				$report = PointsCompReport::newFromId( $reportId );
-				if ( !$report ) {
-					throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
-				}
+	/** Run a report into the job queue. */
+	private function runReport( OutputPage $output, WebRequest $request ): void {
+		if ( !$request->wasPosted() ) {
+			return;
+		}
+
+		$report = false;
+		$reportId = $request->getInt( 'report_id' );
+		if ( $reportId > 0 ) {
+			$report = PointsCompReport::newFromId( $reportId );
+			if ( !$report ) {
+				throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 			}
+		}
 
-			$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-			$doCompUser = $userFactory->newFromId( $this->getRequest()->getInt( 'compUser' ) );
-			$doEmailUser = $userFactory->newFromId( $this->getRequest()->getInt( 'emailUser' ) );
-			if ( ( $doCompUser->getId() || $doEmailUser->getId() ) ) {
-				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $reportId );
-				if ( $doCompUser->getId() ) {
-					$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
-					$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
-					$userComped = $report->compSubscription( $doCompUser, $compedSubscriptionMonths );
-					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [
-						'userComped' => intval( $userComped )
-					] ) );
-				}
-				if ( $doEmailUser->getId() ) {
-					$emailSent = $report->sendUserEmail( $doEmailUser );
-					$this->getOutput()->redirect( $pointsCompPage->getFullURL( [
-						'emailSent' => intval( $emailSent )
-					] ) );
-				}
-				return;
+		$doCompUser = $this->userIdentityLookup->getUserIdentityByUserId( $request->getInt( 'compUser' ) );
+		$doEmailUser = $this->userIdentityLookup->getUserIdentityByUserId( $request->getInt( 'emailUser' ) );
+		if ( $doCompUser?->isRegistered() || $doEmailUser?->isRegistered() ) {
+			$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $reportId );
+			if ( $doCompUser && $doCompUser->isRegistered() ) {
+				$compedSubscriptionMonths = (int)$this->config->get( 'CompedSubscriptionMonths' );
+				$userComped = $report->compSubscription( $doCompUser, $compedSubscriptionMonths );
+				$output->redirect( $pointsCompPage->getFullURL( [ 'userComped' => (int)$userComped ] ) );
 			}
-
-			$final = false;
-			$email = false;
-
-			$do = $this->getRequest()->getVal( 'do' );
-			if ( $do === 'grantAll' || $do === 'grantAndEmailAll' ) {
-				$final = true;
+			if ( $doEmailUser && $doEmailUser->isRegistered() ) {
+				$emailSent = $report->sendUserEmail( $this->userFactory->newFromUserIdentity( $doEmailUser ) );
+				$output->redirect( $pointsCompPage->getFullURL( [ 'emailSent' => (int)$emailSent ] ) );
 			}
+			return;
+		}
 
-			if ( $do === 'emailAll' || $do === 'grantAndEmailAll' ) {
-				$email = true;
-			}
-			if ( ( $do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll' ) && $report !== null ) {
-				PointsCompJob::queue(
-					[
-						'report_id'	=> $reportId,
-						'grantAll'	=> $final,
-						'emailAll'	=> $email
-					]
-				);
-				$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
-				$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => 0 ] ) );
-				return;
-			}
+		$final = false;
+		$email = false;
 
-			if ( $report === false ) {
-				$startTimestamp = $this->getRequest()->getInt( 'start_time' );
-				$startTime = strtotime( date( 'Y-m-d', $startTimestamp ) . 'T00:00:00+00:00' );
-				// Infer end time as last second of the month. Since switching to monthly
-				// stats, the end time isn't needed to generate the report, but it could
-				// be useful for data keeping.
-				$endTime = strtotime( date( 'Y-m-t', $startTimestamp ) . 'T23:59:59+00:00' );
+		$do = $request->getVal( 'do' );
+		if ( $do === 'grantAll' || $do === 'grantAndEmailAll' ) {
+			$final = true;
+		}
 
-				$status = PointsCompReport::validateTimeRange( $startTime, $endTime );
-				if ( !$status->isGood() ) {
-					throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
-				}
-
-				$minPointThreshold = $this->getRequest()->getInt( 'min_point_threshold' );
-				$maxPointThreshold = $this->getRequest()->getVal( 'max_point_threshold' );
-				if ( $maxPointThreshold !== '0' && empty( $maxPointThreshold ) ) {
-					$maxPointThreshold = null;
-				} else {
-					$maxPointThreshold = intval( $maxPointThreshold );
-				}
-				$status = PointsCompReport::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
-				if ( !$status->isGood() ) {
-					throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
-				}
-
-				$report = new PointsCompReport();
-				$report->setMinPointThreshold( $minPointThreshold );
-				$report->setMaxPointThreshold( $maxPointThreshold );
-				$report->setStartTime( $startTime );
-				$report->setEndTime( $endTime );
-				$report->save();
-				$reportId = $report->getReportId();
-			}
-
+		if ( $do === 'emailAll' || $do === 'grantAndEmailAll' ) {
+			$email = true;
+		}
+		if ( ( $do === 'grantAll' || $do === 'emailAll' || $do === 'grantAndEmailAll' ) && $report !== null ) {
 			PointsCompJob::queue(
 				[
 					'report_id'	=> $reportId,
-					'final'		=> $final,
-					'email'		=> $email
+					'grantAll'	=> $final,
+					'emailAll'	=> $email
 				]
 			);
-
 			$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
-			$this->getOutput()->redirect( $pointsCompPage->getFullURL( [ 'queued' => 0 ] ) );
+			$output->redirect( $pointsCompPage->getFullURL( [ 'queued' => 0 ] ) );
+			return;
 		}
+
+		if ( $report === false ) {
+			$startTimestamp = $request->getInt( 'start_time' );
+			$startTime = strtotime( date( 'Y-m-d', $startTimestamp ) . 'T00:00:00+00:00' );
+			// Infer end time as last second of the month. Since switching to monthly
+			// stats, the end time isn't needed to generate the report, but it could
+			// be useful for data keeping.
+			$endTime = strtotime( date( 'Y-m-t', $startTimestamp ) . 'T23:59:59+00:00' );
+
+			$status = PointsCompReport::validateTimeRange( $startTime, $endTime );
+			if ( !$status->isGood() ) {
+				throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
+			}
+
+			$minPointThreshold = $request->getInt( 'min_point_threshold' );
+			$maxPointThreshold = $request->getVal( 'max_point_threshold' );
+			if ( $maxPointThreshold !== '0' && empty( $maxPointThreshold ) ) {
+				$maxPointThreshold = null;
+			} else {
+				$maxPointThreshold = (int)$maxPointThreshold;
+			}
+			$status = PointsCompReport::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
+			if ( !$status->isGood() ) {
+				throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
+			}
+
+			$report = new PointsCompReport();
+			$report->setMinPointThreshold( $minPointThreshold );
+			$report->setMaxPointThreshold( $maxPointThreshold );
+			$report->setStartTime( $startTime );
+			$report->setEndTime( $endTime );
+			$report->save();
+			$reportId = $report->getReportId();
+		}
+
+		PointsCompJob::queue( [ 'report_id' => $reportId, 'final' => $final, 'email' => $email ] );
+
+		$output->redirect( SpecialPage::getTitleFor( 'PointsComp' )->getFullURL( [ 'queued' => 0 ] ) );
 	}
 
 	/**
 	 * Download CSV to client.
+	 * @return never
 	 */
 	private function downloadCSV( $csv, $reportId ) {
 		$filename = 'points_comp_report_' . $reportId;
@@ -223,33 +200,18 @@ class SpecialPointsComp extends SpecialPage {
 		exit;
 	}
 
-	/**
-	 * Hides special page from SpecialPages special page.
-	 *
-	 * @return bool
-	 */
+	/** @inheritDoc */
 	public function isListed(): bool {
-		if ( CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' ) ) {
-			return true;
-		}
-		return false;
+		return CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' );
 	}
 
-	/**
-	 * Lets others determine that this special page is restricted.
-	 *
-	 * @return bool True
-	 */
-	public function isRestricted(): bool {
+	/** @inheritDoc */
+	public function isRestricted() {
 		return true;
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
-	protected function getGroupName(): string {
+	/** @inheritDoc */
+	protected function getGroupName() {
 		return 'users';
 	}
 }

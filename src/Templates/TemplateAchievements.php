@@ -10,10 +10,17 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
+namespace Cheevos\Templates;
+
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementStatus;
 use Cheevos\CheevosHelper;
+use MWTimestamp;
+use RequestContext;
+use SpecialPage;
+use Title;
+use User;
 
 class TemplateAchievements {
 	/**
@@ -321,7 +328,7 @@ class TemplateAchievements {
 		$HTML .= "
 				</div>
 				<span class='p-achievement-points'>
-					" . intval( $achievement->getPoints() ) .
+					" . (int)$achievement->getPoints() .
 				 "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></span>
 			</div>";
 

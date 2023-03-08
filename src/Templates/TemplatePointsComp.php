@@ -1,7 +1,10 @@
 <?php
 
+namespace Cheevos\Templates;
+
 use Cheevos\Points\PointsCompReport;
 use MediaWiki\MediaWikiServices;
+use SpecialPage;
 
 /**
  * Cheevos
@@ -26,8 +29,7 @@ class TemplatePointsComp {
 	public static function pointsCompReports( array $reports = [], string $pagination = '' ): string {
 		global $wgRequest;
 
-		$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp' );
-		$pointsCompURL	= $pointsCompPage->getFullURL();
+		$pointsCompURL = SpecialPage::getTitleFor( 'PointsComp' )->getFullURL();
 
 		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
 
@@ -55,7 +57,7 @@ class TemplatePointsComp {
 
 				<label for='min_point_threshold'>" . wfMessage( 'min_point_threshold' )->escaped() . "</label>
 				<input id='min_point_threshold' name='min_point_threshold' type='text' value='" .
-				 intval( $config->get( 'CompedSubscriptionThreshold' ) ) .
+				(int)$config->get( 'CompedSubscriptionThreshold' ) .
 				 "'/>
 
 				<label for='max_point_threshold'>" . wfMessage( 'max_point_threshold' )->escaped() . "</label>

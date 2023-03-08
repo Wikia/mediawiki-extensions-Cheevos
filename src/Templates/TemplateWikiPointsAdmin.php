@@ -1,8 +1,14 @@
 <?php
 
-use Cheevos\Cheevos;
+namespace Cheevos\Templates;
+
+use Cheevos\AchievementService;
 use Cheevos\CheevosException;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
+use RequestContext;
+use SpecialPage;
+use Title;
 
 /**
  * Curse Inc.
@@ -17,20 +23,12 @@ use MediaWiki\User\UserIdentity;
  */
 
 class TemplateWikiPointsAdmin {
-	/**
-	 * Initialize form HTML for each page.
-	 *
-	 * @param Title $title Title for special page.
-	 * @param array|null $form Form data for resubmission.
-	 *
-	 * @return string Built HTML
-	 */
-	public static function userSearch( Title $title, ?array $form = [] ): string {
-		$username = htmlspecialchars( $form['username'] );
+	public static function userSearch( Title $title, ?string $error = null, string $username = '' ): string {
+		$username = htmlspecialchars( $username );
 
 		$html = '';
-		if ( !empty( $form['error'] ) ) {
-			$html .= "<div class='errorbox'>{$form['error']}</div>";
+		if ( !empty( $error ) ) {
+			$html .= "<div class='errorbox'>$error</div>";
 		}
 		return $html . "
 		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='" . $title->getFullURL() . "'>
@@ -38,7 +36,7 @@ class TemplateWikiPointsAdmin {
 				<input type='text'
 				 name='user'
 				 placeholder='" . wfMessage( 'wpa_user' )->escaped() . "'
-				 value='{$username}' class='oo-ui-inputWidget-input'/>
+				 value='$username' class='oo-ui-inputWidget-input'/>
 				<input class='submit' type='submit' value='" . wfMessage( 'lookup' )->escaped() . "'/>
 			</div>
 		</form>";
@@ -47,39 +45,36 @@ class TemplateWikiPointsAdmin {
 	/**
 	 * User lookup display
 	 *
-	 * @param UserIdentity $user Raw table row of looked up user if found.
-	 * @param array $points Earned point entries for the found user.
-	 * @param array $form Form data for resubmission.
-	 *
 	 * @return string Built HTML
 	 */
-	public static function lookup( UserIdentity $user, array $points = [], array $form = [] ): string {
+	public static function lookup(
+		?UserIdentity $user = null, array $points = [], ?string $error = null, string $username = ''
+	): string {
 		$context = RequestContext::getMain();
 		$request = $context->getRequest();
 		$currentUser = $context->getUser();
-		$wikiPointsAdminPage = Title::newFromText( 'Special:WikiPointsAdmin' );
-		$html = self::userSearch( $wikiPointsAdminPage, $form );
+		$html = self::userSearch( SpecialPage::getSafeTitleFor( 'WikiPointsAdmin' ), $error, $username );
 
 		$addSubtractButtonText = wfMessage( 'wikipointsaddsubtractbutton' )->escaped();
-		$addSubtractTooltip    = wfMessage( 'wikipointsaddsubtracttooltip' )->escaped();
-		$pointsAdjusted        = wfMessage( 'wikipointsaddsubtractsuccess' )->escaped();
+		$addSubtractTooltip = wfMessage( 'wikipointsaddsubtracttooltip' )->escaped();
+		$pointsAdjusted = wfMessage( 'wikipointsaddsubtractsuccess' )->escaped();
 
 		if ( $request->getVal( 'pointsAdjusted' ) ) {
 			$html .= "
-			<div><div class='successbox'>{$pointsAdjusted}</div></div>";
+			<div><div class='successbox'>$pointsAdjusted</div></div>";
 		}
 
-		$wpaPage = Title::newFromText( 'Special:WikiPointsAdmin' );
-		$escapedUserName = ( $user ? htmlspecialchars( $user->getName(), ENT_QUOTES ) : '' );
+		$wpaPage = SpecialPage::getSafeTitleFor( 'WikiPointsAdmin' );
+		$escapedUserName = $user ? htmlspecialchars( $user->getName(), ENT_QUOTES ) : '';
 		if ( $currentUser->isAllowed( 'wpa_adjust_points' ) ) {
 			$html .= "
 		<div id='wpa_user_controls'>
 			<form method='post' action='" . $wpaPage->getFullURL() . "'>
 				<fieldset>
 					<input type='hidden' name='action' value='adjust'>
-					<input type='hidden' name='user' value='{$escapedUserName}'>
-					<input type='number' name='amount' placeholder='{$addSubtractTooltip}' id='addSubtractField'>
-					<input type='submit' value='{$addSubtractButtonText}'>
+					<input type='hidden' name='user' value='$escapedUserName'>
+					<input type='number' name='amount' placeholder='$addSubtractTooltip' id='addSubtractField'>
+					<input type='submit' value='$addSubtractButtonText'>
 				</fieldset>
 			</form>
 		</div>";
@@ -124,7 +119,8 @@ class TemplateWikiPointsAdmin {
 					if ( $pointRow->getAchievement_Id() ) {
 						$title = SpecialPage::getTitleFor( 'Achievements' );
 						try {
-							$achievement = Cheevos::getAchievement( $pointRow->getAchievement_Id() );
+							$achievement = MediaWikiServices::getInstance()->getService( AchievementService::class )
+								->getAchievement( $pointRow->getAchievement_Id() );
 							$link = '<a
 							href="' . $title->getInternalURL() .
 									'/' .
@@ -143,7 +139,7 @@ class TemplateWikiPointsAdmin {
 						}
 					}
 					$html .= "
-					<td>{$link}</td>
+					<td>$link</td>
 					<td>" . date( 'Y-m-d H:i:s', $pointRow->getTimestamp() ) . "</td>
 					<td class='numeric'>" .
 							 ( $pointRow->getPage_Id() ? $pointRow->getSize() : wfMessage( "n-a" )->escaped() ) .

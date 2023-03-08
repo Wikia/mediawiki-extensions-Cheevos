@@ -10,19 +10,28 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
-use Cheevos\Cheevos;
+namespace Cheevos\Specials;
+
+use Cheevos\AchievementService;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\CheevosHooks;
+use Cheevos\Templates\TemplateAchievements;
+use ErrorPageError;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
+use SpecialPage;
+use UserNotLoggedIn;
 
 class SpecialAchievements extends SpecialPage {
 
 	private ?string $siteKey;
 
-	public function __construct( private UserIdentityLookup $userIdentityLookup ) {
+	public function __construct(
+		private UserIdentityLookup $userIdentityLookup,
+		private AchievementService $achievementService
+	) {
 		parent::__construct( 'Achievements' );
 
 		$this->siteKey = CheevosHelper::getSiteKey();
@@ -60,8 +69,8 @@ class SpecialAchievements extends SpecialPage {
 		$userId = $targetUser->getId();
 
 		try {
-			$_statuses = Cheevos::getAchievementStatus( $userId, $this->siteKey );
-			$achievements = Cheevos::getAchievements( $this->siteKey );
+			$_statuses = $this->achievementService->getAchievementStatus( $userId, $this->siteKey );
+			$achievements = $this->achievementService->getAchievements( $this->siteKey );
 		} catch ( CheevosException $e ) {
 			throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
 		}
@@ -101,7 +110,7 @@ class SpecialAchievements extends SpecialPage {
 	private function sendUnnotifiedAchievements( UserIdentity $userIdentity ): void {
 		$userId = $userIdentity->getId();
 		try {
-			$check = Cheevos::checkUnnotified( $userId, $this->siteKey, true );
+			$check = $this->achievementService->checkUnnotified( $userId, $this->siteKey, true );
 			if ( isset( $check['earned'] ) ) {
 				foreach ( $check['earned'] as $earned ) {
 					$earnedAchievement = new CheevosAchievement( $earned );

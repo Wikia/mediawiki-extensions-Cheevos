@@ -21,6 +21,7 @@ use ExtensionRegistry;
 use Hydra\Subscription;
 use Hydra\SubscriptionProvider;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserIdentity;
 use MWException;
 use Status;
 use User;
@@ -716,21 +717,19 @@ class PointsCompReport {
 	/**
 	 * Get current subscription status.
 	 *
-	 * @param User $user User
+	 * @param UserIdentity $userIdentity User
 	 * @param SubscriptionProvider $provider Subscription Provider
 	 *
 	 * @return array Array of boolean status flags.
 	 */
-	public function getSubscription( User $user, SubscriptionProvider $provider ): array {
+	public function getSubscription( UserIdentity $userIdentity, SubscriptionProvider $provider ): array {
 		$hasSubscription = false;
 		$paid = false;
 		$expires = null;
-		$subscription = $provider->getSubscription( $user->getId() );
+		$subscription = $provider->getSubscription( $userIdentity->getId() );
 		if ( $subscription !== false && is_array( $subscription ) ) {
 			$hasSubscription = true;
-			$expires = intval(
-				$subscription['expires'] !== false ? $subscription['expires']->getTimestamp( TS_UNIX ) : null
-			);
+			$expires = (int)( $subscription[ 'expires' ] !== false ? $subscription[ 'expires' ]->getTimestamp( TS_UNIX ) : null );
 			if ( $subscription['plan_id'] !== 'complimentary' ) {
 				$paid = true;
 			}
@@ -760,27 +759,29 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @param User $user
+	 * @param User $userIdentity
 	 * @param int $numberOfMonths Number of months into the future to compensate.
 	 *
 	 * @return bool Success
 	 */
-	public function compSubscription( User $user, int $numberOfMonths ): bool {
+	public function compSubscription( UserIdentity $userIdentity, int $numberOfMonths ): bool {
 		$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
 
 		$newExpiresDT = new DateTime( 'now' );
 		$newExpiresDT->add( new DateInterval( 'P' . $numberOfMonths . 'M' ) );
 		$newExpires = $newExpiresDT->getTimestamp();
 
-		$subscription = $this->getSubscription( $user, $gamepediaPro );
+		$subscription = $this->getSubscription( $userIdentity, $gamepediaPro );
 		if ( $subscription['paid'] === true ) {
 			// Do not mess with paid subscriptions.
 			return false;
-		} elseif ( $subscription['hasSubscription'] && $newExpires > $subscription['expires'] ) {
-			$gamepediaPro->cancelCompedSubscription( $user->getId() );
 		}
 
-		$comp = $gamepediaPro->createCompedSubscription( $user->getId(), $numberOfMonths );
+		if ( $subscription['hasSubscription'] && $newExpires > $subscription['expires'] ) {
+			$gamepediaPro->cancelCompedSubscription( $userIdentity->getId() );
+		}
+
+		$comp = $gamepediaPro->createCompedSubscription( $userIdentity->getId(), $numberOfMonths );
 
 		if ( $comp !== false ) {
 			$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
@@ -792,7 +793,7 @@ class PointsCompReport {
 				],
 				[
 					'report_id'	=> $this->reportData['report_id'],
-					'user_id'	=> $user->getId()
+					'user_id'	=> $userIdentity->getId()
 				],
 				__METHOD__
 			);

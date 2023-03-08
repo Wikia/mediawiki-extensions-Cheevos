@@ -1,14 +1,12 @@
 {
 	"name": "Cheevos",
 	"version": "1.0.2",
-	"author": [
-		"Hydra Wiki Platform Team"
-	],
+	"author": ["Hydra Wiki Platform Team"],
 	"license-name": "GPL-2.0-or-later",
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.37.0",
+		"MediaWiki": ">= 1.39.0",
 		"extensions": {
 			"HydraCore": ">= 3.0.0"
 		}
@@ -57,16 +55,29 @@
 		"wpa_adjust_points"
 	],
 	"SpecialPages": {
-		"Achievements": "SpecialAchievements",
-		"ManageAchievements": "SpecialManageAchievements",
-		"PointsComp": "SpecialPointsComp",
-		"WikiPoints": "SpecialWikiPoints",
-		"WikiPointsAdmin": "SpecialWikiPointsAdmin"
+		"Achievements": {
+			"class": "Cheevos\\Specials\\SpecialAchievements",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+		},
+		"ManageAchievements": {
+			"class": "Cheevos\\Specials\\SpecialManageAchievements",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+		},
+		"PointsComp": {
+			"class": "Cheevos\\Specials\\SpecialPointsComp",
+			"services": ["MainConfig", "UserIdentityLookup", "UserFactory"]
+		},
+		"WikiPoints": {
+			"class": "Cheevos\\Specials\\SpecialWikiPoints",
+			"services": ["UserIdentityLookup"]
+		},
+		"WikiPointsAdmin": {
+			"class": "Cheevos\\Specials\\SpecialWikiPointsAdmin",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+		}
 	},
 	"MessagesDirs": {
-		"Cheevos": [
-			"i18n"
-		]
+		"Cheevos": ["i18n"]
 	},
 	"ExtensionMessagesFiles": {
 		"SpecialCheevos": "Cheevos.alias.php",
@@ -81,16 +92,6 @@
 	},
 	"AutoloadClasses": {
 		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
-		"SpecialAchievements": "specials/SpecialAchievements.php",
-		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
-		"SpecialPointsComp": "specials/SpecialPointsComp.php",
-		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
-		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
-		"TemplateAchievements": "templates/TemplateAchievements.php",
-		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
-		"TemplatePointsComp": "templates/TemplatePointsComp.php",
-		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
-		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php"
 	},
 	"ServiceWiringFiles": ["ServiceWiring.php"],
 	"ResourceModules": {

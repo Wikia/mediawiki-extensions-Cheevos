@@ -11,40 +11,35 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
-use Cheevos\Cheevos;
+namespace Cheevos\Specials;
+
+use Cheevos\AchievementService;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\CheevosHooks;
-use MediaWiki\MediaWikiServices;
+use Cheevos\Templates\TemplateWikiPointsAdmin;
+use ErrorPageError;
+use MediaWiki\User\UserIdentityLookup;
+use OutputPage;
+use PermissionsError;
+use SpecialPage;
+use WebRequest;
 
-class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
-	/**
-	 * Output HTML
-	 *
-	 * @var string
-	 */
-	private string $content;
+class SpecialWikiPointsAdmin extends \HydraCore\SpecialPage {
 
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct(
+		private UserIdentityLookup $userIdentityLookup,
+		private AchievementService $achievementService
+	) {
 		parent::__construct( 'WikiPointsAdmin', 'wiki_points_admin' );
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $subPage Subpage passed in the URL.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
+	/** @inheritDoc */
 	public function execute( $subPage ): void {
 		$this->checkPermissions();
+		$output = $this->getOutput();
 
-		$this->output->addModuleStyles( [
+		$output->addModuleStyles( [
 			'ext.cheevos.wikiPoints.styles',
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui',
@@ -54,107 +49,84 @@ class SpecialWikiPointsAdmin extends HydraCore\SpecialPage {
 
 		$this->setHeaders();
 
-		switch ( $this->wgRequest->getVal( 'action' ) ) {
+		$request = $this->getRequest();
+		switch ( $request->getVal( 'action' ) ) {
 			default:
 			case 'lookup':
-				$this->lookUpUser();
-				break;
+				$this->lookUpUser( $output, $request->getVal( 'user' ) );
+				return;
 			case 'adjust':
-				$this->adjustPoints();
-				break;
+				$this->adjustPoints( $output, $request );
+				return;
 		}
-
-		$this->output->addHTML( $this->content );
 	}
 
-	/**
-	 * Shows points only from the searched user, if found.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	private function lookUpUser(): void {
-		$dsSiteKey = CheevosHelper::getSiteKey();
-
-		$user = null;
-		$pointsLog = [];
-		$form = [];
-		$globalId = false;
-
-		$form['username'] = $this->wgRequest->getVal( 'user' );
-
-		if ( !empty( $form['username'] ) ) {
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $form['username'] );
-
-			if ( $user !== false && $user->getId() ) {
-				$globalId = $user->getId();
-			}
-
-			$pointsLog = [];
-			if ( $globalId > 0 ) {
-				try {
-					$pointsLog = Cheevos::getWikiPointLog( [
-						'user_id' => $globalId,
-						'site_key' => $dsSiteKey,
-						'limit' => 100
-					] );
-				} catch ( CheevosException $e ) {
-					throw new ErrorPageError(
-						wfMessage( 'cheevos_api_error_title' ),
-						wfMessage( 'cheevos_api_error', $e->getMessage() )
-					);
-				}
-			} elseif ( $globalId === false ) {
-				$form['error'] = wfMessage( 'error_wikipoints_user_not_found' )->escaped();
-			}
+	/** Shows points only from the searched user, if found. */
+	private function lookUpUser( OutputPage $output, ?string $usernameParam ): void {
+		if ( empty( $usernameParam ) ) {
+			$output->setPageTitle( $this->msg( 'wikipointsadmin' ) );
+			$output->addHTML( TemplateWikiPointsAdmin::lookup() );
+			return;
 		}
 
-		$this->output->setPageTitle(
-			( $user ?
-				wfMessage( 'wiki_points_admin_lookup', $user->getName() ) :
-				wfMessage( 'wikipointsadmin' )
-			)
-		);
-		$this->content = TemplateWikiPointsAdmin::lookup( $user, $pointsLog, $form );
+		$user = $this->userIdentityLookup->getUserIdentityByName( $usernameParam );
+		if ( !$user || !$user->isRegistered() ) {
+			$output->setPageTitle( $this->msg( 'wikipointsadmin' ) );
+			$output->addHTML( TemplateWikiPointsAdmin::lookup(
+				$user,
+				[],
+				$this->msg( 'error_wikipoints_user_not_found' )->escaped(),
+				$usernameParam
+			) );
+		}
+
+		try {
+			$pointsLog = $this->achievementService->getWikiPointLog( [
+				'user_id' => $user->getId(),
+				'site_key' => CheevosHelper::getSiteKey(),
+				'limit' => 100
+			] );
+			$output->setPageTitle( $this->msg( 'wiki_points_admin_lookup', $user->getName() ) );
+			$output->addHTML( TemplateWikiPointsAdmin::lookup( $user, $pointsLog, null, $usernameParam ) );
+		} catch ( CheevosException $e ) {
+			throw new ErrorPageError(
+				$this->msg( 'cheevos_api_error_title' ),
+				$this->msg( 'cheevos_api_error', $e->getMessage() )
+			);
+		}
 	}
 
-	/**
-	 * Adjust points by an arbitrary integer amount.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	private function adjustPoints(): void {
-		if ( !$this->wgUser->isAllowed( 'wpa_adjust_points' ) ) {
+	/** Adjust points by an arbitrary integer amount. */
+	private function adjustPoints( OutputPage $output, WebRequest $request ): void {
+		if ( !$this->getUser()->isAllowed( 'wpa_adjust_points' ) ) {
 			throw new PermissionsError( 'wpa_adjust_points' );
 		}
 
-		$page = Title::newFromText( 'Special:WikiPointsAdmin' );
-		$userName = $this->wgRequest->getVal( 'user' );
-		if ( $this->wgRequest->wasPosted() ) {
-			$amount = $this->wgRequest->getInt( 'amount' );
-			if ( $amount > 0 ) {
-				$amount = min( $amount, 10000 );
-			} else {
-				$amount = max( $amount, -10000 );
-			}
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $userName );
-
-			if ( $amount && $user->getId() ) {
-				CheevosHooks::increment( 'wiki_points', intval( $amount ), $user );
-			}
-
-			$userEscaped = urlencode( $this->wgRequest->getVal( 'user' ) );
-			$this->output->redirect( $page->getFullURL( [ 'user' => $userName, 'pointsAdjusted' => 1 ] ) );
-		} else {
-			$this->output->redirect( $page->getFullURL( [ 'user' => $userName ] ) );
+		$username = $request->getVal( 'user' );
+		$page = SpecialPage::getSafeTitleFor( 'WikiPointsAdmin' );
+		if ( !$request->wasPosted() ) {
+			$output->redirect( $page->getFullURL( [ 'user' => $username ] ) );
+			return;
 		}
+
+		$amount = $request->getInt( 'amount' );
+		$amount = $amount > 0 ? min( $amount, 10000 ) : max( $amount, -10000 );
+
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $username );
+		if ( $userIdentity && $amount && $userIdentity->isRegistered() ) {
+			CheevosHooks::increment( 'wiki_points', $amount, $userIdentity );
+		}
+
+		$output->redirect( $page->getFullURL( [ 'user' => $username, 'pointsAdjusted' => 1 ] ) );
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
-	protected function getGroupName(): string {
+	/** @inheritDoc */
+	protected function getGroupName() {
 		return 'wikipoints';
+	}
+
+	/** @inheritDoc */
+	public function isListed() {
+		return parent::isListed() && $this->userCanExecute( $this->getUser() );
 	}
 }

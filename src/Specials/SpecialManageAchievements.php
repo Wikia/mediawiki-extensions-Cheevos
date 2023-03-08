@@ -10,44 +10,38 @@
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
  */
 
-use Cheevos\Cheevos;
+namespace Cheevos\Specials;
+
+use Cheevos\AchievementService;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\CheevosHooks;
-use MediaWiki\MediaWikiServices;
+use Cheevos\Templates\TemplateManageAchievements;
+use MediaWiki\User\UserIdentityLookup;
+use MWException;
+use OutputPage;
+use PermissionsError;
+use SpecialPage;
+use WebRequest;
+use Wikimedia\Assert\Assert;
 
 class SpecialManageAchievements extends SpecialPage {
-	/**
-	 * Output HTML
-	 *
-	 * @var string
-	 */
-	private string $content;
-
-	private WebRequest $wgRequest;
-
-	private User $wgUser;
-
-	private OutputPage $output;
-
 	private ?string $siteKey;
 	private bool $isMaster;
 
-	private TemplateManageAchievements $templates;
+	private TemplateManageAchievements $template;
 	/**
 	 * @var CheevosAchievement|false|mixed
 	 */
 	private mixed $achievement;
 
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct(
+		private UserIdentityLookup $userIdentityLookup,
+		private AchievementService $achievementService
+	) {
 		parent::__construct(
 			'ManageAchievements',
 			'achievement_admin',
@@ -55,10 +49,7 @@ class SpecialManageAchievements extends SpecialPage {
 		);
 
 		$dsSiteKey = CheevosHelper::getSiteKey();
-
-		$this->wgRequest = $this->getRequest();
-		$this->wgUser = $this->getUser();
-		$this->output = $this->getOutput();
+		$this->template = new TemplateManageAchievements();
 		$this->siteKey = $dsSiteKey;
 		$this->isMaster = false;
 
@@ -72,65 +63,55 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $subPage SubPage passed in the URL.
-	 *
-	 * @return void	[Outputs to screen]
-	 */
+	/** @inheritDoc */
 	public function execute( $subPage ) {
-		$this->templates = new TemplateManageAchievements;
-		$this->output->addModuleStyles( [
+		$output = $this->getOutput();
+		$output->addModuleStyles( [
 			'ext.cheevos.styles',
 			"ext.hydraCore.button.styles",
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui.button',
 			'mediawiki.ui.input'
 		] );
-		$this->output->addModules( [ 'ext.cheevos.js' ] );
+		$output->addModules( [ 'ext.cheevos.js' ] );
 		$this->setHeaders();
 
-		if ( !$this->wgUser->isAllowed( 'edit_achievements' ) ) {
+		if ( !$this->getUser()->isAllowed( 'edit_achievements' ) ) {
 			throw new PermissionsError( 'edit_achievements' );
 		}
+
+		$request = $this->getRequest();
 
 		switch ( $subPage ) {
 			default:
 			case 'view':
-				$this->achievementsList();
-				break;
+				$this->achievementsList( $output );
+				return;
 			case 'add':
 			case 'edit':
 			case 'admin':
-				$this->achievementsForm();
-				break;
+				$this->achievementsForm( $output, $request );
+				return;
 			case 'delete':
 			case 'restore':
-				$this->achievementsDelete( $subPage );
-				break;
+				$this->achievementsDelete( $subPage, $output, $request );
+				return;
 			case 'revert':
-				$this->achievementsRevert();
-				break;
+				$this->achievementsRevert( $output, $request );
+				return;
 			case 'award':
-				$this->awardForm();
-				break;
+				$this->awardForm( $output, $request );
+				return;
 			case 'invalidatecache':
-				$this->invalidateCache();
-				break;
+				$this->invalidateCache( $output );
+				return;
 		}
-
-		$this->output->addHTML( $this->content );
 	}
 
-	/**
-	 * Cheevos List
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	public function achievementsList() {
-		$achievements = Cheevos::getAchievements( $this->siteKey );
-		$categories = Cheevos::getCategories();
+	/** Cheevos List */
+	private function achievementsList( OutputPage $output ): void {
+		$achievements = $this->achievementService->getAchievements( $this->siteKey );
+		$categories = $this->achievementService->getCategories();
 
 		if ( $this->isMaster ) {
 			foreach ( $achievements as $i => $a ) {
@@ -139,8 +120,6 @@ class SpecialManageAchievements extends SpecialPage {
 				}
 			}
 		}
-
-		$filter = $this->wgRequest->getVal( 'filter' );
 
 		$revertHints = [];
 		foreach ( $achievements as $achievement ) {
@@ -157,215 +136,184 @@ class SpecialManageAchievements extends SpecialPage {
 		// Remove achievements that should not be shown in this context.
 		[ $achievements, ] = CheevosAchievement::pruneAchievements( [ $achievements, [] ], true, false );
 
-		$this->output->setPageTitle( $this->msg( 'manage_achievements' )->escaped() );
-		$this->content = $this->templates->achievementsList( $achievements, $categories, $revertHints );
+		$output->setPageTitle( $this->msg( 'manage_achievements' )->escaped() );
+		$output->addHTML( $this->template->achievementsList( $achievements, $categories, $revertHints ) );
 	}
 
-	/**
-	 * Achievements Form
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	public function achievementsForm(): void {
-		$this->output->addModules( [ 'ext.achievements.triggerBuilder.js' ] );
+	/** Achievements Form */
+	private function achievementsForm( OutputPage $output, WebRequest $request ): void {
+		$output->addModules( [ 'ext.achievements.triggerBuilder.js' ] );
+		$achievementId = $request->getInt( 'aid' );
 
-		$allAchievements = Cheevos::getAchievements( $this->siteKey );
+		$allAchievements = $this->achievementService->getAchievements( $this->siteKey );
 		$allAchievements = CheevosAchievement::correctCriteriaChildAchievements( $allAchievements );
 		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [ $allAchievements, [] ], false, true );
 
-		if ( $this->wgRequest->getInt( 'aid' ) ) {
-			$achievementId = $this->wgRequest->getInt( 'aid' );
+		if ( $achievementId ) {
 			$this->achievement = false;
 			if ( isset( $allAchievements[$achievementId] ) ) {
 				$this->achievement = $allAchievements[$achievementId];
 			}
 
 			if ( $this->achievement === false || $achievementId != $this->achievement->getId() ) {
-				$this->output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
+				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
 			if (
 				!CheevosHelper::isCentralWiki() &&
 				( $this->achievement->isProtected() || $this->achievement->isGlobal() )
 			) {
-				$this->output->showErrorPage( 'achievements_error', 'error_achievement_protected_global' );
+				$output->showErrorPage( 'achievements_error', 'error_achievement_protected_global' );
 				return;
 			}
 		} else {
 			$this->achievement = new CheevosAchievement();
 		}
 
-		$return = $this->acheivementsSave();
+		$errors = $this->achievementsSave( $request );
 
 		if ( $this->achievement->exists() ) {
-			$this->output->setPageTitle(
+			$output->setPageTitle(
 				$this->msg( 'edit_achievement' )->escaped() .
 				' - ' . $this->msg( 'manage_achievements' )->escaped() .
 				' - ' . $this->achievement->getName()
 			);
 		} else {
-			$this->output->setPageTitle(
+			$output->setPageTitle(
 				$this->msg( 'add_achievement' )->escaped() .
 				' - ' . $this->msg( 'manage_achievements' )->escaped()
 			);
 		}
 
-		$this->content = $this->templates->achievementsForm(
+		$html = $this->template->achievementsForm(
 			$this->achievement,
-			Cheevos::getCategories(),
+			$this->achievementService->getCategories(),
 			$allAchievements,
-			$return['errors']
+			$errors
 		);
+		$output->addHTML( $html );
 	}
 
-	/**
-	 * Saves submitted achievement forms.
-	 *
-	 * @return array Array containing an array of processed form information and array of corresponding errors.
-	 */
-	private function acheivementsSave(): ?array {
-		global $achImageDomainWhiteList; // phpcs:ignore
-
-		$save = [];
-		$errors = [];
-		if ( $this->wgRequest->getVal( 'do' ) == 'save' && $this->wgRequest->wasPosted() ) {
-			$forceCreate = false;
-			if (
-				!empty( $this->siteKey ) &&
-				empty( $this->achievement->getSite_Key() ) &&
-				$this->achievement->getId() > 0
-			) {
-				$forceCreate = true;
-				$this->achievement->setParent_Id( $this->achievement->getId() );
-				$this->achievement->setId( 0 );
-			}
-			$this->achievement->setSite_Key( $this->siteKey );
-
-			$criteria = new CheevosAchievementCriteria( $this->achievement->getCriteria()->toArray() );
-			$criteria->setStats( $this->wgRequest->getArray( "criteria_stats", [] ) );
-			$criteria->setValue( $this->wgRequest->getInt( "criteria_value" ) );
-			$criteria->setStreak( $this->wgRequest->getText( "criteria_streak" ) );
-			$criteria->setStreak_Progress_Required( $this->wgRequest->getInt( "criteria_streak_progress_required" ) );
-			$criteria->setStreak_Reset_To_Zero( $this->wgRequest->getBool( "criteria_streak_reset_to_zero" ) );
-			if ( $this->siteKey === 'master' ) {
-				$criteria->setPer_Site_Progress_Maximum(
-					$this->wgRequest->getInt( "criteria_per_site_progress_maximum" )
-				);
-			}
-			$criteria->setDate_Range_Start( $this->wgRequest->getInt( "date_range_start" ) );
-			$criteria->setDate_Range_End( $this->wgRequest->getInt( "date_range_end" ) );
-			$criteria->setCategory_Id( $this->wgRequest->getInt( "criteria_category_id" ) );
-			$criteria->setAchievement_Ids( $this->wgRequest->getIntArray( "criteria_achievement_ids", [] ) );
-			$this->achievement->setCriteria( $criteria );
-
-			$name = $this->wgRequest->getText( 'name' );
-			if ( !$name || strlen( $name ) > 50 ) {
-				$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->escaped();
-			} else {
-				$this->achievement->setName( $name );
-			}
-
-			$description = $this->wgRequest->getText( 'description' );
-			if ( !$description || strlen( $description ) > 150 ) {
-				$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->escaped();
-			} else {
-				$this->achievement->setDescription( $description );
-			}
-
-			$this->achievement->setImage( $this->wgRequest->getVal( 'image' ) );
-			$this->achievement->setPoints( $this->wgRequest->getInt( 'points' ) );
-
-			$categoryId = $this->wgRequest->getInt( 'category_id' );
-			$categoryName = trim( $this->wgRequest->getText( 'category' ) );
-			$category = Cheevos::getCategory( $categoryId );
-			$categories = Cheevos::getCategories( true );
-			if (
-				$category !== false &&
-				$categoryId > 0 &&
-				$categoryId == $category->getId() &&
-				$categoryName == $category->getName()
-			) {
-				$this->achievement->setCategory( $category );
-			} elseif ( !empty( $categoryName ) ) {
-				$found = false;
-				foreach ( $categories as $_category ) {
-					if ( $categoryName == $_category->getName() ) {
-						$this->achievement->setCategory( $_category );
-						$found = true;
-						break;
-					}
-				}
-				if ( !$found ) {
-					$globalId = $this->getUser()->getId();
-
-					$category = new CheevosAchievementCategory();
-					$category->setName( $categoryName );
-					$category->setCreated_At( time() );
-					$category->setCreated_By( $globalId );
-					$return = $category->save();
-					if ( isset( $return['code'] ) && $return['code'] !== 200 ) {
-						throw new CheevosException( $return['message'], $return['code'] );
-					}
-					if ( isset( $return['object_id'] ) ) {
-						$category = Cheevos::getCategory( $return['object_id'] );
-						$this->achievement->setCategory( $category );
-					} else {
-						$category = false;
-					}
-				}
-			} else {
-				$category = false;
-			}
-
-			if ( $category === false ) {
-				$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->escaped();
-			}
-
-			$this->achievement->setSecret( $this->wgRequest->getBool( 'secret' ) );
-			if ( $this->siteKey === 'master' ) {
-				// Set global to true should always happen after setting the site ID and site key,
-				// Otherwise it could create a global achievement with a site ID and site key.
-				$this->achievement->setGlobal( $this->wgRequest->getBool( 'global' ) );
-				$this->achievement->setProtected( $this->wgRequest->getBool( 'protected' ) );
-				$this->achievement->setSpecial( $this->wgRequest->getBool( 'special' ) );
-				$this->achievement->setShow_On_All_Sites( $this->wgRequest->getBool( 'show_on_all_sites' ) );
-			}
-
-			if ( !count( $errors ) ) {
-				$success = $this->achievement->save( $forceCreate );
-
-				if ( $success['code'] == 200 ) {
-					Cheevos::invalidateCache();
-				}
-
-				$page = Title::newFromText( 'Special:ManageAchievements' );
-				$this->output->redirect( $page->getFullURL() );
-				return null;
-			}
-
-			if ( $this->wgUser->isAllowed( 'edit_meta_achievements' ) ) {
-				$save['requires'] = null; // XDXD
-			}
+	private function achievementsSave( WebRequest $request ): array {
+		if ( $request->getVal( 'do' ) !== 'save' || !$request->wasPosted() ) {
+			return [];
 		}
-		return [
-			'save' => $save,
-			'errors' => $errors
-		];
+
+		$errors = [];
+		$forceCreate = false;
+		if (
+			!empty( $this->siteKey ) &&
+			empty( $this->achievement->getSite_Key() ) &&
+			$this->achievement->getId() > 0
+		) {
+			$forceCreate = true;
+			$this->achievement->setParent_Id( $this->achievement->getId() );
+			$this->achievement->setId( 0 );
+		}
+		$this->achievement->setSite_Key( $this->siteKey );
+
+		$criteria = new CheevosAchievementCriteria( $this->achievement->getCriteria()->toArray() );
+		$criteria->setStats( $request->getArray( "criteria_stats", [] ) );
+		$criteria->setValue( $request->getInt( "criteria_value" ) );
+		$criteria->setStreak( $request->getText( "criteria_streak" ) );
+		$criteria->setStreak_Progress_Required( $request->getInt( "criteria_streak_progress_required" ) );
+		$criteria->setStreak_Reset_To_Zero( $request->getBool( "criteria_streak_reset_to_zero" ) );
+		if ( $this->siteKey === 'master' ) {
+			$criteria->setPer_Site_Progress_Maximum(
+				$request->getInt( "criteria_per_site_progress_maximum" )
+			);
+		}
+		$criteria->setDate_Range_Start( $request->getInt( "date_range_start" ) );
+		$criteria->setDate_Range_End( $request->getInt( "date_range_end" ) );
+		$criteria->setCategory_Id( $request->getInt( "criteria_category_id" ) );
+		$criteria->setAchievement_Ids( $request->getIntArray( "criteria_achievement_ids", [] ) );
+		$this->achievement->setCriteria( $criteria );
+
+		$name = $request->getText( 'name' );
+		if ( !$name || strlen( $name ) > 50 ) {
+			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->escaped();
+		} else {
+			$this->achievement->setName( $name );
+		}
+
+		$description = $request->getText( 'description' );
+		if ( !$description || strlen( $description ) > 150 ) {
+			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->escaped();
+		} else {
+			$this->achievement->setDescription( $description );
+		}
+
+		$this->achievement->setImage( $request->getVal( 'image' ) );
+		$this->achievement->setPoints( $request->getInt( 'points' ) );
+
+		$categoryId = $request->getInt( 'category_id' );
+		$categoryName = trim( $request->getText( 'category' ) );
+		$category = $this->achievementService->getCategory( $categoryId );
+		$categories = $this->achievementService->getCategories( true );
+		if (
+			$category !== false &&
+			$categoryId > 0 &&
+			$categoryId == $category->getId() &&
+			$categoryName == $category->getName()
+		) {
+			$this->achievement->setCategory( $category );
+		} elseif ( !empty( $categoryName ) ) {
+			$found = false;
+			foreach ( $categories as $_category ) {
+				if ( $categoryName == $_category->getName() ) {
+					$this->achievement->setCategory( $_category );
+					$found = true;
+					break;
+				}
+			}
+			if ( !$found ) {
+				$category = new CheevosAchievementCategory();
+				$category->setName( $categoryName );
+				$category->setCreated_At( time() );
+				$category->setCreated_By( $this->getUser()->getId() );
+				$return = $category->save();
+				if ( isset( $return['object_id'] ) ) {
+					$category = $this->achievementService->getCategory( $return['object_id'] );
+					$this->achievement->setCategory( $category );
+				} else {
+					$category = false;
+				}
+			}
+		} else {
+			$category = false;
+		}
+
+		if ( $category === false ) {
+			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->escaped();
+		}
+
+		$this->achievement->setSecret( $request->getBool( 'secret' ) );
+		if ( $this->siteKey === 'master' ) {
+			// Set global to true should always happen after setting the site ID and site key,
+			// Otherwise it could create a global achievement with a site ID and site key.
+			$this->achievement->setGlobal( $request->getBool( 'global' ) );
+			$this->achievement->setProtected( $request->getBool( 'protected' ) );
+			$this->achievement->setSpecial( $request->getBool( 'special' ) );
+			$this->achievement->setShow_On_All_Sites( $request->getBool( 'show_on_all_sites' ) );
+		}
+
+		if ( !count( $errors ) ) {
+			$this->achievement->save( $forceCreate );
+
+			$this->invalidateCache( $this->getOutput() );
+			return [];
+		}
+		return $errors;
 	}
 
-	/**
-	 * Achievements Revert
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	public function achievementsRevert(): void {
-		$achievementId = $this->wgRequest->getInt( 'aid' );
+	public function achievementsRevert( OutputPage $output, WebRequest $request ): void {
+		$achievementId = $request->getInt( 'aid' );
 
 		if ( $achievementId ) {
-			$achievement = Cheevos::getAchievement( $achievementId );
+			$achievement = $this->achievementService->getAchievement( $achievementId );
 
 			if ( $achievement === false || $achievementId != $achievement->getId() ) {
-				$this->output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
+				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
 		}
@@ -375,19 +323,19 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		if ( !$achievement->getParent_Id() ) {
-			$this->output->showErrorPage( 'achievements_error', 'error_achievement_unrevertable' );
-		}
-
-		$parentAch = Cheevos::getAchievement( $achievement->getParent_Id() );
-
-		if ( $parentAch === false || $achievement->getParent_Id() != $parentAch->getId() ) {
-			$this->output->showErrorPage( 'achievements_error', 'error_bad_achievement_parent_id' );
+			$output->showErrorPage( 'achievements_error', 'error_achievement_unrevertable' );
 			return;
 		}
 
-		if ( $this->wgRequest->getVal( 'confirm' ) == 'true' && $this->wgRequest->wasPosted() ) {
-			$globalId = $this->wgUser->getId();
-			if ( !$globalId ) {
+		$parentAch = $this->achievementService->getAchievement( $achievement->getParent_Id() );
+
+		if ( $parentAch === false || $achievement->getParent_Id() != $parentAch->getId() ) {
+			$output->showErrorPage( 'achievements_error', 'error_bad_achievement_parent_id' );
+			return;
+		}
+
+		if ( $request->getVal( 'confirm' ) == 'true' && $request->wasPosted() ) {
+			if ( $this->getUser()->isAnon() ) {
 				throw new MWException(
 					'Could not obtain the global ID for the user attempting to revert an achievement.'
 				);
@@ -414,21 +362,16 @@ class SpecialManageAchievements extends SpecialPage {
 				$achievement[$field] = $parentAch[$field];
 			}
 
-			$success = $achievement->save( false );
+			$achievement->save();
 
-			if ( $success['code'] == 200 ) {
-				Cheevos::invalidateCache();
-			}
-
-			$page = Title::newFromText( 'Special:ManageAchievements' );
-			$this->output->redirect( $page->getFullURL() );
+			$this->invalidateCache( $output );
 			return;
 		}
 
-		$this->output->setPageTitle(
+		$output->setPageTitle(
 			$this->msg( 'revert_achievement_title' )->escaped() . ' - ' . $achievement->getName()
 		);
-		$this->content = $this->templates->achievementStateChange( $achievement, 'revert' );
+		$output->addHTML( $this->template->achievementStateChange( $achievement, 'revert' ) );
 	}
 
 	/**
@@ -438,80 +381,70 @@ class SpecialManageAchievements extends SpecialPage {
 	 *
 	 * @return void	[Outputs to screen]
 	 */
-	public function achievementsDelete( string $action ): void {
-		if ( $action == 'delete' && !$this->wgUser->isAllowed( 'delete_achievements' ) ) {
+	public function achievementsDelete( string $action, OutputPage $output, WebRequest $request ): void {
+		$user = $this->getUser();
+		Assert::precondition(
+			in_array( $action, [ 'delete', 'restore' ] ),
+			'$action had to be one of delete, restore'
+		);
+
+		if ( $action === 'delete' && !$user->isAllowed( 'delete_achievements' ) ) {
 			throw new PermissionsError( 'delete_achievements' );
 		}
-		if ( $action == 'restore' && !$this->wgUser->isAllowed( 'restore_achievements' ) ) {
+
+		if ( $action === 'restore' && !$user->isAllowed( 'restore_achievements' ) ) {
 			throw new PermissionsError( 'restore_achievements' );
 		}
-		if ( $this->wgUser->isAllowed( 'delete_achievements' ) || $this->wgUser->isAllowed( 'restore_achievements' ) ) {
-			$achievementId = $this->wgRequest->getInt( 'aid' );
 
-			if ( $achievementId ) {
-				$achievement = Cheevos::getAchievement( $achievementId );
+		$achievementId = $request->getInt( 'aid' );
 
-				if ( $achievement === false || $achievementId != $achievement->getId() ) {
-					$this->output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
-					return;
-				}
-			}
+		if ( $achievementId ) {
+			$achievement = $this->achievementService->getAchievement( $achievementId );
 
-			if ( $this->wgRequest->getVal( 'confirm' ) == 'true' && $this->wgRequest->wasPosted() ) {
-				$globalId = $this->wgUser->getId();
-				if ( !$globalId ) {
-					throw new MWException(
-						'Could not obtain the global ID for the user attempting to ' . $action . ' an achievement.'
-					);
-				}
-				$forceCreate = false;
-				if ( !$achievement->getParent_Id() && !$this->isMaster ) {
-					$forceCreate = true;
-					$achievement->setParent_Id( $achievement->getId() );
-					$achievement->setId( 0 );
-				}
-				$achievement->setSite_Key( $this->siteKey );
-				$achievement->setDeleted_At( ( $action == 'restore' ? 0 : time() ) );
-				$achievement->setDeleted_By( ( $action == 'restore' ? 0 : $globalId ) );
-
-				$success = $achievement->save( $forceCreate );
-
-				if ( $success['code'] == 200 ) {
-					Cheevos::invalidateCache();
-				}
-
-				$page = Title::newFromText( 'Special:ManageAchievements' );
-				$this->output->redirect( $page->getFullURL() );
+			if ( $achievement === false || $achievementId != $achievement->getId() ) {
+				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
-
-			$this->output->setPageTitle(
-				$this->msg( $action . '_achievement_title' )->escaped() . ' - ' . $achievement->getName()
-			);
-			$this->content = $this->templates->achievementStateChange( $achievement, $action );
 		}
+
+		if ( $request->getVal( 'confirm' ) == 'true' && $request->wasPosted() ) {
+			$forceCreate = false;
+			if ( !$achievement->getParent_Id() && !$this->isMaster ) {
+				$forceCreate = true;
+				$achievement->setParent_Id( $achievement->getId() );
+				$achievement->setId( 0 );
+			}
+			$achievement->setSite_Key( $this->siteKey );
+			$achievement->setDeleted_At( $action === 'restore' ? 0 : time() );
+			$achievement->setDeleted_By( $action === 'restore' ? 0 : $user->getId() );
+
+			$achievement->save( $forceCreate );
+
+			$this->invalidateCache( $output );
+			return;
+		}
+
+		$output->setPageTitle(
+			$this->msg( $action . '_achievement_title' )->escaped() . ' - ' . $achievement->getName()
+		);
+		$output->addHTML( $this->template->achievementStateChange( $achievement, $action ) );
 	}
 
-	/**
-	 * Award Form
-	 *
-	 * @return void	[Outputs to screen]
-	 */
-	public function awardForm(): void {
+	public function awardForm( OutputPage $output, WebRequest $request ): void {
 		if ( !$this->getUser()->isAllowed( 'award_achievements' ) ) {
 			throw new PermissionsError( 'award_achievements' );
 		}
 		$this->checkPermissions();
 
-		$return = $this->awardSave();
+		$return = $this->awardSave( $request );
 
 		// Using the 'master' site key for the awarding form.
-		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [
-			Cheevos::getAchievements( $this->siteKey ), []
-		] );
+		[ $allAchievements, ] = CheevosAchievement::pruneAchievements(
+			[ $this->achievementService->getAchievement( $this->siteKey ), [] ]
+		);
 
-		$this->output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
-		$this->content = $this->templates->awardForm( $return, $allAchievements );
+		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
+		$output->addHTML( $this->template->awardForm( $return, $allAchievements ) );
 	}
 
 	/**
@@ -519,155 +452,124 @@ class SpecialManageAchievements extends SpecialPage {
 	 *
 	 * @return array Array containing an array of processed form information and array of corresponding errors.
 	 */
-	private function awardSave(): array {
+	private function awardSave( WebRequest $request ): array {
 		// This will break logic below if "Award" and "Unaward" are ever localized.  --Alexia 2017-04-07
-		$do = strtolower( $this->wgRequest->getText( 'do', '' ) );
-		$save = [];
+		$do = strtolower( $request->getText( 'do', '' ) );
+		if ( !in_array( $do, [ 'award', 'unaward' ] ) || !$request->wasPosted() ) {
+			return [ 'save' => [], 'errors' => [], 'success' => null ];
+		}
+
 		$errors = [];
-		$awarded = null;
-		if ( ( $do === 'award' || $do === 'unaward' ) && $this->wgRequest->wasPosted() ) {
-			$awarded = false;
-			$save['username'] = $this->wgRequest->getVal( 'username' );
-			if ( empty( $save['username'] ) ) {
+		$username = $request->getVal( 'username' );
+		if ( empty( $username ) ) {
+			$errors[] = [
+				'username' => $username,
+				'message' => $this->msg( 'error_award_bad_user' )->escaped()
+			];
+		}
+
+		$achievementId = $request->getInt( 'achievement_id' );
+		$achievement = $this->achievementService->getAchievement( $achievementId );
+		if ( $achievement === false ) {
+			$errors[] = [
+				'username' => $username,
+				'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
+			];
+		}
+
+		$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
+		if ( count( $errors ) ) {
+			return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
+		}
+
+		$awarded = [];
+		foreach ( explode( ',', $username ) as $getUser ) {
+			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( trim( $getUser ) );
+			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 				$errors[] = [
-					'username' => $save['username'],
+					'username' => $getUser,
 					'message' => $this->msg( 'error_award_bad_user' )->escaped()
 				];
+				continue;
 			}
 
-			$save['achievement_id'] = $this->wgRequest->getInt( 'achievement_id' );
+			$globalId = $userIdentity->getId();
+			$award = [];
 
-			$achievement = Cheevos::getAchievement( $save['achievement_id'] );
-			if ( $achievement === false ) {
-				$errors[] = [
-					'username' => $save['username'],
-					'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
-				];
-			}
+			$currentProgress = $this->achievementService->getAchievementProgress(
+				[
+					'user_id' => $userIdentity->getId(),
+					'achievement_id' => $achievement->getId(),
+					'site_key' => $this->siteKey
+				]
+			);
 
-			if ( !count( $errors ) ) {
-				$users = explode( ",", $save['username'] );
-				$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-				foreach ( $users as $getUser ) {
-					$user = $userFactory->newFromName( trim( $getUser ) );
-					$user->load();
-					$globalId = $user->getId();
-					if ( !$user || !$user->getId() || !$globalId ) {
-						$errors[] = [
-							'username' => $getUser,
-							'message' => $this->msg( 'error_award_bad_user' )->escaped()
-						];
-						continue;
-					}
+			$currentProgress = is_array( $currentProgress ) ? array_pop( $currentProgress ) : null;
 
-					$award = [];
-
-					$currentProgress = Cheevos::getAchievementProgress(
+			if ( !$currentProgress && $do === 'award' ) {
+				try {
+					$award = $this->achievementService->putProgress(
 						[
-							'user_id' => $globalId,
 							'achievement_id' => $achievement->getId(),
-							'site_key' => $this->siteKey
+							'site_key' => ( !$achievement->isGlobal() ? $this->siteKey : '' ),
+							'user_id' => $globalId,
+							'earned' => true,
+							'manual_award' => true,
+							'awarded_at' => time(),
+							'notified' => false
 						]
 					);
-					if ( is_array( $currentProgress ) ) {
-						$currentProgress = array_pop( $currentProgress );
-					} else {
-						$currentProgress = null;
-					}
-					if ( !$currentProgress && $do === 'award' ) {
-						try {
-							$award = Cheevos::putProgress(
-								[
-									'achievement_id'	=> $achievement->getId(),
-									'site_key'			=> ( !$achievement->isGlobal() ? $this->siteKey : '' ),
-									'user_id'			=> $globalId,
-									'earned'			=> true,
-									'manual_award' 		=> true,
-									'awarded_at'		=> time(),
-									'notified'			=> false
-								]
-							);
-							CheevosHooks::broadcastAchievement( $achievement, $this->siteKey, $globalId );
-							$this->getHookContainer()->run( 'AchievementAwarded', [ $achievement, $globalId ] );
-						} catch ( CheevosException $e ) {
-							$errors[] = [
-								'username' => $save['username'],
-								'message' => "There was an API failure attempting to putProgress: " . $e->getMessage()
-							];
-						}
-
-					} elseif ( $do === 'award' ) {
-						$award = [ 'message' => 'nochange' ];
-					}
-
-					if ( $currentProgress !== null && $currentProgress->getId() && $do === 'unaward' ) {
-						try {
-							$award = Cheevos::deleteProgress( $currentProgress->getId() );
-							$this->getHookContainer()->run( 'AchievementUnawarded', [ $achievement, $globalId ] );
-						} catch ( CheevosException $e ) {
-							$errors[] = [
-								'username' => $save['username'],
-								'message' => "There was an API failure attempting to deleteProgress: " .
-											 $e->getMessage()
-							];
-						}
-
-					} elseif ( $do === 'unaward' ) {
-						$award = [ 'message' => 'nochange' ];
-					}
-
-					$award['username'] = $user->getName();
-					$awarded[] = $award;
+					CheevosHooks::broadcastAchievement( $achievement, $this->siteKey, $globalId );
+					$this->getHookContainer()->run( 'AchievementAwarded', [ $achievement, $globalId ] );
+				} catch ( CheevosException $e ) {
+					$errors[] = [
+						'username' => $username,
+						'message' => "There was an API failure attempting to putProgress: " . $e->getMessage()
+					];
 				}
+			} elseif ( $do === 'award' ) {
+				$award = [ 'message' => 'nochange' ];
 			}
+
+			if ( $currentProgress !== null && $currentProgress->getId() && $do === 'unaward' ) {
+				try {
+					$award = $this->achievementService->deleteProgress( $currentProgress->getId() );
+					$this->getHookContainer()->run( 'AchievementUnawarded', [ $achievement, $globalId ] );
+				} catch ( CheevosException $e ) {
+					$errors[] = [
+						'username' => $username,
+						'message' => "There was an API failure attempting to deleteProgress: {$e->getMessage()}"
+					];
+				}
+			} elseif ( $do === 'unaward' ) {
+				$award = [ 'message' => 'nochange' ];
+			}
+
+			$award['username'] = $userIdentity->getName();
+			$awarded[] = $award;
 		}
 
-		return [
-			'save'		=> $save,
-			'errors'	=> $errors,
-			'success'	=> $awarded
-		];
+		return [ 'save' => $save, 'errors' => $errors, 'success' => $awarded ];
 	}
 
-	/**
-	 * Invalidates the cache
-	 *
-	 * @return void
-	 */
-	private function invalidateCache() {
-		Cheevos::invalidateCache();
-
-		$page = Title::newFromText( 'Special:ManageAchievements' );
-		$this->output->redirect( $page->getFullURL() );
+	/** Invalidates the cache and redirects to ManageAchievements */
+	private function invalidateCache( OutputPage $outputPage ): void {
+		$this->achievementService->invalidateCache();
+		$outputPage->redirect( SpecialPage::getSafeTitleFor( 'ManageAchievements' )->getFullURL() );
 	}
 
-	/**
-	 * Hides special page from SpecialPages special page.
-	 *
-	 * @return bool
-	 */
-	public function isListed(): bool {
-		if ( $this->wgUser->isAllowed( 'achievement_admin' ) ) {
-			return true;
-		}
-		return false;
+	/** @inheritDoc */
+	public function isListed() {
+		return $this->getUser()->isAllowed( 'achievement_admin' );
 	}
 
-	/**
-	 * Lets others determine that this special page is restricted.
-	 *
-	 * @return bool True
-	 */
-	public function isRestricted(): bool {
+	/** @inheritDoc */
+	public function isRestricted() {
 		return true;
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
-	protected function getGroupName(): string {
+	/** @inheritDoc */
+	protected function getGroupName() {
 		return 'users';
 	}
 }
