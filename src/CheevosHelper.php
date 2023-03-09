@@ -12,14 +12,83 @@
 
 namespace Cheevos;
 
+use Cheevos\Job\CheevosIncrementJob;
 use Exception;
 use Fandom\WikiConfig\WikiVariablesDataService;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserIdentity;
 use RequestContext;
 use WikiDomain\WikiConfigData;
 use WikiDomain\WikiConfigDataService;
 
 class CheevosHelper {
+
+	private static array $increments = [];
+	private static bool $shutdownRegistered = false;
+	private static bool $shutdownRan = false;
+
+	public function __construct( private AchievementService $achievementService ) {
+	}
+
+	public function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): void {
+		// Register shutdown function to actually save increments
+		if ( !self::$shutdownRegistered && PHP_SAPI !== 'cli' ) {
+			self::$shutdownRegistered = true;
+			register_shutdown_function( fn() => $this->doIncrements() );
+		}
+
+		$siteKey = self::getSiteKey();
+		if ( !$siteKey || !$user->isRegistered() ) {
+			return;
+		}
+
+		$userId = $user->getId();
+		$timestamp = time();
+		self::$increments[$userId]['user_id'] = $userId;
+		self::$increments[$userId]['user_name'] = $user->getName();
+		self::$increments[$userId]['site_key'] = $siteKey;
+		self::$increments[$userId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
+		self::$increments[$userId]['timestamp'] = $timestamp;
+		self::$increments[$userId]['request_uuid'] = sha1( $userId . $siteKey . $timestamp . random_bytes( 4 ) );
+		if ( !empty( $edits ) ) {
+			if ( !isset( self::$increments[$userId]['edits'] ) ||
+				!is_array( self::$increments[$userId]['edits'] ) ) {
+				self::$increments[$userId]['edits'] = [];
+			}
+			self::$increments[$userId]['edits'] = array_merge( self::$increments[$userId]['edits'], $edits );
+		}
+
+		if ( self::$shutdownRan ) {
+			$this->doIncrements();
+		}
+	}
+
+	private function doIncrements() {
+		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
+		try {
+			self::$shutdownRan = true;
+			foreach ( self::$increments as $userId => $increment ) {
+				$return = $this->achievementService->increment( $increment );
+				unset( self::$increments[$userId] );
+				if ( isset( $return['earned'] ) ) {
+					foreach ( $return['earned'] as $achievement ) {
+						$achievement = new CheevosAchievement( $achievement );
+						$this->achievementService->broadcastAchievement(
+							$achievement,
+							$increment['site_key'],
+							$increment['user_id']
+						);
+					}
+				}
+			}
+		} catch ( CheevosException $e ) {
+			foreach ( self::$increments as $userId => $increment ) {
+				CheevosIncrementJob::queue( $increment );
+				unset( self::$increments[$userId] );
+			}
+		}
+	}
+
 	/**
 	 * Return the language code the current user.
 	 *

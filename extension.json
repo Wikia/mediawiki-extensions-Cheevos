@@ -57,7 +57,7 @@
 	"SpecialPages": {
 		"Achievements": {
 			"class": "Cheevos\\Specials\\SpecialAchievements",
-			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
 		},
 		"ManageAchievements": {
 			"class": "Cheevos\\Specials\\SpecialManageAchievements",
@@ -73,7 +73,7 @@
 		},
 		"WikiPointsAdmin": {
 			"class": "Cheevos\\Specials\\SpecialWikiPointsAdmin",
-			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
 		}
 	},
 	"MessagesDirs": {
@@ -224,16 +224,16 @@
 			"services": [
 				"LinkRenderer",
 				"DBLoadBalancer",
-				"RedisCache"
+				"RedisCache",
+				"Cheevos\\CheevosHelper"
 			]
 		}
 	},
 	"Hooks": {
-		"ApiBeforeMain": "Cheevos\\CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "Cheevos\\CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "Cheevos\\CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "Cheevos\\CheevosHooks::onArticleProtectComplete",
-		"BeforeInitialize": "Cheevos\\CheevosHooks::onBeforeInitialize",
+		"BeforeInitialize": "CheevosHookHandler",
 		"BeforePageDisplay": "CheevosHookHandler",
 		"BlockIpComplete": "Cheevos\\CheevosHooks::onBlockIpComplete",
 		"ContributionsToolLinks": "CheevosHookHandler",

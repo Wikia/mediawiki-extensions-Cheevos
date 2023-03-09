@@ -16,7 +16,6 @@ use Cheevos\AchievementService;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use Cheevos\CheevosHooks;
 use Cheevos\Templates\TemplateAchievements;
 use ErrorPageError;
 use MediaWiki\User\UserIdentity;
@@ -30,7 +29,8 @@ class SpecialAchievements extends SpecialPage {
 
 	public function __construct(
 		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService
+		private AchievementService $achievementService,
+		private CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'Achievements' );
 
@@ -53,7 +53,7 @@ class SpecialAchievements extends SpecialPage {
 		if ( $this->getUser()->isRegistered() ) {
 			// This is unrelated to the user look up.
 			// Just trigger this statistic if a logged-in user visits an achievement page
-			CheevosHooks::increment( 'achievement_engagement', 1, $this->getUser() );
+			$this->cheevosHelper->increment( 'achievement_engagement', 1, $this->getUser() );
 		}
 
 		$targetUser = $this->getTargetUser( $subPage );
@@ -114,8 +114,7 @@ class SpecialAchievements extends SpecialPage {
 			if ( isset( $check['earned'] ) ) {
 				foreach ( $check['earned'] as $earned ) {
 					$earnedAchievement = new CheevosAchievement( $earned );
-					CheevosHooks::broadcastAchievement( $earnedAchievement, $this->siteKey, $userId );
-					$this->getHookContainer()->run( 'AchievementAwarded', [ $earnedAchievement, $userId ] );
+					$this->achievementService->broadcastAchievement( $earnedAchievement, $this->siteKey, $userId );
 				}
 			}
 		} catch ( CheevosException $e ) {

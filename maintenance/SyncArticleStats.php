@@ -13,12 +13,12 @@
 
 require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
+use Cheevos\AchievementService;
 use Cheevos\Cheevos;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosAchievementProgress;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use Cheevos\CheevosHooks;
 use MediaWiki\MediaWikiServices;
 
 class SyncArticleStats extends Maintenance {
@@ -245,12 +245,12 @@ class SyncArticleStats extends Maintenance {
 										"\tAwarding {$achievement->getId()} - {$achievement->getName()}..."
 									);
 								}
-								CheevosHooks::broadcastAchievement(
-									$achievement,
-									$increment['site_key'] ?? '',
-									$increment['user_id']
-								);
-								$hookContainer->run( 'AchievementAwarded', [ $achievement, $globalId ] );
+								MediaWikiServices::getInstance()->getService( AchievementService::class )
+									->broadcastAchievement(
+										$achievement,
+										$increment['site_key'] ?? '',
+											(int)$increment['user_id']
+									);
 								if ( $this->getOption( 'v' ) ) {
 									$this->output( "done.\n" );
 								}

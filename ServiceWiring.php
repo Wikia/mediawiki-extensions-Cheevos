@@ -4,8 +4,10 @@ declare( strict_types=1 );
 
 use Cheevos\AchievementService;
 use Cheevos\CheevosClient;
+use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
 use MediaWiki\MediaWikiServices;
+use Reverb\Notification\NotificationBroadcastFactory;
 
 return [
 	CheevosClient::class => static function ( MediaWikiServices $services ): CheevosClient {
@@ -33,7 +35,16 @@ return [
 		return new AchievementService(
 			$services->getService( CheevosClient::class ),
 			$services->getService( RedisCache::class ),
-			$services->getMainConfig()
+			$services->getMainConfig(),
+			$services->getService( NotificationBroadcastFactory::class ),
+			$services->getUserFactory(),
+			$services->getUserIdentityLookup()
+		);
+	},
+
+	CheevosHelper::class => static function ( MediaWikiServices $services ): CheevosHelper {
+		return new CheevosHelper(
+			$services->getService( AchievementService::class )
 		);
 	},
 ];

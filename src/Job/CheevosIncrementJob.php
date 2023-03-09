@@ -14,7 +14,6 @@ namespace Cheevos\Job;
 
 use Cheevos\AchievementService;
 use Cheevos\CheevosAchievement;
-use Cheevos\CheevosHooks;
 use Job;
 use MediaWiki\MediaWikiServices;
 
@@ -28,17 +27,18 @@ class CheevosIncrementJob extends Job {
 
 	/** @inheritDoc */
 	public function run() {
-		$services = MediaWikiServices::getInstance();
-		$hookContainer = $services->getHookContainer();
-		$achievementService = $services->getService( AchievementService::class );
+		$achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 		$increment = $this->getParams();
 
 		$return = $achievementService->increment( $increment );
 		if ( isset( $return['earned'] ) ) {
 			foreach ( $return['earned'] as $achievement ) {
 				$achievement = new CheevosAchievement( $achievement );
-				CheevosHooks::broadcastAchievement( $achievement, $increment['site_key'], $increment['user_id'] );
-				$hookContainer->run( 'AchievementAwarded', [ $achievement, $increment['user_id'] ] );
+				$achievementService->broadcastAchievement(
+					$achievement,
+					$increment['site_key'],
+					(int)$increment['user_id']
+				);
 			}
 		}
 		return (bool)$return;

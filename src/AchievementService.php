@@ -2,10 +2,15 @@
 
 namespace Cheevos;
 
+use Cheevos\Templates\TemplateAchievements;
 use Config;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
+use MediaWiki\User\UserIdentityLookup;
 use RedisCache;
 use RedisException;
+use Reverb\Notification\NotificationBroadcastFactory;
+use SpecialPage;
 
 class AchievementService {
 	private const REDIS_CONNECTION_GROUP = 'cache';
@@ -15,8 +20,37 @@ class AchievementService {
 	public function __construct(
 		private CheevosClient $cheevosClient,
 		private RedisCache $redisCache,
-		private Config $config
+		private Config $config,
+		private NotificationBroadcastFactory $notificationBroadcastFactory,
+		private UserFactory $userFactory,
+		private UserIdentityLookup $userIdentityLookup
 	) {
+	}
+
+	public function broadcastAchievement( CheevosAchievement $achievement, string $siteKey, int $userId ): void {
+		if ( empty( $siteKey ) || $userId < 0 ) {
+			return;
+		}
+
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( $userId );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
+			return;
+		}
+
+		$html = TemplateAchievements::achievementBlockPopUp( $achievement, $siteKey );
+
+		$broadcast = $this->notificationBroadcastFactory->newSystemSingle(
+			'user-interest-achievement-earned',
+			$this->userFactory->newFromUserIdentity( $userIdentity ),
+			[
+				'url' => SpecialPage::getTitleFor( 'Achievements' )->getFullURL(),
+				'message' => [ [ 'user_note', $html ] ],
+			]
+		);
+
+		if ( $broadcast ) {
+			$broadcast->transmit();
+		}
 	}
 
 	/** Invalidate API Cache */

@@ -18,7 +18,6 @@ use Cheevos\CheevosAchievementCategory;
 use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use Cheevos\CheevosHooks;
 use Cheevos\Templates\TemplateManageAchievements;
 use MediaWiki\User\UserIdentityLookup;
 use MWException;
@@ -519,8 +518,7 @@ class SpecialManageAchievements extends SpecialPage {
 							'notified' => false
 						]
 					);
-					CheevosHooks::broadcastAchievement( $achievement, $this->siteKey, $globalId );
-					$this->getHookContainer()->run( 'AchievementAwarded', [ $achievement, $globalId ] );
+					$this->achievementService->broadcastAchievement( $achievement, $this->siteKey, $globalId );
 				} catch ( CheevosException $e ) {
 					$errors[] = [
 						'username' => $username,

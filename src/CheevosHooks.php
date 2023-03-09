@@ -12,16 +12,12 @@
 
 namespace Cheevos;
 
-use ApiMain;
-use Article;
-use Cheevos\Job\CheevosIncrementJob;
 use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
-use Cheevos\Templates\TemplateAchievements;
 use Content;
 use LogEntry;
 use MailAddress;
-use MediaWiki;
 use MediaWiki\Block\DatabaseBlock;
+use MediaWiki\Hook\BeforeInitializeHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\ContributionsToolLinksHook;
 use MediaWiki\Hook\GetMagicVariableIDsHook;
@@ -37,16 +33,13 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
-use OutputPage;
 use RedisCache;
 use RequestContext;
-use Reverb\Notification\NotificationBroadcast;
 use Skin;
 use SpecialPage;
 use Title;
 use UploadBase;
 use User;
-use WebRequest;
 use Wikimedia\Rdbms\ILoadBalancer;
 use WikiPage;
 
@@ -59,34 +52,14 @@ class CheevosHooks implements
 	ContributionsToolLinksHook,
 	UserToolLinksEditHook,
 	SkinTemplateNavigation__UniversalHook,
-	ParserGetVariableValueSwitchHook
+	ParserGetVariableValueSwitchHook,
+	BeforeInitializeHook
 {
-
-	/**
-	 * Shutdown Function Registered Already
-	 *
-	 * @var bool
-	 */
-	private static bool $shutdownRegistered = false;
-
-	/**
-	 * Shutdown Function Ran Already
-	 *
-	 * @var bool
-	 */
-	private static bool $shutdownRan = false;
-
-	/**
-	 * Data points to increment on shutdown.
-	 *
-	 * @var array
-	 */
-	private static array $increments = [];
-
 	public function __construct(
 		private LinkRenderer $linkRenderer,
 		private RedisCache $redisCache,
-		private ILoadBalancer $loadBalancer
+		private ILoadBalancer $loadBalancer,
+		private CheevosHelper $cheevosHelper
 	) {
 	}
 
@@ -109,40 +82,11 @@ class CheevosHooks implements
 	 * @param UserIdentity $user Local User object.
 	 * @param array $edits Array of edit information for article_create or article_edit statistics.
 	 *
-	 * @return bool Array of return status including earned achievements or false on error.
+	 * @return void Array of return status including earned achievements or false on error.
 	 */
-	public static function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): bool {
-		$siteKey = CheevosHelper::getSiteKey();
-		if ( !$siteKey ) {
-			return false;
-		}
-
-		$globalId = $user->getId();
-		if ( $globalId <= 0 ) {
-			return true;
-		}
-
-		self::$increments[$globalId]['user_id'] = $globalId;
-		self::$increments[$globalId]['user_name'] = $user->getName();
-		self::$increments[$globalId]['site_key'] = $siteKey;
-		self::$increments[$globalId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
-		self::$increments[$globalId]['timestamp'] = time();
-		self::$increments[$globalId]['request_uuid'] =
-			sha1( self::$increments[$globalId]['user_id'] . self::$increments[$globalId]['site_key'] .
-				  self::$increments[$globalId]['timestamp'] . random_bytes( 4 ) );
-		if ( !empty( $edits ) ) {
-			if ( !isset( self::$increments[$globalId]['edits'] ) ||
-				 !is_array( self::$increments[$globalId]['edits'] ) ) {
-				self::$increments[$globalId]['edits'] = [];
-			}
-			self::$increments[$globalId]['edits'] = array_merge( self::$increments[$globalId]['edits'], $edits );
-		}
-
-		if ( self::$shutdownRan ) {
-			self::doIncrements();
-		}
-
-		return true;
+	public static function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): void {
+		MediaWikiServices::getInstance()->getService( CheevosHelper::class )
+			->increment( $stat, $delta, $user, $edits );
 	}
 
 	/**
@@ -570,6 +514,7 @@ class CheevosHooks implements
 	}
 
 	/**
+	 * TODO--unused
 	 * Handles awarding WikiPoints achievements.
 	 *
 	 * @param int $editId Revision Edit ID
@@ -586,27 +531,8 @@ class CheevosHooks implements
 	) {
 		$user = RequestContext::getMain()->getUser();
 		if ( ( $score > 0 || $score < 0 ) && $user->getId() == $userId && $userId > 0 ) {
-			self::increment( 'wiki_points', intval( $score ), $user );
+			self::increment( 'wiki_points', $score, $user );
 		}
-
-		return true;
-	}
-
-	/**
-	 * Registers shutdown function to do increments.
-	 *
-	 * @param ApiMain &$processor ApiMain
-	 *
-	 * @return bool True
-	 */
-	public static function onApiBeforeMain( ApiMain &$processor ) {
-		if ( PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
-			return true;
-		}
-
-		register_shutdown_function( static fn() => self::doIncrements() );
-
-		self::$shutdownRegistered = true;
 
 		return true;
 	}
@@ -623,96 +549,11 @@ class CheevosHooks implements
 		$out->addModuleStyles( 'ext.cheevos.notifications.styles' );
 	}
 
-	/**
-	 * Registers shutdown function to do increments.
-	 *
-	 * @param Title &$title Title
-	 * @param Article &$article Article
-	 * @param OutputPage &$output Output
-	 * @param User &$user User
-	 * @param WebRequest $request WebRequest
-	 * @param MediaWiki $mediaWiki Mediawiki
-	 *
-	 * @return bool True
-	 */
-	public static function onBeforeInitialize(
-		Title &$title, &$article, OutputPage &$output, User &$user, WebRequest $request, MediaWiki $mediaWiki
-	) {
-		if ( PHP_SAPI === 'cli' || self::$shutdownRegistered ) {
-			return true;
-		}
-
-		// Do not track anonymous users for visits.  The Cheevos database can not handle it.
-		if ( !defined( 'MW_API' ) && $user->getId() > 0 ) {
-			self::increment( 'visit', 1, $user );
-		}
-
-		register_shutdown_function( static fn() => self::doIncrements() );
-
-		self::$shutdownRegistered = true;
-
-		return true;
-	}
-
-	/**
-	 * Send all the tallied increments up to the service.
-	 *
-	 * @return void
-	 */
-	public static function doIncrements() {
-		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
-		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
-		try {
-			self::$shutdownRan = true;
-			foreach ( self::$increments as $globalId => $increment ) {
-				$return = Cheevos::increment( $increment );
-				unset( self::$increments[$globalId] );
-				if ( isset( $return['earned'] ) ) {
-					foreach ( $return['earned'] as $achievement ) {
-						$achievement = new CheevosAchievement( $achievement );
-						self::broadcastAchievement( $achievement, $increment['site_key'], $increment['user_id'] );
-						$hookContainer->run( 'AchievementAwarded', [ $achievement, $globalId ] );
-					}
-				}
-			}
-		}
-		catch ( CheevosException $e ) {
-			foreach ( self::$increments as $globalId => $increment ) {
-				CheevosIncrementJob::queue( $increment );
-				unset( self::$increments[$globalId] );
-			}
-		}
-	}
-
-	/**
-	 * Adds achievement display HTML to page output.
-	 *
-	 * @param CheevosAchievement $achievement CheevosAchievement
-	 * @param string $siteKey Site Key
-	 * @param int $globalId Global User ID
-	 *
-	 * @return bool Success
-	 */
-	public static function broadcastAchievement( CheevosAchievement $achievement, string $siteKey, int $globalId ) {
-		if ( empty( $siteKey ) || $globalId < 0 ) {
-			return false;
-		}
-
-		$targetUser = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $globalId );
-
-		if ( !$targetUser ) {
-			return false;
-		}
-
-		$html = TemplateAchievements::achievementBlockPopUp( $achievement, $siteKey, $globalId );
-
-		$broadcast = NotificationBroadcast::newSystemSingle( 'user-interest-achievement-earned', $targetUser, [
-			'url' => SpecialPage::getTitleFor( 'Achievements' )->getFullURL(),
-			'message' => [ [ 'user_note', $html ] ],
-		] );
-
-		if ( $broadcast ) {
-			$broadcast->transmit();
+	/** @inheritDoc */
+	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ) {
+		// Do not track anonymous users for visits. The Cheevos database can not handle it.
+		if ( PHP_SAPI !== 'cli' && !defined( 'MW_API' ) && $user->isRegistered() ) {
+			$this->cheevosHelper->increment( 'visit', 1, $user );
 		}
 	}
 

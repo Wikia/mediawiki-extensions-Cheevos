@@ -16,7 +16,6 @@ namespace Cheevos\Specials;
 use Cheevos\AchievementService;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
-use Cheevos\CheevosHooks;
 use Cheevos\Templates\TemplateWikiPointsAdmin;
 use ErrorPageError;
 use MediaWiki\User\UserIdentityLookup;
@@ -29,7 +28,8 @@ class SpecialWikiPointsAdmin extends \HydraCore\SpecialPage {
 
 	public function __construct(
 		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService
+		private AchievementService $achievementService,
+		private CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'WikiPointsAdmin', 'wiki_points_admin' );
 	}
@@ -114,7 +114,7 @@ class SpecialWikiPointsAdmin extends \HydraCore\SpecialPage {
 
 		$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $username );
 		if ( $userIdentity && $amount && $userIdentity->isRegistered() ) {
-			CheevosHooks::increment( 'wiki_points', $amount, $userIdentity );
+			$this->cheevosHelper->increment( 'wiki_points', $amount, $userIdentity );
 		}
 
 		$output->redirect( $page->getFullURL( [ 'user' => $username, 'pointsAdjusted' => 1 ] ) );
