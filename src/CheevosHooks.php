@@ -13,23 +13,31 @@
 namespace Cheevos;
 
 use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
-use Content;
-use LogEntry;
-use MailAddress;
-use MediaWiki\Block\DatabaseBlock;
+use ManualLogEntry;
+use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use MediaWiki\Hook\ArticleMergeCompleteHook;
 use MediaWiki\Hook\BeforeInitializeHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\ContributionsToolLinksHook;
+use MediaWiki\Hook\EmailUserCompleteHook;
 use MediaWiki\Hook\GetMagicVariableIDsHook;
 use MediaWiki\Hook\LoginFormValidErrorMessagesHook;
+use MediaWiki\Hook\MarkPatrolledCompleteHook;
+use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\ParserGetVariableValueSwitchHook;
 use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
+use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Hook\UserToolLinksEditHook;
+use MediaWiki\Hook\WatchArticleCompleteHook;
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
+use MediaWiki\Page\Hook\PageDeleteCompleteHook;
+use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
@@ -38,7 +46,6 @@ use RequestContext;
 use Skin;
 use SpecialPage;
 use Title;
-use UploadBase;
 use User;
 use Wikimedia\Rdbms\ILoadBalancer;
 use WikiPage;
@@ -53,25 +60,38 @@ class CheevosHooks implements
 	UserToolLinksEditHook,
 	SkinTemplateNavigation__UniversalHook,
 	ParserGetVariableValueSwitchHook,
-	BeforeInitializeHook
+	BeforeInitializeHook,
+	WatchArticleCompleteHook,
+	LocalUserCreatedHook,
+	UploadCompleteHook,
+	MarkPatrolledCompleteHook,
+	EmailUserCompleteHook,
+	BlockIpCompleteHook,
+	ArticleProtectCompleteHook,
+	ArticleMergeCompleteHook,
+	PageDeleteCompleteHook,
+	PageMoveCompleteHook
 {
+
+	private const PROFILE_FIELD_TO_STAT_MAP = [
+		'profile-favwiki' => 'curse_profile_edit_fav_wiki',
+		'profile-link-facebook' => 'curse_profile_edit_link_facebook',
+		'profile-link-psn' => 'curse_profile_edit_link_psn',
+		'profile-link-steam' => 'curse_profile_edit_link_steam',
+		'profile-link-reddit' => 'curse_profile_edit_link_reddit',
+		'profile-link-twitch' => 'curse_profile_edit_link_twitch',
+		'profile-link-twitter' => 'curse_profile_edit_link_twitter',
+		'profile-link-vk' => 'curse_profile_edit_link_vk',
+		'profile-link-xbl' => 'curse_profile_edit_link_xbl',
+	];
+
 	public function __construct(
 		private LinkRenderer $linkRenderer,
 		private RedisCache $redisCache,
 		private ILoadBalancer $loadBalancer,
+		private AchievementService $achievementService,
 		private CheevosHelper $cheevosHelper
 	) {
-	}
-
-	/**
-	 * TODO--unused?
-	 * Undocumented function
-	 *
-	 * @return bool
-	 */
-	public static function invalidateCache(): bool {
-		// this is here for future functionality.
-		return Cheevos::invalidateCache();
 	}
 
 	/**
@@ -89,24 +109,18 @@ class CheevosHooks implements
 			->increment( $stat, $delta, $user, $edits );
 	}
 
-	/**
-	 * Handle article deletion increment.
-	 *
-	 * @param WikiPage &$article the article that was deleted.
-	 * @param User &$user the user that deleted the article
-	 * @param string $reason the reason the article was deleted
-	 * @param int $id id of the article that was deleted (added in 1.13)
-	 * @param Content|null $content the content of the deleted article, or null in case of an error (added in 1.21)
-	 * @param LogEntry $logEntry the log entry used to record the deletion (added in 1.21)
-	 *
-	 * @return bool True
-	 */
-	public static function onArticleDeleteComplete(
-		WikiPage &$article, User &$user, $reason, $id, Content $content, LogEntry $logEntry
-	): bool {
-		self::increment( 'article_delete', 1, $user );
-
-		return true;
+	/** @inheritDoc */
+	public function onPageDeleteComplete(
+		ProperPageIdentity $page,
+		Authority $deleter,
+		string $reason,
+		int $pageID,
+		RevisionRecord $deletedRev,
+		ManualLogEntry $logEntry,
+		int $archivedRevisionCount
+	) {
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromAuthority( $deleter );
+		$this->cheevosHelper->increment( 'article_delete', 1, $user );
 	}
 
 	/**
@@ -237,304 +251,108 @@ class CheevosHooks implements
 		return true;
 	}
 
-	/**
-	 * Handle article merge increment.
-	 *
-	 * @param Title $targetTitle Source Title
-	 * @param Title $destTitle Destination Title
-	 *
-	 * @return bool True
-	 */
-	public static function onArticleMergeComplete( Title $targetTitle, Title $destTitle ) {
-		$user = RequestContext::getMain()->getUser();
-		self::increment( 'article_merge', 1, $user );
+	/** @inheritDoc */
+	public function onArticleMergeComplete( $targetTitle, $destTitle ) {
+		$this->cheevosHelper->increment( 'article_merge', 1, RequestContext::getMain()->getUser() );
+	}
 
-		return true;
+	/** @inheritDoc */
+	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ) {
+		$this->cheevosHelper->increment( 'article_protect', 1, $user );
+	}
+
+	/** @inheritDoc */
+	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
+		$this->cheevosHelper->increment( 'article_move', 1, $user );
+	}
+
+	/** @inheritDoc */
+	public function onBlockIpComplete( $block, $user, $priorBlock ) {
+		$this->cheevosHelper->increment( 'admin_block_ip', 1, $user );
+	}
+
+	public function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
+		$this->cheevosHelper->increment( 'curse_profile_comment', 1, $fromUser );
+	}
+
+	public function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
+		$this->cheevosHelper->increment( 'curse_profile_comment_reply', 1, $fromUser );
+	}
+
+	public function onCurseProfileAddFriend( User $fromUser, User $toUser ) {
+		$this->cheevosHelper->increment( 'curse_profile_add_friend', 1, $fromUser );
 	}
 
 	/**
-	 * Handle article protect increment.
-	 *
-	 * @param WikiPage &$wikiPage Article object that was protected
-	 * @param User &$user User object who did the protection.
-	 * @param array $limit Protection limits being added.
-	 * @param string $reason Reason for protect
-	 *
-	 * @return bool True
+	 * fixme: call 'CurseProfileAcceptFriend' hook when adding friend in CurseProfile
 	 */
-	public static function onArticleProtectComplete( WikiPage &$wikiPage, User &$user, $limit, $reason ) {
-		self::increment( 'article_protect', 1, $user );
-
-		return true;
+	public function onCurseProfileAcceptFriend( User $fromUser, User $toUser ) {
+		$this->cheevosHelper->increment( 'curse_profile_accept_friend', 1, $fromUser );
 	}
 
-	/**
-	 * Handle article move increment.
-	 *
-	 * @param LinkTarget $old Original Title
-	 * @param LinkTarget $new New Title
-	 * @param UserIdentity $user The User object who did move.
-	 * @param int $pageId
-	 * @param int $redirId
-	 * @param string $reason
-	 * @param RevisionRecord $revision
-	 *
-	 * @return bool True
-	 */
-	public static function onPageMoveComplete(
-		LinkTarget $old, LinkTarget $new, UserIdentity $user, int $pageId, int $redirId, string $reason,
-		RevisionRecord $revision
-	) {
-		self::increment( 'article_move', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle article protect increment.
-	 *
-	 * @param DatabaseBlock $block Block
-	 * @param User $user User object of who performed the block.
-	 *
-	 * @return bool True
-	 */
-	public static function onBlockIpComplete( DatabaseBlock $block, User $user ) {
-		self::increment( 'admin_block_ip', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle CurseProfile comment increment.
-	 *
-	 * @param User $fromUser User making the comment.
-	 * @param User $toUser User of the profile being commented on.
-	 * @param int $inReplyTo Parent ID of the comment.
-	 * @param string $commentText The comment text.
-	 *
-	 * @return bool True
-	 */
-	public static function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
-		self::increment( 'curse_profile_comment', 1, $fromUser );
-
-		return true;
-	}
-
-	/**
-	 * Handle CurseProfile comment reply increment.
-	 *
-	 * @param User $fromUser User making the comment.
-	 * @param User $toUser User of the profile being commented on.
-	 * @param int $inReplyTo Parent ID of the comment.
-	 * @param string $commentText The comment text.
-	 *
-	 * @return bool True
-	 */
-	public static function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
-		self::increment( 'curse_profile_comment_reply', 1, $fromUser );
-
-		return true;
-	}
-
-	/**
-	 * Handle CurseProfile friend addition increment.
-	 *
-	 * @param User $fromUser User object of the user requesting to add a friend.
-	 * @param User $toUser User object of the user being requested as a friend.
-	 *
-	 * @return bool True
-	 */
-	public static function onCurseProfileAddFriend( User $fromUser, User $toUser ) {
-		self::increment( 'curse_profile_add_friend', 1, $fromUser );
-
-		return true;
-	}
-
-	/**
-	 * Handle CurseProfile friend accept increment.
-	 *
-	 * @param User $fromUser User object of the user accepting a friend request.
-	 * @param User $toUser User object of the user that initiated the friend request.
-	 *
-	 * @return bool True
-	 */
-	public static function onCurseProfileAcceptFriend( User $fromUser, User $toUser ) {
-		self::increment( 'curse_profile_accept_friend', 1, $fromUser );
-
-		return true;
-	}
-
-	/**
-	 * Handle when CurseProfile is checking if an user can comment.
-	 *
-	 * @param User $fromUser User object of the user attempting to comment.
-	 * @param User $toUser User object of the user that owns the comment board.
-	 * @param int $editsToComment The number of edits required to comment.
-	 *
-	 * @return bool
-	 */
-	public static function onCurseProfileCanComment( User $fromUser, User $toUser, int $editsToComment ): bool {
-		$editCount = 0;
+	/** @inheritDoc */
+	public function onCurseProfileCanComment( User $fromUser, User $toUser, int $editsToComment ): bool {
 		try {
-			$stats = Cheevos::getStatProgress( [
-				'global' => true,
-				'stat' => 'article_edit',
-			], $fromUser );
+			$stats = $this->achievementService->getStatProgress(
+				[ 'global' => true, 'stat' => 'article_edit', ],
+				$fromUser
+			);
 			$stats = CheevosHelper::makeNiceStatProgressArray( $stats );
-			$editCount =
-				( isset( $stats[$fromUser->getId()]['article_edit']['count'] ) &&
-				  $stats[$fromUser->getId()]['article_edit']['count'] > $editCount
-					? $stats[$fromUser->getId()]['article_edit']['count'] : $editCount );
-		}
-		catch ( CheevosException $e ) {
+
+			$editCount = (int)( $stats[$fromUser->getId()]['article_edit']['count'] ?? 0 );
+			return $editCount >= $editsToComment;
+		} catch ( CheevosException $e ) {
 			wfDebug( "Encountered Cheevos API error getting article_edit count." );
+			// TODO--is it a good idea to allow on error??
+			return true;
 		}
-
-		return $editCount >= $editsToComment;
 	}
 
-	/**
-	 * Handle CurseProfile profile edited.
-	 *
-	 * @param User $user User profile edited.
-	 * @param string $field Field being edited.
-	 * @param string $value Field Value
-	 *
-	 * @return bool True
-	 */
-	public static function onCurseProfileEdited( User $user, $field, $value ) {
-		self::increment( 'curse_profile_edit', 1, $user );
-		if ( !empty( $value ) ) {
-			switch ( $field ) {
-				case 'profile-favwiki':
-					self::increment( 'curse_profile_edit_fav_wiki', 1, $user );
-					break;
-				case 'profile-link-facebook':
-					self::increment( 'curse_profile_edit_link_facebook', 1, $user );
-					break;
-				case 'profile-link-psn':
-					self::increment( 'curse_profile_edit_link_psn', 1, $user );
-					break;
-				case 'profile-link-steam':
-					self::increment( 'curse_profile_edit_link_steam', 1, $user );
-					break;
-				case 'profile-link-reddit':
-					self::increment( 'curse_profile_edit_link_reddit', 1, $user );
-					break;
-				case 'profile-link-twitch':
-					self::increment( 'curse_profile_edit_link_twitch', 1, $user );
-					break;
-				case 'profile-link-twitter':
-					self::increment( 'curse_profile_edit_link_twitter', 1, $user );
-					break;
-				case 'profile-link-vk':
-					self::increment( 'curse_profile_edit_link_vk', 1, $user );
-					break;
-				case 'profile-link-xbl':
-					self::increment( 'curse_profile_edit_link_xbl', 1, $user );
-					break;
-			}
+	/** @inheritDoc */
+	public function onCurseProfileEdited( User $user, $field, $value ): void {
+		$this->cheevosHelper->increment( 'curse_profile_edit', 1, $user );
+
+		if ( empty( $value ) || !in_array( $value, self::PROFILE_FIELD_TO_STAT_MAP ) ) {
+			return;
 		}
+		$this->cheevosHelper->increment( self::PROFILE_FIELD_TO_STAT_MAP[ $value ], 1, $user );
+	}
 
-		return true;
+	/** @inheritDoc */
+	public function onEmailUserComplete( $to, $from, $subject, $text ) {
+		$this->cheevosHelper->increment( 'send_email', 1, RequestContext::getMain()->getUser() );
+	}
+
+	/** @inheritDoc */
+	public function onMarkPatrolledComplete( $rcid, $user, $wcOnlySysopsCanPatrol, $auto ) {
+		$this->cheevosHelper->increment( 'admin_patrol', 1, $user );
+	}
+
+	/** @inheritDoc */
+	public function onUploadComplete( $uploadBase ) {
+		$this->cheevosHelper->increment( 'file_upload', 1, RequestContext::getMain()->getUser() );
+	}
+
+	/** @inheritDoc */
+	public function onWatchArticleComplete( $user, $page ) {
+		$this->cheevosHelper->increment( 'article_watch', 1, $user );
+	}
+
+	/** @inheritDoc */
+	public function onLocalUserCreated( $user, $autocreated ) {
+		$this->cheevosHelper->increment( 'account_create', 1, $user );
 	}
 
 	/**
-	 * Handle email sent increment.
-	 *
-	 * @param MailAddress $address Address of receiving user
-	 * @param MailAddress $from Address of sending user
-	 * @param string $subject Subject of the mail
-	 * @param string $text Text of the mail
-	 *
-	 * @return bool True
+	 * fixme: call 'WikiPointsSave' hook when updating wiki points
 	 */
-	public static function onEmailUserComplete( MailAddress $address, MailAddress $from, $subject, $text ) {
-		$user = RequestContext::getMain()->getUser();
-		self::increment( 'send_email', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle mark patrolled increment.
-	 *
-	 * @param int $rcid Recent Change Primary ID that was marked as patrolled.
-	 * @param User $user User that marked the change as patrolled.
-	 * @param bool $automatic Automatically Patrolled
-	 *
-	 * @return bool True
-	 */
-	public static function onMarkPatrolledComplete( int $rcid, User $user, bool $automatic ) {
-		self::increment( 'admin_patrol', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle upload increment.
-	 *
-	 * @param UploadBase &$image
-	 *
-	 * @return bool True
-	 */
-	public static function onUploadComplete( &$image ) {
-		$user = RequestContext::getMain()->getUser();
-		self::increment( 'file_upload', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle watch article increment.
-	 *
-	 * @param User $user User watching the article.
-	 * @param WikiPage $article Article being watched by the user.
-	 *
-	 * @return bool True
-	 */
-	public static function onWatchArticleComplete( User $user, WikiPage $article ) {
-		self::increment( 'article_watch', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * Handle when a local user is created in the database.
-	 *
-	 * @param User $user User created.
-	 * @param bool $autoCreated Automatic Creation
-	 *
-	 * @return bool True
-	 */
-	public static function onLocalUserCreated( User $user, bool $autoCreated ) {
-		self::increment( 'account_create', 1, $user );
-
-		return true;
-	}
-
-	/**
-	 * TODO--unused
-	 * Handles awarding WikiPoints achievements.
-	 *
-	 * @param int $editId Revision Edit ID
-	 * @param int $userId Local User ID
-	 * @param int $articleId Article ID
-	 * @param int $score Score for the edit, not the overall score.
-	 * @param string $calculationInfo JSON of Calculation Information
-	 * @param string $reason [Optional] Stated reason for these points.
-	 *
-	 * @return bool True
-	 */
-	public static function onWikiPointsSave(
+	public function onWikiPointsSave(
 		int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = ''
 	) {
 		$user = RequestContext::getMain()->getUser();
-		if ( ( $score > 0 || $score < 0 ) && $user->getId() == $userId && $userId > 0 ) {
-			self::increment( 'wiki_points', $score, $user );
+		if ( $score !== 0 && $user->isRegistered() && $user->getId() === $userId ) {
+			$this->cheevosHelper->increment( 'wiki_points', $score, $user );
 		}
-
-		return true;
 	}
 
 	/**
