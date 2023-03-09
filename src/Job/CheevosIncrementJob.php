@@ -33,9 +33,8 @@ class CheevosIncrementJob extends Job {
 		$return = $achievementService->increment( $increment );
 		if ( isset( $return['earned'] ) ) {
 			foreach ( $return['earned'] as $achievement ) {
-				$achievement = new CheevosAchievement( $achievement );
 				$achievementService->broadcastAchievement(
-					$achievement,
+					new CheevosAchievement( $achievement ),
 					$increment['site_key'],
 					(int)$increment['user_id']
 				);

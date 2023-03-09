@@ -24,7 +24,7 @@ use PermissionsError;
 use SpecialPage;
 use WebRequest;
 
-class SpecialWikiPointsAdmin extends \HydraCore\SpecialPage {
+class SpecialWikiPointsAdmin extends SpecialPage {
 
 	public function __construct(
 		private UserIdentityLookup $userIdentityLookup,

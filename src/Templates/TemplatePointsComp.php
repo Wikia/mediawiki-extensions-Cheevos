@@ -18,24 +18,20 @@ use SpecialPage;
  */
 
 class TemplatePointsComp {
-	/**
-	 * Points Comp Reports List
-	 *
-	 * @param array $reports Reports
-	 * @param string $pagination Pagination HTML
-	 *
-	 * @return string HTML
-	 */
-	public static function pointsCompReports( array $reports = [], string $pagination = '' ): string {
-		global $wgRequest;
 
+	/**
+	 * @param PointsCompReport[] $reports
+	 */
+	public static function pointsCompReports(
+		array $reports,
+		string $pagination,
+		int $compedThreshold,
+		bool $queued
+	): string {
 		$pointsCompURL = SpecialPage::getTitleFor( 'PointsComp' )->getFullURL();
 
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
-
 		$html = '';
-
-		if ( $wgRequest->getInt( 'queued' ) ) {
+		if ( $queued ) {
 			$html .= "
 			<div><div class='successbox'>" . wfMessage( 'points_comp_report_queued' )->escaped() . "</div></div>";
 		}
@@ -48,7 +44,7 @@ class TemplatePointsComp {
 				 "</dd>
 			</dl>
 		</div>
-		<form method='post' action='{$pointsCompURL}'>
+		<form method='post' action='$pointsCompURL'>
 			<fieldset>
 				<legend>" . wfMessage( 'run_new_report' )->escaped() . "</legend>
 				<label for='start_time'>" . wfMessage( 'start_time' )->escaped() . "</label>
@@ -56,9 +52,7 @@ class TemplatePointsComp {
 				<input id='start_time' name='start_time' type='hidden' value=''/>
 
 				<label for='min_point_threshold'>" . wfMessage( 'min_point_threshold' )->escaped() . "</label>
-				<input id='min_point_threshold' name='min_point_threshold' type='text' value='" .
-				(int)$config->get( 'CompedSubscriptionThreshold' ) .
-				 "'/>
+				<input id='min_point_threshold' name='min_point_threshold' type='text' value='$compedThreshold'/>
 
 				<label for='max_point_threshold'>" . wfMessage( 'max_point_threshold' )->escaped() . "</label>
 				<input id='max_point_threshold' name='max_point_threshold' type='text' value=''/>
@@ -66,7 +60,7 @@ class TemplatePointsComp {
 				<input type='submit' value='" . wfMessage( 'run_new_report' )->escaped() . "'/>
 			</fieldset>
 		</form>
-		{$pagination}
+		$pagination
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -86,6 +80,7 @@ class TemplatePointsComp {
 				</tr>
 			</thead>
 			<tbody>";
+
 		if ( count( $reports ) ) {
 			$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 			foreach ( $reports as $report ) {
@@ -117,34 +112,27 @@ class TemplatePointsComp {
 		$html .= "
 			</tbody>
 		</table>
-		{$pagination}";
+		$pagination";
 
 		return $html;
 	}
 
-	/**
-	 * Points Comp Report Detail
-	 *
-	 * @return string HTML
-	 */
-	public static function pointsCompReportDetail( $report ): string {
-		global $wgRequest;
-
+	public static function pointsCompReportDetail( PointsCompReport $report, $userComped, $emailSent ): string {
 		$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() );
 		$pointsCompURL	= $pointsCompPage->getFullURL();
 
 		$html = '';
 
-		if ( $wgRequest->getVal( 'userComped', null ) !== null ) {
-			$successText = ( $wgRequest->getInt( 'userComped' ) ? 'success' : 'error' );
+		if ( $userComped !== null ) {
+			$successText = $userComped ? 'success' : 'error';
 			$html .= "
 			<div><div class='" . $successText . "box'>" .
 					 wfMessage( 'points_comp_report_user_comp_' . $successText )->escaped() .
 					 "</div></div>";
 		}
 
-		if ( $wgRequest->getVal( 'emailSent', null ) !== null ) {
-			$successText = ( $wgRequest->getInt( 'emailSent' ) ? 'success' : 'error' );
+		if ( $emailSent !== null ) {
+			$successText = $emailSent ? 'success' : 'error';
 			$html .= "
 			<div><div class='" . $successText . "box'>" .
 					 wfMessage( 'points_comp_report_email_' . $successText )->escaped() .
@@ -187,7 +175,7 @@ class TemplatePointsComp {
 			<dt>" . wfMessage( 'report_finished' )->escaped() .
 				 "</dt><dd>" . ( $report->isFinished() ? '✓' : '&nbsp;' ) . "</dd>
 		</dl>
-		<form method='post' action='{$pointsCompURL}'>
+		<form method='post' action='$pointsCompURL'>
 			<input name='report_id' type='hidden' value='{$report->getReportId()}'/>
 			<button name='do' type='submit' value='grantAll'>" . wfMessage( 'grant_all_comps' )->escaped() .
 				 "</button>
@@ -244,13 +232,7 @@ class TemplatePointsComp {
 		return $html;
 	}
 
-	/**
-	 * Points Comp Report CSV
-	 *
-	 * @return string CSV
-	 */
-	public static function pointsCompReportCSV( $report ) {
-		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+	public static function pointsCompReportCSV( PointsCompReport $report ) {
 		$headers = wfMessage( 'wpa_user' )->escaped() . "," .
 				   wfMessage( 'comp_points' )->escaped() . "," .
 				   wfMessage( 'comp_new' )->escaped() . "," .
@@ -261,8 +243,11 @@ class TemplatePointsComp {
 				   wfMessage( 'new_comp_expires' )->escaped() . "," .
 				   wfMessage( 'comp_done' )->escaped() . "," .
 				   wfMessage( 'emailed' )->escaped();
+
+		$rows = [];
+		$userIdentityLookup = MediaWikiServices::getInstance()->getUserIdentityLookup();
 		while ( ( $reportRow = $report->getNextRow() ) !== false ) {
-			$user = $userFactory->newFromId( $reportRow['user_id'] );
+			$user = $userIdentityLookup->getUserIdentityByUserId( (int)$reportRow['user_id'] );
 			$rows[] = implode(
 				',',
 				[

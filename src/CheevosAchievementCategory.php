@@ -12,15 +12,13 @@
 
 namespace Cheevos;
 
+use MediaWiki\MediaWikiServices;
+
 class CheevosAchievementCategory extends CheevosModel {
-	/**
-	 * Constructor
-	 *
-	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
-	 */
-	public function __construct( array $data = null ) {
+
+	private AchievementService $achievementService;
+
+	public function __construct( ?array $data = null ) {
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
 		$this->container['name'] = isset( $data['name'] ) && is_array( $data['name'] ) ? $data['name'] : [];
 		$this->container['slug'] = isset( $data['slug'] ) && is_string( $data['slug'] ) ? $data['slug'] : '';
@@ -36,6 +34,7 @@ class CheevosAchievementCategory extends CheevosModel {
 										 is_int( $data['updated_by'] ) ? $data['updated_by'] : 0;
 		$this->container['deleted_by'] = isset( $data['deleted_by'] ) &&
 										 is_int( $data['deleted_by'] ) ? $data['deleted_by'] : 0;
+		$this->achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 	}
 
 	/**
@@ -49,11 +48,10 @@ class CheevosAchievementCategory extends CheevosModel {
 		}
 
 		if ( $this->getId() !== null ) {
-			$result = Cheevos::updateCategory( $this->getId(), $this->toArray() );
-		} else {
-			$result = Cheevos::createCategory( $this->toArray() );
+			return $this->achievementService->updateCategory( $this->getId(), $this->toArray() );
 		}
-		return $result;
+
+		return $this->achievementService->createCategory( $this->toArray() );
 	}
 
 	/**
@@ -62,19 +60,17 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * @return bool
 	 */
 	public function exists(): bool {
-		if ( $this->getId() > 0 ) {
-			$return = true;
-			try {
-				// Throws an error if it doesn't exist.
-				Cheevos::getCategory( $this->getId() );
-			} catch ( CheevosException $e ) {
-				$return = false;
-			}
-			return $return;
+		if ( $this->getId() <= 0 ) {
+			return false;
 		}
 
-		// no ID on this. Can't exist?
-		return false;
+		try {
+			// Throws an error if it doesn't exist.
+			$this->achievementService->getCategory( $this->getId() );
+			return true;
+		} catch ( CheevosException $e ) {
+			return false;
+		}
 	}
 
 	/**
@@ -89,17 +85,15 @@ class CheevosAchievementCategory extends CheevosModel {
 		$code = CheevosHelper::getUserLanguage();
 		if ( array_key_exists( $code, $this->container['name'] ) && isset( $this->container['name'][$code] ) ) {
 			return $this->container['name'][$code];
-		} else {
-			return reset( $this->container['name'] );
 		}
+
+		return reset( $this->container['name'] );
 	}
 
 	/**
 	 * Set the name for this category with automatic language code selection.
-	 *
-	 * @return void
 	 */
-	public function setName( $name ): void {
+	public function setName( string $name ): void {
 		$code = CheevosHelper::getUserLanguage();
 		if ( !is_array( $this->container['name'] ) ) {
 			$this->container['name'] = [ $code => $name ];
@@ -111,30 +105,16 @@ class CheevosAchievementCategory extends CheevosModel {
 		}
 	}
 
-	/**
-	 * Same as getName
-	 *
-	 * @return string
-	 */
 	public function getTitle(): string {
 		return $this->getName();
 	}
 
-	/**
-	 * Transforms text into canonical versions safe for usage in URLs and Javascript data attributes.
-	 *
-	 * @param int $text Text to filter
-	 * @param bool $ignoreSpaces Ignore spaces
-	 *
-	 * @return int Generated Canonical Title
-	 */
-	private function makeCanonicalTitle( int $text, bool $ignoreSpaces = false ): int {
+	/** Transforms text into canonical versions safe for usage in URLs and Javascript data attributes. */
+	private function makeCanonicalTitle( string $text ): string {
 		$text = html_entity_decode( rawurldecode( trim( $text ) ), ENT_QUOTES, 'UTF-8' );
 		$text = mb_strtolower( $text, 'UTF-8' );
 
-		if ( !$ignoreSpaces ) {
-			$text = str_replace( ' ', '-', $text );
-		}
+		$text = str_replace( ' ', '-', $text );
 
 		// Replace non-alpha numeric characters that would be bad for SEO
 		$text = preg_replace( '#(?![a-zA-Z0-9_\-|\\\|/|\+]).*?#is', '', $text );
@@ -146,14 +126,11 @@ class CheevosAchievementCategory extends CheevosModel {
 		$text = preg_replace( "#(-+)#is", "-", $text );
 
 		// Remove trailing dashes.
-		$text = trim( $text, '-' );
-
-		return $text;
+		return trim( $text, '-' );
 	}
 
 	/**
 	 * Does this category roughly equal another category?
-	 *
 	 *
 	 * @return bool
 	 */

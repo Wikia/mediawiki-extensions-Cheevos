@@ -40,7 +40,7 @@ class TemplateWikiPoints {
 		bool $isMonthly = false
 	): string {
 		$html = "
-		<div>{$pagination}</div>
+		<div>$pagination</div>
 		<table class='wikitable'>
 			<thead>
 				<tr>
@@ -62,9 +62,9 @@ class TemplateWikiPoints {
 				$i++;
 				$html .= "
 				<tr>
-					<td>{$i}</td>
+					<td>$i</td>
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>" .
-					( $isSitesMode ? "<td>{$wikiName}</td>" : "\n" )
+					( $isSitesMode ? "<td>$wikiName</td>" : "\n" )
 					. "<td class='score'>{$userPointsRow->score}</td>"
 					. ( $isMonthly ? "<td class='monthly'>" . $userPointsRow->yyyymm . "</td>" : '' ) . "
 				</tr>";

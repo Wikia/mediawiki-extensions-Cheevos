@@ -66,7 +66,7 @@
 		},
 		"PointsComp": {
 			"class": "Cheevos\\Specials\\SpecialPointsComp",
-			"services": ["MainConfig", "UserIdentityLookup", "UserFactory"]
+			"services": ["UserIdentityLookup", "UserFactory"]
 		},
 		"WikiPoints": {
 			"class": "Cheevos\\Specials\\SpecialWikiPoints",

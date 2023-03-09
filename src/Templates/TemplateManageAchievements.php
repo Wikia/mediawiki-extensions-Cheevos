@@ -19,8 +19,6 @@ use RequestContext;
 use SpecialPage;
 
 class TemplateManageAchievements {
-	private string $awardURL;
-
 	/**
 	 * Achievement List
 	 *
