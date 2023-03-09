@@ -13,6 +13,7 @@
 namespace Cheevos;
 
 use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
+use Config;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\ArticleMergeCompleteHook;
@@ -36,11 +37,15 @@ use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
+use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
+use MobileContext;
 use RedisCache;
 use RequestContext;
 use Skin;
@@ -48,7 +53,6 @@ use SpecialPage;
 use Title;
 use User;
 use Wikimedia\Rdbms\ILoadBalancer;
-use WikiPage;
 
 class CheevosHooks implements
 	LoadExtensionSchemaUpdatesHook,
@@ -70,7 +74,9 @@ class CheevosHooks implements
 	ArticleProtectCompleteHook,
 	ArticleMergeCompleteHook,
 	PageDeleteCompleteHook,
-	PageMoveCompleteHook
+	PageMoveCompleteHook,
+	PageSaveCompleteHook,
+	RevisionFromEditCompleteHook
 {
 
 	private const PROFILE_FIELD_TO_STAT_MAP = [
@@ -87,8 +93,11 @@ class CheevosHooks implements
 
 	public function __construct(
 		private LinkRenderer $linkRenderer,
+		private Config $config,
+		private RevisionStore $revisionStore,
 		private RedisCache $redisCache,
 		private ILoadBalancer $loadBalancer,
+		private MobileContext $mobileContext,
 		private AchievementService $achievementService,
 		private CheevosHelper $cheevosHelper
 	) {
@@ -124,107 +133,75 @@ class CheevosHooks implements
 	}
 
 	/**
+	 * @inheritDoc
 	 * Updates user's points after they've made an edit in a namespace that is listed in the
 	 * $wgNamespacesForEditPoints array.
 	 * This hook will not be called if a null revision is created.
-	 *
-	 * @param WikiPage $wikiPage Article
-	 * @param RevisionRecord $revision Revision
-	 * @param mixed $originalRevId (Unused)
-	 * @param User $user User that performed the action.
-	 * @param mixed &$tags (Unused)
-	 *
-	 * @return bool True
 	 */
-	public static function onRevisionFromEditComplete(
-		WikiPage $wikiPage, RevisionRecord $revision, $originalRevId, User $user, &$tags
-	) {
-		global $wgNamespacesForEditPoints;
-
+	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
 		$isBot = $user->isAllowed( 'bot' );
-		$parentRevisionId = $revision->getParentId();
+		$parentRevisionId = $rev->getParentId();
 
 		if ( !$parentRevisionId ) {
-			self::increment( 'article_create', 1, $user );
+			$this->cheevosHelper->increment( 'article_create', 1, $user );
 		}
 
 		if ( $isBot ) {
-			self::increment( 'article_edit_is_bot', 1, $user );
-		}
-		if ( $user->getId() ) {
-			self::increment( 'article_edit_is_logged_in', 1, $user );
-		} else {
-			self::increment( 'article_edit_is_logged_out', 1, $user );
+			$this->cheevosHelper->increment( 'article_edit_is_bot', 1, $user );
 		}
 
-		$isType = [];
+		$this->cheevosHelper->increment(
+			$user->isRegistered() ? 'article_edit_is_logged_in' : 'article_edit_is_logged_out',
+			1,
+			$user
+		);
+
 		// Note: Reordering this code will cause differently named statistics.
-		if ( class_exists( 'MobileContext' ) ) {
-			$mobileContext = MediaWikiServices::getInstance()->getService( 'MobileFrontend.Context' );
-			if ( $mobileContext->shouldDisplayMobileView() ) {
-				$isType[] = 'is_mobile';
-			} else {
-				$isType[] = 'is_desktop';
-			}
-		}
+		$isType = [];
+		$isType[] = $this->mobileContext->shouldDisplayMobileView() ? 'is_mobile' : 'is_desktop';
 
-		$context = RequestContext::getMain();
-		if ( $context->getRequest()->getVal( 'veaction' ) === 'edit' ||
-			 $context->getRequest()->getVal( 'action' ) === 'visualeditoredit' ) {
+		$request = RequestContext::getMain()->getRequest();
+		if ( $request->getVal( 'veaction' ) === 'edit' || $request->getVal( 'action' ) === 'visualeditoredit' ) {
 			$isType[] = 'is_visual';
 		} else {
 			$isType[] = 'is_source';
 		}
+
 		foreach ( $isType as $type ) {
-			self::increment( 'article_edit_' . $type, 1, $user );
+			$this->cheevosHelper->increment( 'article_edit_' . $type, 1, $user );
 		}
-		self::increment( 'article_edit_' . implode( '_', $isType ), 1, $user );
+		$this->cheevosHelper->increment( 'article_edit_' . implode( '_', $isType ), 1, $user );
 
 		$edits = [];
-		if ( !$isBot && in_array( $wikiPage->getTitle()->getNamespace(), $wgNamespacesForEditPoints ) ) {
-			$previousRevision = null;
-			if ( $parentRevisionId ) {
-				$revStore = MediaWikiServices::getInstance()->getRevisionStore();
-				$previousRevision = $revStore->getRevisionById( $parentRevisionId );
-			}
+		if (
+			!$isBot &&
+			in_array( $wikiPage->getTitle()->getNamespace(), $this->config->get( 'NamespacesForEditPoints' ) )
+		) {
+			$previousRevision = $parentRevisionId ? $this->revisionStore->getRevisionById( $parentRevisionId ) : null;
 			$prevSize = $previousRevision ? $previousRevision->getSize() : 0;
-			$sizeDiff = $revision->getSize() - $prevSize;
 			$edits[] = [
-				'size' => $revision->getSize(),
-				'size_diff' => $sizeDiff,
+				'size' => $rev->getSize(),
+				'size_diff' => $rev->getSize() - $prevSize,
 				'page_id' => $wikiPage->getId(),
-				'revision_id' => $revision->getId(),
+				'revision_id' => $rev->getId(),
 			];
 		}
 
-		self::increment( 'article_edit', 1, $user, $edits );
-
-		return true;
+		$this->cheevosHelper->increment( 'article_edit', 1, $user, $edits );
 	}
 
 	/**
+	 * @inheritDoc
 	 * Check for an article rollback, which then revokes all points for revisions that were reverted
-	 *
-	 * @param WikiPage $wikiPage The article edited
-	 * @param UserIdentity $user The user performing the change
-	 * @param string $summary Edit summary
-	 * @param int $flags Edit flags
-	 * @param RevisionRecord $revision The new revision
-	 * @param EditResult $editResult Contains information about a potential revert
-	 *
-	 * @return bool True
 	 */
-	public static function onPageSaveComplete(
-		WikiPage $wikiPage, UserIdentity $user, string $summary, int $flags, RevisionRecord $revision,
-		EditResult $editResult
-	) {
+	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
 		if ( !$editResult->isRevert() || $editResult->getRevertMethod() !== EditResult::REVERT_ROLLBACK ) {
 			// Not a rollback so we don't care
-			return true;
+			return;
 		}
 		$siteKey = CheevosHelper::getSiteKey();
 		if ( !$siteKey ) {
-			return true;
+			return;
 		}
 
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
@@ -241,14 +218,11 @@ class CheevosHooks implements
 		}
 
 		try {
-			Cheevos::revokeEditPoints( $wikiPage->getId(), $editsToRevoke, $siteKey );
-		}
-		catch ( CheevosException $e ) {
+			$this->achievementService->revokeEditPoints( $wikiPage->getId(), $editsToRevoke, $siteKey );
+		} catch ( CheevosException $e ) {
 			// Honey Badger
 			wfLogWarning( "Cheevos Service is unavailable: " . $e->getMessage() );
 		}
-
-		return true;
 	}
 
 	/** @inheritDoc */
@@ -303,7 +277,6 @@ class CheevosHooks implements
 			return $editCount >= $editsToComment;
 		} catch ( CheevosException $e ) {
 			wfDebug( "Encountered Cheevos API error getting article_edit count." );
-			// TODO--is it a good idea to allow on error??
 			return true;
 		}
 	}

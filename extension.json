@@ -8,7 +8,8 @@
 	"requires": {
 		"MediaWiki": ">= 1.39.0",
 		"extensions": {
-			"HydraCore": ">= 3.0.0"
+			"HydraCore": ">= 3.0.0",
+			"MobileFrontend": "*"
 		}
 	},
 	"GroupPermissions": {
@@ -223,8 +224,11 @@
 			"class": "Cheevos\\CheevosHooks",
 			"services": [
 				"LinkRenderer",
+				"MainConfig",
+				"RevisionStore",
 				"DBLoadBalancer",
 				"RedisCache",
+				"MobileFrontend.Context",
 				"Cheevos\\AchievementService",
 				"Cheevos\\CheevosHelper"
 			]
@@ -251,11 +255,11 @@
 		"MarkPatrolledComplete": "CheevosHookHandler",
 		"PageDeleteComplete": "CheevosHookHandler",
 		"PageMoveComplete": "CheevosHookHandler",
-		"PageSaveComplete": "Cheevos\\CheevosHooks::onPageSaveComplete",
+		"PageSaveComplete": "CheevosHookHandler",
 		"ParserFirstCallInit": "CheevosHookHandler",
 		"ParserGetVariableValueSwitch": "CheevosHookHandler",
 		"SkinTemplateNavigation::Universal": "CheevosHookHandler",
-		"RevisionFromEditComplete": "Cheevos\\CheevosHooks::onRevisionFromEditComplete",
+		"RevisionFromEditComplete": "CheevosHookHandler",
 		"UploadComplete": "CheevosHookHandler",
 		"UserToolLinksEdit": "CheevosHookHandler",
 		"WatchArticleComplete": "CheevosHookHandler",
