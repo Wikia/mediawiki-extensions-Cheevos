@@ -92,11 +92,7 @@ class PointsCompJob extends Job {
 		return true;
 	}
 
-	/**
-	 * Don't allow retrying this job.
-	 *
-	 * @return bool False
-	 */
+	/** @inheritDoc */
 	public function allowRetries() {
 		return false;
 	}

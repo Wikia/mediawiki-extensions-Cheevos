@@ -16,32 +16,52 @@ use ApiMain;
 use Article;
 use Cheevos\Job\CheevosIncrementJob;
 use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
+use Cheevos\Templates\TemplateAchievements;
 use Content;
-use HydraCore;
 use LogEntry;
 use MailAddress;
 use MediaWiki;
 use MediaWiki\Block\DatabaseBlock;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Hook\ContributionsToolLinksHook;
+use MediaWiki\Hook\GetMagicVariableIDsHook;
+use MediaWiki\Hook\LoginFormValidErrorMessagesHook;
+use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\Hook\ParserGetVariableValueSwitchHook;
+use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
+use MediaWiki\Hook\UserToolLinksEditHook;
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
+use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
 use OutputPage;
-use Parser;
 use RedisCache;
 use RequestContext;
 use Reverb\Notification\NotificationBroadcast;
 use Skin;
-use SkinTemplate;
 use SpecialPage;
 use Title;
 use UploadBase;
 use User;
 use WebRequest;
+use Wikimedia\Rdbms\ILoadBalancer;
 use WikiPage;
 
-class CheevosHooks {
+class CheevosHooks implements
+	LoadExtensionSchemaUpdatesHook,
+	GetMagicVariableIDsHook,
+	ParserFirstCallInitHook,
+	LoginFormValidErrorMessagesHook,
+	BeforePageDisplayHook,
+	ContributionsToolLinksHook,
+	UserToolLinksEditHook,
+	SkinTemplateNavigation__UniversalHook,
+	ParserGetVariableValueSwitchHook
+{
+
 	/**
 	 * Shutdown Function Registered Already
 	 *
@@ -63,31 +83,15 @@ class CheevosHooks {
 	 */
 	private static array $increments = [];
 
-	/**
-	 * Setup anything that needs to be configured before anything else runs.
-	 *
-	 * @return void
-	 */
-	public static function onRegistration(): void {
-		global $wgDefaultUserOptions, $wgNamespacesForEditPoints, $wgReverbNotifications;
-
-		$wgDefaultUserOptions['cheevos-popup-notification'] = 1;
-
-		// Allowed namespaces.
-		if ( empty( $wgNamespacesForEditPoints ) ) {
-			$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
-			$wgNamespacesForEditPoints = $namespaceInfo->getContentNamespaces();
-		}
-
-		$reverbNotifications = [
-			"user-interest-achievement-earned" => [
-				"importance" => 8,
-			],
-		];
-		$wgReverbNotifications = array_merge( (array)$wgReverbNotifications, $reverbNotifications );
+	public function __construct(
+		private LinkRenderer $linkRenderer,
+		private RedisCache $redisCache,
+		private ILoadBalancer $loadBalancer
+	) {
 	}
 
 	/**
+	 * TODO--unused?
 	 * Undocumented function
 	 *
 	 * @return bool
@@ -608,21 +612,15 @@ class CheevosHooks {
 	}
 
 	/**
+	 * @inheritDoc
 	 * Add styles for Reverb notifications to every page.
-	 *
-	 * @param OutputPage &$output Mediawiki Output Object
-	 * @param SkinTemplate &$skin Mediawiki Skin Object
-	 *
-	 * @return bool True
 	 */
-	public static function onBeforePageDisplay( OutputPage &$output, SkinTemplate &$skin ) {
-		if ( $output->getUser()->isAnon() ) {
-			return true;
+	public function onBeforePageDisplay( $out, $skin ): void {
+		if ( $out->getUser()->isAnon() ) {
+			return;
 		}
 
-		$output->addModuleStyles( 'ext.cheevos.notifications.styles' );
-
-		return true;
+		$out->addModuleStyles( 'ext.cheevos.notifications.styles' );
 	}
 
 	/**
@@ -710,12 +708,7 @@ class CheevosHooks {
 
 		$broadcast = NotificationBroadcast::newSystemSingle( 'user-interest-achievement-earned', $targetUser, [
 			'url' => SpecialPage::getTitleFor( 'Achievements' )->getFullURL(),
-			'message' => [
-				[
-					'user_note',
-					$html,
-				],
-			],
+			'message' => [ [ 'user_note', $html ] ],
 		] );
 
 		if ( $broadcast ) {
@@ -723,354 +716,241 @@ class CheevosHooks {
 		}
 	}
 
-	/**
-	 * Add additional valid login form error messages.
-	 *
-	 * @param array &$messages Valid login form error messages.
-	 *
-	 * @return bool True
-	 */
-	public static function onLoginFormValidErrorMessages( &$messages ) {
+	/** @inheritDoc */
+	public function onLoginFormValidErrorMessages( array &$messages ) {
 		$messages[] = 'login_to_display_achievements';
-
-		return true;
 	}
 
-	/**
-	 * Insert achievement page link into the personal URLs.
-	 *
-	 * @param array &$personalUrls Peronsal URLs array.
-	 * @param Title $title Title object for the current page.
-	 * @param SkinTemplate $skin SkinTemplate instance that is setting up personal urls.
-	 *
-	 * @return bool True
-	 */
-	public static function onPersonalUrls( array &$personalUrls, Title $title, SkinTemplate $skin ) {
-		if ( !$skin->getUser()->isAnon() ) {
-			$url = Skin::makeSpecialUrl( 'Achievements' );
-			$achievements = [
-				'achievements' => [
-					'text' => wfMessage( 'achievements' )->text(),
-					'href' => $url,
-					'active' => true,
-				],
-			];
-			HydraCore::array_insert_before_key( $personalUrls, 'mycontris', $achievements );
+	/** @inheritDoc */
+	public function onSkinTemplateNavigation__Universal( $sktemplate, &$links ): void {
+		if ( $sktemplate->getUser()->isAnon() ) {
+			return;
 		}
 
-		return true;
+		$achievementLink = [
+			'achievements' => [
+				'text' => wfMessage( 'achievements' )->text(),
+				'href' => Skin::makeSpecialUrl( 'Achievements' ),
+				'active' => true,
+			],
+		];
+
+		// Add new link before 'mycontris'
+		$userMenuLinks = $links['user-menu'];
+		$insertPoint = array_search( 'mycontris', array_keys( $userMenuLinks ), true );
+		$userMenuLinks = array_merge(
+			array_slice( $userMenuLinks, 0, $insertPoint ),
+			$achievementLink,
+			array_slice( $userMenuLinks, $insertPoint )
+		);
+		$links['user-menu'] = $userMenuLinks;
 	}
 
-	/**
-	 * Add a link to WikiPoints on contribution and edit tool links.
-	 *
-	 * @param int $userId User ID
-	 * @param mixed $userPageTitle Title object for the user's page.
-	 * @param array &$tools Array of tools links.
-	 *
-	 * @return bool True
-	 */
-	public static function onContributionsToolLinks( $userId, $userPageTitle, &$tools ) {
-		if ( !$userId ) {
-			return true;
+	/** @inheritDoc */
+	public function onUserToolLinksEdit( $userId, $userText, &$items ) {
+		$link = $this->getLinkToWikiPoints( $userId, $userText );
+		if ( $link ) {
+			$items[] = $link;
 		}
-
-		$user = RequestContext::getMain()->getUser();
-		if ( !$user->isAllowed( 'wiki_points_admin' ) ) {
-			return true;
-		}
-
-		if ( $userPageTitle instanceof Title ) {
-			$userName = $userPageTitle->getText();
-		} elseif ( $userPageTitle instanceof User ) {
-			$userName = $userPageTitle->getName();
-		} elseif ( is_string( $userPageTitle ) ) {
-			$userName = $userPageTitle;
-		}
-
-		$tools[] =
-			MediaWikiServices::getInstance()
-				->getLinkRenderer()
-				->makeKnownLink( SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
-					wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),
-					[ 'class' => 'mw-usertoollinks-wikipointsadmin' ], [
-						'action' => 'lookup',
-						'user' => $userName,
-					] );
-
-		return true;
 	}
 
-	/**
-	 * Registers our function hooks for displaying blocks of user points
-	 *
-	 * @param Parser &$parser Parser reference
-	 *
-	 * @return bool True
-	 */
-	public static function onParserFirstCallInit( Parser &$parser ) {
+	/** @inheritDoc */
+	public function onContributionsToolLinks( $id, Title $title, array &$tools, SpecialPage $specialPage ) {
+		$link = $this->getLinkToWikiPoints( $id, $title->getText() );
+		if ( $link ) {
+			$tools[] = $link;
+		}
+	}
+
+	/** Add a link to WikiPoints on contribution and edit tool links. */
+	private function getLinkToWikiPoints( int $userId, string $username ): ?string {
+		if ( !$userId || !RequestContext::getMain()->getUser()->isAllowed( 'wiki_points_admin' ) ) {
+			return null;
+		}
+
+		return $this->linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
+			wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),
+			[ 'class' => 'mw-usertoollinks-wikipointsadmin' ],
+			[ 'action' => 'lookup', 'user' => $username ]
+		);
+	}
+
+	/** @inheritDoc */
+	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
+	}
 
-		return true;
+	/** @inheritDoc */
+	public function onGetMagicVariableIDs( &$variableIDs ) {
+		$variableIDs[] = 'numberofcontributors';
 	}
 
 	/**
-	 * Define custom magic word variables.
-	 *
-	 * @param array &$customVariableIds Custom magic word variables.
-	 *
-	 * @return bool True
+	 * @inheritDoc
+	 * Handles custom {{numberofcontributors}} magic word.
 	 */
-	public static function onMagicWordwgVariableIDs( &$customVariableIds ) {
-		$customVariableIds[] = 'numberofcontributors';
-
-		return true;
-	}
-
-	/**
-	 * Handles custom MAGIC WORDS.
-	 *
-	 * @param Parser &$parser Parser reference
-	 * @param array &$cache Variable Cache
-	 * @param string &$magicWord Magic Word
-	 * @param string &$value Return Value
-	 * @param mixed &$frame Boolean false or PPFrame object.
-	 *
-	 * @return bool True
-	 */
-	public static function onParserGetVariableValueSwitch( &$parser, &$cache, &$magicWord, &$value, &$frame ) {
-		if ( strtolower( $magicWord ) === 'numberofcontributors' ) {
-			$value = self::getTotalContributors();
+	public function onParserGetVariableValueSwitch( $parser, &$variableCache, $magicWordId, &$ret, $frame ) {
+		if ( strtolower( $magicWordId ) !== 'numberofcontributors' ) {
+			return;
 		}
 
-		return true;
-	}
-
-	/**
-	 * Get the total number of contributors on the wiki.
-	 *
-	 * @return int Total Contributors
-	 */
-	private static function getTotalContributors() {
-		$redis = MediaWikiServices::getInstance()->getService( RedisCache::class )->getConnection( 'cache' );
+		$redis = $this->redisCache->getConnection( 'cache' );
 
 		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
-		if ( $redis !== false ) {
+		if ( $redis ) {
 			$cache = $redis->get( $redisKey );
 			if ( $cache !== false ) {
-				return $cache;
+				$ret = (string)$cache;
+				return;
 			}
 		}
 
-		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
-		$actorQuery = [ 'tables' => [], 'joins' => [] ];
-		$userField = 'rev_user';
-
-		$db->select( [ 'revision' ] + $actorQuery['tables'], [ 'count(*)' ], [], __METHOD__, [
-			'GROUP BY' => $userField,
-			'SQL_CALC_FOUND_ROWS',
-		], $actorQuery['joins'] );
-		$calcRowsResult = $db->query( 'SELECT FOUND_ROWS() AS rowcount;' );
-		$total = $calcRowsResult->fetchRow();
-		$total = intval( $total['rowcount'] );
-		if ( $redis !== false ) {
-			$redis->setEx( $redisKey, 3600, $total );
+		$contributorCount = $this->loadBalancer->getConnection( DB_REPLICA )
+			->selectRowCount(
+				'revision',
+				'distinct(rev_actor)',
+				[],
+				__METHOD__
+			);
+		if ( $redis ) {
+			$redis->setEx( $redisKey, 3600, $contributorCount );
 		}
 
-		return $total;
+		$ret = (string)$contributorCount;
 	}
 
-	/**
-	 * Setups and Modifies Database Information
-	 *
-	 * @return bool True
-	 */
-	public static function onLoadExtensionSchemaUpdates( $updater ) {
+	/** @inheritDoc */
+	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$extDir = __DIR__;
 
 		if ( CheevosHelper::isCentralWiki() ) {
-			$updater->addExtensionUpdate( [
-				'addTable',
+			$updater->addExtensionTable(
 				'points_comp_report',
-				"{$extDir}/install/sql/table_points_comp_report.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'addTable',
+				"$extDir/install/sql/table_points_comp_report.sql"
+			);
+			$updater->addExtensionTable(
 				'points_comp_report_user',
-				"{$extDir}/install/sql/table_points_comp_report_user.sql",
-				true,
-			] );
+				"$extDir/install/sql/table_points_comp_report_user.sql"
+			);
 
-			$updater->addExtensionUpdate( [
-				'addField',
+			$updater->addExtensionField(
 				'points_comp_report',
 				'comp_skipped',
-				"{$extDir}/upgrade/sql/points_comp_report/add_comp_skipped.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'modifyField',
+				"$extDir/upgrade/sql/points_comp_report/add_comp_skipped.sql"
+			);
+			$updater->modifyExtensionField(
 				'points_comp_report',
 				'comp_failed',
-				"{$extDir}/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'modifyField',
+				"$extDir/upgrade/sql/points_comp_report/change_comp_failed_default_0.sql"
+			);
+			$updater->modifyExtensionField(
 				'points_comp_report',
 				'max_points',
-				"{$extDir}/upgrade/sql/points_comp_report/change_max_points_null.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'addField',
+				"$extDir/upgrade/sql/points_comp_report/change_max_points_null.sql"
+			);
+			$updater->addExtensionField(
 				'points_comp_report_user',
 				'comp_skipped',
-				"{$extDir}/upgrade/sql/points_comp_report_user/add_comp_skipped.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'modifyField',
+				"$extDir/upgrade/sql/points_comp_report_user/add_comp_skipped.sql"
+			);
+			$updater->modifyExtensionField(
 				'points_comp_report_user',
 				'comp_failed',
-				"{$extDir}/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'addField',
+				"$extDir/upgrade/sql/points_comp_report_user/change_comp_failed_default_0.sql"
+			);
+			$updater->addExtensionField(
 				'points_comp_report_user',
 				'user_id',
-				"{$extDir}/upgrade/sql/points_comp_report_user/add_field_user_id.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'addIndex',
+				"$extDir/upgrade/sql/points_comp_report_user/add_field_user_id.sql"
+			);
+			$updater->addExtensionIndex(
 				'points_comp_report_user',
 				'report_id_user_id',
-				"{$extDir}/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql",
-				true,
-			] );
-			$updater->addExtensionUpdate( [
-				'dropIndex',
+				"$extDir/upgrade/sql/points_comp_report_user/add_index_report_id_user_id.sql"
+			);
+			$updater->dropExtensionIndex(
 				'points_comp_report_user',
 				'report_id_global_id',
-				"{$extDir}/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql",
-				true,
-			] );
+				"$extDir/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql"
+			);
 			$updater->addPostDatabaseUpdateMaintenance( ReplaceGlobalIdWithUserId::class );
 
 			// Point Levels
-			$updater->addExtensionUpdate( [
-				'addTable',
+			$updater->addExtensionTable(
 				'wiki_points_levels',
-				"{$extDir}/install/sql/table_wiki_points_levels.sql",
-				true,
-			] );
+				"$extDir/install/sql/table_wiki_points_levels.sql"
+			);
 		}
 
-		$updater->addExtensionUpdate( [
-			'dropTable',
+		$updater->dropExtensionTable(
 			'achievement',
-			$extDir . "/upgrade/sql/drop_table_achievement.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement.sql"
+		);
+		$updater->dropExtensionTable(
 			'achievement_category',
-			$extDir . "/upgrade/sql/drop_table_achievement_category.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement_category.sql"
+		);
+		$updater->dropExtensionTable(
 			'achievement_earned',
-			$extDir . "/upgrade/sql/drop_table_achievement_earned.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement_earned.sql"
+		);
+		$updater->dropExtensionTable(
 			'achievement_hook',
-			$extDir . "/upgrade/sql/drop_table_achievement_hook.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement_hook.sql"
+		);
+		$updater->dropExtensionTable(
 			'achievement_link',
-			$extDir . "/upgrade/sql/drop_table_achievement_link.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement_link.sql"
+		);
+		$updater->dropExtensionTable(
 			'achievement_site_mega',
-			$extDir . "/upgrade/sql/drop_table_achievement_site_mega.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_achievement_site_mega.sql"
+		);
+		$updater->dropExtensionTable(
 			'dataminer_user_global_totals',
-			$extDir . "/upgrade/sql/drop_table_dataminer_user_global_totals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_dataminer_user_global_totals.sql"
+		);
+		$updater->dropExtensionTable(
 			'dataminer_user_wiki_periodicals',
-			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_dataminer_user_wiki_periodicals.sql"
+		);
+		$updater->dropExtensionTable(
 			'dataminer_user_wiki_totals',
-			$extDir . "/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_dataminer_user_wiki_totals.sql"
+		);
+		$updater->dropExtensionTable(
 			'display_names',
-			$extDir . "/upgrade/sql/drop_table_display_names.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_display_names.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points',
-			$extDir . "/upgrade/sql/drop_table_wiki_points.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_monthly_totals',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_monthly_totals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points_monthly_totals.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_multipliers',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points_multipliers.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_multipliers_sites',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points_multipliers_sites.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_site_monthly_totals',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points_site_monthly_totals.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_site_totals',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_site_totals.sql",
-			true,
-		] );
-		$updater->addExtensionUpdate( [
-			'dropTable',
+			"$extDir/upgrade/sql/drop_table_wiki_points_site_totals.sql"
+		);
+		$updater->dropExtensionTable(
 			'wiki_points_totals',
-			$extDir . "/upgrade/sql/drop_table_wiki_points_totals.sql",
-			true,
-		] );
+			"$extDir/upgrade/sql/drop_table_wiki_points_totals.sql"
+		);
 
 		return true;
 	}

@@ -218,15 +218,25 @@
 		"localBasePath": "",
 		"remoteExtPath": "Cheevos"
 	},
+	"HookHandlers": {
+		"CheevosHookHandler": {
+			"class": "Cheevos\\CheevosHooks",
+			"services": [
+				"LinkRenderer",
+				"DBLoadBalancer",
+				"RedisCache"
+			]
+		}
+	},
 	"Hooks": {
 		"ApiBeforeMain": "Cheevos\\CheevosHooks::onApiBeforeMain",
 		"ArticleDeleteComplete": "Cheevos\\CheevosHooks::onArticleDeleteComplete",
 		"ArticleMergeComplete": "Cheevos\\CheevosHooks::onArticleMergeComplete",
 		"ArticleProtectComplete": "Cheevos\\CheevosHooks::onArticleProtectComplete",
 		"BeforeInitialize": "Cheevos\\CheevosHooks::onBeforeInitialize",
-		"BeforePageDisplay": "Cheevos\\CheevosHooks::onBeforePageDisplay",
+		"BeforePageDisplay": "CheevosHookHandler",
 		"BlockIpComplete": "Cheevos\\CheevosHooks::onBlockIpComplete",
-		"ContributionsToolLinks": "Cheevos\\CheevosHooks::onContributionsToolLinks",
+		"ContributionsToolLinks": "CheevosHookHandler",
 		"CurseProfileAcceptFriend": "Cheevos\\CheevosHooks::onCurseProfileAcceptFriend",
 		"CurseProfileAddComment": "Cheevos\\CheevosHooks::onCurseProfileAddComment",
 		"CurseProfileAddCommentReply": "Cheevos\\CheevosHooks::onCurseProfileAddCommentReply",
@@ -234,19 +244,19 @@
 		"CurseProfileCanComment": "Cheevos\\CheevosHooks::onCurseProfileCanComment",
 		"CurseProfileEdited": "Cheevos\\CheevosHooks::onCurseProfileEdited",
 		"EmailUserComplete": "Cheevos\\CheevosHooks::onEmailUserComplete",
-		"LoadExtensionSchemaUpdates": "Cheevos\\CheevosHooks::onLoadExtensionSchemaUpdates",
+		"LoadExtensionSchemaUpdates": "CheevosHookHandler",
 		"LocalUserCreated": "Cheevos\\CheevosHooks::onLocalUserCreated",
-		"LoginFormValidErrorMessages": "Cheevos\\CheevosHooks::onLoginFormValidErrorMessages",
-		"MagicWordwgVariableIDs": "Cheevos\\CheevosHooks::onMagicWordwgVariableIDs",
+		"LoginFormValidErrorMessages": "CheevosHookHandler",
+		"GetMagicVariableIDs": "CheevosHookHandler",
 		"MarkPatrolledComplete": "Cheevos\\CheevosHooks::onMarkPatrolledComplete",
 		"PageMoveComplete": "Cheevos\\CheevosHooks::onPageMoveComplete",
 		"PageSaveComplete": "Cheevos\\CheevosHooks::onPageSaveComplete",
-		"ParserFirstCallInit": "Cheevos\\CheevosHooks::onParserFirstCallInit",
-		"ParserGetVariableValueSwitch": "Cheevos\\CheevosHooks::onParserGetVariableValueSwitch",
-		"PersonalUrls": "Cheevos\\CheevosHooks::onPersonalUrls",
+		"ParserFirstCallInit": "CheevosHookHandler",
+		"ParserGetVariableValueSwitch": "CheevosHookHandler",
+		"SkinTemplateNavigation::Universal": "CheevosHookHandler",
 		"RevisionFromEditComplete": "Cheevos\\CheevosHooks::onRevisionFromEditComplete",
 		"UploadComplete": "Cheevos\\CheevosHooks::onUploadComplete",
-		"UserToolLinksEdit": "Cheevos\\CheevosHooks::onContributionsToolLinks",
+		"UserToolLinksEdit": "CheevosHookHandler",
 		"WatchArticleComplete": "Cheevos\\CheevosHooks::onWatchArticleComplete",
 		"WikiPointsSave": "Cheevos\\CheevosHooks::onWikiPointsSave"
 	},
@@ -353,6 +363,6 @@
 			"public": false
 		}
 	},
-	"callback": "Cheevos\\CheevosHooks::onRegistration",
+	"callback": "Cheevos\\CheevosRegistrationCallback::onRegistration",
 	"manifest_version": 2
 }
