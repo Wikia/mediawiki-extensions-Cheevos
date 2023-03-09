@@ -19,6 +19,8 @@ use MediaWiki\MediaWikiServices;
 use MWException;
 
 class PointsCompJob extends Job {
+	private const COMMAND = 'Cheevos\Job\PointsCompJob';
+
 	/**
 	 * Queue a new job.
 	 *
@@ -33,7 +35,7 @@ class PointsCompJob extends Job {
 	 * @return void
 	 */
 	public static function queue( array $parameters = [] ) {
-		$job = new self( __CLASS__, $parameters );
+		$job = new self( self::COMMAND, $parameters );
 		MediaWikiServices::getInstance()->getJobQueueGroup()->lazyPush( $job );
 	}
 

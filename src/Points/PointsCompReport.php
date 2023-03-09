@@ -18,12 +18,12 @@ use Cheevos\CheevosStatMonthlyCount;
 use DateInterval;
 use DateTime;
 use ExtensionRegistry;
-use Hydra\Subscription;
-use Hydra\SubscriptionProvider;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
 use MWException;
 use Status;
+use Subscription\Subscription;
+use Subscription\SubscriptionProvider;
 use User;
 
 /**
@@ -133,7 +133,7 @@ class PointsCompReport {
 			$this->reportUser[$row->user_id] = (array)$row;
 		}
 
-		return boolval( $this->reportData['report_id'] );
+		return (bool)$this->reportData[ 'report_id' ];
 	}
 
 	/**
@@ -155,7 +155,7 @@ class PointsCompReport {
 				__METHOD__
 			);
 
-			$this->reportData['report_id'] = intval( $db->insertId() );
+			$this->reportData['report_id'] = $db->insertId();
 			if ( !$success || !$this->reportData['report_id'] ) {
 				throw new MWException( __METHOD__ . ': Could not get a new report ID.' );
 			}
@@ -211,7 +211,7 @@ class PointsCompReport {
 				__METHOD__
 			);
 			$total = $result->fetchRow();
-			$data[$stat] = intval( $total['total'] );
+			$data[$stat] = (int)$total[ 'total' ];
 		}
 		$db->update(
 			'points_comp_report',
@@ -259,7 +259,7 @@ class PointsCompReport {
 			]
 		);
 		$total = $result->fetchRow();
-		$total = intval( $total['total'] );
+		$total = (int)$total[ 'total' ];
 
 		return [ 'total' => $total, 'reports' => $reports ];
 	}
@@ -288,7 +288,7 @@ class PointsCompReport {
 	 * @return int Minimum point threshold.
 	 */
 	public function getMinPointThreshold(): int {
-		return intval( $this->reportData['min_points'] );
+		return (int)$this->reportData[ 'min_points' ];
 	}
 
 	/**
@@ -299,7 +299,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function setMinPointThreshold( $minPointThreshold ): void {
-		$this->reportData['min_points'] = intval( $minPointThreshold );
+		$this->reportData['min_points'] = (int)$minPointThreshold;
 	}
 
 	/**
@@ -308,7 +308,7 @@ class PointsCompReport {
 	 * @return int|null Maximum point threshold.
 	 */
 	public function getMaxPointThreshold(): ?int {
-		return ( $this->reportData['max_points'] === null ? null : intval( $this->reportData['max_points'] ) );
+		return ( $this->reportData['max_points'] === null ? null : (int)$this->reportData[ 'max_points' ] );
 	}
 
 	/**
@@ -319,7 +319,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function setMaxPointThreshold( mixed $maxPointThreshold = null ): void {
-		$this->reportData['max_points'] = ( $maxPointThreshold === null ? null : intval( $maxPointThreshold ) );
+		$this->reportData['max_points'] = ( $maxPointThreshold === null ? null : (int)$maxPointThreshold );
 	}
 
 	/**
@@ -350,7 +350,7 @@ class PointsCompReport {
 	 * @return int Unix timestamp for the time period start.
 	 */
 	public function getStartTime(): int {
-		return intval( $this->reportData['start_time'] );
+		return (int)$this->reportData[ 'start_time' ];
 	}
 
 	/**
@@ -370,7 +370,7 @@ class PointsCompReport {
 	 * @return int Unix timestamp for the time period end.
 	 */
 	public function getEndTime(): int {
-		return intval( $this->reportData['end_time'] );
+		return (int)$this->reportData[ 'end_time' ];
 	}
 
 	/**
@@ -415,7 +415,7 @@ class PointsCompReport {
 	 * @return int Total new comps.
 	 */
 	public function getTotalNew(): int {
-		return intval( $this->reportData['comp_new'] );
+		return (int)$this->reportData[ 'comp_new' ];
 	}
 
 	/**
@@ -424,7 +424,7 @@ class PointsCompReport {
 	 * @return int Total extended comps.
 	 */
 	public function getTotalExtended(): int {
-		return intval( $this->reportData['comp_extended'] );
+		return (int)$this->reportData[ 'comp_extended' ];
 	}
 
 	/**
@@ -433,7 +433,7 @@ class PointsCompReport {
 	 * @return int Total failed comps.
 	 */
 	public function getTotalFailed(): int {
-		return intval( $this->reportData['comp_failed'] );
+		return (int)$this->reportData[ 'comp_failed' ];
 	}
 
 	/**
@@ -442,7 +442,7 @@ class PointsCompReport {
 	 * @return int Total skipped comps.
 	 */
 	public function getTotalSkipped(): int {
-		return intval( $this->reportData['comp_skipped'] );
+		return (int)$this->reportData[ 'comp_skipped' ];
 	}
 
 	/**
@@ -451,7 +451,7 @@ class PointsCompReport {
 	 * @return int Total comps actually performed.
 	 */
 	public function getTotalPerformed(): int {
-		return intval( $this->reportData['comp_performed'] );
+		return (int)$this->reportData[ 'comp_performed' ];
 	}
 
 	/**
@@ -460,7 +460,7 @@ class PointsCompReport {
 	 * @return int Total users emailed.
 	 */
 	public function getTotalEmailed(): int {
-		return intval( $this->reportData['email_sent'] );
+		return (int)$this->reportData[ 'email_sent' ];
 	}
 
 	/**
@@ -469,7 +469,7 @@ class PointsCompReport {
 	 * @return bool Report Finished
 	 */
 	public function isFinished(): int {
-		return boolval( $this->reportData['finished'] );
+		return (bool)$this->reportData[ 'finished' ];
 	}
 
 	/**
@@ -480,7 +480,7 @@ class PointsCompReport {
 	 * @return void
 	 */
 	public function setFinished( bool $finished = false ): void {
-		$this->reportData['finished'] = intval( boolval( $finished ) );
+		$this->reportData['finished'] = (int)$finished;
 	}
 
 	/**
@@ -580,7 +580,7 @@ class PointsCompReport {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
 		if ( $minPointThreshold === null ) {
-			$minPointThreshold = intval( $config->get( 'CompedSubscriptionThreshold' ) );
+			$minPointThreshold = (int)$config->get( 'CompedSubscriptionThreshold' );
 		}
 
 		$status = self::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
@@ -598,7 +598,7 @@ class PointsCompReport {
 		$this->setEndTime( $timeEnd );
 
 		// Number of complimentary months someone is given.
-		$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
+		$compedSubscriptionMonths = (int)$config->get( 'CompedSubscriptionMonths' );
 		$newExpiresDT = new DateTime( 'now' );
 		$newExpiresDT->add( new DateInterval( 'P' . $compedSubscriptionMonths . 'M' ) );
 		$newExpires = $newExpiresDT->getTimestamp();
@@ -690,7 +690,7 @@ class PointsCompReport {
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$comp = $gamepediaPro->createCompedSubscription(
 				$user->getId(),
-				intval( $config->get( 'CompedSubscriptionMonths' ) )
+				(int)$config->get( 'CompedSubscriptionMonths' )
 			);
 
 			if ( $comp !== false ) {
@@ -707,7 +707,7 @@ class PointsCompReport {
 			!$isExtended,
 			$isExtended,
 			!$success,
-			intval( $subscription['expires'] ),
+			(int)$subscription[ 'expires' ],
 			$newExpires,
 			$success,
 			$emailSent
@@ -723,21 +723,16 @@ class PointsCompReport {
 	 * @return array Array of boolean status flags.
 	 */
 	public function getSubscription( UserIdentity $userIdentity, SubscriptionProvider $provider ): array {
-		$hasSubscription = false;
-		$paid = false;
-		$expires = null;
 		$subscription = $provider->getSubscription( $userIdentity->getId() );
-		if ( $subscription !== false && is_array( $subscription ) ) {
-			$hasSubscription = true;
-			$expires = (int)( $subscription[ 'expires' ] !== false ? $subscription[ 'expires' ]->getTimestamp( TS_UNIX ) : null );
-			if ( $subscription['plan_id'] !== 'complimentary' ) {
-				$paid = true;
-			}
+		if ( !is_array( $subscription ) ) {
+			return [ 'hasSubscription' => false, 'paid' => false, 'expires' => null ];
 		}
+
+		$expires = $subscription['expires'] !== false ? (int)$subscription['expires']->getTimestamp( TS_UNIX ) : 0;
 		return [
-			'hasSubscription'	=> $hasSubscription,
-			'paid'				=> $paid,
-			'expires'			=> $expires
+			'hasSubscription' => true,
+			'paid' => $subscription['plan_id'] !== 'complimentary',
+			'expires' => $expires
 		];
 	}
 
@@ -748,7 +743,7 @@ class PointsCompReport {
 	 */
 	public function compAllSubscriptions(): void {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
-		$compedSubscriptionMonths = intval( $config->get( 'CompedSubscriptionMonths' ) );
+		$compedSubscriptionMonths = (int)$config->get( 'CompedSubscriptionMonths' );
 		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 		foreach ( $this->reportUser as $userId => $data ) {
 			$this->compSubscription( $userFactory->newFromId( $userId ), $compedSubscriptionMonths );

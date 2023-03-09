@@ -19,15 +19,10 @@ use Job;
 use MediaWiki\MediaWikiServices;
 
 class CheevosIncrementJob extends Job {
-	/**
-	 * Queue a new job.
-	 *
-	 * @param array $parameters Job Parameters
-	 *
-	 * @return void
-	 */
-	public static function queue( array $parameters = [] ) {
-		$job = new self( __CLASS__, $parameters );
+	private const COMMAND = 'Cheevos\Job\CheevosIncrementJob';
+
+	public static function queue( array $parameters = [] ): void {
+		$job = new self( self::COMMAND, $parameters );
 		MediaWikiServices::getInstance()->getJobQueueGroup()->push( $job );
 	}
 

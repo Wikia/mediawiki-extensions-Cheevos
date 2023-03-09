@@ -35,7 +35,6 @@ use Reverb\Notification\NotificationBroadcast;
 use Skin;
 use SkinTemplate;
 use SpecialPage;
-use TemplateAchievements;
 use Title;
 use UploadBase;
 use User;
@@ -601,7 +600,7 @@ class CheevosHooks {
 			return true;
 		}
 
-		register_shutdown_function( 'Cheevos\CheevosHooks' );
+		register_shutdown_function( static fn() => self::doIncrements() );
 
 		self::$shutdownRegistered = true;
 
@@ -650,7 +649,7 @@ class CheevosHooks {
 			self::increment( 'visit', 1, $user );
 		}
 
-		register_shutdown_function( 'Cheevos\CheevosHooks' );
+		register_shutdown_function( static fn() => self::doIncrements() );
 
 		self::$shutdownRegistered = true;
 

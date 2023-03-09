@@ -16,6 +16,7 @@ namespace Cheevos\Points;
 use Cheevos\Cheevos;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
+use Cheevos\Templates\TemplateWikiPoints;
 use Html;
 use Linker;
 use MediaWiki\MediaWikiServices;
@@ -23,7 +24,6 @@ use Parser;
 use RedisCache;
 use RequestContext;
 use stdClass;
-use TemplateWikiPoints;
 use Title;
 use User;
 
@@ -43,7 +43,7 @@ class PointsDisplay {
 	 *
 	 * TODO: break this function down, make it easier to read
 	 *
-	 * @param Parser &$parser mediawiki Parser reference
+	 * @param Parser $parser mediawiki Parser reference
 	 * @param string $user ???????
 	 * @param int $limit [Optional] Limit results.
 	 * @param string $wikis [optional, default: ''] comma separated list of wiki namespaces,
@@ -59,7 +59,7 @@ class PointsDisplay {
 	 * @return array generated HTML string as element 0, followed by parser options
 	 */
 	public static function pointsBlock(
-		Parser &$parser,
+		Parser $parser,
 		string $user = '',
 		int $limit = 25,
 		string $wikis = '',
@@ -73,18 +73,11 @@ class PointsDisplay {
 
 		$globalId = null;
 		if ( !empty( $user ) ) {
-			$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $user );
-			if ( !$user || !$user->getId() ) {
+			$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
+				->getUserIdentityByName( $user );
+			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 				return [
 					wfMessage( 'user_not_found' )->escaped(),
-					'isHTML' => true,
-				];
-			}
-
-			$globalId = $user->getId();
-			if ( !$globalId ) {
-				return [
-					wfMessage( 'global_user_not_found' )->escaped(),
 					'isHTML' => true,
 				];
 			}
@@ -140,10 +133,10 @@ class PointsDisplay {
 		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 
-		$itemsPerPage = max( 1, min( intval( $itemsPerPage ), 200 ) );
-		$start = intval( $start );
-		$isSitesMode = boolval( $isSitesMode );
-		$isMonthly = boolval( $isMonthly );
+		$itemsPerPage = max( 1, min( (int)$itemsPerPage, 200 ) );
+		$start = (int)$start;
+		$isSitesMode = (bool)$isSitesMode;
+		$isMonthly = (bool)$isMonthly;
 
 		$statProgress = self::getPoints( $siteKey, $globalId, $itemsPerPage, $start, $isSitesMode, $isMonthly );
 
@@ -312,10 +305,10 @@ class PointsDisplay {
 		?bool $isSitesMode = false,
 		?bool $isMonthly = false
 	): array {
-		$itemsPerPage = max( 1, min( intval( $itemsPerPage ), 200 ) );
-		$start = intval( $start );
-		$isSitesMode = boolval( $isSitesMode );
-		$isMonthly = boolval( $isMonthly );
+		$itemsPerPage = max( 1, min( (int)$itemsPerPage, 200 ) );
+		$start = (int)$start;
+		$isSitesMode = (bool)$isSitesMode;
+		$isMonthly = (bool)$isMonthly;
 
 		$total = 0;
 
@@ -335,7 +328,7 @@ class PointsDisplay {
 		}
 
 		if ( $globalId > 0 ) {
-			$filters['user_id'] = intval( $globalId );
+			$filters['user_id'] = (int)$globalId;
 		}
 
 		$statProgress = [];
@@ -407,7 +400,7 @@ class PointsDisplay {
 			'global'	=> ( $siteKey === null ? true : false )
 		];
 
-		$monthsAgo = intval( $monthsAgo );
+		$monthsAgo = (int)$monthsAgo;
 		if ( $monthsAgo > 0 ) {
 			$filters['start_time'] = strtotime(
 				date( 'Y-m-d', strtotime( $monthsAgo . ' month ago' ) ) . 'T00:00:00+00:00'
@@ -424,7 +417,7 @@ class PointsDisplay {
 
 		foreach ( $statProgress as $progress ) {
 			if ( $progress->getStat() === 'wiki_points' ) {
-				return intval( $progress->getCount() );
+				return (int)$progress->getCount();
 			}
 		}
 

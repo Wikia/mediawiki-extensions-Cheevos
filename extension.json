@@ -1,6 +1,6 @@
 {
 	"name": "Cheevos",
-	"version": "1.0.2",
+	"version": "2.0.0",
 	"author": ["Hydra Wiki Platform Team"],
 	"license-name": "GPL-2.0-or-later",
 	"descriptionmsg": "achievements_description",
@@ -88,10 +88,10 @@
 		"Cheevos\\Job\\PointsCompJob": "Cheevos\\Job\\PointsCompJob"
 	},
 	"AutoloadNamespaces": {
-		"Cheevos": "src/"
+		"Cheevos\\": "src/"
 	},
 	"AutoloadClasses": {
-		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
+		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php"
 	},
 	"ServiceWiringFiles": ["ServiceWiring.php"],
 	"ResourceModules": {
