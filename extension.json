@@ -224,6 +224,7 @@
 			"class": "Cheevos\\CheevosHooks",
 			"services": [
 				"LinkRenderer",
+				"UserFactory",
 				"MainConfig",
 				"RevisionStore",
 				"DBLoadBalancer",

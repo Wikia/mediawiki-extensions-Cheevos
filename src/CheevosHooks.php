@@ -42,6 +42,7 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use MobileContext;
 use RedisCache;
@@ -90,6 +91,7 @@ class CheevosHooks implements
 
 	public function __construct(
 		private LinkRenderer $linkRenderer,
+		private UserFactory $userFactory,
 		private Config $config,
 		private RevisionStore $revisionStore,
 		private RedisCache $redisCache,
@@ -136,7 +138,7 @@ class CheevosHooks implements
 	 * This hook will not be called if a null revision is created.
 	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
-		$isBot = $user->isAllowed( 'bot' );
+		$isBot = $this->userFactory->newFromUserIdentity( $user )->isAllowed( 'bot' );
 		$parentRevisionId = $rev->getParentId();
 
 		if ( !$parentRevisionId ) {

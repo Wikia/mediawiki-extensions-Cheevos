@@ -4,6 +4,8 @@ $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.
 
 $cfg['suppress_issue_types'] = [
 	'PhanUndeclaredClassReference',
+	'PhanUndeclaredTypeParameter',
+	'PhanUndeclaredClassMethod',
 	// Phan Gets lost with submodule setups dependencies
 	'SecurityCheck-LikelyFalsePositive'
 ];
