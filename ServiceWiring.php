@@ -44,7 +44,8 @@ return [
 
 	CheevosHelper::class => static function ( MediaWikiServices $services ): CheevosHelper {
 		return new CheevosHelper(
-			$services->getService( AchievementService::class )
+			$services->getService( AchievementService::class ),
+			$services->getMainConfig()
 		);
 	},
 ];

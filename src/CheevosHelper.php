@@ -13,6 +13,7 @@
 namespace Cheevos;
 
 use Cheevos\Job\CheevosIncrementJob;
+use Config;
 use Exception;
 use Fandom\WikiConfig\WikiVariablesDataService;
 use MediaWiki\MediaWikiServices;
@@ -27,7 +28,10 @@ class CheevosHelper {
 	private static bool $shutdownRegistered = false;
 	private static bool $shutdownRan = false;
 
-	public function __construct( private AchievementService $achievementService ) {
+	public function __construct(
+		private AchievementService $achievementService,
+		private Config $config
+	) {
 	}
 
 	public function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): void {
@@ -143,11 +147,9 @@ class CheevosHelper {
 	 *
 	 * @return string Site Name with Language
 	 */
-	public static function getSiteName( string $siteKey, ?WikiConfigData $wiki = null ): string {
-		$services = MediaWikiServices::getInstance();
-		$config = $services->getMainConfig();
-		$sitename = $config->get( 'Sitename' );
-		$languageCode = $config->get( 'LanguageCode' );
+	public function getSiteName( string $siteKey, ?WikiConfigData $wiki = null ): string {
+		$sitename = $this->config->get( 'Sitename' );
+		$languageCode = $this->config->get( 'LanguageCode' );
 
 		$dsSiteKey = self::getSiteKey();
 
@@ -161,9 +163,7 @@ class CheevosHelper {
 			}
 		}
 
-		$sitename = sprintf( '%s (%s)', $sitename, mb_strtoupper( $languageCode, 'UTF-8' ) );
-
-		return $sitename;
+		return sprintf( '%s (%s)', $sitename, mb_strtoupper( $languageCode, 'UTF-8' ) );
 	}
 
 	/**

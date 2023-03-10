@@ -41,17 +41,7 @@ class CheevosAchievement extends CheevosModel {
 	private ?array $requiredBy = null;
 
 	private AchievementService $achievementService;
-	/**
-	 * Constructor
-	 *
-	 * @param array|null $data Associated array of property values initializing the model.
-	 *                    Nearly every property is type constrained to check for data
-	 *                    integrity.  However, those that initialize submodels
-	 *                    support taking an already initialized object or an array
-	 *                    for their container model.
-	 *
-	 * @return void
-	 */
+
 	public function __construct( array $data = null ) {
 		$this->achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
@@ -153,7 +143,8 @@ class CheevosAchievement extends CheevosModel {
 		if ( $this->container['name'] == null || !count( $this->container['name'] ) ) {
 			return "";
 		}
-		$code = CheevosHelper::getUserLanguage();
+		$cheevosHelper = MediaWikiServices::getInstance()->getService( CheevosHelper::class );
+		$code = $cheevosHelper->getUserLanguage();
 		if ( array_key_exists( $code, $this->container['name'] ) && isset( $this->container['name'][$code] ) ) {
 			$name = $this->container['name'][$code];
 		} else {
@@ -164,7 +155,7 @@ class CheevosAchievement extends CheevosModel {
 			$siteKey = $this->container['site_key'];
 		}
 
-		$sitename = CheevosHelper::getSiteName( $siteKey );
+		$sitename = $cheevosHelper->getSiteName( $siteKey );
 
 		return str_replace( "{{SITENAME}}", $sitename, $name );
 	}

@@ -12,7 +12,6 @@
 
 namespace Cheevos;
 
-use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
 use Config;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
@@ -32,7 +31,6 @@ use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
 use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Hook\UserToolLinksEditHook;
 use MediaWiki\Hook\WatchArticleCompleteHook;
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;

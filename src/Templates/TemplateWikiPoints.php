@@ -39,6 +39,7 @@ class TemplateWikiPoints {
 		bool $isSitesMode = false,
 		bool $isMonthly = false
 	): string {
+		$cheevosHelper = MediaWikiServices::getInstance()->getService( CheevosHelper::class );
 		$html = "
 		<div>$pagination</div>
 		<table class='wikitable'>
@@ -57,7 +58,7 @@ class TemplateWikiPoints {
 			foreach ( $userPoints as $userPointsRow ) {
 				$wikiName = $userPointsRow->siteKey;
 				if ( $isSitesMode && isset( $wikis[$userPointsRow->siteKey] ) ) {
-					$wikiName = CheevosHelper::getSiteName( $userPointsRow->siteKey, $wikis[$userPointsRow->siteKey] );
+					$wikiName = $cheevosHelper->getSiteName( $userPointsRow->siteKey, $wikis[$userPointsRow->siteKey] );
 				}
 				$i++;
 				$html .= "

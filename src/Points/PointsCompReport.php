@@ -754,8 +754,6 @@ class PointsCompReport {
 	 * Create a subscription compensation in the billing service.
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
-	 * @param int $numberOfMonths Number of months into the future to compensate.
-	 *
 	 * @return bool Success
 	 */
 	public function compSubscription( UserIdentity $userIdentity, int $numberOfMonths ): bool {
