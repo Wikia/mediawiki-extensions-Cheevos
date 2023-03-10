@@ -234,8 +234,7 @@
 			]
 		},
 		"CheevosRegistrationHandler": {
-			"class": "Cheevos\\CheevosRegistrationCallback",
-			"services": []
+			"class": "Cheevos\\CheevosRegistrationCallback"
 		}
 	},
 	"Hooks": {

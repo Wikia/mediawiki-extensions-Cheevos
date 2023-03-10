@@ -28,9 +28,10 @@ class CheevosRegistrationCallback implements LoadExtensionSchemaUpdatesHook {
 
 	/** @inheritDoc */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
+		global $wgCheevosIsCentral;
 		$extDir = __DIR__;
 
-		if ( CheevosHelper::isCentralWiki() ) {
+		if ( $wgCheevosIsCentral ) {
 			$updater->addExtensionTable(
 				'points_comp_report',
 				"$extDir/install/sql/table_points_comp_report.sql"
