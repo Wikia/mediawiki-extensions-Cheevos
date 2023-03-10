@@ -54,13 +54,17 @@ class CheevosAchievement extends CheevosModel {
 		$this->container['description'] = isset( $data['description'] ) &&
 										  is_array( $data['description'] ) ? $data['description'] : [];
 		$this->container['image'] = isset( $data['image'] ) && is_string( $data['image'] ) ? $data['image'] : '';
-		$this->container['category'] = isset( $data['category'] ) &&
-									   $data['category'] instanceof CheevosAchievementCategory ?
-			$data['category'] :
-			( is_array( $data['category'] ) ?
-				new CheevosAchievementCategory( $data['category'] ) :
-				new CheevosAchievementCategory()
-			);
+
+		if ( !isset( $data['category'] ) ) {
+			$this->container['category'] = new CheevosAchievementCategory();
+		} elseif ( $data['category'] instanceof CheevosAchievementCategory ) {
+			$this->container['category'] = $data['category'];
+		} elseif ( is_array( $data['category'] ) ) {
+			$this->container['category'] = new CheevosAchievementCategory( $data['category'] );
+		} else {
+			$this->container['category'] = new CheevosAchievementCategory();
+		}
+
 		$this->container['points'] = isset( $data['points'] ) && is_int( $data['points'] ) ? $data['points'] : 0;
 		$this->container['global'] = isset( $data['global'] ) && is_bool( $data['global'] ) && $data['global'];
 		$this->container['protected'] = isset( $data['protected'] ) &&
@@ -81,13 +85,16 @@ class CheevosAchievement extends CheevosModel {
 										 is_int( $data['updated_by'] ) ? $data['updated_by'] : 0;
 		$this->container['deleted_by'] = isset( $data['deleted_by'] ) &&
 										 is_int( $data['deleted_by'] ) ? $data['deleted_by'] : 0;
-		$this->container['criteria'] = isset( $data['criteria'] ) &&
-									   $data['criteria'] instanceof CheevosAchievementCriteria ?
-			$data['criteria'] :
-			( is_array( $data['criteria'] ) ?
-				new CheevosAchievementCriteria( $data['criteria'] ) :
-				new CheevosAchievementCriteria()
-			);
+
+		if ( !isset( $data['criteria'] ) ) {
+			$this->container['criteria'] = new CheevosAchievementCriteria();
+		} elseif ( $data['criteria'] instanceof CheevosAchievementCriteria ) {
+			$this->container['criteria'] = $data['criteria'];
+		} elseif ( is_array( $data['criteria'] ) ) {
+			$this->container['criteria'] = new CheevosAchievementCriteria( $data['criteria'] );
+		} else {
+			$this->container['criteria'] = new CheevosAchievementCriteria();
+		}
 	}
 
 	/**

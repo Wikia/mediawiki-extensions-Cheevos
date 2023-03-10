@@ -144,7 +144,7 @@ class AchievementService {
 			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
 		}
 
-		$response = $this->cheevosClient->get( "achievements/$id" );
+		$response = $this->cheevosClient->get( "achievement/$id" );
 		try {
 			$redis->setEx( $redisKey, self::TTL_5_MIN, json_encode( $response ) );
 		} catch ( RedisException $e ) {
@@ -488,7 +488,7 @@ class AchievementService {
 		$result = [];
 		foreach ( $allowedKeys as $key ) {
 			if ( isset( $filters[$key] ) ) {
-				$filters[$key] = (int)$filters[ $key ];
+				$result[$key] = (int)$filters[ $key ];
 			}
 		}
 

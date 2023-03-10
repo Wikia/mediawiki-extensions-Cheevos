@@ -439,7 +439,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		// Using the 'master' site key for the awarding form.
 		[ $allAchievements, ] = CheevosAchievement::pruneAchievements(
-			[ $this->achievementService->getAchievement( $this->siteKey ), [] ]
+			[ $this->achievementService->getAchievements( $this->siteKey ), [] ]
 		);
 
 		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );

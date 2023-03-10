@@ -94,8 +94,8 @@ class CheevosHooks implements
 		private UserFactory $userFactory,
 		private Config $config,
 		private RevisionStore $revisionStore,
-		private RedisCache $redisCache,
 		private ILoadBalancer $loadBalancer,
+		private RedisCache $redisCache,
 		private MobileContext $mobileContext,
 		private AchievementService $achievementService,
 		private CheevosHelper $cheevosHelper

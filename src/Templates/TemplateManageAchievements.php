@@ -473,7 +473,7 @@ class TemplateManageAchievements {
 
 	/** Achievement Delete/Restore/Revert Form */
 	public function achievementStateChange( CheevosAchievement $achievement, string $action ): string {
-		$targetUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', $action );
+		$targetUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', $action )->getFullURL();
 
 		return "
 		<form method='post' action='$targetUrl'>
@@ -491,7 +491,7 @@ class TemplateManageAchievements {
 		$awardUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', 'award' )->getFullURL();
 
 		$HTML = '';
-		$wasAwarded = $request->getVal( 'do' ) == wfMessage( 'award' )->escaped();
+		$wasAwarded = $request->getVal( 'do' ) === 'award';
 		if ( isset( $form['success'] ) && is_array( $form['success'] ) ) {
 			foreach ( $form['success'] as $s ) {
 				if ( $s['message'] == "success" ) {
@@ -499,10 +499,7 @@ class TemplateManageAchievements {
 							 wfMessage(
 								 'achievement_awarded_to',
 								 $s['username'],
-
-								 ( $request->getVal( 'do' ) == wfMessage( 'award' )->escaped() ?
-									 wfMessage( 'awarded' ) :
-									 wfMessage( 'unawarded' ) )
+								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
 				if ( $s['message'] == "nochange" ) {
@@ -510,10 +507,7 @@ class TemplateManageAchievements {
 							 wfMessage(
 								 'achievement_nochange_to',
 								 $s['username'],
-								 (
-									 $request->getVal( 'do' ) == wfMessage( 'award' )->escaped() ?
-										 wfMessage( 'awarded' ) :
-										 wfMessage( 'unawarded' ) )
+								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
 			}
@@ -531,13 +525,14 @@ class TemplateManageAchievements {
 				$HTML .= "<div class='errorbox'>" .
 						 wfMessage(
 							 'achievement_award_failed',
-							 mb_strtolower( ( $wasAwarded ?
-								 wfMessage( 'award' ) :
-								 wfMessage( 'unaward' )
-							 ), 'UTF-8' ),
-							 mb_strtolower( ( $wasAwarded ?
-								 wfMessage( 'awarded' ) :
-								 wfMessage( 'unawarded' ) ), 'UTF-8' )
+							 mb_strtolower(
+								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' ),
+								 'UTF-8'
+							 ),
+							 mb_strtolower(
+								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' ),
+								 'UTF-8'
+							 )
 						 )->escaped() . "
 					<br />" . $form['success']['message'] . "
 					</div>";
