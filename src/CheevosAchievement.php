@@ -40,6 +40,7 @@ class CheevosAchievement extends CheevosModel {
 	 */
 	private ?array $requiredBy = null;
 
+	private AchievementService $achievementService;
 	/**
 	 * Constructor
 	 *
@@ -52,6 +53,7 @@ class CheevosAchievement extends CheevosModel {
 	 * @return void
 	 */
 	public function __construct( array $data = null ) {
+		$this->achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
 		$this->container['parent_id'] = isset( $data['parent_id'] ) &&
 										is_int( $data['parent_id'] ) ? $data['parent_id'] : 0;
@@ -103,47 +105,39 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @param bool $forceCreate Force create instead of save.
 	 * Typically used when copying from a global parent to a child.
-	 *
-	 * @return array Success Result
 	 */
-	public function save( bool $forceCreate = false ): mixed {
+	public function save( bool $forceCreate = false ): void {
 		if ( $this->readOnly ) {
 			throw new CheevosException( "This object is read only and can not be saved." );
 		}
 
 		if ( $this->getId() !== null && !$forceCreate ) {
-			$result = Cheevos::updateAchievement( $this->getId(), $this->toArray() );
+			$this->achievementService->updateAchievement( $this->getId(), $this->toArray() );
 		} else {
-			$result = Cheevos::createAchievement( $this->toArray() );
-		}
-		return $result;
-	}
-
-	public function exists() {
-		if ( $this->getId() > 0 ) {
-			$return = true;
-			try {
-				// Throws an error if it doesn't exist.
-				$test = Cheevos::getAchievement( $this->getId() );
-			} catch ( CheevosException $e ) {
-				$return = false;
-			}
-			return $return;
-		} else {
-			return false; // no ID on this. Can't exist?
+			$this->achievementService->createAchievement( $this->toArray() );
 		}
 	}
 
-	public function isManuallyAwarded() {
-		$crit = $this->getCriteria();
-		if ( !isset( $crit['category_id'] ) && !$crit['stats'] && !$crit['achievement_ids'] ) {
+	public function exists(): bool {
+		if ( $this->getId() <= 0 ) {
+			return false;
+		}
+
+		try {
+			// Throws an error if it doesn't exist.
+			$this->achievementService->getAchievement( $this->getId() );
 			return true;
-		} else {
+		} catch ( CheevosException $e ) {
 			return false;
 		}
 	}
 
-	public function isMega() {
+	public function isManuallyAwarded(): bool {
+		$crit = $this->getCriteria();
+		return !isset( $crit[ 'category_id' ] ) && !$crit[ 'stats' ] && !$crit[ 'achievement_ids' ];
+	}
+
+	public function isMega(): bool {
 		return false; // No no no... you buy.
 	}
 
@@ -212,9 +206,9 @@ class CheevosAchievement extends CheevosModel {
 			 isset( $this->container['description'][$code] )
 		) {
 			return $this->container['description'][$code];
-		} else {
-			return reset( $this->container['description'] );
 		}
+
+		return reset( $this->container['description'] );
 	}
 
 	/**
@@ -262,7 +256,7 @@ class CheevosAchievement extends CheevosModel {
 			return $url;
 		}
 
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
+		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$url = $wgExtensionAssetsPath . $config->get( 'AchImageFallback' );
 		if ( !empty( $url ) ) {
 			return $url;
@@ -292,7 +286,7 @@ class CheevosAchievement extends CheevosModel {
 	 * @return bool Is Deleted
 	 */
 	public function isDeleted(): bool {
-		return boolval( $this->container['deleted_at'] );
+		return (bool)$this->container[ 'deleted_at' ];
 	}
 
 	/**
@@ -301,7 +295,7 @@ class CheevosAchievement extends CheevosModel {
 	 * @return bool Is Child
 	 */
 	public function isChild(): bool {
-		return boolval( $this->container['parent_id'] );
+		return (bool)$this->container[ 'parent_id' ];
 	}
 
 	/**
@@ -472,7 +466,7 @@ class CheevosAchievement extends CheevosModel {
 		}
 
 		$this->requiredBy = [];
-		$achievements = Cheevos::getAchievements( $dsSiteKey );
+		$achievements = $this->achievementService->getAchievements( $dsSiteKey );
 		foreach ( $achievements as $id => $achievement ) {
 			$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 			if ( in_array( $this->getId(), $requiredIds ) ) {

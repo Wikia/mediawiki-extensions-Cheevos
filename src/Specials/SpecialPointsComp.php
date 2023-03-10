@@ -102,11 +102,11 @@ class SpecialPointsComp extends SpecialPage {
 		}
 
 		$reportId = $request->getInt( 'report_id' );
-		if ( $reportId <= 0 ) {
+		if ( $reportId < 0 ) {
 			throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
 		}
 
-		$report = PointsCompReport::newFromId( $reportId );
+		$report = $reportId ? PointsCompReport::newFromId( $reportId ) : null;
 		$doCompUser = $this->userIdentityLookup->getUserIdentityByUserId( $request->getInt( 'compUser' ) );
 		$doEmailUser = $this->userIdentityLookup->getUserIdentityByUserId( $request->getInt( 'emailUser' ) );
 		if ( $report && ( $doCompUser?->isRegistered() || $doEmailUser?->isRegistered() ) ) {

@@ -47,13 +47,13 @@ class PointsCompJob extends Job {
 	public function run() {
 		$args = $this->getParams();
 
-		$minPointThreshold = ( isset( $args['min_point_threshold'] ) ? intval( $args['min_point_threshold'] ) : null );
-		$maxPointThreshold = ( isset( $args['max_point_threshold'] ) ? intval( $args['max_point_threshold'] ) : null );
-		$startTime = ( isset( $args['start_time'] ) ? intval( $args['start_time'] ) : 0 );
-		$endTime = ( isset( $args['end_time'] ) ? intval( $args['end_time'] ) : 0 );
-		$final = ( isset( $args['final'] ) ? boolval( $args['final'] ) : false );
-		$email = ( isset( $args['email'] ) ? boolval( $args['email'] ) : false );
-		$reportId = ( isset( $args['report_id'] ) ? intval( $args['report_id'] ) : null );
+		$minPointThreshold = isset( $args['min_point_threshold'] ) ? (int)$args[ 'min_point_threshold' ] : null;
+		$maxPointThreshold = isset( $args['max_point_threshold'] ) ? (int)$args[ 'max_point_threshold' ] : null;
+		$startTime = isset( $args['start_time'] ) ? (int)$args[ 'start_time' ] : 0;
+		$endTime = isset( $args['end_time'] ) ? (int)$args[ 'end_time' ] : 0;
+		$final = isset( $args[ 'final' ] ) && $args[ 'final' ];
+		$email = isset( $args[ 'email' ] ) && $args[ 'email' ];
+		$reportId = isset( $args['report_id'] ) ? (int)$args[ 'report_id' ] : null;
 
 		// Wait for any lag, since this job was created immediately after the report was written:
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -72,11 +72,11 @@ class PointsCompJob extends Job {
 
 		try {
 			$skipReport = false;
-			if ( isset( $args['grantAll'] ) && $args['grantAll'] = true ) {
+			if ( isset( $args['grantAll'] ) && $args['grantAll'] ) {
 				$report->compAllSubscriptions();
 				$skipReport = true;
 			}
-			if ( isset( $args['emailAll'] ) && $args['emailAll'] = true ) {
+			if ( isset( $args['emailAll'] ) && $args['emailAll'] ) {
 				$report->sendAllEmails();
 				$skipReport = true;
 			}

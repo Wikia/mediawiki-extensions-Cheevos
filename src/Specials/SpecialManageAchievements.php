@@ -532,7 +532,6 @@ class SpecialManageAchievements extends SpecialPage {
 			if ( $currentProgress !== null && $currentProgress->getId() && $do === 'unaward' ) {
 				try {
 					$award = $this->achievementService->deleteProgress( $currentProgress->getId() );
-					$this->getHookContainer()->run( 'AchievementUnawarded', [ $achievement, $globalId ] );
 				} catch ( CheevosException $e ) {
 					$errors[] = [
 						'username' => $username,

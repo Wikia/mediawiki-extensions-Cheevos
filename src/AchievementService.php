@@ -229,7 +229,7 @@ class AchievementService {
 
 	/** Delete progress towards an achievement. */
 	public function deleteProgress( int $id ): array {
-		return $this->cheevosClient->get( "achievements/progress/$id" );
+		return $this->cheevosClient->delete( "achievements/progress/$id" );
 	}
 
 	/**
@@ -435,7 +435,7 @@ class AchievementService {
 	 *                          does minimum validation of the filters.  For example, sending a numeric
 	 *                          string when the service is expecting an integer will result in an
 	 *                          exception being thrown.
-	 * 		                    - $filters = [
+	 *                          - $filters = [
 	 *                          -     'user_id' => 1, //Limit by service user ID.
 	 *                          -     'site_key' => 'example', //Limit by site key.
 	 *                          -     'stat' => 'example', //Filter by a specific stat name.
@@ -443,7 +443,7 @@ class AchievementService {
 	 *                          -     'month' => 1601510400, //Limit to one month (starting timestamp).
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
-	 * 		                    - ];
+	 *                          - ];
 	 * @return CheevosStatMonthlyCount[]
 	 */
 	public function getStatMonthlyCount( array $filters = [], ?UserIdentity $userIdentity = null ): array {

@@ -232,6 +232,10 @@
 				"Cheevos\\AchievementService",
 				"Cheevos\\CheevosHelper"
 			]
+		},
+		"CheevosRegistrationHandler": {
+			"class": "Cheevos\\CheevosRegistrationCallback",
+			"services": []
 		}
 	},
 	"Hooks": {
@@ -248,7 +252,7 @@
 		"CurseProfileCanComment": "CheevosHookHandler",
 		"CurseProfileEdited": "CheevosHookHandler",
 		"EmailUserComplete": "CheevosHookHandler",
-		"LoadExtensionSchemaUpdates": "CheevosHookHandler",
+		"LoadExtensionSchemaUpdates": "CheevosRegistrationHandler",
 		"LocalUserCreated": "CheevosHookHandler",
 		"LoginFormValidErrorMessages": "CheevosHookHandler",
 		"GetMagicVariableIDs": "CheevosHookHandler",

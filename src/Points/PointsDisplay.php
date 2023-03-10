@@ -13,7 +13,7 @@
 
 namespace Cheevos\Points;
 
-use Cheevos\Cheevos;
+use Cheevos\AchievementService;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Templates\TemplateWikiPoints;
@@ -334,13 +334,15 @@ class PointsDisplay {
 		$statProgress = [];
 		if ( $isMonthly ) {
 			try {
-				$statProgress = Cheevos::getStatMonthlyCount( $filters );
+				$statProgress = MediaWikiServices::getInstance()->getService( AchievementService::class )
+					->getStatMonthlyCount( $filters );
 			} catch ( CheevosException $e ) {
 				wfDebug( __METHOD__ . ": " . wfMessage( 'cheevos_api_error', $e->getMessage() ) );
 			}
 		} else {
 			try {
-				$statProgress = Cheevos::getStatProgress( $filters );
+				$statProgress = MediaWikiServices::getInstance()->getService( AchievementService::class )
+					->getStatProgress( $filters );
 			} catch ( CheevosException $e ) {
 				wfDebug( __METHOD__ . ": " . wfMessage( 'cheevos_api_error', $e->getMessage() ) );
 			}
@@ -410,7 +412,8 @@ class PointsDisplay {
 
 		$statProgress = [];
 		try {
-			$statProgress = Cheevos::getStatProgress( $filters );
+			$statProgress = MediaWikiServices::getInstance()->getService( AchievementService::class )
+				->getStatProgress( $filters );
 		} catch ( CheevosException $e ) {
 			wfDebug( "Encountered Cheevos API error {$e->getMessage()}\n" );
 		}

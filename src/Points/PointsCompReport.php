@@ -13,7 +13,7 @@
 
 namespace Cheevos\Points;
 
-use Cheevos\Cheevos;
+use Cheevos\AchievementService;
 use Cheevos\CheevosStatMonthlyCount;
 use DateInterval;
 use DateTime;
@@ -22,7 +22,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
 use MWException;
 use Status;
-use Subscription\Subscription;
+use Subscription\Providers\GamepediaPro;
 use Subscription\SubscriptionProvider;
 use User;
 
@@ -603,8 +603,7 @@ class PointsCompReport {
 		$newExpiresDT->add( new DateInterval( 'P' . $compedSubscriptionMonths . 'M' ) );
 		$newExpires = $newExpiresDT->getTimestamp();
 
-		$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
-		Subscription::skipCache( true );
+		$gamepediaPro = MediaWikiServices::getInstance()->getService( GamepediaPro::class );
 
 		$limit = 200;
 		$filters = [
@@ -616,7 +615,8 @@ class PointsCompReport {
 		];
 
 		while ( true ) {
-			$statMonthly = Cheevos::getStatMonthlyCount( $filters );
+			$statMonthly = MediaWikiServices::getInstance()->getService( AchievementService::class )
+				->getStatMonthlyCount( $filters );
 			$finished = false;
 
 			foreach ( $statMonthly as $monthly ) {
@@ -759,7 +759,7 @@ class PointsCompReport {
 	 * @return bool Success
 	 */
 	public function compSubscription( UserIdentity $userIdentity, int $numberOfMonths ): bool {
-		$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
+		$gamepediaPro = MediaWikiServices::getInstance()->getService( GamepediaPro::class );
 
 		$newExpiresDT = new DateTime( 'now' );
 		$newExpiresDT->add( new DateInterval( 'P' . $numberOfMonths . 'M' ) );
