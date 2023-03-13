@@ -47,19 +47,13 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->getUser()->isAllowed( 'achievement_admin' )
 		);
 
-		$dsSiteKey = CheevosHelper::getSiteKey();
-		$this->template = new TemplateManageAchievements();
-		$this->siteKey = $dsSiteKey;
-		$this->isMaster = false;
-
+		$this->siteKey = CheevosHelper::getSiteKey();
 		if ( empty( $this->siteKey ) ) {
 			throw new MWException( 'Could not determined the site key for use for Achievements.' );
 		}
 
-		if ( $this->siteKey == "master" ) {
-			$this->siteKey = '';
-			$this->isMaster = true;
-		}
+		$this->isMaster = CheevosHelper::isCentralWiki();
+		$this->template = new TemplateManageAchievements();
 	}
 
 	/** @inheritDoc */
@@ -217,7 +211,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$criteria->setStreak( $request->getText( "criteria_streak" ) );
 		$criteria->setStreak_Progress_Required( $request->getInt( "criteria_streak_progress_required" ) );
 		$criteria->setStreak_Reset_To_Zero( $request->getBool( "criteria_streak_reset_to_zero" ) );
-		if ( $this->siteKey === 'master' ) {
+		if ( $this->isMaster ) {
 			$criteria->setPer_Site_Progress_Maximum(
 				$request->getInt( "criteria_per_site_progress_maximum" )
 			);
@@ -287,7 +281,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$this->achievement->setSecret( $request->getBool( 'secret' ) );
-		if ( $this->siteKey === 'master' ) {
+		if ( $this->isMaster ) {
 			// Set global to true should always happen after setting the site ID and site key,
 			// Otherwise it could create a global achievement with a site ID and site key.
 			$this->achievement->setGlobal( $request->getBool( 'global' ) );

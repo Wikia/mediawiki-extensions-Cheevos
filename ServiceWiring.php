@@ -6,8 +6,10 @@ use Cheevos\AchievementService;
 use Cheevos\CheevosClient;
 use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
+use Fandom\Includes\Article\GlobalTitleLookup;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcastFactory;
+use WikiDomain\WikiConfigDataService;
 
 return [
 	CheevosClient::class => static function ( MediaWikiServices $services ): CheevosClient {
@@ -45,7 +47,9 @@ return [
 	CheevosHelper::class => static function ( MediaWikiServices $services ): CheevosHelper {
 		return new CheevosHelper(
 			$services->getService( AchievementService::class ),
-			$services->getMainConfig()
+			$services->getMainConfig(),
+			$services->getService( GlobalTitleLookup::class ),
+			$services->getService( WikiConfigDataService::class )
 		);
 	},
 ];

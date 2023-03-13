@@ -207,11 +207,7 @@ class AchievementService {
 	 * @return CheevosAchievementProgress[]
 	 */
 	public function getAchievementProgress( array $filters = [], ?UserIdentity $user = null ): array {
-		$parsedFilters = $this->parseFilters(
-			$filters,
-			[ 'user_id', 'achievement_id', 'category_id', 'limit', 'offset' ],
-			$user
-		);
+		$parsedFilters = $this->parseFilters( $filters, $user );
 
 		$response = $this->cheevosClient->get( 'achievements/progress', $parsedFilters );
 		return $this->cheevosClient->parse( $response, 'progress', CheevosAchievementProgress::class );
@@ -372,12 +368,7 @@ class AchievementService {
 	 * @return CheevosStatProgress[]
 	 */
 	public function getStatProgress( array $filters = [], ?UserIdentity $userIdentity = null ): array {
-		$parsedFilters = $this->parseFilters(
-			$filters,
-			[ 'user_id', 'start_time', 'end_time', 'limit', 'offset' ],
-			$userIdentity,
-			200
-		);
+		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
 
 		return $this->cheevosClient->parse(
 			$this->cheevosClient->get( 'stats', $parsedFilters ),
@@ -404,12 +395,7 @@ class AchievementService {
 	 * @return CheevosWikiPointLog[]
 	 */
 	public function getWikiPointLog( array $filters = [], ?UserIdentity $userIdentity = null ): array {
-		$parsedFilters = $this->parseFilters(
-			$filters,
-			[ 'user_id', 'limit', 'offset' ],
-			$userIdentity,
-			25
-		);
+		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 25 );
 
 		return $this->cheevosClient->parse(
 			$this->cheevosClient->get( 'points/user', $parsedFilters ),
@@ -447,12 +433,7 @@ class AchievementService {
 	 * @return CheevosStatMonthlyCount[]
 	 */
 	public function getStatMonthlyCount( array $filters = [], ?UserIdentity $userIdentity = null ): array {
-		$parsedFilters = $this->parseFilters(
-			$filters,
-			[ 'user_id', 'limit', 'offset' ],
-			$userIdentity,
-			200
-		);
+		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
 		$response = $this->cheevosClient->get( 'stats/monthly', $parsedFilters );
 		return $this->cheevosClient->parse( $response, 'stats', CheevosStatMonthlyCount::class );
 	}
@@ -479,27 +460,15 @@ class AchievementService {
 		);
 	}
 
-	private function parseFilters(
-		array $filters,
-		array $allowedKeys,
-		?UserIdentity $userIdentity,
-		?int $defaultLimit = null
-	): array {
-		$result = [];
-		foreach ( $allowedKeys as $key ) {
-			if ( isset( $filters[$key] ) ) {
-				$result[$key] = (int)$filters[ $key ];
-			}
-		}
-
+	private function parseFilters( array $filters, ?UserIdentity $userIdentity, ?int $defaultLimit = null ): array {
 		if ( $userIdentity !== null ) {
-			$result['user_id'] = $userIdentity->getId();
+			$filters['user_id'] = $userIdentity->getId();
 		}
 
 		if ( $defaultLimit !== null ) {
-			$result['limit'] = $result['limit'] ?? $defaultLimit;
+			$filters['limit'] = $filters['limit'] ?? $defaultLimit;
 		}
-		return $result;
+		return $filters;
 	}
 
 	// TODO--note on CR - I changed unserialize/servialize to json_decode/encode and bumped chache version

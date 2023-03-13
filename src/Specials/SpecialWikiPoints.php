@@ -73,7 +73,7 @@ class SpecialWikiPoints extends SpecialPage {
 
 		$html = TemplateWikiPoints::getWikiPointsLinks();
 		if ( !$isMonthly ) {
-			$html .= TemplateWikiPointsAdmin::userSearch( $thisPage, $username, $error ) . "<hr/>";
+			$html .= TemplateWikiPointsAdmin::userSearch( $thisPage, $error, $username ) . "<hr/>";
 		}
 		$html .= PointsDisplay::pointsBlockHtml(
 			$isSitesMode || $isGlobal ? null : CheevosHelper::getSiteKey(),

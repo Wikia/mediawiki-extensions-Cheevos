@@ -29,7 +29,7 @@ class CheevosRegistrationCallback implements LoadExtensionSchemaUpdatesHook {
 	/** @inheritDoc */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
 		global $wgCheevosIsCentral;
-		$extDir = __DIR__;
+		$extDir = __DIR__ . '/..';
 
 		if ( $wgCheevosIsCentral ) {
 			$updater->addExtensionTable(

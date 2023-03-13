@@ -28,7 +28,8 @@ class SpecialPointsComp extends SpecialPage {
 
 	public function __construct(
 		private UserIdentityLookup $userIdentityLookup,
-		private UserFactory $userFactory
+		private UserFactory $userFactory,
+		private CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'PointsComp', 'points_comp_reports' );
 	}
@@ -36,6 +37,11 @@ class SpecialPointsComp extends SpecialPage {
 	/** @inheritDoc */
 	public function execute( $subPage ) {
 		$output = $this->getOutput();
+		if ( !$this->cheevosHelper->isCheevosCentralWiki() ) {
+			$output->redirect( $this->cheevosHelper->getUrlOnCheevosCentralWiki( $this->getFullTitle() ) );
+			return;
+		}
+
 		$output->addModuleStyles( [
 			'ext.cheevos.styles',
 			"ext.hydraCore.button.styles",
@@ -51,7 +57,11 @@ class SpecialPointsComp extends SpecialPage {
 
 	/** Points Comp Reports */
 	public function pointsCompReports( ?string $subPage, OutputPage $output, WebRequest $request ): void {
-		$this->runReport( $output, $request );
+		if ( $request->wasPosted() ) {
+			$this->runReport( $output, $request );
+			return;
+		}
+
 		$reportId = (int)$subPage;
 		if ( $reportId > 0 ) {
 			$report = PointsCompReport::newFromId( $reportId );
@@ -97,10 +107,6 @@ class SpecialPointsComp extends SpecialPage {
 
 	/** Run a report into the job queue. */
 	private function runReport( OutputPage $output, WebRequest $request ): void {
-		if ( !$request->wasPosted() ) {
-			return;
-		}
-
 		$reportId = $request->getInt( 'report_id' );
 		if ( $reportId < 0 ) {
 			throw new ErrorPageError( 'points_comp_report_error', 'report_does_not_exist' );
@@ -111,7 +117,7 @@ class SpecialPointsComp extends SpecialPage {
 		$doEmailUser = $this->userIdentityLookup->getUserIdentityByUserId( $request->getInt( 'emailUser' ) );
 		if ( $report && ( $doCompUser?->isRegistered() || $doEmailUser?->isRegistered() ) ) {
 
-			$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', (string)$reportId );
+			$pointsCompPage = SpecialPage::getTitleFor( 'PointsComp', (string)$reportId );
 			if ( $doCompUser && $doCompUser->isRegistered() ) {
 				$compedSubscriptionMonths = (int)$this->getConfig()->get( 'CompedSubscriptionMonths' );
 				$userComped = $report->compSubscription( $doCompUser, $compedSubscriptionMonths );
@@ -195,7 +201,7 @@ class SpecialPointsComp extends SpecialPage {
 
 	/** @inheritDoc */
 	public function isListed(): bool {
-		return CheevosHelper::isCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' );
+		return $this->cheevosHelper->isCheevosCentralWiki() && $this->getUser()->isAllowed( 'points_comp_reports' );
 	}
 
 	/** @inheritDoc */

@@ -15,7 +15,9 @@ namespace Cheevos;
 use Cheevos\Job\CheevosIncrementJob;
 use Config;
 use Exception;
+use Fandom\Includes\Article\GlobalTitleLookup;
 use Fandom\WikiConfig\WikiVariablesDataService;
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
 use RequestContext;
@@ -30,7 +32,9 @@ class CheevosHelper {
 
 	public function __construct(
 		private AchievementService $achievementService,
-		private Config $config
+		private Config $config,
+		private GlobalTitleLookup $globalTitleLookup,
+		private WikiConfigDataService $wikiConfigDataService
 	) {
 	}
 
@@ -91,6 +95,18 @@ class CheevosHelper {
 				unset( self::$increments[$userId] );
 			}
 		}
+	}
+
+	public function getUrlOnCheevosCentralWiki( LinkTarget $target ): string {
+		$centralWikiId = $this->config->get( 'CheevosCentralWikiId' );
+		return $this->globalTitleLookup->getForeignPageURL(
+			$this->wikiConfigDataService->getWikiDataById( $centralWikiId ),
+			$target
+		);
+	}
+
+	public function isCheevosCentralWiki(): bool {
+		return (bool)$this->config->get( 'CheevosIsCentral' );
 	}
 
 	/**
@@ -227,6 +243,9 @@ class CheevosHelper {
 	}
 
 	/**
+	 * @deprecated use
+	 * @see CheevosHelper::isCheevosCentralWiki instead
+	 *
 	 * Return if we are operating in the context of the central wiki.
 	 *
 	 * @return bool
