@@ -420,9 +420,9 @@ class CheevosHooks implements
 		}
 
 		$contributorCount = $this->loadBalancer->getConnection( DB_REPLICA )
-			->selectRowCount(
+			->selectField(
 				'revision',
-				'distinct(rev_actor)',
+				[ 'count' => 'count(distinct(rev_actor))' ],
 				[],
 				__METHOD__
 			);

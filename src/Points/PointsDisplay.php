@@ -45,7 +45,7 @@ class PointsDisplay {
 	 *
 	 * @param Parser $parser mediawiki Parser reference
 	 * @param string $user ???????
-	 * @param int $limit [Optional] Limit results.
+	 * @param string|int $limit [Optional] Limit results.
 	 * @param string $wikis [optional, default: ''] comma separated list of wiki namespaces,
 	 * defaults to the current wiki
 	 *					Special namespaces are:
@@ -61,12 +61,13 @@ class PointsDisplay {
 	public static function pointsBlock(
 		Parser $parser,
 		string $user = '',
-		int $limit = 25,
+		$limit = 25,
 		string $wikis = '',
 		string $markup = 'table'
 	) {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
+		$limit = (int)$limit;
 		if ( !$limit || $limit < 0 ) {
 			$limit = 25;
 		}
@@ -81,16 +82,12 @@ class PointsDisplay {
 					'isHTML' => true,
 				];
 			}
+
+			$globalId = $userIdentity->getId();
 		}
 
-		$siteKey = null;
-		if ( $wikis !== 'all' && $wikis !== 'global' ) {
-			$siteKey = $dsSiteKey;
-		}
+		$siteKey = $wikis !== 'all' && $wikis !== 'global' ? $dsSiteKey : null;
 		$isSitesMode = false;
-		if ( $wikis === 'all' && $wikis !== 'global' ) {
-			$isSitesMode = true;
-		}
 
 		$html = self::pointsBlockHtml( $siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup );
 
