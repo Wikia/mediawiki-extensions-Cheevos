@@ -32,7 +32,6 @@ use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Hook\UserToolLinksEditHook;
 use MediaWiki\Hook\WatchArticleCompleteHook;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
@@ -43,7 +42,6 @@ use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserFactory;
-use MediaWiki\User\UserIdentity;
 use MobileContext;
 use RedisCache;
 use RequestContext;
@@ -102,21 +100,6 @@ class CheevosHooks implements
 	) {
 	}
 
-	/**
-	 * Increment for a statistic.
-	 *
-	 * @param string $stat Stat Name
-	 * @param int $delta Stat Delta
-	 * @param UserIdentity $user Local User object.
-	 * @param array $edits Array of edit information for article_create or article_edit statistics.
-	 *
-	 * @return void Array of return status including earned achievements or false on error.
-	 */
-	public static function increment( string $stat, int $delta, UserIdentity $user, array $edits = [] ): void {
-		MediaWikiServices::getInstance()->getService( CheevosHelper::class )
-			->increment( $stat, $delta, $user, $edits );
-	}
-
 	/** @inheritDoc */
 	public function onPageDeleteComplete(
 		ProperPageIdentity $page,
@@ -127,7 +110,7 @@ class CheevosHooks implements
 		ManualLogEntry $logEntry,
 		int $archivedRevisionCount
 	) {
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromAuthority( $deleter );
+		$user = $this->userFactory->newFromAuthority( $deleter );
 		$this->cheevosHelper->increment( 'article_delete', 1, $user );
 	}
 
@@ -203,8 +186,7 @@ class CheevosHooks implements
 			return;
 		}
 
-		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
-		$revertedRev = $revisionStore->getRevisionById( $editResult->getNewestRevertedRevisionId() );
+		$revertedRev = $this->revisionStore->getRevisionById( $editResult->getNewestRevertedRevisionId() );
 		$oldestRevId = $editResult->getOldestRevertedRevisionId();
 		$editsToRevoke = [];
 		// Revoke every edit that was reverted as a result of this rollback
@@ -213,7 +195,7 @@ class CheevosHooks implements
 			if ( $revertedRev->getId() == $oldestRevId ) {
 				break;
 			}
-			$revertedRev = $revisionStore->getRevisionById( $revertedRev->getParentId() );
+			$revertedRev = $this->revisionStore->getRevisionById( $revertedRev->getParentId() );
 		}
 
 		try {

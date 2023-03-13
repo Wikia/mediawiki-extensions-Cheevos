@@ -21,28 +21,6 @@
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
 			"wiki_points_admin": true
-		},
-		"hydra_staff": {
-			"achievement_admin": true,
-			"award_achievements": true,
-			"delete_achievements": true,
-			"edit_achievements": true,
-			"edit_meta_achievements": true,
-			"restore_achievements": true,
-			"wiki_points_admin": true,
-			"wpa_adjust_points": true,
-			"points_comp_reports": true
-		},
-		"hydra_admin": {
-			"achievement_admin": true,
-			"award_achievements": true,
-			"delete_achievements": true,
-			"edit_achievements": true,
-			"edit_meta_achievements": true,
-			"restore_achievements": true,
-			"wiki_points_admin": true,
-			"wpa_adjust_points": true,
-			"points_comp_reports": true
 		}
 	},
 	"AvailableRights": [

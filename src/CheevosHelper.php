@@ -243,15 +243,13 @@ class CheevosHelper {
 	}
 
 	/**
-	 * @deprecated use
-	 * @see CheevosHelper::isCheevosCentralWiki instead
+	 * @deprecated
 	 *
 	 * Return if we are operating in the context of the central wiki.
 	 *
 	 * @return bool
 	 */
 	public static function isCentralWiki(): bool {
-		$config = MediaWikiServices::getInstance()->getMainConfig();
-		return (bool)$config->get( 'CheevosIsCentral' );
+		return MediaWikiServices::getInstance()->getService( CheevosHelper::class )->isCheevosCentralWiki();
 	}
 }
