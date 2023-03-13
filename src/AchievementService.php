@@ -471,7 +471,6 @@ class AchievementService {
 		return $filters;
 	}
 
-	// TODO--note on CR - I changed unserialize/servialize to json_decode/encode and bumped chache version
 	private function makeRedisKey( ...$parts ): string {
 		return 'cheevos:apicache:' . implode( ':', $parts );
 	}

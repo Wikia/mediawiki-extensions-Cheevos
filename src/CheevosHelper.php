@@ -250,6 +250,6 @@ class CheevosHelper {
 	 * @return bool
 	 */
 	public static function isCentralWiki(): bool {
-		return MediaWikiServices::getInstance()->getService( CheevosHelper::class )->isCheevosCentralWiki();
+		return MediaWikiServices::getInstance()->getService( self::class )->isCheevosCentralWiki();
 	}
 }

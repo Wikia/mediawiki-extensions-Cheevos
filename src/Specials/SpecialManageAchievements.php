@@ -30,16 +30,12 @@ use Wikimedia\Assert\Assert;
 class SpecialManageAchievements extends SpecialPage {
 	private ?string $siteKey;
 	private bool $isMaster;
-
 	private TemplateManageAchievements $template;
-	/**
-	 * @var CheevosAchievement|false|mixed
-	 */
-	private mixed $achievement;
 
 	public function __construct(
 		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService
+		private AchievementService $achievementService,
+		private CheevosHelper $cheevosHelper
 	) {
 		parent::__construct(
 			'ManageAchievements',
@@ -52,7 +48,7 @@ class SpecialManageAchievements extends SpecialPage {
 			throw new MWException( 'Could not determined the site key for use for Achievements.' );
 		}
 
-		$this->isMaster = CheevosHelper::isCentralWiki();
+		$this->isMaster = $this->cheevosHelper->isCheevosCentralWiki();
 		$this->template = new TemplateManageAchievements();
 	}
 
@@ -142,34 +138,34 @@ class SpecialManageAchievements extends SpecialPage {
 		$allAchievements = CheevosAchievement::correctCriteriaChildAchievements( $allAchievements );
 		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [ $allAchievements, [] ], false, true );
 
+		$achievement = null;
 		if ( $achievementId ) {
-			$this->achievement = false;
 			if ( isset( $allAchievements[$achievementId] ) ) {
-				$this->achievement = $allAchievements[$achievementId];
+				$achievement = $allAchievements[$achievementId];
 			}
 
-			if ( $this->achievement === false || $achievementId != $this->achievement->getId() ) {
+			if ( $achievement === null || $achievementId != $achievement->getId() ) {
 				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
 			if (
-				!CheevosHelper::isCentralWiki() &&
-				( $this->achievement->isProtected() || $this->achievement->isGlobal() )
+				!$this->isMaster &&
+				( $achievement->isProtected() || $achievement->isGlobal() )
 			) {
 				$output->showErrorPage( 'achievements_error', 'error_achievement_protected_global' );
 				return;
 			}
 		} else {
-			$this->achievement = new CheevosAchievement();
+			$achievement = new CheevosAchievement();
 		}
 
-		$errors = $this->achievementsSave( $request );
+		$errors = $this->achievementsSave( $request, $achievement );
 
-		if ( $this->achievement->exists() ) {
+		if ( $achievement->exists() ) {
 			$output->setPageTitle(
 				$this->msg( 'edit_achievement' )->escaped() .
 				' - ' . $this->msg( 'manage_achievements' )->escaped() .
-				' - ' . $this->achievement->getName()
+				' - ' . $achievement->getName()
 			);
 		} else {
 			$output->setPageTitle(
@@ -179,7 +175,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$html = $this->template->achievementsForm(
-			$this->achievement,
+			$achievement,
 			$this->achievementService->getCategories(),
 			$allAchievements,
 			$errors
@@ -187,7 +183,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addHTML( $html );
 	}
 
-	private function achievementsSave( WebRequest $request ): array {
+	private function achievementsSave( WebRequest $request, CheevosAchievement $achievement ): array {
 		if ( $request->getVal( 'do' ) !== 'save' || !$request->wasPosted() ) {
 			return [];
 		}
@@ -196,16 +192,16 @@ class SpecialManageAchievements extends SpecialPage {
 		$forceCreate = false;
 		if (
 			!empty( $this->siteKey ) &&
-			empty( $this->achievement->getSite_Key() ) &&
-			$this->achievement->getId() > 0
+			empty( $achievement->getSite_Key() ) &&
+			$achievement->getId() > 0
 		) {
 			$forceCreate = true;
-			$this->achievement->setParent_Id( $this->achievement->getId() );
-			$this->achievement->setId( 0 );
+			$achievement->setParent_Id( $achievement->getId() );
+			$achievement->setId( 0 );
 		}
-		$this->achievement->setSite_Key( $this->siteKey );
+		$achievement->setSite_Key( $this->siteKey );
 
-		$criteria = new CheevosAchievementCriteria( $this->achievement->getCriteria()->toArray() );
+		$criteria = new CheevosAchievementCriteria( $achievement->getCriteria()->toArray() );
 		$criteria->setStats( $request->getArray( "criteria_stats", [] ) );
 		$criteria->setValue( $request->getInt( "criteria_value" ) );
 		$criteria->setStreak( $request->getText( "criteria_streak" ) );
@@ -220,24 +216,24 @@ class SpecialManageAchievements extends SpecialPage {
 		$criteria->setDate_Range_End( $request->getInt( "date_range_end" ) );
 		$criteria->setCategory_Id( $request->getInt( "criteria_category_id" ) );
 		$criteria->setAchievement_Ids( $request->getIntArray( "criteria_achievement_ids", [] ) );
-		$this->achievement->setCriteria( $criteria );
+		$achievement->setCriteria( $criteria );
 
 		$name = $request->getText( 'name' );
 		if ( !$name || strlen( $name ) > 50 ) {
 			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->escaped();
 		} else {
-			$this->achievement->setName( $name );
+			$achievement->setName( $name );
 		}
 
 		$description = $request->getText( 'description' );
 		if ( !$description || strlen( $description ) > 150 ) {
 			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->escaped();
 		} else {
-			$this->achievement->setDescription( $description );
+			$achievement->setDescription( $description );
 		}
 
-		$this->achievement->setImage( $request->getVal( 'image' ) );
-		$this->achievement->setPoints( $request->getInt( 'points' ) );
+		$achievement->setImage( $request->getVal( 'image' ) );
+		$achievement->setPoints( $request->getInt( 'points' ) );
 
 		$categoryId = $request->getInt( 'category_id' );
 		$categoryName = trim( $request->getText( 'category' ) );
@@ -249,12 +245,12 @@ class SpecialManageAchievements extends SpecialPage {
 			$categoryId == $category->getId() &&
 			$categoryName == $category->getName()
 		) {
-			$this->achievement->setCategory( $category );
+			$achievement->setCategory( $category );
 		} elseif ( !empty( $categoryName ) ) {
 			$found = false;
 			foreach ( $categories as $_category ) {
 				if ( $categoryName == $_category->getName() ) {
-					$this->achievement->setCategory( $_category );
+					$achievement->setCategory( $_category );
 					$found = true;
 					break;
 				}
@@ -267,7 +263,7 @@ class SpecialManageAchievements extends SpecialPage {
 				$return = $category->save();
 				if ( isset( $return['object_id'] ) ) {
 					$category = $this->achievementService->getCategory( $return['object_id'] );
-					$this->achievement->setCategory( $category );
+					$achievement->setCategory( $category );
 				} else {
 					$category = false;
 				}
@@ -280,18 +276,18 @@ class SpecialManageAchievements extends SpecialPage {
 			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->escaped();
 		}
 
-		$this->achievement->setSecret( $request->getBool( 'secret' ) );
+		$achievement->setSecret( $request->getBool( 'secret' ) );
 		if ( $this->isMaster ) {
 			// Set global to true should always happen after setting the site ID and site key,
 			// Otherwise it could create a global achievement with a site ID and site key.
-			$this->achievement->setGlobal( $request->getBool( 'global' ) );
-			$this->achievement->setProtected( $request->getBool( 'protected' ) );
-			$this->achievement->setSpecial( $request->getBool( 'special' ) );
-			$this->achievement->setShow_On_All_Sites( $request->getBool( 'show_on_all_sites' ) );
+			$achievement->setGlobal( $request->getBool( 'global' ) );
+			$achievement->setProtected( $request->getBool( 'protected' ) );
+			$achievement->setSpecial( $request->getBool( 'special' ) );
+			$achievement->setShow_On_All_Sites( $request->getBool( 'show_on_all_sites' ) );
 		}
 
 		if ( !count( $errors ) ) {
-			$this->achievement->save( $forceCreate );
+			$achievement->save( $forceCreate );
 
 			$this->invalidateCache( $this->getOutput() );
 			return [];

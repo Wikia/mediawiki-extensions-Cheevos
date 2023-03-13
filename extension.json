@@ -40,7 +40,7 @@
 		},
 		"ManageAchievements": {
 			"class": "Cheevos\\Specials\\SpecialManageAchievements",
-			"services": ["UserIdentityLookup", "Cheevos\\AchievementService"]
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
 		},
 		"PointsComp": {
 			"class": "Cheevos\\Specials\\SpecialPointsComp",
