@@ -392,6 +392,7 @@ class CheevosHooks implements
 	/** @inheritDoc */
 	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
+		$parser->setFunctionHook( 'numberofcontributors', [ $this, 'getNumberOfContributors' ] );
 	}
 
 	/** @inheritDoc */
@@ -408,14 +409,17 @@ class CheevosHooks implements
 			return;
 		}
 
+		$ret = $this->getNumberOfContributors();
+	}
+
+	private function getNumberOfContributors(): string {
 		$redis = $this->redisCache->getConnection( 'cache' );
 
 		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
 		if ( $redis ) {
 			$cache = $redis->get( $redisKey );
 			if ( $cache !== false ) {
-				$ret = (string)$cache;
-				return;
+				return (string)$cache;
 			}
 		}
 
@@ -430,6 +434,6 @@ class CheevosHooks implements
 			$redis->setEx( $redisKey, 3600, $contributorCount );
 		}
 
-		$ret = (string)$contributorCount;
+		return (string)$contributorCount;
 	}
 }
