@@ -43,13 +43,9 @@ class SpecialManageAchievements extends SpecialPage {
 			$this->getUser()->isAllowed( 'achievement_admin' )
 		);
 
-		$this->siteKey = CheevosHelper::getSiteKey();
-		if ( empty( $this->siteKey ) ) {
-			throw new MWException( 'Could not determined the site key for use for Achievements.' );
-		}
-
-		$this->isMaster = $this->cheevosHelper->isCheevosCentralWiki();
 		$this->template = new TemplateManageAchievements();
+		$this->isMaster = $this->cheevosHelper->isCheevosCentralWiki();
+		$this->siteKey = $this->isMaster ? '' : CheevosHelper::getSiteKey();
 	}
 
 	/** @inheritDoc */
@@ -386,14 +382,10 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$achievementId = $request->getInt( 'aid' );
-
-		if ( $achievementId ) {
-			$achievement = $this->achievementService->getAchievement( $achievementId );
-
-			if ( $achievement === false || $achievementId != $achievement->getId() ) {
-				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
-				return;
-			}
+		$achievement = $achievementId ? $this->achievementService->getAchievement( $achievementId ) : null;
+		if ( $achievement === null || $achievementId != $achievement->getId() ) {
+			$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
+			return;
 		}
 
 		if ( $request->getVal( 'confirm' ) == 'true' && $request->wasPosted() ) {
