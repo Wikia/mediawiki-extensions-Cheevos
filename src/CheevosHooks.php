@@ -392,7 +392,7 @@ class CheevosHooks implements
 	/** @inheritDoc */
 	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
-		$parser->setFunctionHook( 'numberofcontributors', [ $this, 'getNumberOfContributors' ] );
+		$parser->setFunctionHook( 'numberofcontributors', fn() => $this->getNumberOfContributors() );
 	}
 
 	/** @inheritDoc */
