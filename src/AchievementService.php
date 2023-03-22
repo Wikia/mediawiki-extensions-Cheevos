@@ -56,7 +56,7 @@ class AchievementService {
 	/** Invalidate API Cache */
 	public function invalidateCache(): void {
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
-		if ( $redis === false ) {
+		if ( !$redis ) {
 			return;
 		}
 

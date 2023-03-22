@@ -206,7 +206,7 @@
 				"MainConfig",
 				"RevisionStore",
 				"DBLoadBalancer",
-				"RedisCache",
+				"MainWANObjectCache",
 				"MobileFrontend.Context",
 				"Cheevos\\AchievementService",
 				"Cheevos\\CheevosHelper"

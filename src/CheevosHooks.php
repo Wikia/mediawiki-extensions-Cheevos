@@ -43,12 +43,13 @@ use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserFactory;
 use MobileContext;
-use RedisCache;
 use RequestContext;
 use Skin;
 use SpecialPage;
 use Title;
 use User;
+use WANObjectCache;
+use Wikimedia\LightweightObjectStore\ExpirationAwareness;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class CheevosHooks implements
@@ -93,7 +94,7 @@ class CheevosHooks implements
 		private Config $config,
 		private RevisionStore $revisionStore,
 		private ILoadBalancer $loadBalancer,
-		private RedisCache $redisCache,
+		private WANObjectCache $objectCache,
 		private MobileContext $mobileContext,
 		private AchievementService $achievementService,
 		private CheevosHelper $cheevosHelper
@@ -413,27 +414,19 @@ class CheevosHooks implements
 	}
 
 	private function getNumberOfContributors(): string {
-		$redis = $this->redisCache->getConnection( 'cache' );
-
-		$redisKey = 'cheevos:contributors:' . CheevosHelper::getSiteKey();
-		if ( $redis ) {
-			$cache = $redis->get( $redisKey );
-			if ( $cache !== false ) {
-				return (string)$cache;
+		$method = __METHOD__;
+		return $this->objectCache->getWithSetCallback(
+			$this->objectCache->makeKey( 'cheevos', 'contributors' ),
+			ExpirationAwareness::TTL_HOUR,
+			function () use ( $method ) {
+				return (string)$this->loadBalancer->getConnection( DB_REPLICA )
+					->selectField(
+						'revision',
+						[ 'count' => 'count(distinct(rev_actor))' ],
+						[],
+						$method
+					);
 			}
-		}
-
-		$contributorCount = $this->loadBalancer->getConnection( DB_REPLICA )
-			->selectField(
-				'revision',
-				[ 'count' => 'count(distinct(rev_actor))' ],
-				[],
-				__METHOD__
-			);
-		if ( $redis ) {
-			$redis->setEx( $redisKey, 3600, $contributorCount );
-		}
-
-		return (string)$contributorCount;
+		);
 	}
 }

@@ -21,7 +21,6 @@ use Html;
 use Linker;
 use MediaWiki\MediaWikiServices;
 use Parser;
-use RedisCache;
 use RequestContext;
 use stdClass;
 use Title;
@@ -186,16 +185,11 @@ class PointsDisplay {
 		$wikis = [];
 		if ( $isSitesMode && !empty( $siteKeys ) ) {
 			global $wgServer;
-			$redis = MediaWikiServices::getInstance()
-				->getService( RedisCache::class )
-				->getConnection( 'cache' );
-			if ( $redis !== false ) {
-				foreach ( $siteKeys as $siteKey ) {
-					if ( !empty( $siteKey ) ) {
-						$wiki = CheevosHelper::getWikiInformation( $siteKey );
-						if ( !empty( $wiki ) ) {
-							$wikis[$siteKey] = $wiki;
-						}
+			foreach ( $siteKeys as $key ) {
+				if ( !empty( $key ) ) {
+					$wiki = CheevosHelper::getWikiInformation( $key );
+					if ( $wiki ) {
+						$wikis[$key] = $wiki;
 					}
 				}
 			}
