@@ -120,7 +120,7 @@ class AchievementService {
 	public function getAchievement( int $id ): ?CheevosAchievement {
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
-			$response = $this->cheevosClient->get( "achievements/$id" );
+			$response = $this->cheevosClient->get( "achievement/$id" );
 			return $this->cheevosClient->parse(
 				[ $response ],
 				'achievements',
