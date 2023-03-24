@@ -8,7 +8,7 @@
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki/extensions/cheevos
- **/
+ */
 
 $specialPageAliases = [];
 
@@ -16,11 +16,11 @@ $specialPageAliases = [];
  * English
  */
 $specialPageAliases['en'] = [
-	'Achievements'			=> ['Achievements'],
-	'AwardAchievement'		=> ['AwardAchievement'],
-	'ManageAchievements'	=> ['ManageAchievements'],
-	'MegaAchievements'		=> ['MegaAchievements'],
-	'PointsComp'			=> ['PointsComp'],
-	'WikiPoints'			=> ['WikiPoints'],
-	'WikiPointsAdmin'		=> ['WikiPointsAdmin']
+	'Achievements'			=> [ 'Achievements' ],
+	'AwardAchievement'		=> [ 'AwardAchievement' ],
+	'ManageAchievements'	=> [ 'ManageAchievements' ],
+	'MegaAchievements'		=> [ 'MegaAchievements' ],
+	'PointsComp'			=> [ 'PointsComp' ],
+	'WikiPoints'			=> [ 'WikiPoints' ],
+	'WikiPointsAdmin'		=> [ 'WikiPointsAdmin' ]
 ];

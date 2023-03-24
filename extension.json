@@ -1,16 +1,15 @@
 {
 	"name": "Cheevos",
-	"version": "1.0.2",
-	"author": [
-		"Hydra Wiki Platform Team"
-	],
+	"version": "2.0.0",
+	"author": ["Hydra Wiki Platform Team"],
 	"license-name": "GPL-2.0-or-later",
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.37.0",
+		"MediaWiki": ">= 1.39.0",
 		"extensions": {
-			"HydraCore": ">= 3.0.0"
+			"HydraCore": ">= 3.0.0",
+			"MobileFrontend": "*"
 		}
 	},
 	"GroupPermissions": {
@@ -22,28 +21,6 @@
 			"edit_meta_achievements": true,
 			"restore_achievements": true,
 			"wiki_points_admin": true
-		},
-		"hydra_staff": {
-			"achievement_admin": true,
-			"award_achievements": true,
-			"delete_achievements": true,
-			"edit_achievements": true,
-			"edit_meta_achievements": true,
-			"restore_achievements": true,
-			"wiki_points_admin": true,
-			"wpa_adjust_points": true,
-			"points_comp_reports": true
-		},
-		"hydra_admin": {
-			"achievement_admin": true,
-			"award_achievements": true,
-			"delete_achievements": true,
-			"edit_achievements": true,
-			"edit_meta_achievements": true,
-			"restore_achievements": true,
-			"wiki_points_admin": true,
-			"wpa_adjust_points": true,
-			"points_comp_reports": true
 		}
 	},
 	"AvailableRights": [
@@ -57,16 +34,29 @@
 		"wpa_adjust_points"
 	],
 	"SpecialPages": {
-		"Achievements": "SpecialAchievements",
-		"ManageAchievements": "SpecialManageAchievements",
-		"PointsComp": "SpecialPointsComp",
-		"WikiPoints": "SpecialWikiPoints",
-		"WikiPointsAdmin": "SpecialWikiPointsAdmin"
+		"Achievements": {
+			"class": "Cheevos\\Specials\\SpecialAchievements",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
+		},
+		"ManageAchievements": {
+			"class": "Cheevos\\Specials\\SpecialManageAchievements",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
+		},
+		"PointsComp": {
+			"class": "Cheevos\\Specials\\SpecialPointsComp",
+			"services": ["UserIdentityLookup", "UserFactory", "Cheevos\\CheevosHelper"]
+		},
+		"WikiPoints": {
+			"class": "Cheevos\\Specials\\SpecialWikiPoints",
+			"services": ["UserIdentityLookup"]
+		},
+		"WikiPointsAdmin": {
+			"class": "Cheevos\\Specials\\SpecialWikiPointsAdmin",
+			"services": ["UserIdentityLookup", "Cheevos\\AchievementService", "Cheevos\\CheevosHelper"]
+		}
 	},
 	"MessagesDirs": {
-		"Cheevos": [
-			"i18n"
-		]
+		"Cheevos": ["i18n"]
 	},
 	"ExtensionMessagesFiles": {
 		"SpecialCheevos": "Cheevos.alias.php",
@@ -76,39 +66,13 @@
 		"Cheevos\\Job\\CheevosIncrementJob": "Cheevos\\Job\\CheevosIncrementJob",
 		"Cheevos\\Job\\PointsCompJob": "Cheevos\\Job\\PointsCompJob"
 	},
-	"AutoloadClasses": {
-		"CheevosHooks": "Cheevos.hooks.php",
-		"Cheevos\\Cheevos": "classes/Cheevos.php",
-		"Cheevos\\CheevosAchievement": "classes/CheevosAchievement.php",
-		"Cheevos\\CheevosAchievementCategory": "classes/CheevosAchievementCategory.php",
-		"Cheevos\\CheevosAchievementCriteria": "classes/CheevosAchievementCriteria.php",
-		"Cheevos\\CheevosAchievementProgress": "classes/CheevosAchievementProgress.php",
-		"Cheevos\\CheevosAchievementStatus": "classes/CheevosAchievementStatus.php",
-		"Cheevos\\CheevosException": "classes/CheevosException.php",
-		"Cheevos\\CheevosHelper": "classes/CheevosHelper.php",
-		"Cheevos\\CheevosModel": "classes/CheevosModel.php",
-		"Cheevos\\CheevosStatDailyCount": "classes/CheevosStatDailyCount.php",
-		"Cheevos\\CheevosStatDelta": "classes/CheevosStatDelta.php",
-		"Cheevos\\CheevosStatMonthlyCount": "classes/CheevosStatMonthlyCount.php",
-		"Cheevos\\CheevosStatProgress": "classes/CheevosStatProgress.php",
-		"Cheevos\\CheevosUserOptions": "classes/CheevosUserOptions.php",
-		"Cheevos\\CheevosWikiPointLog": "classes/CheevosWikiPointLog.php",
-		"Cheevos\\Job\\CheevosIncrementJob": "classes/jobs/CheevosIncrementJob.php",
-		"Cheevos\\Job\\PointsCompJob": "classes/jobs/PointsCompJob.php",
-		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
-		"Cheevos\\Points\\PointsCompReport": "classes/points/PointsCompReport.php",
-		"Cheevos\\Points\\PointsDisplay": "classes/points/PointsDisplay.php",
-		"SpecialAchievements": "specials/SpecialAchievements.php",
-		"SpecialManageAchievements": "specials/SpecialManageAchievements.php",
-		"SpecialPointsComp": "specials/SpecialPointsComp.php",
-		"SpecialWikiPoints": "specials/SpecialWikiPoints.php",
-		"SpecialWikiPointsAdmin": "specials/SpecialWikiPointsAdmin.php",
-		"TemplateAchievements": "templates/TemplateAchievements.php",
-		"TemplateManageAchievements": "templates/TemplateManageAchievements.php",
-		"TemplatePointsComp": "templates/TemplatePointsComp.php",
-		"TemplateWikiPoints": "templates/TemplateWikiPoints.php",
-		"TemplateWikiPointsAdmin": "templates/TemplateWikiPointsAdmin.php"
+	"AutoloadNamespaces": {
+		"Cheevos\\": "src/"
 	},
+	"AutoloadClasses": {
+		"Cheevos\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php"
+	},
+	"ServiceWiringFiles": ["ServiceWiring.php"],
 	"ResourceModules": {
 		"ext.cheevos.styles": {
 			"styles": [
@@ -233,37 +197,55 @@
 		"localBasePath": "",
 		"remoteExtPath": "Cheevos"
 	},
+	"HookHandlers": {
+		"CheevosHookHandler": {
+			"class": "Cheevos\\CheevosHooks",
+			"services": [
+				"LinkRenderer",
+				"UserFactory",
+				"MainConfig",
+				"RevisionStore",
+				"DBLoadBalancer",
+				"MainWANObjectCache",
+				"MobileFrontend.Context",
+				"Cheevos\\AchievementService",
+				"Cheevos\\CheevosHelper"
+			]
+		},
+		"CheevosRegistrationHandler": {
+			"class": "Cheevos\\CheevosRegistrationCallback"
+		}
+	},
 	"Hooks": {
-		"ApiBeforeMain": "CheevosHooks::onApiBeforeMain",
-		"ArticleDeleteComplete": "CheevosHooks::onArticleDeleteComplete",
-		"ArticleMergeComplete": "CheevosHooks::onArticleMergeComplete",
-		"ArticleProtectComplete": "CheevosHooks::onArticleProtectComplete",
-		"BeforeInitialize": "CheevosHooks::onBeforeInitialize",
-		"BeforePageDisplay": "CheevosHooks::onBeforePageDisplay",
-		"BlockIpComplete": "CheevosHooks::onBlockIpComplete",
-		"ContributionsToolLinks": "CheevosHooks::onContributionsToolLinks",
-		"CurseProfileAcceptFriend": "CheevosHooks::onCurseProfileAcceptFriend",
-		"CurseProfileAddComment": "CheevosHooks::onCurseProfileAddComment",
-		"CurseProfileAddCommentReply": "CheevosHooks::onCurseProfileAddCommentReply",
-		"CurseProfileAddFriend": "CheevosHooks::onCurseProfileAddFriend",
-		"CurseProfileCanComment": "CheevosHooks::onCurseProfileCanComment",
-		"CurseProfileEdited": "CheevosHooks::onCurseProfileEdited",
-		"EmailUserComplete": "CheevosHooks::onEmailUserComplete",
-		"LoadExtensionSchemaUpdates": "CheevosHooks::onLoadExtensionSchemaUpdates",
-		"LocalUserCreated": "CheevosHooks::onLocalUserCreated",
-		"LoginFormValidErrorMessages": "CheevosHooks::onLoginFormValidErrorMessages",
-		"MagicWordwgVariableIDs": "CheevosHooks::onMagicWordwgVariableIDs",
-		"MarkPatrolledComplete": "CheevosHooks::onMarkPatrolledComplete",
-		"PageMoveComplete": "CheevosHooks::onPageMoveComplete",
-		"PageSaveComplete": "CheevosHooks::onPageSaveComplete",
-		"ParserFirstCallInit": "CheevosHooks::onParserFirstCallInit",
-		"ParserGetVariableValueSwitch": "CheevosHooks::onParserGetVariableValueSwitch",
-		"PersonalUrls": "CheevosHooks::onPersonalUrls",
-		"RevisionFromEditComplete": "CheevosHooks::onRevisionFromEditComplete",
-		"UploadComplete": "CheevosHooks::onUploadComplete",
-		"UserToolLinksEdit": "CheevosHooks::onContributionsToolLinks",
-		"WatchArticleComplete": "CheevosHooks::onWatchArticleComplete",
-		"WikiPointsSave": "CheevosHooks::onWikiPointsSave"
+		"ArticleMergeComplete": "CheevosHookHandler",
+		"ArticleProtectComplete": "CheevosHookHandler",
+		"BeforeInitialize": "CheevosHookHandler",
+		"BeforePageDisplay": "CheevosHookHandler",
+		"BlockIpComplete": "CheevosHookHandler",
+		"ContributionsToolLinks": "CheevosHookHandler",
+		"CurseProfileAcceptFriend": "CheevosHookHandler",
+		"CurseProfileAddComment": "CheevosHookHandler",
+		"CurseProfileAddCommentReply": "CheevosHookHandler",
+		"CurseProfileAddFriend": "CheevosHookHandler",
+		"CurseProfileCanComment": "CheevosHookHandler",
+		"CurseProfileEdited": "CheevosHookHandler",
+		"EmailUserComplete": "CheevosHookHandler",
+		"LoadExtensionSchemaUpdates": "CheevosRegistrationHandler",
+		"LocalUserCreated": "CheevosHookHandler",
+		"LoginFormValidErrorMessages": "CheevosHookHandler",
+		"GetMagicVariableIDs": "CheevosHookHandler",
+		"MarkPatrolledComplete": "CheevosHookHandler",
+		"PageDeleteComplete": "CheevosHookHandler",
+		"PageMoveComplete": "CheevosHookHandler",
+		"PageSaveComplete": "CheevosHookHandler",
+		"ParserFirstCallInit": "CheevosHookHandler",
+		"ParserGetVariableValueSwitch": "CheevosHookHandler",
+		"SkinTemplateNavigation::Universal": "CheevosHookHandler",
+		"RevisionFromEditComplete": "CheevosHookHandler",
+		"UploadComplete": "CheevosHookHandler",
+		"UserToolLinksEdit": "CheevosHookHandler",
+		"WatchArticleComplete": "CheevosHookHandler",
+		"WikiPointsSave": "CheevosHookHandler"
 	},
 	"config": {
 		"CheevosIsCentral": {
@@ -368,6 +350,6 @@
 			"public": false
 		}
 	},
-	"callback": "CheevosHooks::onRegistration",
+	"callback": "Cheevos\\CheevosRegistrationCallback::onRegistration",
 	"manifest_version": 2
 }
