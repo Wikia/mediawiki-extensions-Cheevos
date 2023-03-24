@@ -421,7 +421,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		// Using the 'master' site key for the awarding form.
 		[ $allAchievements, ] = CheevosAchievement::pruneAchievements(
-			[ $this->achievementService->getAchievements( $this->siteKey ), [] ]
+			[ $this->achievementService->getAchievements( CheevosHelper::getSiteKey() ), [] ]
 		);
 
 		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
@@ -481,7 +481,7 @@ class SpecialManageAchievements extends SpecialPage {
 				[
 					'user_id' => $userIdentity->getId(),
 					'achievement_id' => $achievement->getId(),
-					'site_key' => $this->siteKey
+					'site_key' => CheevosHelper::getSiteKey()
 				]
 			);
 
@@ -492,7 +492,7 @@ class SpecialManageAchievements extends SpecialPage {
 					$award = $this->achievementService->putProgress(
 						[
 							'achievement_id' => $achievement->getId(),
-							'site_key' => ( !$achievement->isGlobal() ? $this->siteKey : '' ),
+							'site_key' => ( !$achievement->isGlobal() ? CheevosHelper::getSiteKey() : '' ),
 							'user_id' => $globalId,
 							'earned' => true,
 							'manual_award' => true,
@@ -500,7 +500,11 @@ class SpecialManageAchievements extends SpecialPage {
 							'notified' => false
 						]
 					);
-					$this->achievementService->broadcastAchievement( $achievement, $this->siteKey, $globalId );
+					$this->achievementService->broadcastAchievement(
+						$achievement,
+						CheevosHelper::getSiteKey(),
+						$globalId
+					);
 				} catch ( CheevosException $e ) {
 					$errors[] = [
 						'username' => $username,
