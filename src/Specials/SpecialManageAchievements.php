@@ -451,7 +451,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$achievementId = $request->getInt( 'achievement_id' );
 		$achievement = $this->achievementService->getAchievement( $achievementId );
-		if ( $achievement === false ) {
+		if ( !$achievement ) {
 			$errors[] = [
 				'username' => $username,
 				'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
