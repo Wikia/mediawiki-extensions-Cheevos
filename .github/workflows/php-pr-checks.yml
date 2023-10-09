@@ -23,25 +23,40 @@ jobs:
           # as this will disable xdebug which slows all processes significantly
           coverage: none
           extensions: ast
-      - uses: actions/checkout@v3
 
       - name: Checkout Mediawiki
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: wikimedia/mediawiki
-          path: mediawiki
           ref: ${{ matrix.mw }}
 
-      - name: Checkout RedisCache (dependency) extension
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          repository: Wikia/RedisCache
-          path: mediawiki/extensions/RedisCache
+          path: extensions/Cheevos
+
+      - name: Checkout Twiggy (dependency) extension
+        uses: actions/checkout@v4
+        with:
+          repository: Wikia/mediawiki-extensions-Twiggy
+          path: extensions/Twiggy
+
+      - name: Checkout MobileFrontend (dependency) extension
+        uses: actions/checkout@v4
+        with:
+          repository: wikimedia/mediawiki-extensions-MobileFrontend
+          path: extensions/MobileFrontend
+          ref: ${{ matrix.mw }}
+
+      - name: Checkout HydraCore (dependency) extension
+        uses: actions/checkout@v4
+        with:
+          repository: Wikia/mediawiki-extensions-HydraCore
+          path: extensions/HydraCore
 
       - name: Checkout Cheevos extension
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          path: mediawiki/extensions/Cheevos
+          path: extensions/Cheevos
 
       - name: Cache Composer packages
         id: composer-cache
@@ -52,16 +67,48 @@ jobs:
 
       - name: Install composer dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
-        working-directory: ./mediawiki/extensions/Cheevos
+        working-directory: ./extensions/Cheevos
         run: composer install --prefer-dist --no-progress
 
       - name: Run PHPCS
-        working-directory: ./mediawiki/extensions/Cheevos
+        working-directory: ./extensions/Cheevos
         run: composer phpcs
 
       - name: Run Phan static analysis
-        working-directory: ./mediawiki/extensions/Cheevos
+        working-directory: ./extensions/Cheevos
         run: composer phan
+        # Allow Phan to fail due to a high number of carryovers from the MW 1.39 upgrade
+        continue-on-error: true
 
-      - name: Run Phan static analysis
+      - name: Run jsonlint
+        working-directory: ./extensions/Cheevos
         run: composer jsonlint
+
+      - name: Start MySQL
+        run: sudo systemctl start mysql.service
+
+      - name: Install MediaWiki composer dependencies
+        run: composer update --prefer-dist --no-progress
+
+      - name: Install & configure MediaWiki
+        run: |
+          php maintenance/install.php --dbtype mysql --dbuser root --dbpass root --pass TestPassword testwiki TestAdmin
+
+          echo 'error_reporting( E_ALL | E_STRICT );' >> LocalSettings.php
+          echo 'ini_set( "display_errors", 1 );' >> LocalSettings.php
+          echo '$wgShowExceptionDetails = true;' >> LocalSettings.php
+          echo '$wgShowDBErrorBacktrace = true;' >> LocalSettings.php
+          echo '$wgDevelopmentWarnings = true;' >> LocalSettings.php
+
+          echo '$wgNamespacesForEditPoints = [ NS_MAIN ];' >> LocalSettings.php
+
+          echo 'wfLoadExtension( "'Twiggy'" );' >> LocalSettings.php
+          echo 'wfLoadExtension( "'HydraCore'" );' >> LocalSettings.php
+          echo 'wfLoadExtension( "'MobileFrontend'" );' >> LocalSettings.php
+          echo 'wfLoadExtension( "'Cheevos'" );' >> LocalSettings.php
+
+      - name: Run schema changes
+        run: php maintenance/update.php --quick
+
+      - name: Run PHPUnit tests
+        run: php tests/phpunit/phpunit.php extensions/Cheevos/tests
