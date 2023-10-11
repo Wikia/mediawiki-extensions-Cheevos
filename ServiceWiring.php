@@ -7,6 +7,7 @@ use Cheevos\CheevosClient;
 use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
 use Fandom\Includes\Article\GlobalTitleLookup;
+use GuzzleHttp\Client;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcastFactory;
 use WikiDomain\WikiConfigDataService;
@@ -14,8 +15,13 @@ use WikiDomain\WikiConfigDataService;
 return [
 	CheevosClient::class => static function ( MediaWikiServices $services ): CheevosClient {
 		$config = $services->getMainConfig();
+
+		// Use the shared HTTP client instance in the Fandom setup if available,
+		// but don't fail if it is absent (e.g. in tests).
+		$httpClient = defined( 'SERVICE_HTTP_CLIENT' ) ?
+			$services->getService( SERVICE_HTTP_CLIENT ) : new Client();
 		return new CheevosClient(
-			$services->getService( SERVICE_HTTP_CLIENT ),
+			$httpClient,
 			$config->get( 'CheevosHost' ),
 			[
 				'Accept' => 'application/json',
@@ -34,11 +40,14 @@ return [
 	},
 
 	AchievementService::class => static function ( MediaWikiServices $services ): AchievementService {
+		// Make Reverb notifications an optional dependency to facilitate testing.
+		$notificationBroadcastFactory = $services->has( NotificationBroadcastFactory::class ) ?
+			$services->getService( NotificationBroadcastFactory::class ) : null;
 		return new AchievementService(
 			$services->getService( CheevosClient::class ),
-			$services->getService( RedisCache::class ),
+			$services->getMainWANObjectCache(),
 			$services->getMainConfig(),
-			$services->getService( NotificationBroadcastFactory::class ),
+			$notificationBroadcastFactory,
 			$services->getUserFactory(),
 			$services->getUserIdentityLookup()
 		);

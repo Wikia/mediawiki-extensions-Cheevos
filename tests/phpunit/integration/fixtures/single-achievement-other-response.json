@@ -1,0 +1,33 @@
+{
+	"category": {
+		"created_at": 1492012802,
+		"id": 4,
+		"name": {
+			"en": "Logging In"
+		},
+		"slug": "logging-in",
+		"updated_at": 1492012802
+	},
+	"created_at": 1555282705,
+	"criteria": {
+		"achievement_ids": [],
+		"stats": [
+			"visit"
+		],
+		"streak": "daily",
+		"streak_progress_required": 1,
+		"value": 180
+	},
+	"description": {
+		"uk": "Відвідайте Wiki, увійшовши 180 днів підряд"
+	},
+	"id": 5720,
+	"image": "Файл:Ac visit wiki v2 180 D.png",
+	"name": {
+		"uk": "Півроку на WIKI!"
+	},
+	"points": 2500,
+	"site_id": 5546,
+	"site_key": "4f7c1ebda5ed8f6dc88bf05411724483",
+	"updated_at": 1558774711
+}

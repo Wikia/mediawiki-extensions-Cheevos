@@ -23,7 +23,7 @@ class CheevosRegistrationCallback implements LoadExtensionSchemaUpdatesHook {
 		$reverbNotifications = [
 			'user-interest-achievement-earned' => [ 'importance' => 8 ],
 		];
-		$wgReverbNotifications = array_merge( $wgReverbNotifications, $reverbNotifications );
+		$wgReverbNotifications = array_merge( $wgReverbNotifications ?? [], $reverbNotifications );
 	}
 
 	/** @inheritDoc */
