@@ -44,7 +44,7 @@ class SpecialWikiPoints extends SpecialPage {
 		$this->wikiPoints( $subPage, $output, $this->getRequest() );
 	}
 
-	public function wikiPoints( ?string $subPage = null, OutputPage $output, WebRequest $request ): void {
+	public function wikiPoints( ?string $subPage, OutputPage $output, WebRequest $request ): void {
 		$username = $request->getVal( 'user' );
 		$error = null;
 		$globalId = null;
