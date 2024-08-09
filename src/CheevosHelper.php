@@ -17,12 +17,12 @@ use Config;
 use Exception;
 use Fandom\Includes\Article\GlobalTitleLookup;
 use Fandom\WikiConfig\WikiVariablesDataService;
+use Fandom\WikiDomain\WikiConfigData;
+use Fandom\WikiDomain\WikiConfigDataService;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
 use RequestContext;
-use WikiDomain\WikiConfigData;
-use WikiDomain\WikiConfigDataService;
 
 class CheevosHelper {
 
