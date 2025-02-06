@@ -84,10 +84,10 @@ class AchievementService {
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @return CheevosAchievement[]
+	 * @throws CheevosException
 	 * @throws Exception
 	 */
-	public function getAchievements( ?string $siteKey = null ): array {
+	public function getAchievements( ?string $siteKey = null ): ?array {
 		/**
 		 * @var Redis $redis
 		 */
