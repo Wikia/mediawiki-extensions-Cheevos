@@ -7,9 +7,9 @@ use Cheevos\CheevosClient;
 use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
 use Fandom\Includes\Article\GlobalTitleLookup;
+use Fandom\WikiDomain\WikiConfigDataService;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcastFactory;
-use WikiDomain\WikiConfigDataService;
 
 return [
 	CheevosClient::class => static function ( MediaWikiServices $services ): CheevosClient {
