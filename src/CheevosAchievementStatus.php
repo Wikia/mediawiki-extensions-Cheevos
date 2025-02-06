@@ -13,7 +13,7 @@
 namespace Cheevos;
 
 /**
- * @method isEarned()
+ * @method mixed isEarned()
  */
 class CheevosAchievementStatus extends CheevosModel {
 	/**

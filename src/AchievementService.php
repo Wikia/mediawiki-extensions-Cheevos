@@ -536,7 +536,7 @@ class AchievementService {
 		}
 
 		if ( $defaultLimit !== null ) {
-			$filters['limit'] = $filters['limit'] ?? $defaultLimit;
+			$filters['limit'] ??= $defaultLimit;
 		}
 		return $filters;
 	}

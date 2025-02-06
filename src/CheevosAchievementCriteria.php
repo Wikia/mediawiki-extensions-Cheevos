@@ -13,16 +13,16 @@
 namespace Cheevos;
 
 /**
- * @method setStreak_Progress_Required( int $getInt )
- * @method setStreak_Reset_To_Zero( bool $getBool )
- * @method setStreak( string $getText )
- * @method setValue( int $getInt )
- * @method setStats( array|null $getArray )
- * @method setPer_Site_Progress_Maximum( int $getInt )
- * @method setDate_Range_Start( int $getInt )
- * @method setDate_Range_End( int $getInt )
- * @method setCategory_Id( int $getInt )
- * @method setAchievement_Ids( int[]|null $getIntArray )
+ * @method null setStreak_Progress_Required( int $getInt )
+ * @method null setStreak_Reset_To_Zero( bool $getBool )
+ * @method null setStreak( string $getText )
+ * @method null setValue( int $getInt )
+ * @method null setStats( array|null $getArray )
+ * @method null setPer_Site_Progress_Maximum( int $getInt )
+ * @method null setDate_Range_Start( int $getInt )
+ * @method null setDate_Range_End( int $getInt )
+ * @method null setCategory_Id( int $getInt )
+ * @method null setAchievement_Ids( int[]|null $getIntArray )
  */
 class CheevosAchievementCriteria extends CheevosModel {
 

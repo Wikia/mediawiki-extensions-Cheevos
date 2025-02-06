@@ -13,7 +13,7 @@
 namespace Cheevos;
 
 /**
- * @method getId()
+ * @method int getId()
  */
 class CheevosAchievementProgress extends CheevosModel {
 	/**

@@ -16,10 +16,10 @@ use Exception;
 use MediaWiki\MediaWikiServices;
 
 /**
- * @method getId()
- * @method setCreated_At( int $time )
- * @method setCreated_By( int $getId )
- * @method getSlug()
+ * @method int getId()
+ * @method null setCreated_At( int $time )
+ * @method null setCreated_By( int $getId )
+ * @method string getSlug()
  */
 class CheevosAchievementCategory extends CheevosModel {
 
