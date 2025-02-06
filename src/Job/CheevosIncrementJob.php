@@ -14,15 +14,16 @@ namespace Cheevos\Job;
 
 use Cheevos\AchievementService;
 use Cheevos\CheevosAchievement;
+use IJobSpecification;
 use Job;
+use JobSpecification;
 use MediaWiki\MediaWikiServices;
 
 class CheevosIncrementJob extends Job {
 	private const COMMAND = 'Cheevos\Job\CheevosIncrementJob';
 
-	public static function queue( array $parameters = [] ): void {
-		$job = new self( self::COMMAND, $parameters );
-		MediaWikiServices::getInstance()->getJobQueueGroup()->push( $job );
+	public static function newSpecification( array $increment ): IJobSpecification {
+		return new JobSpecification( self::COMMAND, $increment );
 	}
 
 	/** @inheritDoc */

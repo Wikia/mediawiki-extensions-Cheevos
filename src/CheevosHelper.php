@@ -31,10 +31,10 @@ class CheevosHelper {
 	private static bool $shutdownRan = false;
 
 	public function __construct(
-		private AchievementService $achievementService,
 		private Config $config,
 		private GlobalTitleLookup $globalTitleLookup,
-		private WikiConfigDataService $wikiConfigDataService
+		private WikiConfigDataService $wikiConfigDataService,
+		private JobQueueGroup $jobQueueGroup
 	) {
 	}
 
@@ -72,29 +72,15 @@ class CheevosHelper {
 	}
 
 	private function doIncrements() {
-		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
-		try {
-			self::$shutdownRan = true;
-			foreach ( self::$increments as $userId => $increment ) {
-				$return = $this->achievementService->increment( $increment );
-				unset( self::$increments[$userId] );
-				if ( isset( $return['earned'] ) ) {
-					foreach ( $return['earned'] as $achievement ) {
-						$achievement = new CheevosAchievement( $achievement );
-						$this->achievementService->broadcastAchievement(
-							$achievement,
-							$increment['site_key'],
-							$increment['user_id']
-						);
-					}
-				}
-			}
-		} catch ( CheevosException $e ) {
-			foreach ( self::$increments as $userId => $increment ) {
-				CheevosIncrementJob::queue( $increment );
-				unset( self::$increments[$userId] );
-			}
+		self::$shutdownRan = true;
+
+		$jobs = [];
+		foreach ( self::$increments as $userId => $increment ) {
+			$jobs[] = CheevosIncrementJob::newSpecification( $increment );
+			unset( self::$increments[$userId] );
 		}
+
+		$this->jobQueueGroup->push( $jobs );
 	}
 
 	public function getUrlOnCheevosCentralWiki( LinkTarget $target ): string {
