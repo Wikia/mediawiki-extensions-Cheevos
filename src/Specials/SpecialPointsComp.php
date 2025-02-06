@@ -17,25 +17,32 @@ use Cheevos\Job\PointsCompJob;
 use Cheevos\Points\PointsCompReport;
 use Cheevos\Templates\TemplatePointsComp;
 use ErrorPageError;
+use Exception;
 use HydraCore;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentityLookup;
-use OutputPage;
-use SpecialPage;
-use WebRequest;
+use PermissionsError;
 
 class SpecialPointsComp extends SpecialPage {
 
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private UserFactory $userFactory,
-		private CheevosHelper $cheevosHelper
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly UserFactory $userFactory,
+		private readonly CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'PointsComp', 'points_comp_reports' );
 	}
 
-	/** @inheritDoc */
-	public function execute( $subPage ) {
+	/** @inheritDoc
+	 * @throws PermissionsError
+	 * @throws ErrorPageError
+	 */
+	public function execute( $subPage ): void {
 		$output = $this->getOutput();
 		if ( !$this->cheevosHelper->isCheevosCentralWiki() ) {
 			$output->redirect( $this->cheevosHelper->getUrlOnCheevosCentralWiki( $this->getFullTitle() ) );
@@ -55,7 +62,10 @@ class SpecialPointsComp extends SpecialPage {
 		$this->pointsCompReports( $subPage, $output, $this->getRequest() );
 	}
 
-	/** Points Comp Reports */
+	/** Points Comp Reports
+	 *
+	 * @throws ErrorPageError
+	 */
 	public function pointsCompReports( ?string $subPage, OutputPage $output, WebRequest $request ): void {
 		if ( $request->wasPosted() ) {
 			$this->runReport( $output, $request );
@@ -105,7 +115,11 @@ class SpecialPointsComp extends SpecialPage {
 		) );
 	}
 
-	/** Run a report into the job queue. */
+	/** Run a report into the job queue.
+	 *
+	 * @throws ErrorPageError
+	 * @throws Exception
+	 */
 	private function runReport( OutputPage $output, WebRequest $request ): void {
 		$reportId = $request->getInt( 'report_id' );
 		if ( $reportId < 0 ) {
@@ -152,8 +166,12 @@ class SpecialPointsComp extends SpecialPage {
 			$endTime = strtotime( date( 'Y-m-t', $startTimestamp ) . 'T23:59:59+00:00' );
 
 			$status = PointsCompReport::validateTimeRange( $startTime, $endTime );
+			$statusFormatter = MediaWikiServices::getInstance()->getFormatterFactory()->getStatusFormatter(
+				RequestContext::getMain()
+			);
+
 			if ( !$status->isGood() ) {
-				throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
+				throw new ErrorPageError( 'points_comp_report_error', $statusFormatter->getMessage( $status ) );
 			}
 
 			$minPointThreshold = $request->getInt( 'min_point_threshold' );
@@ -164,7 +182,7 @@ class SpecialPointsComp extends SpecialPage {
 
 			$status = PointsCompReport::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
 			if ( !$status->isGood() ) {
-				throw new ErrorPageError( 'points_comp_report_error', $status->getMessage() );
+				throw new ErrorPageError( 'points_comp_report_error', $statusFormatter->getMessage( $status ) );
 			}
 
 			$report = new PointsCompReport();
@@ -183,9 +201,8 @@ class SpecialPointsComp extends SpecialPage {
 
 	/**
 	 * Download CSV to client.
-	 * @return never
 	 */
-	private function downloadCSV( $csv, $reportId ) {
+	private function downloadCSV( $csv, $reportId ): never {
 		$filename = 'points_comp_report_' . $reportId;
 
 		header( "Content-type: text/csv" );
@@ -205,12 +222,12 @@ class SpecialPointsComp extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	public function isRestricted() {
+	public function isRestricted(): true {
 		return true;
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'users';
 	}
 }

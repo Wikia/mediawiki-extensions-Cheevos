@@ -17,14 +17,14 @@ use Cheevos\AchievementService;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Templates\TemplateWikiPoints;
-use Html;
-use Linker;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Html\Html;
+use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
-use Parser;
-use RequestContext;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use stdClass;
-use Title;
-use User;
 
 /**
  * Class containing some business and display logic for points blocks
@@ -44,7 +44,7 @@ class PointsDisplay {
 	 *
 	 * @param Parser $parser mediawiki Parser reference
 	 * @param string $user ???????
-	 * @param string|int $limit [Optional] Limit results.
+	 * @param int|string $limit [Optional] Limit results.
 	 * @param string $wikis [optional, default: ''] comma separated list of wiki namespaces,
 	 * defaults to the current wiki
 	 *					Special namespaces are:
@@ -60,10 +60,10 @@ class PointsDisplay {
 	public static function pointsBlock(
 		Parser $parser,
 		string $user = '',
-		$limit = 25,
+		int|string $limit = 25,
 		string $wikis = '',
 		string $markup = 'table'
-	) {
+	): array {
 		$dsSiteKey = CheevosHelper::getSiteKey();
 
 		$limit = (int)$limit;
@@ -115,15 +115,15 @@ class PointsDisplay {
 	 * @return string HTML
 	 */
 	public static function pointsBlockHtml(
-		string $siteKey = null,
+		?string $siteKey = null,
 		?int $globalId = null,
 		?int $itemsPerPage = 25,
 		?int $start = 0,
 		?bool $isSitesMode = false,
 		?bool $isMonthly = false,
 		string $markup = 'table',
-		Title $title = null
-	) {
+		?Title $title = null
+	): string {
 		global $wgExtensionAssetsPath;
 		$dsSiteKey = CheevosHelper::getSiteKey();
 		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
@@ -153,7 +153,7 @@ class PointsDisplay {
 			}
 
 			$userPointsRow = new stdClass();
-			if ( $user !== null ) {
+			if ( !empty( $user->getName() ) ) {
 				$userPointsRow->userName = $user->getName();
 				if ( !$userNameUtils->isCreatable( $user->getName() ) || $user->isHidden() ) {
 					continue;
@@ -195,38 +195,39 @@ class PointsDisplay {
 			}
 
 			$localDomain = trim( $wgServer, '/' );
-			foreach ( $userPoints as $key => $userPointsRow ) {
+			foreach ( $userPoints as &$userPointsRow ) {
 				if (
 					$userPointsRow->siteKey != $dsSiteKey &&
 					 !empty( $userPointsRow->userLink ) &&
 					 isset( $wikis[$userPointsRow->siteKey] )
 				) {
 					$domain = parse_url( $wikis[$userPointsRow->siteKey]->getWikiUrl() )['host'];
-					$userPoints[$key]->userToolsLinks = str_replace(
+					$userPointsRow->userToolsLinks = str_replace(
 						$localDomain,
 						$domain,
-						$userPoints[$key]->userToolsLinks
+						$userPointsRow->userToolsLinks
 					);
-					$userPoints[$key]->userLink = str_replace(
+					$userPointsRow->userLink = str_replace(
 						$localDomain,
 						"https://" . $domain,
-						$userPoints[$key]->userLink
+						$userPointsRow->userLink
 					);
-					$userPoints[$key]->userToolsLinks = str_replace(
+					$userPointsRow->userToolsLinks = str_replace(
 						'href="/',
 						'href="https://' . $domain . '/',
-						$userPoints[$key]->userToolsLinks
+						$userPointsRow->userToolsLinks
 					);
-					$userPoints[$key]->userLink = str_replace(
+					$userPointsRow->userLink = str_replace(
 						'href="/',
 						'href="https://' . $domain . '/',
-						$userPoints[$key]->userLink
+						$userPointsRow->userLink
 					);
 				}
 			}
 		}
 
 		$user = RequestContext::getMain()->getUser();
+		$html = '';
 
 		switch ( $markup ) {
 			case 'badged':
@@ -240,7 +241,7 @@ class PointsDisplay {
 					$html = (
 						isset( $userPointsRow->adminUrl ) &&
 						$user->isAllowed( 'wiki_points_admin' ) ?
-							"<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" :
+							"<a href='$userPointsRow->adminUrl'>$userPointsRow->score</a>" :
 							$userPointsRow->score );
 					if ( $markup == 'badged' ) {
 						$html .= ' ' . Html::element(
@@ -298,10 +299,7 @@ class PointsDisplay {
 	): array {
 		$itemsPerPage = max( 1, min( (int)$itemsPerPage, 200 ) );
 		$start = (int)$start;
-		$isSitesMode = (bool)$isSitesMode;
 		$isMonthly = (bool)$isMonthly;
-
-		$total = 0;
 
 		$filters = [
 			'stat'				=> 'wiki_points',
@@ -310,11 +308,11 @@ class PointsDisplay {
 			'sort_direction'	=> 'desc'
 		];
 
-		if ( !$isSitesMode && empty( $siteKey ) ) {
+		if ( empty( $siteKey ) ) {
 			$filters['global'] = true;
 		}
 
-		if ( $siteKey !== null && !empty( $siteKey ) ) {
+		if ( !empty( $siteKey ) ) {
 			$filters['site_key'] = $siteKey;
 		}
 
@@ -379,7 +377,7 @@ class PointsDisplay {
 	 *
 	 * @return int Wiki Points
 	 */
-	public static function getWikiPointsForRange( User $user, string $siteKey = null, int $monthsAgo = null ): int {
+	public static function getWikiPointsForRange( User $user, ?string $siteKey = null, ?int $monthsAgo = null ): int {
 		$globalId = $user->getId();
 
 		if ( $globalId < 1 ) {
@@ -390,7 +388,7 @@ class PointsDisplay {
 			'stat'		=> 'wiki_points',
 			'site_key'	=> $siteKey,
 			'user_id'	=> $globalId,
-			'global'	=> ( $siteKey === null ? true : false )
+			'global'	=> $siteKey === null
 		];
 
 		$monthsAgo = (int)$monthsAgo;

@@ -18,9 +18,10 @@ use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Templates\TemplateAchievements;
 use ErrorPageError;
+use Exception;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
-use SpecialPage;
 use UserNotLoggedIn;
 
 class SpecialAchievements extends SpecialPage {
@@ -28,17 +29,19 @@ class SpecialAchievements extends SpecialPage {
 	private ?string $siteKey;
 
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService,
-		private CheevosHelper $cheevosHelper
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly AchievementService $achievementService,
+		private readonly CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'Achievements' );
 
 		$this->siteKey = CheevosHelper::getSiteKey();
 	}
 
-	/** @inheritDoc */
-	public function execute( $subPage ) {
+	/** @inheritDoc
+	 * @throws ErrorPageError
+	 */
+	public function execute( $subPage ): void {
 		$output = $this->getOutput();
 		$output->addModuleStyles( [
 			'ext.cheevos.styles',
@@ -65,6 +68,10 @@ class SpecialAchievements extends SpecialPage {
 		$output->setPageTitle( $this->msg( 'achievements-title-for', $targetUser->getName() )->escaped() );
 	}
 
+	/**
+	 * @throws ErrorPageError
+	 * @throws Exception
+	 */
 	private function achievementsList( UserIdentity $targetUser ): string {
 		$userId = $targetUser->getId();
 
@@ -107,6 +114,9 @@ class SpecialAchievements extends SpecialPage {
 		);
 	}
 
+	/**
+	 * @throws ErrorPageError
+	 */
 	private function sendUnnotifiedAchievements( UserIdentity $userIdentity ): void {
 		$userId = $userIdentity->getId();
 		try {
@@ -122,6 +132,10 @@ class SpecialAchievements extends SpecialPage {
 		}
 	}
 
+	/**
+	 * @throws UserNotLoggedIn
+	 * @throws ErrorPageError
+	 */
 	private function getTargetUser( ?string $subPage ): UserIdentity {
 		if ( !empty( $subPage ) && !is_numeric( $subPage ) ) {
 			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $subPage );
@@ -147,7 +161,7 @@ class SpecialAchievements extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'users';
 	}
 }

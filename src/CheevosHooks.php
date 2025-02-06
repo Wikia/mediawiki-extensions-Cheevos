@@ -12,9 +12,10 @@
 
 namespace Cheevos;
 
-use Config;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use Mediawiki\Config\Config;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Hook\ArticleMergeCompleteHook;
 use MediaWiki\Hook\BeforeInitializeHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
@@ -39,17 +40,16 @@ use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\Skin\SkinComponentUtils;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use MediaWiki\User\UserFactory;
 use MobileContext;
-use RequestContext;
-use Skin;
-use SpecialPage;
-use Title;
-use User;
-use WANObjectCache;
 use Wikimedia\LightweightObjectStore\ExpirationAwareness;
+use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class CheevosHooks implements
@@ -89,19 +89,21 @@ class CheevosHooks implements
 	];
 
 	public function __construct(
-		private LinkRenderer $linkRenderer,
-		private UserFactory $userFactory,
-		private Config $config,
-		private RevisionStore $revisionStore,
-		private ILoadBalancer $loadBalancer,
-		private WANObjectCache $objectCache,
-		private MobileContext $mobileContext,
-		private AchievementService $achievementService,
-		private CheevosHelper $cheevosHelper
+		private readonly LinkRenderer $linkRenderer,
+		private readonly UserFactory $userFactory,
+		private readonly Config $config,
+		private readonly RevisionStore $revisionStore,
+		private readonly ILoadBalancer $loadBalancer,
+		private readonly WANObjectCache $objectCache,
+		private readonly MobileContext $mobileContext,
+		private readonly AchievementService $achievementService,
+		private readonly CheevosHelper $cheevosHelper
 	) {
 	}
 
-	/** @inheritDoc */
+	/**
+	 * @inheritDoc
+	 */
 	public function onPageDeleteComplete(
 		ProperPageIdentity $page,
 		Authority $deleter,
@@ -110,7 +112,7 @@ class CheevosHooks implements
 		RevisionRecord $deletedRev,
 		ManualLogEntry $logEntry,
 		int $archivedRevisionCount
-	) {
+	): void {
 		$user = $this->userFactory->newFromAuthority( $deleter );
 		$this->cheevosHelper->increment( 'article_delete', 1, $user );
 	}
@@ -121,7 +123,13 @@ class CheevosHooks implements
 	 * $wgNamespacesForEditPoints array.
 	 * This hook will not be called if a null revision is created.
 	 */
-	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
+	public function onRevisionFromEditComplete(
+		$wikiPage,
+		$rev,
+		$originalRevId,
+		$user,
+		&$tags
+	): void {
 		$isBot = $this->userFactory->newFromUserIdentity( $user )->isAllowed( 'bot' );
 		$parentRevisionId = $rev->getParentId();
 
@@ -177,7 +185,7 @@ class CheevosHooks implements
 	 * @inheritDoc
 	 * Check for an article rollback, which then revokes all points for revisions that were reverted
 	 */
-	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
+	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ): void {
 		if ( !$editResult->isRevert() || $editResult->getRevertMethod() !== EditResult::REVERT_ROLLBACK ) {
 			// Not a rollback so we don't care
 			return;
@@ -208,45 +216,44 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onArticleMergeComplete( $targetTitle, $destTitle ) {
+	public function onArticleMergeComplete( $targetTitle, $destTitle ): void {
 		$this->cheevosHelper->increment( 'article_merge', 1, RequestContext::getMain()->getUser() );
 	}
 
 	/** @inheritDoc */
-	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ) {
+	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ): void {
 		$this->cheevosHelper->increment( 'article_protect', 1, $user );
 	}
 
 	/** @inheritDoc */
-	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
+	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ): void {
 		$this->cheevosHelper->increment( 'article_move', 1, $user );
 	}
 
 	/** @inheritDoc */
-	public function onBlockIpComplete( $block, $user, $priorBlock ) {
+	public function onBlockIpComplete( $block, $user, $priorBlock ): void {
 		$this->cheevosHelper->increment( 'admin_block_ip', 1, $user );
 	}
 
-	public function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
+	public function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ): void {
 		$this->cheevosHelper->increment( 'curse_profile_comment', 1, $fromUser );
 	}
 
-	public function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ) {
+	public function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ): void {
 		$this->cheevosHelper->increment( 'curse_profile_comment_reply', 1, $fromUser );
 	}
 
-	public function onCurseProfileAddFriend( User $fromUser, User $toUser ) {
+	public function onCurseProfileAddFriend( User $fromUser, User $toUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_add_friend', 1, $fromUser );
 	}
 
 	/**
 	 * fixme: call 'CurseProfileAcceptFriend' hook when adding friend in CurseProfile
 	 */
-	public function onCurseProfileAcceptFriend( User $fromUser, User $toUser ) {
+	public function onCurseProfileAcceptFriend( User $fromUser, User $toUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_accept_friend', 1, $fromUser );
 	}
 
-	/** @inheritDoc */
 	public function onCurseProfileCanComment( User $fromUser, User $toUser, int $editsToComment ): bool {
 		try {
 			$stats = $this->achievementService->getStatProgress(
@@ -257,13 +264,13 @@ class CheevosHooks implements
 
 			$editCount = (int)( $stats[$fromUser->getId()]['article_edit']['count'] ?? 0 );
 			return $editCount >= $editsToComment;
-		} catch ( CheevosException $e ) {
+			// TODO: never thrown?
+		} catch ( CheevosException ) {
 			wfDebug( "Encountered Cheevos API error getting article_edit count." );
 			return true;
 		}
 	}
 
-	/** @inheritDoc */
 	public function onCurseProfileEdited( User $user, $field, $value ): void {
 		$this->cheevosHelper->increment( 'curse_profile_edit', 1, $user );
 
@@ -274,27 +281,27 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onEmailUserComplete( $to, $from, $subject, $text ) {
+	public function onEmailUserComplete( $to, $from, $subject, $text ): void {
 		$this->cheevosHelper->increment( 'send_email', 1, RequestContext::getMain()->getUser() );
 	}
 
 	/** @inheritDoc */
-	public function onMarkPatrolledComplete( $rcid, $user, $wcOnlySysopsCanPatrol, $auto ) {
+	public function onMarkPatrolledComplete( $rcid, $user, $wcOnlySysopsCanPatrol, $auto ): void {
 		$this->cheevosHelper->increment( 'admin_patrol', 1, $user );
 	}
 
 	/** @inheritDoc */
-	public function onUploadComplete( $uploadBase ) {
+	public function onUploadComplete( $uploadBase ): void {
 		$this->cheevosHelper->increment( 'file_upload', 1, RequestContext::getMain()->getUser() );
 	}
 
 	/** @inheritDoc */
-	public function onWatchArticleComplete( $user, $page ) {
+	public function onWatchArticleComplete( $user, $page ): void {
 		$this->cheevosHelper->increment( 'article_watch', 1, $user );
 	}
 
 	/** @inheritDoc */
-	public function onLocalUserCreated( $user, $autocreated ) {
+	public function onLocalUserCreated( $user, $autocreated ): void {
 		$this->cheevosHelper->increment( 'account_create', 1, $user );
 	}
 
@@ -303,7 +310,7 @@ class CheevosHooks implements
 	 */
 	public function onWikiPointsSave(
 		int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = ''
-	) {
+	): void {
 		$user = RequestContext::getMain()->getUser();
 		if ( $score !== 0 && $user->isRegistered() && $user->getId() === $userId ) {
 			$this->cheevosHelper->increment( 'wiki_points', $score, $user );
@@ -323,7 +330,7 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ) {
+	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ): void {
 		// Do not track anonymous users for visits. The Cheevos database can not handle it.
 		if ( PHP_SAPI !== 'cli' && !defined( 'MW_API' ) && $user->isRegistered() ) {
 			$this->cheevosHelper->increment( 'visit', 1, $user );
@@ -331,7 +338,7 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onLoginFormValidErrorMessages( array &$messages ) {
+	public function onLoginFormValidErrorMessages( array &$messages ): void {
 		$messages[] = 'login_to_display_achievements';
 	}
 
@@ -344,7 +351,7 @@ class CheevosHooks implements
 		$achievementLink = [
 			'achievements' => [
 				'text' => wfMessage( 'achievements' )->text(),
-				'href' => Skin::makeSpecialUrl( 'Achievements' ),
+				'href' => SkinComponentUtils::makeSpecialUrl( 'Achievements' ),
 				'active' => true,
 			],
 		];
@@ -361,7 +368,7 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onUserToolLinksEdit( $userId, $userText, &$items ) {
+	public function onUserToolLinksEdit( $userId, $userText, &$items ): void {
 		$link = $this->getLinkToWikiPoints( $userId, $userText );
 		if ( $link ) {
 			$items[] = $link;
@@ -369,7 +376,7 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onContributionsToolLinks( $id, Title $title, array &$tools, SpecialPage $specialPage ) {
+	public function onContributionsToolLinks( $id, Title $title, array &$tools, SpecialPage $specialPage ): void {
 		$link = $this->getLinkToWikiPoints( $id, $title->getText() );
 		if ( $link ) {
 			$tools[] = $link;
@@ -391,13 +398,13 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onParserFirstCallInit( $parser ) {
+	public function onParserFirstCallInit( $parser ): void {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
 		$parser->setFunctionHook( 'numberofcontributors', fn() => $this->getNumberOfContributors() );
 	}
 
 	/** @inheritDoc */
-	public function onGetMagicVariableIDs( &$variableIDs ) {
+	public function onGetMagicVariableIDs( &$variableIDs ): void {
 		$variableIDs[] = 'numberofcontributors';
 	}
 
@@ -405,7 +412,7 @@ class CheevosHooks implements
 	 * @inheritDoc
 	 * Handles custom {{numberofcontributors}} magic word.
 	 */
-	public function onParserGetVariableValueSwitch( $parser, &$variableCache, $magicWordId, &$ret, $frame ) {
+	public function onParserGetVariableValueSwitch( $parser, &$variableCache, $magicWordId, &$ret, $frame ): void {
 		if ( strtolower( $magicWordId ) !== 'numberofcontributors' ) {
 			return;
 		}

@@ -17,19 +17,22 @@ use Cheevos\CheevosHelper;
 use Cheevos\Points\PointsDisplay;
 use Cheevos\Templates\TemplateWikiPoints;
 use Cheevos\Templates\TemplateWikiPointsAdmin;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserIdentityLookup;
-use OutputPage;
-use SpecialPage;
-use WebRequest;
 
 class SpecialWikiPoints extends SpecialPage {
 
-	public function __construct( private UserIdentityLookup $userIdentityLookup ) {
+	public function __construct(
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly CheevosHelper $cheevosHelper
+	) {
 		parent::__construct( 'WikiPoints' );
 	}
 
 	/** @inheritDoc */
-	public function execute( $subPage ) {
+	public function execute( $subPage ): void {
 		$output = $this->getOutput();
 		$output->addModuleStyles( [
 			'ext.cheevos.wikiPoints.styles',
@@ -58,7 +61,7 @@ class SpecialWikiPoints extends SpecialPage {
 		}
 
 		$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
-		$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
+		$isSitesMode = in_array( 'sites', $modifiers ) && $this->cheevosHelper->isCheevosCentralWiki();
 		$isMonthly = in_array( 'monthly', $modifiers );
 		$isGlobal = in_array( 'global', $modifiers );
 
@@ -89,12 +92,12 @@ class SpecialWikiPoints extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'wikipoints';
 	}
 
 	/** @inheritDoc */
-	public function isListed() {
+	public function isListed(): bool {
 		return parent::isListed() && $this->userCanExecute( $this->getUser() );
 	}
 }

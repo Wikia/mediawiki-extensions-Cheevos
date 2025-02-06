@@ -19,12 +19,13 @@ use Cheevos\CheevosAchievementCriteria;
 use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Templates\TemplateManageAchievements;
+use Exception;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserIdentityLookup;
-use MWException;
-use OutputPage;
 use PermissionsError;
-use SpecialPage;
-use WebRequest;
+use RuntimeException;
 use Wikimedia\Assert\Assert;
 
 class SpecialManageAchievements extends SpecialPage {
@@ -33,9 +34,9 @@ class SpecialManageAchievements extends SpecialPage {
 	private TemplateManageAchievements $template;
 
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService,
-		private CheevosHelper $cheevosHelper
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly AchievementService $achievementService,
+		private readonly CheevosHelper $cheevosHelper
 	) {
 		parent::__construct(
 			'ManageAchievements',
@@ -48,8 +49,11 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->siteKey = $this->isMaster ? '' : CheevosHelper::getSiteKey();
 	}
 
-	/** @inheritDoc */
-	public function execute( $subPage ) {
+	/** @inheritDoc
+	 * @throws PermissionsError|CheevosException
+	 * @throws Exception
+	 */
+	public function execute( $subPage ): void {
 		$output = $this->getOutput();
 		$output->addModuleStyles( [
 			'ext.cheevos.styles',
@@ -93,7 +97,10 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 	}
 
-	/** Cheevos List */
+	/** Cheevos List
+	 *
+	 * @throws Exception
+	 */
 	private function achievementsList( OutputPage $output ): void {
 		$achievements = $this->achievementService->getAchievements( $this->siteKey );
 		$categories = $this->achievementService->getCategories();
@@ -125,14 +132,17 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addHTML( $this->template->achievementsList( $achievements, $categories, $revertHints ) );
 	}
 
-	/** Achievements Form */
+	/** Achievements Form
+	 *
+	 * @throws Exception
+	 */
 	private function achievementsForm( OutputPage $output, WebRequest $request ): void {
 		$output->addModules( [ 'ext.achievements.triggerBuilder.js' ] );
 		$achievementId = $request->getInt( 'aid' );
 
 		$allAchievements = $this->achievementService->getAchievements( $this->siteKey );
 		$allAchievements = CheevosAchievement::correctCriteriaChildAchievements( $allAchievements );
-		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [ $allAchievements, [] ], false, true );
+		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [ $allAchievements, [] ], false );
 
 		$achievement = null;
 		if ( $achievementId ) {
@@ -179,6 +189,10 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addHTML( $html );
 	}
 
+	/**
+	 * @throws CheevosException
+	 * @throws Exception
+	 */
 	private function achievementsSave( WebRequest $request, CheevosAchievement $achievement ): array {
 		if ( $request->getVal( 'do' ) !== 'save' || !$request->wasPosted() ) {
 			return [];
@@ -291,6 +305,11 @@ class SpecialManageAchievements extends SpecialPage {
 		return $errors;
 	}
 
+	/**
+	 * @throws PermissionsError
+	 * @throws CheevosException
+	 * @throws Exception
+	 */
 	public function achievementsRevert( OutputPage $output, WebRequest $request ): void {
 		$achievementId = $request->getInt( 'aid' );
 
@@ -301,6 +320,11 @@ class SpecialManageAchievements extends SpecialPage {
 				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
+		}
+
+		if ( !isset( $achievement ) ) {
+			$output->showErrorPage( 'achievements_error', 'error_award_bad_achievement' );
+			return;
 		}
 
 		if ( $achievement->isDeleted() && !$this->getUser()->isAllowed( 'restore_achievements' ) ) {
@@ -321,8 +345,8 @@ class SpecialManageAchievements extends SpecialPage {
 
 		if ( $request->getVal( 'confirm' ) == 'true' && $request->wasPosted() ) {
 			if ( $this->getUser()->isAnon() ) {
-				throw new MWException(
-					'Could not obtain the global ID for the user attempting to revert an achievement.'
+				throw new RuntimeException(
+					'Could not obtain the ID for the user attempting to revert an achievement.'
 				);
 			}
 
@@ -364,7 +388,10 @@ class SpecialManageAchievements extends SpecialPage {
 	 *
 	 * @param string $action Delete or Restore action take.
 	 *
-	 * @return void	[Outputs to screen]
+	 * @return void [Outputs to screen]
+	 * @throws PermissionsError
+	 * @throws CheevosException
+	 * @throws Exception
 	 */
 	public function achievementsDelete( string $action, OutputPage $output, WebRequest $request ): void {
 		$user = $this->getUser();
@@ -411,6 +438,10 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addHTML( $this->template->achievementStateChange( $achievement, $action ) );
 	}
 
+	/**
+	 * @throws PermissionsError
+	 * @throws Exception
+	 */
 	public function awardForm( OutputPage $output, WebRequest $request ): void {
 		if ( !$this->getUser()->isAllowed( 'award_achievements' ) ) {
 			throw new PermissionsError( 'award_achievements' );
@@ -432,10 +463,11 @@ class SpecialManageAchievements extends SpecialPage {
 	 * Saves submitted award forms.
 	 *
 	 * @return array Array containing an array of processed form information and array of corresponding errors.
+	 * @throws Exception
 	 */
 	private function awardSave( WebRequest $request ): array {
 		// This will break logic below if "Award" and "Unaward" are ever localized.  --Alexia 2017-04-07
-		$do = strtolower( $request->getText( 'do', '' ) );
+		$do = strtolower( $request->getText( 'do' ) );
 		if ( !in_array( $do, [ 'award', 'unaward' ] ) || !$request->wasPosted() ) {
 			return [ 'save' => [], 'errors' => [], 'success' => null ];
 		}
@@ -485,7 +517,7 @@ class SpecialManageAchievements extends SpecialPage {
 				]
 			);
 
-			$currentProgress = is_array( $currentProgress ) ? array_pop( $currentProgress ) : null;
+			$currentProgress = array_pop( $currentProgress );
 
 			if ( !$currentProgress && $do === 'award' ) {
 				try {
@@ -505,6 +537,7 @@ class SpecialManageAchievements extends SpecialPage {
 						CheevosHelper::getSiteKey(),
 						$globalId
 					);
+					// TODO: never thrown???
 				} catch ( CheevosException $e ) {
 					$errors[] = [
 						'username' => $username,
@@ -535,24 +568,27 @@ class SpecialManageAchievements extends SpecialPage {
 		return [ 'save' => $save, 'errors' => $errors, 'success' => $awarded ];
 	}
 
-	/** Invalidates the cache and redirects to ManageAchievements */
+	/** Invalidates the cache and redirects to ManageAchievements
+	 *
+	 * @throws Exception
+	 */
 	private function invalidateCache( OutputPage $outputPage ): void {
 		$this->achievementService->invalidateCache();
 		$outputPage->redirect( SpecialPage::getSafeTitleFor( 'ManageAchievements' )->getFullURL() );
 	}
 
 	/** @inheritDoc */
-	public function isListed() {
+	public function isListed(): bool {
 		return $this->getUser()->isAllowed( 'achievement_admin' );
 	}
 
 	/** @inheritDoc */
-	public function isRestricted() {
+	public function isRestricted(): true {
 		return true;
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'users';
 	}
 }

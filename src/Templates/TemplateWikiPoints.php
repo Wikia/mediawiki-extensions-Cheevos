@@ -15,8 +15,8 @@ namespace Cheevos\Templates;
 
 use Cheevos\CheevosHelper;
 use MediaWiki\MediaWikiServices;
-use SpecialPage;
-use Title;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
 
 class TemplateWikiPoints {
 	/**
@@ -64,9 +64,9 @@ class TemplateWikiPoints {
 				$html .= "
 				<tr>
 					<td>$i</td>
-					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>" .
+					<td>$userPointsRow->userLink$userPointsRow->userToolsLinks</td>" .
 					( $isSitesMode ? "<td>$wikiName</td>" : "\n" )
-					. "<td class='score'>{$userPointsRow->score}</td>"
+					. "<td class='score'>$userPointsRow->score</td>"
 					. ( $isMonthly ? "<td class='monthly'>" . $userPointsRow->yyyymm . "</td>" : '' ) . "
 				</tr>";
 			}
@@ -94,6 +94,7 @@ class TemplateWikiPoints {
 	 */
 	public static function getWikiPointsLinks(): string {
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+		$cheevosHelper = MediaWikiServices::getInstance()->getService( CheevosHelper::class );
 		$links = [
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints' ),
@@ -108,7 +109,7 @@ class TemplateWikiPoints {
 				wfMessage( 'top_wiki_editors_global' )->escaped()
 			)
 		];
-		if ( CheevosHelper::isCentralWiki() ) {
+		if ( $cheevosHelper->isCheevosCentralWiki() ) {
 			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'sites' ),
 				wfMessage( 'top_wiki_editors_sites' )->escaped()

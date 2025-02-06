@@ -12,15 +12,16 @@
 
 namespace Cheevos;
 
+/**
+ * @method isEarned()
+ */
 class CheevosAchievementStatus extends CheevosModel {
 	/**
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['achievement_id'] = isset( $data['achievement_id'] ) &&
 											 is_int( $data['achievement_id'] ) ? $data['achievement_id'] : 0;
 		$this->container['user_id'] = isset( $data['user_id'] ) && is_int( $data['user_id'] ) ? $data['user_id'] : 0;

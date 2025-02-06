@@ -17,10 +17,8 @@ class CheevosStatProgress extends CheevosModel {
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['stat'] = isset( $data['stat'] ) && is_string( $data['stat'] ) ? $data['stat'] : '';
 		$this->container['stat_id'] = isset( $data['stat_id'] ) && is_int( $data['stat_id'] ) ? $data['stat_id'] : 0;
 		$this->container['user_id'] = isset( $data['user_id'] ) && is_int( $data['user_id'] ) ? $data['user_id'] : 0;

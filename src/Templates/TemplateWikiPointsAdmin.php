@@ -4,11 +4,12 @@ namespace Cheevos\Templates;
 
 use Cheevos\AchievementService;
 use Cheevos\CheevosException;
+use Exception;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserIdentity;
-use RequestContext;
-use SpecialPage;
-use Title;
 
 /**
  * Curse Inc.
@@ -23,8 +24,8 @@ use Title;
  */
 
 class TemplateWikiPointsAdmin {
-	public static function userSearch( Title $title, ?string $error = null, ?string $username ): string {
-		$username = htmlspecialchars( $username );
+	public static function userSearch( Title $title, ?string $error = null, ?string $username = null ): string {
+		$username = htmlspecialchars( $username ?? '' );
 
 		$html = '';
 		if ( !empty( $error ) ) {
@@ -46,6 +47,7 @@ class TemplateWikiPointsAdmin {
 	 * User lookup display
 	 *
 	 * @return string Built HTML
+	 * @throws Exception
 	 */
 	public static function lookup(
 		?UserIdentity $user = null, array $points = [], ?string $error = null, string $username = ''
@@ -130,7 +132,7 @@ class TemplateWikiPointsAdmin {
 									'&achievement=' .
 									$pointRow->getAchievement_Id() .
 									'">' . htmlentities( $achievement->getName() ) . '</a>';
-						} catch ( CheevosException $e ) {
+						} catch ( CheevosException ) {
 							$link = '<a
 							href="' . $title->getInternalURL() . '#achievement=' . $pointRow->getAchievement_Id() .
 									'">' .

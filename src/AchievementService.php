@@ -3,14 +3,16 @@
 namespace Cheevos;
 
 use Cheevos\Templates\TemplateAchievements;
-use Config;
+use Exception;
+use Mediawiki\Config\Config;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
+use Redis;
 use RedisCache;
 use RedisException;
 use Reverb\Notification\NotificationBroadcastFactory;
-use SpecialPage;
 
 class AchievementService {
 	private const REDIS_CONNECTION_GROUP = 'cache';
@@ -18,12 +20,12 @@ class AchievementService {
 	private const TTL_5_MIN = 300;
 
 	public function __construct(
-		private CheevosClient $cheevosClient,
-		private RedisCache $redisCache,
-		private Config $config,
-		private NotificationBroadcastFactory $notificationBroadcastFactory,
-		private UserFactory $userFactory,
-		private UserIdentityLookup $userIdentityLookup
+		private readonly CheevosClient $cheevosClient,
+		private readonly RedisCache $redisCache,
+		private readonly Config $config,
+		private readonly NotificationBroadcastFactory $notificationBroadcastFactory,
+		private readonly UserFactory $userFactory,
+		private readonly UserIdentityLookup $userIdentityLookup
 	) {
 	}
 
@@ -48,13 +50,17 @@ class AchievementService {
 			]
 		);
 
-		if ( $broadcast ) {
-			$broadcast->transmit();
-		}
+		$broadcast?->transmit();
 	}
 
-	/** Invalidate API Cache */
+	/** Invalidate API Cache
+	 *
+	 * @throws Exception
+	 */
 	public function invalidateCache(): void {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			return;
@@ -64,7 +70,7 @@ class AchievementService {
 		$prefix = $redisServers['cache']['options']['prefix'] ?? '';
 
 		try {
-			$keys = $redis->getKeys( 'cheevos:apicache:*' );
+			$keys = $redis->keys( 'cheevos:apicache:*' );
 			foreach ( $keys as $key ) {
 				// remove prefix if exists, because weird.
 				$key = str_replace( $prefix . 'cheevos', 'cheevos', $key );
@@ -79,8 +85,12 @@ class AchievementService {
 	 * Get all achievements with caching.
 	 *
 	 * @return CheevosAchievement[]
+	 * @throws Exception
 	 */
 	public function getAchievements( ?string $siteKey = null ): array {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			return $this->cheevosClient->parse(
@@ -116,8 +126,14 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'achievements', CheevosAchievement::class );
 	}
 
-	/** Get achievement by database ID with caching. */
+	/** Get achievement by database ID with caching.
+	 *
+	 * @throws Exception
+	 */
 	public function getAchievement( int $id ): ?CheevosAchievement {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			$response = $this->cheevosClient->get( "achievement/$id" );
@@ -156,13 +172,13 @@ class AchievementService {
 
 	/** Soft delete an achievement from the service. */
 	public function deleteAchievement( int $id, int $authorId ): array {
-		return $this->cheevosClient->delete( "achievement/{$id}", [ "author_id" => $authorId ] );
+		return $this->cheevosClient->delete( "achievement/$id", [ "author_id" => $authorId ] );
 	}
 
 	/** Update an existing achievement on the service. */
 	public function updateAchievement( int $id, array $body ): void {
 		$this->cheevosClient->put(
-			$id ? "achievement/{$id}" : 'achievement',
+			$id ? "achievement/$id" : 'achievement',
 			$body
 		);
 	}
@@ -215,10 +231,8 @@ class AchievementService {
 
 	/**
 	 * Get process for achievement
-	 *
-	 * @param int $id
 	 */
-	public function getProgress( $id ): ?CheevosAchievementProgress {
+	public function getProgress( int $id ): ?CheevosAchievementProgress {
 		$response = $this->cheevosClient->get( "achievements/progress/$id" );
 		return $this->cheevosClient->parse( [ $response ], 'progress', CheevosAchievementProgress::class, true );
 	}
@@ -230,8 +244,6 @@ class AchievementService {
 
 	/**
 	 * Put process for achievement. Either create or updates.
-	 *
-	 * @return array
 	 */
 	public function putProgress( array $body ): array {
 		return $this->cheevosClient->put( 'achievements/progress', $body );
@@ -243,8 +255,12 @@ class AchievementService {
 	 * @param bool $skipCache Skip pulling data from the local cache. Will still update the local cache.
 	 *
 	 * @return CheevosAchievementCategory[]
+	 * @throws Exception
 	 */
 	public function getCategories( bool $skipCache = false ): array {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		$redisKey = $this->makeRedisKey( 'getCategories', self::CACHE_VERSION );
 
@@ -270,8 +286,14 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class );
 	}
 
-	/** Get Category by ID */
+	/** Get Category by ID
+	 *
+	 * @throws Exception
+	 */
 	public function getCategory( int $id ): ?CheevosAchievementCategory {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 
 		if ( !$redis ) {

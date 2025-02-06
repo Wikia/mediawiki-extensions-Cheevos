@@ -18,23 +18,25 @@ use Cheevos\CheevosException;
 use Cheevos\CheevosHelper;
 use Cheevos\Templates\TemplateWikiPointsAdmin;
 use ErrorPageError;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserIdentityLookup;
-use OutputPage;
 use PermissionsError;
-use SpecialPage;
-use WebRequest;
 
 class SpecialWikiPointsAdmin extends SpecialPage {
 
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private AchievementService $achievementService,
-		private CheevosHelper $cheevosHelper
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly AchievementService $achievementService,
+		private readonly CheevosHelper $cheevosHelper
 	) {
 		parent::__construct( 'WikiPointsAdmin', 'wiki_points_admin' );
 	}
 
-	/** @inheritDoc */
+	/** @inheritDoc
+	 * @throws ErrorPageError
+	 */
 	public function execute( $subPage ): void {
 		$this->checkPermissions();
 		$output = $this->getOutput();
@@ -61,7 +63,10 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 		}
 	}
 
-	/** Shows points only from the searched user, if found. */
+	/** Shows points only from the searched user, if found.
+	 *
+	 * @throws ErrorPageError
+	 */
 	private function lookUpUser( OutputPage $output, ?string $usernameParam ): void {
 		if ( empty( $usernameParam ) ) {
 			$output->setPageTitle( $this->msg( 'wikipointsadmin' ) );
@@ -88,6 +93,7 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 			] );
 			$output->setPageTitle( $this->msg( 'wiki_points_admin_lookup', $user->getName() ) );
 			$output->addHTML( TemplateWikiPointsAdmin::lookup( $user, $pointsLog, null, $usernameParam ) );
+			// TODO: never thrown?
 		} catch ( CheevosException $e ) {
 			throw new ErrorPageError(
 				$this->msg( 'cheevos_api_error_title' ),
@@ -96,7 +102,10 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 		}
 	}
 
-	/** Adjust points by an arbitrary integer amount. */
+	/** Adjust points by an arbitrary integer amount.
+	 *
+	 * @throws PermissionsError
+	 */
 	private function adjustPoints( OutputPage $output, WebRequest $request ): void {
 		if ( !$this->getUser()->isAllowed( 'wpa_adjust_points' ) ) {
 			throw new PermissionsError( 'wpa_adjust_points' );
@@ -121,12 +130,12 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'wikipoints';
 	}
 
 	/** @inheritDoc */
-	public function isListed() {
+	public function isListed(): bool {
 		return parent::isListed() && $this->userCanExecute( $this->getUser() );
 	}
 }

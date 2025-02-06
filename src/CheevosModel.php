@@ -24,9 +24,9 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Sometimes data might have to be munged for display purposes only.
-	 * Setting this objec to read only will prevent it from being saved.
+	 * Setting this object to read only will prevent it from being saved.
 	 *
-	 * @var	bool
+	 * @var bool
 	 */
 	private bool $readOnly = false;
 
@@ -38,9 +38,12 @@ class CheevosModel implements ArrayAccess {
 	 * $this->has{Property}()
 	 *
 	 * @param string $name
-	 * @param array  $arguments
+	 * @param array $arguments
+	 *
+	 * @return bool|mixed|null
+	 * @throws CheevosException
 	 */
-	public function __call( $name, $arguments ) {
+	public function __call( string $name, array $arguments ) {
 		// Getter and Setter
 		if ( str_starts_with( $name, "get" ) || str_starts_with( $name, "set" ) ) {
 			$prop = $this->snipPropName( $name, 3 );
@@ -52,7 +55,7 @@ class CheevosModel implements ArrayAccess {
 					$value = $arguments[0];
 					if ( gettype( $value ) !== gettype( $this->container[$prop] ) ) {
 						throw new CheevosException(
-							"[" . get_class( $this ) . "->{$act}{$prop}()] The type " . gettype( $value ) .
+							"[" . get_class( $this ) . "->$act$prop()] The type " . gettype( $value ) .
 							" is not valid for " . gettype( $this->container[$prop] ) . "."
 						);
 					}
@@ -62,19 +65,18 @@ class CheevosModel implements ArrayAccess {
 			} else {
 				throw new CheevosException(
 					"[" . get_class( $this ) .
-					"->{$act}{$prop}()] The property {$prop} is not a valid property for this class."
+					"->$act$prop()] The property $prop is not a valid property for this class."
 				);
 			}
 		} elseif ( str_starts_with( $name, "is" ) ) {
 			$prop = $this->snipPropName( $name, 2 );
 			if ( array_key_exists( $prop, $this->container ) ) {
-				$evaluate = $this->container[$prop];
 				// @TODO: this should be smarter. May not behave as expected in cases checking other stuff.
-				return $evaluate;
+				return $this->container[$prop];
 			} else {
 				throw new CheevosException(
 					"[" . get_class( $this ) .
-					"->is{$prop}()] The property {$prop} is not a valid property for this class."
+					"->is$prop()] The property $prop is not a valid property for this class."
 				);
 			}
 		} elseif ( str_starts_with( $name, "has" ) ) {
@@ -85,7 +87,7 @@ class CheevosModel implements ArrayAccess {
 			return false;
 		} else {
 			throw new CheevosException(
-				"No idea what method you thought you wanted, but {$name} isn't a valid one."
+				"No idea what method you thought you wanted, but $name isn't a valid one."
 			);
 		}
 	}
@@ -175,10 +177,8 @@ class CheevosModel implements ArrayAccess {
 	 * Returns the value at the specified index
 	 *
 	 * @param int $offset
-	 *
-	 * @return void
 	 */
-	public function offsetGet( $offset ) {
+	public function offsetGet( $offset ): mixed {
 		return $this->container[$offset] ?? null;
 	}
 
@@ -236,8 +236,6 @@ class CheevosModel implements ArrayAccess {
 	/**
 	 * Does this model roughly equal another model?
 	 * Such as criteria, points to be earned, etc. Ignores fields such as created and updated timestamps.
-	 *
-	 * @return bool
 	 */
 	public function sameAs( CheevosModel $model ): bool {
 		if ( get_class( $this ) != get_class( $model ) ) {

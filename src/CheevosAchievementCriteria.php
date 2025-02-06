@@ -12,6 +12,18 @@
 
 namespace Cheevos;
 
+/**
+ * @method setStreak_Progress_Required( int $getInt )
+ * @method setStreak_Reset_To_Zero( bool $getBool )
+ * @method setStreak( string $getText )
+ * @method setValue( int $getInt )
+ * @method setStats( array|null $getArray )
+ * @method setPer_Site_Progress_Maximum( int $getInt )
+ * @method setDate_Range_Start( int $getInt )
+ * @method setDate_Range_End( int $getInt )
+ * @method setCategory_Id( int $getInt )
+ * @method setAchievement_Ids( int[]|null $getIntArray )
+ */
 class CheevosAchievementCriteria extends CheevosModel {
 
 	private const FIELDS = [
@@ -31,10 +43,8 @@ class CheevosAchievementCriteria extends CheevosModel {
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['stats'] = isset( $data['stats'] ) && is_array( $data['stats'] ) ? $data['stats'] : [];
 		$this->container['value'] = isset( $data['value'] ) && is_int( $data['value'] ) ? $data['value'] : 0;
 		$this->container['streak'] = isset( $data['streak'] ) && is_string( $data['streak'] ) ? $data['streak'] : '';
@@ -61,8 +71,6 @@ class CheevosAchievementCriteria extends CheevosModel {
 
 	/**
 	 * Do these criteria roughly equal another criteria?
-	 *
-	 * @return bool
 	 */
 	public function sameAs( CheevosModel $model ): bool {
 		foreach ( self::FIELDS as $field ) {

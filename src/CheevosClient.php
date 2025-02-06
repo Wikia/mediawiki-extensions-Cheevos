@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 
-class CheevosClient {
+readonly class CheevosClient {
 	public function __construct(
 		private Client $httpClient,
 		private string $serviceUrl,
@@ -14,22 +14,37 @@ class CheevosClient {
 	) {
 	}
 
+	/**
+	 * @throws CheevosException
+	 */
 	public function get( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'GET', $path, $data );
 	}
 
+	/**
+	 * @throws CheevosException
+	 */
 	public function post( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'POST', $path, $data );
 	}
 
+	/**
+	 * @throws CheevosException
+	 */
 	public function put( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'PUT', $path, $data );
 	}
 
+	/**
+	 * @throws CheevosException
+	 */
 	public function delete( string $path, array $data = [] ): array {
 		return $this->sendRequest( 'DELETE', $path, $data );
 	}
 
+	/**
+	 * @throws CheevosException
+	 */
 	private function sendRequest( string $type, string $path, array $data ): array {
 		$type = strtoupper( $type );
 		$uri = "$this->serviceUrl/$path";
@@ -61,9 +76,15 @@ class CheevosClient {
 	 * @param string|null $field
 	 * @param string|null $class - returned type
 	 * @param bool $returnFirst - return first element or null when provided data is empty
-	 * @return array|mixed|null
+	 *
+	 * @return CheevosModel|array|bool|null
 	 */
-	public function parse( array $data, ?string $field = null, ?string $class = null, bool $returnFirst = false ) {
+	public function parse(
+		array $data,
+		?string $field = null,
+		?string $class = null,
+		bool $returnFirst = false
+	): CheevosModel|array|bool|null {
 		if ( $field && isset( $data[ $field ] ) ) {
 			$data = $data[ $field ];
 		}

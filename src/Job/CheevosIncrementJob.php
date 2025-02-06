@@ -26,7 +26,7 @@ class CheevosIncrementJob extends Job {
 	}
 
 	/** @inheritDoc */
-	public function run() {
+	public function run(): bool {
 		$achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 		$increment = $this->getParams();
 

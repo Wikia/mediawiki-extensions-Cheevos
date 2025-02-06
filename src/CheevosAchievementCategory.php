@@ -12,8 +12,15 @@
 
 namespace Cheevos;
 
+use Exception;
 use MediaWiki\MediaWikiServices;
 
+/**
+ * @method getId()
+ * @method setCreated_At( int $time )
+ * @method setCreated_By( int $getId )
+ * @method getSlug()
+ */
 class CheevosAchievementCategory extends CheevosModel {
 
 	private AchievementService $achievementService;
@@ -41,6 +48,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * Save category up to the service.
 	 *
 	 * @return array Success Result
+	 * @throws CheevosException
 	 */
 	public function save(): array {
 		if ( $this->readOnly ) {
@@ -58,6 +66,7 @@ class CheevosAchievementCategory extends CheevosModel {
 	 * Check if category exists
 	 *
 	 * @return bool
+	 * @throws Exception
 	 */
 	public function exists(): bool {
 		if ( $this->getId() <= 0 ) {
@@ -68,7 +77,7 @@ class CheevosAchievementCategory extends CheevosModel {
 			// Throws an error if it doesn't exist.
 			$this->achievementService->getCategory( $this->getId() );
 			return true;
-		} catch ( CheevosException $e ) {
+		} catch ( CheevosException ) {
 			return false;
 		}
 	}
@@ -116,6 +125,7 @@ class CheevosAchievementCategory extends CheevosModel {
 
 		$text = str_replace( ' ', '-', $text );
 
+		// TODO: these regexes should be cleaned up
 		// Replace non-alpha numeric characters that would be bad for SEO
 		$text = preg_replace( '#(?![a-zA-Z0-9_\-|\\\|/|\+]).*?#is', '', $text );
 
@@ -131,8 +141,6 @@ class CheevosAchievementCategory extends CheevosModel {
 
 	/**
 	 * Does this category roughly equal another category?
-	 *
-	 * @return bool
 	 */
 	public function sameAs( CheevosModel $model ): bool {
 		foreach ( [ 'name', 'slug', 'deleted_at', 'deleted_by' ] as $field ) {

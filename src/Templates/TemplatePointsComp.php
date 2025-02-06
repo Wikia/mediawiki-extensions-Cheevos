@@ -4,7 +4,7 @@ namespace Cheevos\Templates;
 
 use Cheevos\Points\PointsCompReport;
 use MediaWiki\MediaWikiServices;
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 
 /**
  * Cheevos
@@ -232,7 +232,7 @@ class TemplatePointsComp {
 		return $html;
 	}
 
-	public static function pointsCompReportCSV( PointsCompReport $report ) {
+	public static function pointsCompReportCSV( PointsCompReport $report ): string {
 		$headers = wfMessage( 'wpa_user' )->escaped() . "," .
 				   wfMessage( 'comp_points' )->escaped() . "," .
 				   wfMessage( 'comp_new' )->escaped() . "," .

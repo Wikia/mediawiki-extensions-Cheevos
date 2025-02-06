@@ -9,6 +9,8 @@
 		"MediaWiki": ">= 1.39.0",
 		"extensions": {
 			"HydraCore": ">= 3.0.0",
+			"RedisCache": "*",
+			"Reverb": "*",
 			"MobileFrontend": "*"
 		}
 	},
@@ -48,7 +50,10 @@
 		},
 		"WikiPoints": {
 			"class": "Cheevos\\Specials\\SpecialWikiPoints",
-			"services": ["UserIdentityLookup"]
+			"services": [
+				"UserIdentityLookup",
+				"Cheevos\\CheevosHelper"
+			]
 		},
 		"WikiPointsAdmin": {
 			"class": "Cheevos\\Specials\\SpecialWikiPointsAdmin",
