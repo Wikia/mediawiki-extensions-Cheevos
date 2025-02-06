@@ -3,6 +3,12 @@
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['suppress_issue_types'] = [
+	...$cfg['suppress_issue_types'],
+	// Horribly noisy / not useful due to our extensive use of empty() to check for things like empty strings,
+	// especially in older code.
+	'MediaWikiNoEmptyIfDefined',
+	// Too many FPs to justify usage.
+	'PhanParamTooFewUnpack',
 	'PhanUndeclaredClassReference',
 	'PhanUndeclaredTypeParameter',
 	'PhanUndeclaredTypeProperty',
