@@ -17,7 +17,6 @@ use Config;
 use Exception;
 use Fandom\Includes\Article\GlobalTitleLookup;
 use Fandom\WikiConfig\WikiVariablesDataService;
-use JobQueueGroup;
 use Fandom\WikiDomain\WikiConfigData;
 use Fandom\WikiDomain\WikiConfigDataService;
 use MediaWiki\Linker\LinkTarget;
