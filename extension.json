@@ -6,7 +6,7 @@
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.39.0",
+		"MediaWiki": ">= 1.43.0",
 		"extensions": {
 			"HydraCore": ">= 3.0.0",
 			"RedisCache": "*",

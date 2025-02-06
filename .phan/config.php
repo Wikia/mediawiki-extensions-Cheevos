@@ -13,7 +13,7 @@ $cfg['suppress_issue_types'] = [
 
 // Explicitly set minimum and target PHP versions for Phan to avoid suggesting features not yet available in all
 // versions we run while still offering forward-compatibility warnings.
-$cfg['minimum_target_php_version'] = '8.0';
-$cfg['target_php_version'] = '8.0';
+$cfg['minimum_target_php_version'] = '8.2';
+$cfg['target_php_version'] = '8.2';
 
 return $cfg;
