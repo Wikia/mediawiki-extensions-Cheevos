@@ -19,6 +19,7 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 
+// phpcs:disable Generic.Files.LineLength.TooLong
 class TemplateManageAchievements {
 	/**
 	 * Achievement List
@@ -587,3 +588,4 @@ class TemplateManageAchievements {
 		return $HTML;
 	}
 }
+// phpcs:enable

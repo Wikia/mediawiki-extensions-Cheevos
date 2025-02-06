@@ -24,6 +24,7 @@ use MediaWiki\Title\Title;
 use MediaWiki\User\User;
 use MediaWiki\Utils\MWTimestamp;
 
+// phpcs:disable Generic.Files.LineLength.TooLong
 class TemplateAchievements {
 	/**
 	 * Achievement List
@@ -344,3 +345,4 @@ class TemplateAchievements {
 		return $HTML;
 	}
 }
+// phpcs:enable
