@@ -43,7 +43,7 @@ class CheevosHelper {
 		// Register shutdown function to actually save increments
 		if ( !self::$shutdownRegistered && PHP_SAPI !== 'cli' ) {
 			self::$shutdownRegistered = true;
-			register_shutdown_function( fn() => $this->doIncrements() );
+			register_shutdown_function( fn () => $this->doIncrements() );
 		}
 
 		$siteKey = self::getSiteKey();

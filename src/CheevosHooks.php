@@ -235,22 +235,22 @@ class CheevosHooks implements
 		$this->cheevosHelper->increment( 'admin_block_ip', 1, $user );
 	}
 
-	public function onCurseProfileAddComment( User $fromUser, User $toUser, $inReplyTo, $commentText ): void {
+	public function onCurseProfileAddComment( User $fromUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_comment', 1, $fromUser );
 	}
 
-	public function onCurseProfileAddCommentReply( User $fromUser, User $toUser, $inReplyTo, $commentText ): void {
+	public function onCurseProfileAddCommentReply( User $fromUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_comment_reply', 1, $fromUser );
 	}
 
-	public function onCurseProfileAddFriend( User $fromUser, User $toUser ): void {
+	public function onCurseProfileAddFriend( User $fromUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_add_friend', 1, $fromUser );
 	}
 
 	/**
-	 * fixme: call 'CurseProfileAcceptFriend' hook when adding friend in CurseProfile
+	 * TODO: fixme: call 'CurseProfileAcceptFriend' hook when adding friend in CurseProfile
 	 */
-	public function onCurseProfileAcceptFriend( User $fromUser, User $toUser ): void {
+	public function onCurseProfileAcceptFriend( User $fromUser ): void {
 		$this->cheevosHelper->increment( 'curse_profile_accept_friend', 1, $fromUser );
 	}
 
@@ -309,7 +309,7 @@ class CheevosHooks implements
 	 * fixme: call 'WikiPointsSave' hook when updating wiki points
 	 */
 	public function onWikiPointsSave(
-		int $editId, int $userId, int $articleId, int $score, string $calculationInfo, string $reason = ''
+		int $editId, int $userId, int $articleId, int $score
 	): void {
 		$user = RequestContext::getMain()->getUser();
 		if ( $score !== 0 && $user->isRegistered() && $user->getId() === $userId ) {
@@ -400,7 +400,7 @@ class CheevosHooks implements
 	/** @inheritDoc */
 	public function onParserFirstCallInit( $parser ): void {
 		$parser->setFunctionHook( 'wikipointsblock', 'Cheevos\Points\PointsDisplay::pointsBlock' );
-		$parser->setFunctionHook( 'numberofcontributors', fn() => $this->getNumberOfContributors() );
+		$parser->setFunctionHook( 'numberofcontributors', fn () => $this->getNumberOfContributors() );
 	}
 
 	/** @inheritDoc */

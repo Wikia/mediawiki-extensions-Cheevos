@@ -14,7 +14,7 @@ namespace Cheevos;
 
 use Exception;
 
-class CheevosException extends \MWException {
+class CheevosException extends Exception {
 	/**
 	 * Constructor for Exception
 	 *
@@ -30,6 +30,6 @@ class CheevosException extends \MWException {
 	 * Return a string of the exception message and code
 	 */
 	public function __toString(): string {
-		return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+		return __CLASS__ . ": [$this->code]: $this->message\n";
 	}
 }

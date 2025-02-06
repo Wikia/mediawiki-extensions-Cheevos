@@ -77,14 +77,14 @@ readonly class CheevosClient {
 	 * @param string|null $class - returned type
 	 * @param bool $returnFirst - return first element or null when provided data is empty
 	 *
-	 * @return CheevosModel|array|bool|null
+	 * @return CheevosModel|array|null
 	 */
 	public function parse(
 		array $data,
 		?string $field = null,
 		?string $class = null,
 		bool $returnFirst = false
-	): CheevosModel|array|bool|null {
+	): CheevosModel|array|null {
 		if ( $field && isset( $data[ $field ] ) ) {
 			$data = $data[ $field ];
 		}
@@ -96,13 +96,14 @@ readonly class CheevosClient {
 		foreach ( $data as $classData ) {
 			if ( is_array( $classData ) ) {
 				$object = new $class( $classData );
+				if ( $returnFirst ) {
+					return $object;
+				}
+
 				if ( $object->hasId() ) {
 					$response[$object->getId()] = $object;
 				} else {
 					$response[] = $object;
-				}
-				if ( $returnFirst ) {
-					return $object;
 				}
 			}
 		}
