@@ -195,6 +195,7 @@ class CheevosHooks implements
 			return;
 		}
 
+		// TODO: return on no newest id?
 		$revertedRev = $this->revisionStore->getRevisionById( $editResult->getNewestRevertedRevisionId() );
 		$oldestRevId = $editResult->getOldestRevertedRevisionId();
 		$editsToRevoke = [];
@@ -260,7 +261,8 @@ class CheevosHooks implements
 				[ 'global' => true, 'stat' => 'article_edit', ],
 				$fromUser
 			);
-			$stats = CheevosHelper::makeNiceStatProgressArray( $stats );
+
+			$stats = CheevosHelper::makeNiceStatProgressArray( $stats ?? [] );
 
 			$editCount = (int)( $stats[$fromUser->getId()]['article_edit']['count'] ?? 0 );
 			return $editCount >= $editsToComment;
@@ -389,6 +391,7 @@ class CheevosHooks implements
 			return null;
 		}
 
+		// TODO: double escape for message, is it necessary?
 		return $this->linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
 			wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),

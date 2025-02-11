@@ -17,16 +17,12 @@ use ArrayAccess;
 class CheevosModel implements ArrayAccess {
 	/**
 	 * Associative array for storing property values
-	 *
-	 * @var array
 	 */
 	protected array $container = [];
 
 	/**
 	 * Sometimes data might have to be munged for display purposes only.
 	 * Setting this object to read only will prevent it from being saved.
-	 *
-	 * @var bool
 	 */
 	private bool $readOnly = false;
 
@@ -36,6 +32,7 @@ class CheevosModel implements ArrayAccess {
 	 * $this->set{Property}(mixed value)
 	 * $this->get{Property}()
 	 * $this->has{Property}()
+	 *  $this->is{Property}()
 	 *
 	 * @param string $name
 	 * @param array $arguments
@@ -112,7 +109,7 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @return mixed Request property or null if it does not exist.
 	 */
-	public function __get( string $property ) {
+	public function __get( string $property ): mixed {
 		if ( isset( $this->container[$property] ) ) {
 			return $this->container[$property];
 		}
@@ -125,23 +122,15 @@ class CheevosModel implements ArrayAccess {
 	 *
 	 * @param string $property Property
 	 * @param mixed $value Value to set.
-	 *
-	 * @return object This object.
 	 */
-	public function __set( string $property, mixed $value ) {
+	public function __set( string $property, mixed $value ): void {
 		if ( isset( $this->container[$property] ) ) {
 			$this->container[$property] = $value;
 		}
-		return $this;
 	}
 
 	/**
 	 * Sets the value at the specified index to newval
-	 *
-	 * @param int $offset
-	 * @param int $value
-	 *
-	 * @return void
 	 */
 	public function offsetSet( $offset, $value ): void {
 		if ( $offset === null ) {
@@ -153,10 +142,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Returns whether the requested index exists
-	 *
-	 * @param int $offset
-	 *
-	 * @return bool
 	 */
 	public function offsetExists( $offset ): bool {
 		return isset( $this->container[$offset] );
@@ -164,10 +149,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Unsets the value at the specified index
-	 *
-	 * @param int $offset
-	 *
-	 * @return void
 	 */
 	public function offsetUnset( $offset ): void {
 		unset( $this->container[$offset] );
@@ -175,8 +156,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Returns the value at the specified index
-	 *
-	 * @param int $offset
 	 */
 	public function offsetGet( $offset ): mixed {
 		return $this->container[$offset] ?? null;
@@ -184,8 +163,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Convert model to array
-	 *
-	 * @return array
 	 */
 	public function toArray(): array {
 		$container = $this->container;
@@ -199,8 +176,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Wrapper for MediaWiki's API serializer.
-	 *
-	 * @return array
 	 */
 	public function serializeForApiResult(): array {
 		return $this->toArray();
@@ -208,17 +183,13 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Convert model to string
-	 *
-	 * @return string
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return json_encode( $this->toArray() );
 	}
 
 	/**
 	 * Is this read only?
-	 *
-	 * @return bool
 	 */
 	public function isReadOnly(): bool {
 		return $this->readOnly;
@@ -226,8 +197,6 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Set this object to read only.
-	 *
-	 * @return void
 	 */
 	public function setReadOnly(): void {
 		$this->readOnly = true;

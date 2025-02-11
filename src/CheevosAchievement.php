@@ -369,6 +369,7 @@ class CheevosAchievement extends CheevosModel {
 	): array {
 		[ $achievements, $statuses ] = $toPrune;
 		$_achievements = $achievements;
+		$fixChildrenStatus = [];
 		if ( count( $_achievements ) ) {
 			$preserveAchs = [];
 			if ( $removeParents && count( $statuses ) ) {

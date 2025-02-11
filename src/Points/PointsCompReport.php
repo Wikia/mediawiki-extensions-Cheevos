@@ -26,10 +26,12 @@ use MediaWiki\Registration\ExtensionRegistry;
 use MediaWiki\Status\Status;
 use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
+use MediaWiki\Utils\MWTimestamp;
 use RuntimeException;
 use StatusValue;
 use Subscription\Providers\GamepediaPro;
 use Subscription\SubscriptionProvider;
+use Wikimedia\Timestamp\TimestampException;
 
 /**
  * Class containing some business and display logic for points blocks
@@ -739,6 +741,7 @@ class PointsCompReport {
 	 * @param SubscriptionProvider $provider Subscription Provider
 	 *
 	 * @return array Array of boolean status flags.
+	 * @throws TimestampException
 	 */
 	public function getSubscription( UserIdentity $userIdentity, SubscriptionProvider $provider ): array {
 		$subscription = $provider->getSubscription( $userIdentity->getId() );
@@ -746,7 +749,13 @@ class PointsCompReport {
 			return [ 'hasSubscription' => false, 'paid' => false, 'expires' => null ];
 		}
 
-		$expires = $subscription['expires'] !== false ? (int)$subscription['expires']->getTimestamp( TS_UNIX ) : 0;
+		/**
+		 * @var null|false|MWTimestamp $subscriptionExpires
+		 */
+		$subscriptionExpires = $subscription['expires'];
+		$expires = isset( $subscriptionExpires ) && $subscriptionExpires !== false ?
+			$subscriptionExpires->getTimestamp( TS_UNIX ) : 0;
+
 		return [
 			'hasSubscription' => true,
 			'paid' => $subscription['plan_id'] !== 'complimentary',
@@ -872,7 +881,7 @@ class PointsCompReport {
 		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		return $db->selectRowCount(
 			[ 'points_comp_report_user' ],
-			[ 'user_id' ],
+			'user_id',
 			[
 				'comp_performed' => 1,
 				"current_comp_expires > " . time() . " OR new_comp_expires > " . time()

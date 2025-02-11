@@ -84,6 +84,7 @@ class AchievementService {
 	/**
 	 * Get all achievements with caching.
 	 *
+	 * @return null|CheevosAchievement[]
 	 * @throws CheevosException
 	 * @throws Exception
 	 */
@@ -198,7 +199,7 @@ class AchievementService {
 	}
 
 	/**
-	 * Get achievement status for an user.
+	 * Get achievement status for a user.
 	 *
 	 * @throws CheevosException
 	 */

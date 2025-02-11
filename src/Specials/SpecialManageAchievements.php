@@ -29,7 +29,7 @@ use RuntimeException;
 use Wikimedia\Assert\Assert;
 
 class SpecialManageAchievements extends SpecialPage {
-	private ?string $siteKey;
+	private string $siteKey;
 	private bool $isMaster;
 	private TemplateManageAchievements $template;
 
@@ -57,7 +57,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$output = $this->getOutput();
 		$output->addModuleStyles( [
 			'ext.cheevos.styles',
-			"ext.hydraCore.button.styles",
+			'ext.hydraCore.button.styles',
 			'ext.hydraCore.pagination.styles',
 			'mediawiki.ui.button',
 			'mediawiki.ui.input'
@@ -102,8 +102,8 @@ class SpecialManageAchievements extends SpecialPage {
 	 * @throws Exception
 	 */
 	private function achievementsList( OutputPage $output ): void {
-		$achievements = $this->achievementService->getAchievements( $this->siteKey );
-		$categories = $this->achievementService->getCategories();
+		$achievements = $this->achievementService->getAchievements( $this->siteKey ) ?? [];
+		$categories = $this->achievementService->getCategories() ?? [];
 
 		if ( $this->isMaster ) {
 			foreach ( $achievements as $i => $a ) {
@@ -140,7 +140,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addModules( [ 'ext.achievements.triggerBuilder.js' ] );
 		$achievementId = $request->getInt( 'aid' );
 
-		$allAchievements = $this->achievementService->getAchievements( $this->siteKey );
+		$allAchievements = $this->achievementService->getAchievements( $this->siteKey ) ?? [];
 		$allAchievements = CheevosAchievement::correctCriteriaChildAchievements( $allAchievements );
 		[ $allAchievements, ] = CheevosAchievement::pruneAchievements( [ $allAchievements, [] ], false );
 
@@ -182,7 +182,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$html = $this->template->achievementsForm(
 			$achievement,
-			$this->achievementService->getCategories(),
+			$this->achievementService->getCategories() ?? [],
 			$allAchievements,
 			$errors
 		);

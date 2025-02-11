@@ -13,8 +13,8 @@
 namespace Cheevos;
 
 /**
- * @method getCount()
- * @method getUser_Id()
+ * @method int getCount()
+ * @method int getUser_Id()
  */
 class CheevosStatMonthlyCount extends CheevosModel {
 	/**

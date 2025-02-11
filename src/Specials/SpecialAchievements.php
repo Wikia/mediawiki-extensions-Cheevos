@@ -26,7 +26,7 @@ use UserNotLoggedIn;
 
 class SpecialAchievements extends SpecialPage {
 
-	private ?string $siteKey;
+	private string $siteKey;
 
 	public function __construct(
 		private readonly UserIdentityLookup $userIdentityLookup,
