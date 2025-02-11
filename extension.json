@@ -11,7 +11,8 @@
 			"HydraCore": ">= 3.0.0",
 			"RedisCache": "*",
 			"Reverb": "*",
-			"MobileFrontend": "*"
+			"MobileFrontend": "*",
+			"Subscription": "*"
 		}
 	},
 	"GroupPermissions": {
