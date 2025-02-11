@@ -17,12 +17,16 @@ use ArrayAccess;
 class CheevosModel implements ArrayAccess {
 	/**
 	 * Associative array for storing property values
+	 *
+	 * @var array
 	 */
 	protected array $container = [];
 
 	/**
 	 * Sometimes data might have to be munged for display purposes only.
 	 * Setting this object to read only will prevent it from being saved.
+	 *
+	 * @var bool
 	 */
 	private bool $readOnly = false;
 
