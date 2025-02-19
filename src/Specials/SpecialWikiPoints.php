@@ -48,6 +48,7 @@ class SpecialWikiPoints extends SpecialPage {
 	}
 
 	public function wikiPoints( ?string $subPage, OutputPage $output, WebRequest $request ): void {
+		$subPage ??= '';
 		$username = $request->getVal( 'user' );
 		$error = null;
 		$globalId = null;

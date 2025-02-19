@@ -260,12 +260,13 @@ class CheevosAchievement extends CheevosModel {
 	 * Returns the image article name.
 	 * "File:ExampleAchievement.png"
 	 *
-	 * @return string|null Image Article Name - If available
+	 * @return string Image Article Name - If available
 	 */
-	public function getImage(): ?string {
+	public function getImage(): string {
 		$image = $this->container['image'];
 		if ( empty( $image ) ) {
-			return null;
+			// images aren't required, but string type is due to use with htmlentities
+			return '';
 		}
 		return $image;
 	}
