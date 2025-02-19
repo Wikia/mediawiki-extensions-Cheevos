@@ -84,11 +84,12 @@ class AchievementService {
 	/**
 	 * Get all achievements with caching.
 	 *
-	 * @return null|CheevosAchievement[]
+	 * @return CheevosAchievement[]
+	 *
 	 * @throws CheevosException
 	 * @throws Exception
 	 */
-	public function getAchievements( ?string $siteKey = null ): ?array {
+	public function getAchievements( ?string $siteKey = null ): array {
 		/**
 		 * @var Redis $redis
 		 */
@@ -131,7 +132,7 @@ class AchievementService {
 	 *
 	 * @throws Exception
 	 */
-	public function getAchievement( int $id ): array|CheevosAchievement|null {
+	public function getAchievement( int $id ): ?CheevosAchievement {
 		/**
 		 * @var Redis $redis
 		 */
@@ -201,9 +202,11 @@ class AchievementService {
 	/**
 	 * Get achievement status for a user.
 	 *
+	 * @return CheevosAchievementStatus[]
+	 *
 	 * @throws CheevosException
 	 */
-	public function getAchievementStatus( int $userId, string $siteKey ): ?array {
+	public function getAchievementStatus( int $userId, string $siteKey ): array {
 		$response = $this->cheevosClient->get(
 			'achievements/status',
 			[
@@ -230,9 +233,11 @@ class AchievementService {
 	 *                           - ];
 	 * @param UserIdentity|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
+	 * @return CheevosAchievementProgress[]
+	 *
 	 * @throws CheevosException
 	 */
-	public function getAchievementProgress( array $filters = [], ?UserIdentity $user = null ): ?array {
+	public function getAchievementProgress( array $filters = [], ?UserIdentity $user = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $user );
 
 		$response = $this->cheevosClient->get( 'achievements/progress', $parsedFilters );
@@ -244,7 +249,7 @@ class AchievementService {
 	 *
 	 * @throws CheevosException
 	 */
-	public function getProgress( int $id ): array|CheevosAchievementProgress|null {
+	public function getProgress( int $id ): ?CheevosAchievementProgress {
 		$response = $this->cheevosClient->get( "achievements/progress/$id" );
 		return $this->cheevosClient->parse( [ $response ], 'progress', CheevosAchievementProgress::class, true );
 	}
@@ -271,9 +276,11 @@ class AchievementService {
 	 *
 	 * @param bool $skipCache Skip pulling data from the local cache. Will still update the local cache.
 	 *
+	 * @return CheevosAchievementCategory[]
+	 *
 	 * @throws Exception
 	 */
-	public function getCategories( bool $skipCache = false ): ?array {
+	public function getCategories( bool $skipCache = false ): array {
 		/**
 		 * @var Redis $redis
 		 */
@@ -419,9 +426,11 @@ class AchievementService {
 	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                        - ];
 	 *
+	 * @return CheevosStatProgress[]
+	 *
 	 * @throws CheevosException
 	 */
-	public function getStatProgress( array $filters = [], ?UserIdentity $userIdentity = null ): ?array {
+	public function getStatProgress( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
 
 		return $this->cheevosClient->parse(
@@ -447,9 +456,11 @@ class AchievementService {
 	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                        - ];
 	 *
+	 * @return CheevosWikiPointLog[]
+	 *
 	 * @throws CheevosException
 	 */
-	public function getWikiPointLog( array $filters = [], ?UserIdentity $userIdentity = null ): ?array {
+	public function getWikiPointLog( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 25 );
 
 		return $this->cheevosClient->parse(
@@ -465,7 +476,7 @@ class AchievementService {
 	public function getUserPointRank(
 		UserIdentity $userIdentity,
 		?string $siteKey = null
-	): ?array {
+	): mixed {
 		$response = $this->cheevosClient->get(
 			'points/user_rank',
 			[ 'user_id' => $userIdentity->getId(), 'site_key' => $siteKey ]
@@ -492,9 +503,11 @@ class AchievementService {
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                          - ];
 	 *
+	 * @return CheevosStatMonthlyCount[]
+	 *
 	 * @throws CheevosException
 	 */
-	public function getStatMonthlyCount( array $filters = [], ?UserIdentity $userIdentity = null ): ?array {
+	public function getStatMonthlyCount( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
 		$response = $this->cheevosClient->get( 'stats/monthly', $parsedFilters );
 		return $this->cheevosClient->parse( $response, 'stats', CheevosStatMonthlyCount::class );
@@ -507,7 +520,7 @@ class AchievementService {
 	public function getUserSitesCountByStat(
 		UserIdentity $userIdentity,
 		string $statName
-	): ?array {
+	): mixed {
 		$response = $this->cheevosClient->get(
 			'stats/user_sites_count',
 			[ 'user_id' => $userIdentity->getId(), 'stat' => $statName ]

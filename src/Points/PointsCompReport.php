@@ -753,8 +753,8 @@ class PointsCompReport {
 		 * @var null|false|MWTimestamp $subscriptionExpires
 		 */
 		$subscriptionExpires = $subscription['expires'];
-		$expires = isset( $subscriptionExpires ) && $subscriptionExpires !== false ?
-			$subscriptionExpires->getTimestamp( TS_UNIX ) : 0;
+		$expires = $subscriptionExpires instanceof MWTimestamp ?
+			(int)$subscriptionExpires->getTimestamp( TS_UNIX ) : 0;
 
 		return [
 			'hasSubscription' => true,

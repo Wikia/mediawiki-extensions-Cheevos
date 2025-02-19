@@ -26,7 +26,9 @@ class CheevosIncrementJob extends Job {
 		MediaWikiServices::getInstance()->getJobQueueGroup()->push( $job );
 	}
 
-	/** @inheritDoc
+	/**
+	 * @inheritDoc
+	 *
 	 * @throws CheevosException
 	 */
 	public function run(): bool {

@@ -40,7 +40,6 @@ class PointsDisplay {
 	 * displays top 50 scoring users with points from any of those three wikis
 	 * {{#GPScore: User:Cathadan | destiny,dota2,theorder1886}} displays the sum of my scores from the given wikis
 	 *
-	 * TODO: break this function down, make it easier to read
 	 *
 	 * @param Parser $parser mediawiki Parser reference
 	 * @param string $user ???????
@@ -153,7 +152,7 @@ class PointsDisplay {
 			}
 
 			$userPointsRow = new stdClass();
-			if ( !empty( $user->getName() ) ) {
+			if ( $user !== null ) {
 				$userPointsRow->userName = $user->getName();
 				if ( !$userNameUtils->isCreatable( $user->getName() ) || $user->isHidden() ) {
 					continue;
@@ -308,7 +307,7 @@ class PointsDisplay {
 			'sort_direction'	=> 'desc'
 		];
 
-		if ( empty( $siteKey ) ) {
+		if ( !$isSitesMode && empty( $siteKey ) ) {
 			$filters['global'] = true;
 		}
 

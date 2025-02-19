@@ -49,7 +49,9 @@ class SpecialManageAchievements extends SpecialPage {
 		$this->siteKey = $this->isMaster ? '' : CheevosHelper::getSiteKey();
 	}
 
-	/** @inheritDoc
+	/**
+	 * @inheritDoc
+	 *
 	 * @throws PermissionsError|CheevosException
 	 * @throws Exception
 	 */
@@ -97,7 +99,8 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 	}
 
-	/** Cheevos List
+	/**
+	 * Cheevos List
 	 *
 	 * @throws Exception
 	 */
@@ -132,7 +135,8 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->addHTML( $this->template->achievementsList( $achievements, $categories, $revertHints ) );
 	}
 
-	/** Achievements Form
+	/**
+	 * Achievements Form
 	 *
 	 * @throws Exception
 	 */
@@ -316,15 +320,10 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( $achievementId ) {
 			$achievement = $this->achievementService->getAchievement( $achievementId );
 
-			if ( $achievement === false || $achievementId != $achievement->getId() ) {
+			if ( empty( $achievement ) || $achievementId != $achievement->getId() ) {
 				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
 				return;
 			}
-		}
-
-		if ( !isset( $achievement ) ) {
-			$output->showErrorPage( 'achievements_error', 'error_award_bad_achievement' );
-			return;
 		}
 
 		if ( $achievement->isDeleted() && !$this->getUser()->isAllowed( 'restore_achievements' ) ) {

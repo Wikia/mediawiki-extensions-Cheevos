@@ -38,7 +38,9 @@ class SpecialAchievements extends SpecialPage {
 		$this->siteKey = CheevosHelper::getSiteKey();
 	}
 
-	/** @inheritDoc
+	/**
+	 * @inheritDoc
+	 *
 	 * @throws ErrorPageError
 	 */
 	public function execute( $subPage ): void {

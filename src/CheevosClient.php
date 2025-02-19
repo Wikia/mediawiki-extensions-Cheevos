@@ -77,14 +77,21 @@ readonly class CheevosClient {
 	 * @param string|null $class - returned type
 	 * @param bool $returnFirst - return first element or null when provided data is empty
 	 *
-	 * @return CheevosModel|array|null
+	 * TODO: implement proper DTOs that will handle serializing themselves
+	 *
+	 * @return mixed only god knows what this method truly returns at runtime.
+	 * theoretically, at runtime, it can return:
+	 * - int, string, bool, array (when "parsing" a specific field with no class defined)
+	 * - null
+	 * - an instance of any child of CheevosModel
+	 * - an array of instances of any child of CheevosModel
 	 */
 	public function parse(
 		array $data,
 		?string $field = null,
 		?string $class = null,
 		bool $returnFirst = false
-	): CheevosModel|array|null {
+	): mixed {
 		if ( $field && isset( $data[ $field ] ) ) {
 			$data = $data[ $field ];
 		}

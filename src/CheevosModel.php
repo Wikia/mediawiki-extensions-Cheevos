@@ -36,12 +36,8 @@ class CheevosModel implements ArrayAccess {
 	 * $this->set{Property}(mixed value)
 	 * $this->get{Property}()
 	 * $this->has{Property}()
-	 *  $this->is{Property}()
+	 * $this->is{Property}()
 	 *
-	 * @param string $name
-	 * @param array $arguments
-	 *
-	 * @return bool|mixed|null
 	 * @throws CheevosException
 	 */
 	public function __call( string $name, array $arguments ) {
@@ -135,6 +131,9 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Sets the value at the specified index to newval
+	 *
+	 * @param int $offset
+	 * @param mixed $value
 	 */
 	public function offsetSet( $offset, $value ): void {
 		if ( $offset === null ) {
@@ -146,6 +145,8 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Returns whether the requested index exists
+	 *
+	 * @param int $offset
 	 */
 	public function offsetExists( $offset ): bool {
 		return isset( $this->container[$offset] );
@@ -153,6 +154,8 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Unsets the value at the specified index
+	 *
+	 * @param int $offset
 	 */
 	public function offsetUnset( $offset ): void {
 		unset( $this->container[$offset] );
@@ -160,6 +163,8 @@ class CheevosModel implements ArrayAccess {
 
 	/**
 	 * Returns the value at the specified index
+	 *
+	 * @param int $offset
 	 */
 	public function offsetGet( $offset ): mixed {
 		return $this->container[$offset] ?? null;

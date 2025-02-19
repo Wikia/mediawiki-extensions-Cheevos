@@ -23,7 +23,6 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
-use Random\RandomException;
 
 class CheevosHelper {
 
@@ -51,12 +50,6 @@ class CheevosHelper {
 			return;
 		}
 
-		try {
-			$random = random_bytes( 4 );
-		} catch ( RandomException ) {
-			return; // no randomness for you bucko
-		}
-
 		$userId = $user->getId();
 		$timestamp = time();
 		self::$increments[$userId]['user_id'] = $userId;
@@ -65,7 +58,7 @@ class CheevosHelper {
 		self::$increments[$userId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
 		self::$increments[$userId]['timestamp'] = $timestamp;
 		self::$increments[$userId]['request_uuid'] =
-			sha1( $userId . $siteKey . $timestamp . $random );
+			sha1( $userId . $siteKey . $timestamp . random_bytes( 4 ) );
 		if ( !empty( $edits ) ) {
 			if ( !isset( self::$increments[$userId]['edits'] ) ||
 				!is_array( self::$increments[$userId]['edits'] ) ) {
@@ -97,7 +90,6 @@ class CheevosHelper {
 					}
 				}
 			}
-			// TODO: get rid of catch in case there's nothing being thrown indeed
 		} catch ( CheevosException ) {
 			foreach ( self::$increments as $userId => $increment ) {
 				CheevosIncrementJob::queue( $increment );
