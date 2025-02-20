@@ -536,7 +536,6 @@ class SpecialManageAchievements extends SpecialPage {
 						CheevosHelper::getSiteKey(),
 						$globalId
 					);
-					// TODO: never thrown???
 				} catch ( CheevosException $e ) {
 					$errors[] = [
 						'username' => $username,

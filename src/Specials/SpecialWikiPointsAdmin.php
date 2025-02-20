@@ -93,7 +93,6 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 			] );
 			$output->setPageTitle( $this->msg( 'wiki_points_admin_lookup', $user->getName() ) );
 			$output->addHTML( TemplateWikiPointsAdmin::lookup( $user, $pointsLog, null, $usernameParam ) );
-			// TODO: never thrown?
 		} catch ( CheevosException $e ) {
 			throw new ErrorPageError(
 				$this->msg( 'cheevos_api_error_title' ),
