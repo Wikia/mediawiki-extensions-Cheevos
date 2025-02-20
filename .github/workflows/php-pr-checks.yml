@@ -38,6 +38,18 @@ jobs:
           repository: Wikia/RedisCache
           path: mediawiki/extensions/RedisCache
 
+      - name: Checkout Subscription (dependency) extension
+        uses: actions/checkout@v4
+        with:
+          repository: Wikia/Subscription
+          path: mediawiki/extensions/Subscription
+
+      - name: Checkout HydraCore (dependency) extension
+        uses: actions/checkout@v4
+        with:
+          repository: Wikia/HydraCore
+          path: mediawiki/extensions/HydraCore
+
       - name: Checkout Cheevos extension
         uses: actions/checkout@v4
         with:
@@ -50,6 +62,8 @@ jobs:
           path: vendor
           key: ${{ runner.os }}-php-v3-${{ hashFiles('**/composer.lock') }}
 
+      # TODO: in order to not have FP for usage of dependencies required by mediawiki
+      # we should install from mediawiki directory as well
       - name: Install composer dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
         working-directory: ./mediawiki/extensions/Cheevos
@@ -59,9 +73,11 @@ jobs:
         working-directory: ./mediawiki/extensions/Cheevos
         run: composer phpcs
 
+      # TODO: save baseline and add baseline to run
       - name: Run Phan static analysis
         working-directory: ./mediawiki/extensions/Cheevos
-        run: composer phan
+        # run: composer phan
+        run: ./vendor/bin/phan -k ./.phan/config.php -d ./../../.. --long-progress-bar
 
-      - name: Run Phan static analysis
+      - name: Run Jsonlint
         run: composer jsonlint
