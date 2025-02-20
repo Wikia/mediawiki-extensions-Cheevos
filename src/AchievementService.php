@@ -313,7 +313,7 @@ class AchievementService {
 	 *
 	 * @throws Exception
 	 */
-	public function getCategory( int $id ): array|CheevosAchievementCategory|null {
+	public function getCategory( int $id ): ?CheevosAchievementCategory {
 		/**
 		 * @var Redis $redis
 		 */

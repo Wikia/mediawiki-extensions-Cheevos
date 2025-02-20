@@ -10,8 +10,7 @@
 		}
 	],
 	"require": {
-		"php": ">=8.2.0",
-		"ext-redis": "*"
+		"php": ">=8.2.0"
 	},
 	"require-dev": {
 		"mediawiki/minus-x": "^1.1",
