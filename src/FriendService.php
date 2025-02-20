@@ -6,7 +6,7 @@ use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
 
-class FriendService {
+readonly class FriendService {
 	public function __construct(
 		private CheevosClient $cheevosClient,
 		private UserIdentityLookup $userIdentityLookup,
@@ -14,7 +14,10 @@ class FriendService {
 	) {
 	}
 
-	/** Returns all relationships for a user */
+	/** Returns all relationships for a user
+	 *
+	 * @throws CheevosException
+	 */
 	public function getFriends( UserIdentity $userIdentity ): array {
 		$friendTypes = $this->cheevosClient->get( "friends/{$userIdentity->getId()}" );
 
@@ -35,27 +38,42 @@ class FriendService {
 		return $friendTypes;
 	}
 
-	/** Return friendship status */
+	/** Return friendship status
+	 *
+	 * @throws CheevosException
+	 */
 	public function getFriendStatus( UserIdentity $from, UserIdentity $to ): array {
 		return $this->cheevosClient->get( "friends/{$from->getId()}/{$to->getId()}" );
 	}
 
-	/** Create a frienship request */
+	/** Create a frienship request
+	 *
+	 * @throws CheevosException
+	 */
 	public function createFriendRequest( UserIdentity $from, UserIdentity $to ): array {
 		return $this->cheevosClient->put( "friends/{$from->getId()}/{$to->getId()}" );
 	}
 
-	/** Accept a friendship request (by creating a request the oposite direction!) */
+	/** Accept a friendship request (by creating a request the oposite direction!)
+	 *
+	 * @throws CheevosException
+	 */
 	public function acceptFriendRequest( UserIdentity $from, UserIdentity $to ): array {
 		return $this->createFriendRequest( $from, $to );
 	}
 
-	/** Remove a friendship association between 2 users. */
+	/** Remove a friendship association between 2 users.
+	 *
+	 * @throws CheevosException
+	 */
 	public function removeFriend( UserIdentity $from, UserIdentity $to ): array {
 		return $this->cheevosClient->delete( "friends/{$from->getId()}/{$to->getId()}" );
 	}
 
-	/** Cancel friend request by removing assosiation. */
+	/** Cancel friend request by removing association.
+	 *
+	 * @throws CheevosException
+	 */
 	public function cancelFriendRequest( UserIdentity $from, UserIdentity $to ): array {
 		return $this->removeFriend( $from, $to );
 	}

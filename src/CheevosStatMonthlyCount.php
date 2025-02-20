@@ -12,15 +12,17 @@
 
 namespace Cheevos;
 
+/**
+ * @method int getCount()
+ * @method int getUser_Id()
+ */
 class CheevosStatMonthlyCount extends CheevosModel {
 	/**
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['count'] = isset( $data['count'] ) && is_int( $data['count'] ) ? $data['count'] : 0;
 		$this->container['month'] = isset( $data['month'] ) && is_int( $data['month'] ) ? $data['month'] : 0;
 		$this->container['site_id'] = isset( $data['site_id'] ) && is_int( $data['site_id'] ) ? $data['site_id'] : 0;

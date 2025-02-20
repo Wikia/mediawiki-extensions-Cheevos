@@ -14,9 +14,9 @@
 namespace Cheevos\Job;
 
 use Cheevos\Points\PointsCompReport;
+use Exception;
 use Job;
 use MediaWiki\MediaWikiServices;
-use MWException;
 
 class PointsCompJob extends Job {
 	private const COMMAND = 'Cheevos\Job\PointsCompJob';
@@ -34,7 +34,7 @@ class PointsCompJob extends Job {
 	 *
 	 * @return void
 	 */
-	public static function queue( array $parameters = [] ) {
+	public static function queue( array $parameters = [] ): void {
 		$job = new self( self::COMMAND, $parameters );
 		MediaWikiServices::getInstance()->getJobQueueGroup()->lazyPush( $job );
 	}
@@ -44,7 +44,7 @@ class PointsCompJob extends Job {
 	 *
 	 * @return bool Success
 	 */
-	public function run() {
+	public function run(): bool {
 		$args = $this->getParams();
 
 		$minPointThreshold = isset( $args['min_point_threshold'] ) ? (int)$args[ 'min_point_threshold' ] : null;
@@ -84,7 +84,7 @@ class PointsCompJob extends Job {
 			if ( !$skipReport ) {
 				$report->run( $minPointThreshold, $maxPointThreshold, $startTime, $endTime, $final, $email );
 			}
-		} catch ( MWException $e ) {
+		} catch ( Exception $e ) {
 			$this->setLastError( "Failed to run report due to: " . $e->getMessage() );
 			return false;
 		}
@@ -93,7 +93,7 @@ class PointsCompJob extends Job {
 	}
 
 	/** @inheritDoc */
-	public function allowRetries() {
+	public function allowRetries(): false {
 		return false;
 	}
 }

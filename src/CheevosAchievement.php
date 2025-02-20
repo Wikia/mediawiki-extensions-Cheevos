@@ -12,9 +12,35 @@
 
 namespace Cheevos;
 
+use Exception;
 use MediaWiki\MediaWikiServices;
-use Title;
+use MediaWiki\Title\Title;
 
+/**
+ * @method int getId()
+ * @method CheevosAchievementCriteria getCriteria()
+ * @method int getParent_Id()
+ * @method mixed getSite_Key()
+ * @method null setParent_Id( int $getId )
+ * @method null setId( int $int )
+ * @method null setSite_Key( string|null $siteKey )
+ * @method null setCriteria( CheevosAchievementCriteria $criteria )
+ * @method null setImage( string|null $getVal )
+ * @method null setPoints( int $getInt )
+ * @method null setCategory( CheevosAchievementCategory|null $category )
+ * @method null setSecret( bool $getBool )
+ * @method null setProtected( bool $getBool )
+ * @method null setSpecial( bool $getBool )
+ * @method null setShow_On_All_Sites( bool $getBool )
+ * @method null setDeleted_At( int $param )
+ * @method null setDeleted_By( int $param )
+ * @method mixed isGlobal()
+ * @method mixed getPoints()
+ * @method mixed isSecret()
+ * @method mixed isProtected()
+ * @method mixed getSpecial()
+ * @method mixed getShow_On_All_Sites()
+ */
 class CheevosAchievement extends CheevosModel {
 
 	private const FIELDS = [
@@ -42,7 +68,7 @@ class CheevosAchievement extends CheevosModel {
 
 	private AchievementService $achievementService;
 
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->achievementService = MediaWikiServices::getInstance()->getService( AchievementService::class );
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
 		$this->container['parent_id'] = isset( $data['parent_id'] ) &&
@@ -102,6 +128,8 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @param bool $forceCreate Force create instead of save.
 	 * Typically used when copying from a global parent to a child.
+	 *
+	 * @throws CheevosException
 	 */
 	public function save( bool $forceCreate = false ): void {
 		if ( $this->readOnly ) {
@@ -115,6 +143,9 @@ class CheevosAchievement extends CheevosModel {
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function exists(): bool {
 		if ( $this->getId() <= 0 ) {
 			return false;
@@ -124,7 +155,7 @@ class CheevosAchievement extends CheevosModel {
 			// Throws an error if it doesn't exist.
 			$this->achievementService->getAchievement( $this->getId() );
 			return true;
-		} catch ( CheevosException $e ) {
+		} catch ( CheevosException ) {
 			return false;
 		}
 	}
@@ -146,7 +177,7 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @return string Achievement Name
 	 */
-	public function getName( string $siteKey = null ): string {
+	public function getName( ?string $siteKey = null ): string {
 		if ( $this->container['name'] == null || !count( $this->container['name'] ) ) {
 			return "";
 		}
@@ -231,10 +262,11 @@ class CheevosAchievement extends CheevosModel {
 	 *
 	 * @return string Image Article Name - If available
 	 */
-	public function getImage() {
+	public function getImage(): string {
 		$image = $this->container['image'];
 		if ( empty( $image ) ) {
-			return null;
+			// images aren't required, but string type is due to use with htmlentities
+			return '';
 		}
 		return $image;
 	}
@@ -250,8 +282,7 @@ class CheevosAchievement extends CheevosModel {
 		$title = Title::newFromText( $this->getImage() );
 		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title );
 		if ( $file ) {
-			$url = $file->getCanonicalUrl();
-			return $url;
+			return $file->getCanonicalUrl();
 		}
 
 		$config = MediaWikiServices::getInstance()->getMainConfig();
@@ -299,8 +330,6 @@ class CheevosAchievement extends CheevosModel {
 	/**
 	 * Does this achievement roughly equal another achievement?
 	 * Such as criteria, points to be earned, etc. Ignore fields such as created and updated timestamps.
-	 *
-	 * @return bool
 	 */
 	public function sameAs( CheevosModel $model ): bool {
 		foreach ( self::FIELDS as $field ) {
@@ -341,6 +370,7 @@ class CheevosAchievement extends CheevosModel {
 	): array {
 		[ $achievements, $statuses ] = $toPrune;
 		$_achievements = $achievements;
+		$fixChildrenStatus = [];
 		if ( count( $_achievements ) ) {
 			$preserveAchs = [];
 			if ( $removeParents && count( $statuses ) ) {
@@ -363,7 +393,7 @@ class CheevosAchievement extends CheevosModel {
 					$fixChildrenStatus[$status->getAchievement_Id()][$status->getSite_Key()][$status->getUser_Id()] =
 						$statusId;
 				}
-				foreach ( $statuses as $statusId => $status ) {
+				foreach ( $statuses as $status ) {
 					if ( isset( $_achievements[$status->getAchievement_Id()] ) ) {
 						$achParentId = $_achievements[$status->getAchievement_Id()]->getParent_Id();
 						if (
@@ -417,7 +447,7 @@ class CheevosAchievement extends CheevosModel {
 		if ( count( $achievements ) ) {
 			$children = self::getParentToChild( $achievements );
 			if ( count( $children ) ) {
-				foreach ( $achievements as $id => $achievement ) {
+				foreach ( $achievements as $achievement ) {
 					$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 					foreach ( $requiredIds as $key => $requiresAid ) {
 						if ( isset( $children[$requiresAid] ) ) {
@@ -455,6 +485,7 @@ class CheevosAchievement extends CheevosModel {
 	 * Get achievement IDs that require this achievement.
 	 *
 	 * @return array|null Array achievement IDs that require this achievement.
+	 * @throws Exception
 	 */
 	public function getRequiredBy(): ?array {
 		$dsSiteKey = CheevosHelper::getSiteKey();
@@ -465,7 +496,7 @@ class CheevosAchievement extends CheevosModel {
 
 		$this->requiredBy = [];
 		$achievements = $this->achievementService->getAchievements( $dsSiteKey );
-		foreach ( $achievements as $id => $achievement ) {
+		foreach ( $achievements as $achievement ) {
 			$requiredIds = $achievement->getCriteria()->getAchievement_Ids();
 			if ( in_array( $this->getId(), $requiredIds ) ) {
 				$this->requiredBy[(

@@ -13,16 +13,16 @@
 namespace Cheevos;
 
 use Cheevos\Job\CheevosIncrementJob;
-use Config;
 use Exception;
 use Fandom\Includes\Article\GlobalTitleLookup;
 use Fandom\WikiConfig\WikiVariablesDataService;
 use Fandom\WikiDomain\WikiConfigData;
 use Fandom\WikiDomain\WikiConfigDataService;
+use Mediawiki\Config\Config;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserIdentity;
-use RequestContext;
 
 class CheevosHelper {
 
@@ -31,10 +31,10 @@ class CheevosHelper {
 	private static bool $shutdownRan = false;
 
 	public function __construct(
-		private AchievementService $achievementService,
-		private Config $config,
-		private GlobalTitleLookup $globalTitleLookup,
-		private WikiConfigDataService $wikiConfigDataService
+		private readonly AchievementService $achievementService,
+		private readonly Config $config,
+		private readonly GlobalTitleLookup $globalTitleLookup,
+		private readonly WikiConfigDataService $wikiConfigDataService
 	) {
 	}
 
@@ -42,7 +42,7 @@ class CheevosHelper {
 		// Register shutdown function to actually save increments
 		if ( !self::$shutdownRegistered && PHP_SAPI !== 'cli' ) {
 			self::$shutdownRegistered = true;
-			register_shutdown_function( fn() => $this->doIncrements() );
+			register_shutdown_function( fn () => $this->doIncrements() );
 		}
 
 		$siteKey = self::getSiteKey();
@@ -57,7 +57,8 @@ class CheevosHelper {
 		self::$increments[$userId]['site_key'] = $siteKey;
 		self::$increments[$userId]['deltas'][] = [ 'stat' => $stat, 'delta' => $delta ];
 		self::$increments[$userId]['timestamp'] = $timestamp;
-		self::$increments[$userId]['request_uuid'] = sha1( $userId . $siteKey . $timestamp . random_bytes( 4 ) );
+		self::$increments[$userId]['request_uuid'] =
+			sha1( $userId . $siteKey . $timestamp . random_bytes( 4 ) );
 		if ( !empty( $edits ) ) {
 			if ( !isset( self::$increments[$userId]['edits'] ) ||
 				!is_array( self::$increments[$userId]['edits'] ) ) {
@@ -71,7 +72,7 @@ class CheevosHelper {
 		}
 	}
 
-	private function doIncrements() {
+	private function doIncrements(): void {
 		// Attempt to do it NOW. If we get an error, fall back to the SyncService job.
 		try {
 			self::$shutdownRan = true;
@@ -89,7 +90,7 @@ class CheevosHelper {
 					}
 				}
 			}
-		} catch ( CheevosException $e ) {
+		} catch ( CheevosException ) {
 			foreach ( self::$increments as $userId => $increment ) {
 				CheevosIncrementJob::queue( $increment );
 				unset( self::$increments[$userId] );
@@ -114,11 +115,11 @@ class CheevosHelper {
 	 *
 	 * @return string Language Code
 	 */
-	public static function getUserLanguage() {
+	public static function getUserLanguage(): string {
 		try {
 			$user = RequestContext::getMain()->getUser();
 			$code = MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $user, 'language' );
-		} catch ( Exception $e ) {
+		} catch ( Exception ) {
 			// "failure? English is the best anyway."  --Cameron Chunn, 2017-03-02 15:37:33 -0600
 			$code = "en";
 		}
@@ -146,7 +147,7 @@ class CheevosHelper {
 				$users[$stat['user_id']] =
 					MediaWikiServices::getInstance()->getUserFactory()->newFromId( $stat['user_id'] );
 			}
-			if ( isset( $stat['site_key'] ) && !empty( $stat['site_key'] ) ) {
+			if ( !empty( $stat['site_key'] ) ) {
 				$nice[$stat['site_key']][$users[$stat['user_id']]->getId()][$stat['stat']] = $_data;
 			} else {
 				$nice[$users[$stat['user_id']]->getId()][$stat['stat']] = $_data;
@@ -240,16 +241,5 @@ class CheevosHelper {
 		}
 
 		return (string)$dsSiteKey;
-	}
-
-	/**
-	 * @deprecated
-	 *
-	 * Return if we are operating in the context of the central wiki.
-	 *
-	 * @return bool
-	 */
-	public static function isCentralWiki(): bool {
-		return MediaWikiServices::getInstance()->getService( self::class )->isCheevosCentralWiki();
 	}
 }

@@ -3,14 +3,16 @@
 namespace Cheevos;
 
 use Cheevos\Templates\TemplateAchievements;
-use Config;
+use Exception;
+use Mediawiki\Config\Config;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
+use Redis;
 use RedisCache;
 use RedisException;
 use Reverb\Notification\NotificationBroadcastFactory;
-use SpecialPage;
 
 class AchievementService {
 	private const REDIS_CONNECTION_GROUP = 'cache';
@@ -18,12 +20,12 @@ class AchievementService {
 	private const TTL_5_MIN = 300;
 
 	public function __construct(
-		private CheevosClient $cheevosClient,
-		private RedisCache $redisCache,
-		private Config $config,
-		private NotificationBroadcastFactory $notificationBroadcastFactory,
-		private UserFactory $userFactory,
-		private UserIdentityLookup $userIdentityLookup
+		private readonly CheevosClient $cheevosClient,
+		private readonly RedisCache $redisCache,
+		private readonly Config $config,
+		private readonly NotificationBroadcastFactory $notificationBroadcastFactory,
+		private readonly UserFactory $userFactory,
+		private readonly UserIdentityLookup $userIdentityLookup
 	) {
 	}
 
@@ -48,13 +50,17 @@ class AchievementService {
 			]
 		);
 
-		if ( $broadcast ) {
-			$broadcast->transmit();
-		}
+		$broadcast?->transmit();
 	}
 
-	/** Invalidate API Cache */
+	/** Invalidate API Cache
+	 *
+	 * @throws Exception
+	 */
 	public function invalidateCache(): void {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			return;
@@ -64,7 +70,7 @@ class AchievementService {
 		$prefix = $redisServers['cache']['options']['prefix'] ?? '';
 
 		try {
-			$keys = $redis->getKeys( 'cheevos:apicache:*' );
+			$keys = $redis->keys( 'cheevos:apicache:*' );
 			foreach ( $keys as $key ) {
 				// remove prefix if exists, because weird.
 				$key = str_replace( $prefix . 'cheevos', 'cheevos', $key );
@@ -79,8 +85,14 @@ class AchievementService {
 	 * Get all achievements with caching.
 	 *
 	 * @return CheevosAchievement[]
+	 *
+	 * @throws CheevosException
+	 * @throws Exception
 	 */
 	public function getAchievements( ?string $siteKey = null ): array {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			return $this->cheevosClient->parse(
@@ -116,8 +128,14 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'achievements', CheevosAchievement::class );
 	}
 
-	/** Get achievement by database ID with caching. */
+	/** Get achievement by database ID with caching.
+	 *
+	 * @throws Exception
+	 */
 	public function getAchievement( int $id ): ?CheevosAchievement {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		if ( !$redis ) {
 			$response = $this->cheevosClient->get( "achievement/$id" );
@@ -154,28 +172,39 @@ class AchievementService {
 		return $this->cheevosClient->parse( [ $response ], 'achievements', CheevosAchievement::class, true );
 	}
 
-	/** Soft delete an achievement from the service. */
+	/** Soft delete an achievement from the service.
+	 *
+	 * @throws CheevosException
+	 */
 	public function deleteAchievement( int $id, int $authorId ): array {
-		return $this->cheevosClient->delete( "achievement/{$id}", [ "author_id" => $authorId ] );
+		return $this->cheevosClient->delete( "achievement/$id", [ "author_id" => $authorId ] );
 	}
 
-	/** Update an existing achievement on the service. */
+	/** Update an existing achievement on the service.
+	 *
+	 * @throws CheevosException
+	 */
 	public function updateAchievement( int $id, array $body ): void {
 		$this->cheevosClient->put(
-			$id ? "achievement/{$id}" : 'achievement',
+			$id ? "achievement/$id" : 'achievement',
 			$body
 		);
 	}
 
-	/** Create Achievement */
+	/** Create Achievement
+	 *
+	 * @throws CheevosException
+	 */
 	public function createAchievement( array $body ): void {
 		$this->cheevosClient->put( 'achievement', $body );
 	}
 
 	/**
-	 * Get achievement status for an user.
+	 * Get achievement status for a user.
 	 *
 	 * @return CheevosAchievementStatus[]
+	 *
+	 * @throws CheevosException
 	 */
 	public function getAchievementStatus( int $userId, string $siteKey ): array {
 		$response = $this->cheevosClient->get(
@@ -205,6 +234,8 @@ class AchievementService {
 	 * @param UserIdentity|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
 	 * @return CheevosAchievementProgress[]
+	 *
+	 * @throws CheevosException
 	 */
 	public function getAchievementProgress( array $filters = [], ?UserIdentity $user = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $user );
@@ -216,14 +247,17 @@ class AchievementService {
 	/**
 	 * Get process for achievement
 	 *
-	 * @param int $id
+	 * @throws CheevosException
 	 */
-	public function getProgress( $id ): ?CheevosAchievementProgress {
+	public function getProgress( int $id ): ?CheevosAchievementProgress {
 		$response = $this->cheevosClient->get( "achievements/progress/$id" );
 		return $this->cheevosClient->parse( [ $response ], 'progress', CheevosAchievementProgress::class, true );
 	}
 
-	/** Delete progress towards an achievement. */
+	/** Delete progress towards an achievement.
+	 *
+	 * @throws CheevosException
+	 */
 	public function deleteProgress( int $id ): array {
 		return $this->cheevosClient->delete( "achievements/progress/$id" );
 	}
@@ -231,7 +265,7 @@ class AchievementService {
 	/**
 	 * Put process for achievement. Either create or updates.
 	 *
-	 * @return array
+	 * @throws CheevosException
 	 */
 	public function putProgress( array $body ): array {
 		return $this->cheevosClient->put( 'achievements/progress', $body );
@@ -243,8 +277,13 @@ class AchievementService {
 	 * @param bool $skipCache Skip pulling data from the local cache. Will still update the local cache.
 	 *
 	 * @return CheevosAchievementCategory[]
+	 *
+	 * @throws Exception
 	 */
 	public function getCategories( bool $skipCache = false ): array {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 		$redisKey = $this->makeRedisKey( 'getCategories', self::CACHE_VERSION );
 
@@ -270,8 +309,14 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class );
 	}
 
-	/** Get Category by ID */
+	/** Get Category by ID
+	 *
+	 * @throws Exception
+	 */
 	public function getCategory( int $id ): ?CheevosAchievementCategory {
+		/**
+		 * @var Redis $redis
+		 */
 		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
 
 		if ( !$redis ) {
@@ -303,12 +348,18 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class, true );
 	}
 
-	/** Delete Category by ID (with optional user_id for user that deleted the category) */
+	/** Delete Category by ID (with optional user_id for user that deleted the category)
+	 *
+	 * @throws CheevosException
+	 */
 	public function deleteCategory( int $id, int $authorId ): void {
 		$this->cheevosClient->delete( "achievement_category/$id", [ 'author_id' => $authorId ] );
 	}
 
-	/** Update Category by ID */
+	/** Update Category by ID
+	 *
+	 * @throws CheevosException
+	 */
 	public function updateCategory( int $id, array $body ): array {
 		return $this->cheevosClient->put(
 			$id ? "achievement_category/$id" : 'achievement_category',
@@ -316,17 +367,26 @@ class AchievementService {
 		);
 	}
 
-	/** Create Category */
+	/** Create Category
+	 *
+	 * @throws CheevosException
+	 */
 	public function createCategory( array $body ): array {
 		return $this->cheevosClient->put( 'achievement_category', $body );
 	}
 
-	/** Call the increment end point on the API. */
+	/** Call the increment end point on the API.
+	 *
+	 * @throws CheevosException
+	 */
 	public function increment( array $body ): array {
 		return $this->cheevosClient->post( 'increment', $body );
 	}
 
-	/** Call increment to check for any unnotified achievement rewards. */
+	/** Call increment to check for any unnotified achievement rewards.
+	 *
+	 * @throws CheevosException
+	 */
 	public function checkUnnotified( int $globalId, string $siteKey, bool $forceRecalculate ): array {
 		if ( empty( $globalId ) || empty( $siteKey ) ) {
 			return [];
@@ -346,26 +406,29 @@ class AchievementService {
 	 *
 	 * @param array $filters Limit Filters - All filters are optional and can be omitted from the array.
 	 *                        This is an array since the amount of filter parameters is expected to be reasonably
-	 * 						  volatile over the life span of the product.
+	 *                          volatile over the life span of the product.
 	 *                        This function does minimum validation of the filters.
-	 * 						  For example, sending a numeric string when the service is expecting an integer will
-	 * 						  result in an exception being thrown.
+	 *                          For example, sending a numeric string when the service is expecting an integer will
+	 *                          result in an exception being thrown.
 	 *                        - $filters = [
 	 *                        -     'user_id' => 0, //Limit by global user ID.
 	 *                        -     'site_key' => 'example', //Limit by site key.
 	 *                        -     'global' => false, //Set to true to aggregate stats from all sites.
-	 * 													(Also causes site_key to be ignored.)
+	 *                                                    (Also causes site_key to be ignored.)
 	 *                        -     'stat' => 'example', //Filter by a specific stat name.
 	 *                        -     'sort_direction' => 'asc' or 'desc', //If supplied, the result will be sorted
-	 * 																	on the stats' count field.
+	 *                                                                    on the stats' count field.
 	 *                        -     'start_time' => 'example', //If supplied, only stat deltas after this
-	 * 															unix timestamp are considered.
+	 *                                                            unix timestamp are considered.
 	 *                        -     'end_time' => 'example', //If supplied, only stat deltas before this unix
-	 * 															timestamp are considered.
+	 *                                                            timestamp are considered.
 	 *                        -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                        - ];
+	 *
 	 * @return CheevosStatProgress[]
+	 *
+	 * @throws CheevosException
 	 */
 	public function getStatProgress( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
@@ -382,17 +445,20 @@ class AchievementService {
 	 *
 	 * @param array $filters Limit Filters - All filters are optional and can omitted from the array.
 	 *                        This is an array since the amount of filter parameters is expected to be reasonably
-	 * 						  volatile over the life span of the product.
+	 *                          volatile over the life span of the product.
 	 *                        This function does minimum validation of the filters.
-	 * 						  For example, sending a numeric string when the service is expecting an integer will
-	 * 						  result in an exception being thrown.
+	 *                          For example, sending a numeric string when the service is expecting an integer will
+	 *                          result in an exception being thrown.
 	 *                        - $filters = [
 	 *                        -     'user_id' => 0, //Limit by global user ID.
 	 *                        -     'site_key' => 'example', //Limit by site key.
 	 *                        -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                        -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                        - ];
+	 *
 	 * @return CheevosWikiPointLog[]
+	 *
+	 * @throws CheevosException
 	 */
 	public function getWikiPointLog( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 25 );
@@ -404,7 +470,13 @@ class AchievementService {
 		);
 	}
 
-	public function getUserPointRank( UserIdentity $userIdentity, ?string $siteKey = null ): mixed {
+	/**
+	 * @throws CheevosException
+	 */
+	public function getUserPointRank(
+		UserIdentity $userIdentity,
+		?string $siteKey = null
+	): mixed {
 		$response = $this->cheevosClient->get(
 			'points/user_rank',
 			[ 'user_id' => $userIdentity->getId(), 'site_key' => $siteKey ]
@@ -430,7 +502,10 @@ class AchievementService {
 	 *                          -     'limit' => 200, //Maximum number of results.  Defaults to 200.
 	 *                          -     'offset' => 0, //Offset to start from the beginning of the result set.
 	 *                          - ];
+	 *
 	 * @return CheevosStatMonthlyCount[]
+	 *
+	 * @throws CheevosException
 	 */
 	public function getStatMonthlyCount( array $filters = [], ?UserIdentity $userIdentity = null ): array {
 		$parsedFilters = $this->parseFilters( $filters, $userIdentity, 200 );
@@ -438,8 +513,14 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'stats', CheevosStatMonthlyCount::class );
 	}
 
-	/** Return stats/user_site_count for selected filters. */
-	public function getUserSitesCountByStat( UserIdentity $userIdentity, string $statName ): mixed {
+	/** Return stats/user_site_count for selected filters.
+	 *
+	 * @throws CheevosException
+	 */
+	public function getUserSitesCountByStat(
+		UserIdentity $userIdentity,
+		string $statName
+	): mixed {
 		$response = $this->cheevosClient->get(
 			'stats/user_sites_count',
 			[ 'user_id' => $userIdentity->getId(), 'stat' => $statName ]
@@ -448,7 +529,10 @@ class AchievementService {
 		return $this->cheevosClient->parse( $response, 'count' );
 	}
 
-	/** Revokes edit points for the provided revision IDs related to the page ID. */
+	/** Revokes edit points for the provided revision IDs related to the page ID.
+	 *
+	 * @throws CheevosException
+	 */
 	public function revokeEditPoints( int $pageId, array $revisionIds, string $siteKey ): array {
 		return $this->cheevosClient->post(
 			'points/revoke_revisions',
@@ -466,7 +550,7 @@ class AchievementService {
 		}
 
 		if ( $defaultLimit !== null ) {
-			$filters['limit'] = $filters['limit'] ?? $defaultLimit;
+			$filters['limit'] ??= $defaultLimit;
 		}
 		return $filters;
 	}

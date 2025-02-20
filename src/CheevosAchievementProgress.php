@@ -12,15 +12,16 @@
 
 namespace Cheevos;
 
+/**
+ * @method int getId()
+ */
 class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['id'] = isset( $data['id'] ) && is_int( $data['id'] ) ? $data['id'] : 0;
 		$this->container['achievement_id'] = isset( $data['achievement_id'] ) &&
 											 is_int( $data['achievement_id'] ) ? $data['achievement_id'] : 0;
@@ -39,10 +40,8 @@ class CheevosAchievementProgress extends CheevosModel {
 	/**
 	 * Copy the progress from another to this one.
 	 * Typically used for copying progress from a parent into the child for display purposes.
-	 *
-	 * @return void
 	 */
-	public function copyFrom( CheevosAchievementProgress $progress ) {
+	public function copyFrom( CheevosAchievementProgress $progress ): void {
 		$data = $progress->toArray();
 		$data['id'] = $this->container['id'];
 		$data['achievement_id'] = $this->container['achievement_id'];

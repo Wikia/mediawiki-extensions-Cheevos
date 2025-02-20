@@ -3,6 +3,12 @@
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['suppress_issue_types'] = [
+	...$cfg['suppress_issue_types'],
+	// Horribly noisy / not useful due to our extensive use of empty() to check for things like empty strings,
+	// especially in older code.
+	'MediaWikiNoEmptyIfDefined',
+	// Too many FPs to justify usage.
+	'PhanParamTooFewUnpack',
 	'PhanUndeclaredClassReference',
 	'PhanUndeclaredTypeParameter',
 	'PhanUndeclaredTypeProperty',
@@ -13,7 +19,7 @@ $cfg['suppress_issue_types'] = [
 
 // Explicitly set minimum and target PHP versions for Phan to avoid suggesting features not yet available in all
 // versions we run while still offering forward-compatibility warnings.
-$cfg['minimum_target_php_version'] = '8.0';
-$cfg['target_php_version'] = '8.0';
+$cfg['minimum_target_php_version'] = '8.2';
+$cfg['target_php_version'] = '8.2';
 
 return $cfg;

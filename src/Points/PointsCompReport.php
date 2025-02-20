@@ -17,14 +17,21 @@ use Cheevos\AchievementService;
 use Cheevos\CheevosStatMonthlyCount;
 use DateInterval;
 use DateTime;
-use ExtensionRegistry;
+use Exception;
+use InvalidArgumentException;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Registration\ExtensionDependencyError;
+use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Status\Status;
+use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
-use MWException;
-use Status;
+use MediaWiki\Utils\MWTimestamp;
+use RuntimeException;
+use StatusValue;
 use Subscription\Providers\GamepediaPro;
 use Subscription\SubscriptionProvider;
-use User;
+use Wikimedia\Timestamp\TimestampException;
 
 /**
  * Class containing some business and display logic for points blocks
@@ -72,7 +79,7 @@ class PointsCompReport {
 	 *
 	 * @return PointsCompReport|null object or null if it does not exist.
 	 */
-	public static function newFromId( $id ): ?PointsCompReport {
+	public static function newFromId( int $id ): ?PointsCompReport {
 		$report = new self( $id );
 
 		$success = $report->load();
@@ -85,7 +92,7 @@ class PointsCompReport {
 	 *
 	 * @param array $row Report Row from the Database
 	 */
-	private static function newFromRow( $row ): PointsCompReport {
+	private static function newFromRow( array $row ): PointsCompReport {
 		$report = new self( $row['report_id'] );
 		$report->reportData = $row;
 
@@ -157,7 +164,7 @@ class PointsCompReport {
 
 			$this->reportData['report_id'] = $db->insertId();
 			if ( !$success || !$this->reportData['report_id'] ) {
-				throw new MWException( __METHOD__ . ': Could not get a new report ID.' );
+				throw new RuntimeException( __METHOD__ . ': Could not get a new report ID.' );
 			}
 		} else {
 			$db->update(
@@ -200,6 +207,7 @@ class PointsCompReport {
 	public function updateStats(): void {
 		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
+		$data = [];
 		foreach ( self::STATS as $stat ) {
 			$result = $db->select(
 				[ 'points_comp_report_user' ],
@@ -298,8 +306,8 @@ class PointsCompReport {
 	 *
 	 * @return void
 	 */
-	public function setMinPointThreshold( $minPointThreshold ): void {
-		$this->reportData['min_points'] = (int)$minPointThreshold;
+	public function setMinPointThreshold( int $minPointThreshold ): void {
+		$this->reportData['min_points'] = $minPointThreshold;
 	}
 
 	/**
@@ -314,12 +322,12 @@ class PointsCompReport {
 	/**
 	 * Set the maximum point threshold for this report.
 	 *
-	 * @param mixed|null $maxPointThreshold Maximum point threshold for this report or null for no maximum.
+	 * @param int|null $maxPointThreshold Maximum point threshold for this report or null for no maximum.
 	 *
 	 * @return void
 	 */
-	public function setMaxPointThreshold( mixed $maxPointThreshold = null ): void {
-		$this->reportData['max_points'] = ( $maxPointThreshold === null ? null : (int)$maxPointThreshold );
+	public function setMaxPointThreshold( ?int $maxPointThreshold = null ): void {
+		$this->reportData['max_points'] = ( $maxPointThreshold === null ? null : $maxPointThreshold );
 	}
 
 	/**
@@ -328,9 +336,12 @@ class PointsCompReport {
 	 * @param int $minPointThreshold Minimum Point Threshold
 	 * @param int|null $maxPointThreshold [Optional] Maximum Point Threshold
 	 *
-	 * @return Status
+	 * @return StatusValue
 	 */
-	public static function validatePointThresholds( int $minPointThreshold, ?int $maxPointThreshold = null ): Status {
+	public static function validatePointThresholds(
+		int $minPointThreshold,
+		?int $maxPointThreshold = null
+	): StatusValue {
 		if ( $maxPointThreshold !== null ) {
 			if ( $maxPointThreshold <= 0 || $maxPointThreshold < $minPointThreshold ) {
 				return Status::newFatal( 'invalid_maximum_threshold' );
@@ -468,7 +479,7 @@ class PointsCompReport {
 	 *
 	 * @return bool Report Finished
 	 */
-	public function isFinished(): int {
+	public function isFinished(): bool {
 		return (bool)$this->reportData[ 'finished' ];
 	}
 
@@ -523,7 +534,7 @@ class PointsCompReport {
 		];
 
 		if ( empty( $data['user_id'] ) ) {
-			throw new MWException( __METHOD__ . ': Invalid global user ID provided.' );
+			throw new InvalidArgumentException( __METHOD__ . ': Invalid global user ID provided.' );
 		}
 
 		if ( isset( $this->reportUser[$userId] ) ) {
@@ -557,6 +568,8 @@ class PointsCompReport {
 	 * @param bool $email [Optional] Send email to affected users.
 	 *
 	 * @return void
+	 * @throws ExtensionDependencyError|RuntimeException|InvalidArgumentException
+	 * @throws Exception
 	 */
 	public function run(
 		?int $minPointThreshold = null,
@@ -565,9 +578,13 @@ class PointsCompReport {
 		int $timeEnd = 0,
 		bool $final = false,
 		bool $email = false
-	) {
+	): void {
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Subscription' ) ) {
-			throw new MWException( __METHOD__ . ": Extension:Subscription must be loaded for this functionality." );
+			throw new ExtensionDependencyError( [ [
+				'msg' => __METHOD__ . ": Extension:Subscription must be loaded for this functionality.",
+				'type' => 'missing-extensions',
+				'missing' => 'Subscription',
+			] ] );
 		}
 
 		if ( $this->reportData['report_id'] > 0 ) {
@@ -585,11 +602,14 @@ class PointsCompReport {
 
 		$status = self::validatePointThresholds( $minPointThreshold, $maxPointThreshold );
 		if ( !$status->isGood() ) {
-			throw new MWException( __METHOD__ . ': ' . $status->getMessage() );
+			$statusFormatter = MediaWikiServices::getInstance()->getFormatterFactory()->getStatusFormatter(
+				RequestContext::getMain()
+			);
+			throw new RuntimeException( __METHOD__ . ': ' . $statusFormatter->getMessage( $status ) );
 		}
 
 		if ( $timeEnd <= $timeStart || $timeStart == 0 || $timeEnd == 0 ) {
-			throw new MWException( __METHOD__ . ': The time range is invalid.' );
+			throw new InvalidArgumentException( __METHOD__ . ': The time range is invalid.' );
 		}
 
 		$this->setMinPointThreshold( $minPointThreshold );
@@ -659,7 +679,7 @@ class PointsCompReport {
 		}
 
 		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $monthly->getUser_Id() );
-		if ( !$user || $user->getId() < 1 ) {
+		if ( $user->getId() < 1 ) {
 			return;
 		}
 
@@ -721,6 +741,7 @@ class PointsCompReport {
 	 * @param SubscriptionProvider $provider Subscription Provider
 	 *
 	 * @return array Array of boolean status flags.
+	 * @throws TimestampException
 	 */
 	public function getSubscription( UserIdentity $userIdentity, SubscriptionProvider $provider ): array {
 		$subscription = $provider->getSubscription( $userIdentity->getId() );
@@ -728,7 +749,13 @@ class PointsCompReport {
 			return [ 'hasSubscription' => false, 'paid' => false, 'expires' => null ];
 		}
 
-		$expires = $subscription['expires'] !== false ? (int)$subscription['expires']->getTimestamp( TS_UNIX ) : 0;
+		/**
+		 * @var null|false|MWTimestamp $subscriptionExpires
+		 */
+		$subscriptionExpires = $subscription['expires'];
+		$expires = $subscriptionExpires instanceof MWTimestamp ?
+			(int)$subscriptionExpires->getTimestamp( TS_UNIX ) : 0;
+
 		return [
 			'hasSubscription' => true,
 			'paid' => $subscription['plan_id'] !== 'complimentary',
@@ -740,6 +767,7 @@ class PointsCompReport {
 	 * Run through all users and comp subscriptions.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function compAllSubscriptions(): void {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
@@ -755,6 +783,7 @@ class PointsCompReport {
 	 * Will fail if a valid paid or comped subscription already exists and is longer than the proposed new comp length.
 	 *
 	 * @return bool Success
+	 * @throws Exception
 	 */
 	public function compSubscription( UserIdentity $userIdentity, int $numberOfMonths ): bool {
 		$gamepediaPro = MediaWikiServices::getInstance()->getService( GamepediaPro::class );
@@ -852,7 +881,7 @@ class PointsCompReport {
 		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		return $db->selectRowCount(
 			[ 'points_comp_report_user' ],
-			[ 'user_id' ],
+			'user_id',
 			[
 				'comp_performed' => 1,
 				"current_comp_expires > " . time() . " OR new_comp_expires > " . time()

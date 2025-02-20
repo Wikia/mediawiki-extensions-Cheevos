@@ -6,10 +6,13 @@
 	"descriptionmsg": "achievements_description",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.39.0",
+		"MediaWiki": ">= 1.43.0",
 		"extensions": {
 			"HydraCore": ">= 3.0.0",
-			"MobileFrontend": "*"
+			"RedisCache": "*",
+			"Reverb": "*",
+			"MobileFrontend": "*",
+			"Subscription": "*"
 		}
 	},
 	"GroupPermissions": {
@@ -48,7 +51,10 @@
 		},
 		"WikiPoints": {
 			"class": "Cheevos\\Specials\\SpecialWikiPoints",
-			"services": ["UserIdentityLookup"]
+			"services": [
+				"UserIdentityLookup",
+				"Cheevos\\CheevosHelper"
+			]
 		},
 		"WikiPointsAdmin": {
 			"class": "Cheevos\\Specials\\SpecialWikiPointsAdmin",

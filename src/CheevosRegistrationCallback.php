@@ -2,7 +2,6 @@
 
 namespace Cheevos;
 
-use Cheevos\Maintenance\ReplaceGlobalIdWithUserId;
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\MediaWikiServices;
 
@@ -81,7 +80,6 @@ class CheevosRegistrationCallback implements LoadExtensionSchemaUpdatesHook {
 				'report_id_global_id',
 				"$extDir/upgrade/sql/points_comp_report_user/drop_index_report_id_global_id.sql"
 			);
-			$updater->addPostDatabaseUpdateMaintenance( ReplaceGlobalIdWithUserId::class );
 
 			// Point Levels
 			$updater->addExtensionTable(

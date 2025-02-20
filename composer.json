@@ -10,12 +10,12 @@
 		}
 	],
 	"require": {
-		"php": ">=8.0.0"
+		"php": ">=8.2.0"
 	},
 	"require-dev": {
 		"mediawiki/minus-x": "^1.1",
 		"mediawiki/mediawiki-codesniffer": "38.0.0",
-		"mediawiki/mediawiki-phan-config": "^0.11.1",
+		"mediawiki/mediawiki-phan-config": "0.14.0",
 		"seld/jsonlint": "1.8.3"
 	},
 	"scripts": {

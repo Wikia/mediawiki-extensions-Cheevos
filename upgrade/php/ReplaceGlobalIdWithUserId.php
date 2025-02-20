@@ -17,6 +17,8 @@ require_once dirname( __DIR__, 4 ) . '/maintenance/Maintenance.php';
 /**
  * Maintenance script that cleans up tables that have orphaned users.
  * Currently Noop
+ * TODO: unused, should be nuked
+ * phpcs:ignoreFile
  */
 class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 

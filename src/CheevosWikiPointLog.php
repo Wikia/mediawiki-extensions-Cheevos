@@ -17,10 +17,8 @@ class CheevosWikiPointLog extends CheevosModel {
 	 * Constructor
 	 *
 	 * @param array|null $data Associated array of property values initializing the model.
-	 *
-	 * @return void
 	 */
-	public function __construct( array $data = null ) {
+	public function __construct( ?array $data = null ) {
 		$this->container['achievement_id'] = isset( $data['achievement_id'] ) &&
 											 is_int( $data['achievement_id'] ) ? $data['achievement_id'] : 0;
 		$this->container['page_id'] = isset( $data['page_id'] ) &&
