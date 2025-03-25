@@ -7,7 +7,7 @@ use Cheevos\CheevosCacheManager;
 use Cheevos\CheevosClient;
 use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
-use Fandom\Includes\Article\GlobalTitleLookup;
+use Fandom\Includes\ForeignContent\ForeignContentService;
 use Fandom\WikiDomain\WikiConfigDataService;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcastFactory;
@@ -55,7 +55,7 @@ return [
 		return new CheevosHelper(
 			$services->getService( AchievementService::class ),
 			$services->getMainConfig(),
-			$services->getService( GlobalTitleLookup::class ),
+			$services->getService( ForeignContentService::class ),
 			$services->getService( WikiConfigDataService::class )
 		);
 	},
