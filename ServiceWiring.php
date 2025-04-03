@@ -36,8 +36,7 @@ return [
 	AchievementService::class => static function ( MediaWikiServices $services ): AchievementService {
 		return new AchievementService(
 			$services->getService( CheevosClient::class ),
-			$services->getService( RedisCache::class ),
-			$services->getMainConfig(),
+			$services->getMainWANObjectCache(),
 			$services->getService( NotificationBroadcastFactory::class ),
 			$services->getUserFactory(),
 			$services->getUserIdentityLookup()

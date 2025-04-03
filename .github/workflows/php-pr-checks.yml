@@ -32,12 +32,6 @@ jobs:
           path: mediawiki
           ref: ${{ matrix.mw }}
 
-      - name: Checkout RedisCache (dependency) extension
-        uses: actions/checkout@v4
-        with:
-          repository: Wikia/RedisCache
-          path: mediawiki/extensions/RedisCache
-
       - name: Checkout Cheevos extension
         uses: actions/checkout@v4
         with:

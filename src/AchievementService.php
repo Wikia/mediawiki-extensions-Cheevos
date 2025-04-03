@@ -4,25 +4,20 @@ namespace Cheevos;
 
 use Cheevos\Templates\TemplateAchievements;
 use Exception;
-use Mediawiki\Config\Config;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityLookup;
-use Redis;
-use RedisCache;
-use RedisException;
 use Reverb\Notification\NotificationBroadcastFactory;
+use Wikimedia\ObjectCache\WANObjectCache;
 
 class AchievementService {
-	private const REDIS_CONNECTION_GROUP = 'cache';
-	private const CACHE_VERSION = 'v1';
+	private const CACHE_VERSION = 'v2';
 	private const TTL_5_MIN = 300;
 
 	public function __construct(
 		private readonly CheevosClient $cheevosClient,
-		private readonly RedisCache $redisCache,
-		private readonly Config $config,
+		private readonly WANObjectCache $cache,
 		private readonly NotificationBroadcastFactory $notificationBroadcastFactory,
 		private readonly UserFactory $userFactory,
 		private readonly UserIdentityLookup $userIdentityLookup
@@ -58,27 +53,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function invalidateCache(): void {
-		/**
-		 * @var Redis $redis
-		 */
-		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
-		if ( !$redis ) {
-			return;
-		}
-
-		$redisServers = $this->config->has( 'RedisServers' ) ? $this->config->get( 'RedisServers' ) : [];
-		$prefix = $redisServers['cache']['options']['prefix'] ?? '';
-
-		try {
-			$keys = $redis->keys( 'cheevos:apicache:*' );
-			foreach ( $keys as $key ) {
-				// remove prefix if exists, because weird.
-				$key = str_replace( $prefix . 'cheevos', 'cheevos', $key );
-				$redis->del( $key );
-			}
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-		}
+		// NOTE: WANObjectCache doesn't support key wildcard deletion.
 	}
 
 	/**
@@ -90,39 +65,20 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getAchievements( ?string $siteKey = null ): array {
-		/**
-		 * @var Redis $redis
-		 */
-		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
-		if ( !$redis ) {
+		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getAchievements', self::CACHE_VERSION, $siteKey ?: 'all' );
+		$cachedValue = $this->cache->get( $cacheKey );
+
+		if ( !empty( $cachedValue ) ) {
 			return $this->cheevosClient->parse(
-				$this->cheevosClient->get( 'achievements/all', [ 'site_key' => $siteKey, 'limit' => 0 ] ),
+				$cachedValue,
 				'achievements',
 				CheevosAchievement::class
 			);
 		}
 
-		$redisKey = $this->makeRedisKey( 'getAchievements', self::CACHE_VERSION, $siteKey ?: 'all' );
-		try {
-			$cachedValue = json_decode( $redis->get( $redisKey ), true );
-			if ( !empty( $cachedValue ) ) {
-				return $this->cheevosClient->parse(
-					$cachedValue,
-					'achievements',
-					CheevosAchievement::class
-				);
-			}
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-		}
-
 		$response = $this->cheevosClient->get( 'achievements/all', [ 'site_key' => $siteKey, 'limit' => 0 ] );
-		try {
-			if ( isset( $response['achievements'] ) ) {
-				$redis->setEx( $redisKey, self::TTL_5_MIN, json_encode( $response ) );
-			}
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
+		if ( isset( $response['achievements'] ) ) {
+			$this->cache->set( $cacheKey, $response, self::TTL_5_MIN );
 		}
 
 		return $this->cheevosClient->parse( $response, 'achievements', CheevosAchievement::class );
@@ -133,41 +89,20 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getAchievement( int $id ): ?CheevosAchievement {
-		/**
-		 * @var Redis $redis
-		 */
-		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
-		if ( !$redis ) {
-			$response = $this->cheevosClient->get( "achievement/$id" );
+		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getAchievement', self::CACHE_VERSION, $id );
+		$cachedValue = $this->cache->get( $cacheKey );
+
+		if ( !empty( $cachedValue ) ) {
 			return $this->cheevosClient->parse(
-				[ $response ],
+				[ $cachedValue ],
 				'achievements',
 				CheevosAchievement::class,
 				true
 			);
 		}
 
-		$redisKey = $this->makeRedisKey( 'getAchievement', self::CACHE_VERSION, $id );
-		try {
-			$cachedValue = json_decode( $redis->get( $redisKey ), true );
-			if ( !empty( $cachedValue ) ) {
-				return $this->cheevosClient->parse(
-					[ $cachedValue ],
-					'achievements',
-					CheevosAchievement::class,
-					true
-				);
-			}
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-		}
-
 		$response = $this->cheevosClient->get( "achievement/$id" );
-		try {
-			$redis->setEx( $redisKey, self::TTL_5_MIN, json_encode( $response ) );
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-		}
+		$this->cache->set( $cacheKey, $response, self::TTL_5_MIN );
 
 		return $this->cheevosClient->parse( [ $response ], 'achievements', CheevosAchievement::class, true );
 	}
@@ -281,31 +216,18 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getCategories( bool $skipCache = false ): array {
-		/**
-		 * @var Redis $redis
-		 */
-		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
-		$redisKey = $this->makeRedisKey( 'getCategories', self::CACHE_VERSION );
+		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getCategories', self::CACHE_VERSION );
 
-		if ( !$skipCache && $redis ) {
-			try {
-				$cachedValue = json_decode( $redis->get( $redisKey ), true );
-				if ( !empty( $cachedValue ) ) {
-					return $this->cheevosClient->parse( $cachedValue, 'categories', CheevosAchievementCategory::class );
-				}
-			} catch ( RedisException $e ) {
-				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
+		if ( !$skipCache ) {
+			$cachedValue = $this->cache->get( $cacheKey );
+			if ( !empty( $cachedValue ) ) {
+				return $this->cheevosClient->parse( $cachedValue, 'categories', CheevosAchievementCategory::class );
 			}
 		}
 
 		$response = $this->cheevosClient->get( 'achievement_categories/all', [ 'limit' => 0 ] );
-		if ( $redis ) {
-			try {
-				$redis->setEx( $redisKey, self::TTL_5_MIN, json_encode( $response ) );
-			} catch ( RedisException $e ) {
-				wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-			}
-		}
+		$this->cache->set( $cacheKey, $response, self::TTL_5_MIN );
+
 		return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class );
 	}
 
@@ -314,37 +236,21 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getCategory( int $id ): ?CheevosAchievementCategory {
-		/**
-		 * @var Redis $redis
-		 */
-		$redis = $this->redisCache->getConnection( self::REDIS_CONNECTION_GROUP );
+		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getCategory', self::CACHE_VERSION, $id );
+		$cachedValue = $this->cache->get( $cacheKey );
 
-		if ( !$redis ) {
-			$response = $this->cheevosClient->get( "achievement_category/$id" );
-			return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class, true );
-		}
-
-		$redisKey = $this->makeRedisKey( 'getCategory', self::CACHE_VERSION, $id );
-		try {
-			$cachedValue = json_decode( $redis->get( $redisKey ), true );
-			if ( !empty( $cachedValue ) ) {
-				return $this->cheevosClient->parse(
-					$cachedValue,
-					'categories',
-					CheevosAchievementCategory::class,
-					true
-				);
-			}
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
+		if ( !empty( $cachedValue ) ) {
+			return $this->cheevosClient->parse(
+				$cachedValue,
+				'categories',
+				CheevosAchievementCategory::class,
+				true
+			);
 		}
 
 		$response = $this->cheevosClient->get( "achievement_category/$id" );
-		try {
-			$redis->setEx( $redisKey, self::TTL_5_MIN, json_encode( $response ) );
-		} catch ( RedisException $e ) {
-			wfDebug( __METHOD__ . ": Caught RedisException - " . $e->getMessage() );
-		}
+		$this->cache->set( $cacheKey, $response, self::TTL_5_MIN );
+
 		return $this->cheevosClient->parse( $response, 'categories', CheevosAchievementCategory::class, true );
 	}
 
@@ -555,7 +461,4 @@ class AchievementService {
 		return $filters;
 	}
 
-	private function makeRedisKey( ...$parts ): string {
-		return 'cheevos:apicache:' . implode( ':', $parts );
-	}
 }
