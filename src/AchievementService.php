@@ -12,7 +12,6 @@ use Reverb\Notification\NotificationBroadcastFactory;
 use Wikimedia\ObjectCache\WANObjectCache;
 
 class AchievementService {
-	private const CACHE_VERSION = 'v2';
 	private const TTL_5_MIN = 300;
 
 	public function __construct(
@@ -20,7 +19,8 @@ class AchievementService {
 		private readonly WANObjectCache $cache,
 		private readonly NotificationBroadcastFactory $notificationBroadcastFactory,
 		private readonly UserFactory $userFactory,
-		private readonly UserIdentityLookup $userIdentityLookup
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly CheevosCacheManager $cacheManager
 	) {
 	}
 
@@ -53,7 +53,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function invalidateCache(): void {
-		// NOTE: WANObjectCache doesn't support key wildcard deletion.
+		$this->cacheManager->invalidate();
 	}
 
 	/**
@@ -65,7 +65,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getAchievements( ?string $siteKey = null ): array {
-		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getAchievements', self::CACHE_VERSION, $siteKey ?: 'all' );
+		$cacheKey = $this->cacheManager->getVersionedKey( 'getAchievements', $siteKey ?: 'all' );
 		$cachedValue = $this->cache->get( $cacheKey );
 
 		if ( !empty( $cachedValue ) ) {
@@ -89,7 +89,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getAchievement( int $id ): ?CheevosAchievement {
-		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getAchievement', self::CACHE_VERSION, $id );
+		$cacheKey = $this->cacheManager->getVersionedKey( 'getAchievement', $id );
 		$cachedValue = $this->cache->get( $cacheKey );
 
 		if ( !empty( $cachedValue ) ) {
@@ -216,7 +216,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getCategories( bool $skipCache = false ): array {
-		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getCategories', self::CACHE_VERSION );
+		$cacheKey = $this->cacheManager->getVersionedKey( 'getCategories' );
 
 		if ( !$skipCache ) {
 			$cachedValue = $this->cache->get( $cacheKey );
@@ -236,7 +236,7 @@ class AchievementService {
 	 * @throws Exception
 	 */
 	public function getCategory( int $id ): ?CheevosAchievementCategory {
-		$cacheKey = $this->cache->makeKey( 'cheevos', 'apicache', 'getCategory', self::CACHE_VERSION, $id );
+		$cacheKey = $this->cacheManager->getVersionedKey( 'getCategory', $id );
 		$cachedValue = $this->cache->get( $cacheKey );
 
 		if ( !empty( $cachedValue ) ) {
