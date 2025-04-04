@@ -29,7 +29,6 @@ class CheevosCacheManager {
 		return $this->cache->makeKey( ...$fullParts );
 	}
 
-
 	/**
 	 * Invalidate all cache entries by bumping the global version
 	 */
