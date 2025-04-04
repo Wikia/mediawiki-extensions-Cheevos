@@ -30,7 +30,7 @@ class CheevosCacheManager {
 	/**
 	 * Get a cache key that includes the current global version
 	 */
-	public function getVersionedKey( string ...$parts ): string {
+	public function getVersionedKey( mixed ...$parts ): string {
 		$fullParts = array_merge( [ 'cheevos', 'apicache' ], $parts, [ 'v' . $this->getVersion() ] );
 		return $this->cache->makeKey( ...$fullParts );
 	}
