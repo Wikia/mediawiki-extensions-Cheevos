@@ -3,10 +3,11 @@
 declare( strict_types=1 );
 
 use Cheevos\AchievementService;
+use Cheevos\CheevosCacheManager;
 use Cheevos\CheevosClient;
 use Cheevos\CheevosHelper;
 use Cheevos\FriendService;
-use Fandom\Includes\Article\GlobalTitleLookup;
+use Fandom\Includes\ForeignContent\ForeignContentService;
 use Fandom\WikiDomain\WikiConfigDataService;
 use MediaWiki\MediaWikiServices;
 use Reverb\Notification\NotificationBroadcastFactory;
@@ -33,14 +34,20 @@ return [
 		);
 	},
 
+	CheevosCacheManager::class => static function ( MediaWikiServices $services ): CheevosCacheManager {
+		return new CheevosCacheManager(
+			$services->getMainWANObjectCache()
+		);
+	},
+
 	AchievementService::class => static function ( MediaWikiServices $services ): AchievementService {
 		return new AchievementService(
 			$services->getService( CheevosClient::class ),
-			$services->getService( RedisCache::class ),
-			$services->getMainConfig(),
+			$services->getMainWANObjectCache(),
 			$services->getService( NotificationBroadcastFactory::class ),
 			$services->getUserFactory(),
-			$services->getUserIdentityLookup()
+			$services->getUserIdentityLookup(),
+			$services->getService( CheevosCacheManager::class ),
 		);
 	},
 
@@ -48,7 +55,7 @@ return [
 		return new CheevosHelper(
 			$services->getService( AchievementService::class ),
 			$services->getMainConfig(),
-			$services->getService( GlobalTitleLookup::class ),
+			$services->getService( ForeignContentService::class ),
 			$services->getService( WikiConfigDataService::class )
 		);
 	},
