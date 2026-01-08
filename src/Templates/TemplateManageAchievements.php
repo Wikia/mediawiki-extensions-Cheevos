@@ -177,7 +177,8 @@ class TemplateManageAchievements {
 				method='post'
 				action='" . htmlspecialchars( $achievementsURL . '/admin?do=save', ENT_QUOTES ) . "'>
 				<fieldset>
-					" . ( isset( $errors['name'] ) ? '<span class="error">' . $errors['name'] . '</span>' : '' ) . "
+					" . ( isset( $errors['name'] ) ?
+						'<span class="error">' . htmlspecialchars( $errors['name'], ENT_QUOTES ) . '</span>' : '' ) . "
 					<label for='name' class='label_above'>" .
 						wfMessage( 'achievement_name' )->escaped() .
 					"</label>
@@ -190,7 +191,7 @@ class TemplateManageAchievements {
 						value='" . htmlentities( $achievement->getName(), ENT_QUOTES ) . "' />
 
 					" . ( isset( $errors['description'] ) ?
-						'<span class="error">' . $errors['description'] . '</span>' :
+						'<span class="error">' . htmlspecialchars( $errors['description'], ENT_QUOTES ) . '</span>' :
 						'' ) . "
 					<label for='description' class='label_above'>" .
 						wfMessage( 'achievement_description' )->escaped() .
@@ -204,7 +205,7 @@ class TemplateManageAchievements {
 						value='" . htmlentities( $achievement->getDescription(), ENT_QUOTES ) . "' />
 
 					" . ( isset( $errors['category'] ) ?
-				'<span class="error">' . $errors['category'] . '</span>' :
+				'<span class="error">' . htmlspecialchars( $errors['category'], ENT_QUOTES ) . '</span>' :
 				'' ) . "
 					<label for='category' class='label_above'>" .
 						 wfMessage( 'achievement_category' )->escaped() .
@@ -232,11 +233,15 @@ class TemplateManageAchievements {
 
 		}
 
-		$HTML .= ( isset( $errors['image'] ) ? '<span class="error">' . $errors['image'] . '</span>' : '' ) . "
+		$HTML .= ( isset( $errors['image'] ) ?
+			'<span class="error">' . htmlspecialchars( $errors['image'], ENT_QUOTES ) . '</span>' : '' ) . "
 			<div id='image_upload'>
-				<img id='image_loading' src='" . MediaWikiServices::getInstance()->getUrlUtils()->expand(
-					$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
-			) . "'/>
+				<img id='image_loading' src='" . htmlspecialchars(
+					MediaWikiServices::getInstance()->getUrlUtils()->expand(
+						$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
+					),
+					ENT_QUOTES
+				) . "'/>
 				<p class='image_hint'>" . wfMessage( 'image_hint' )->escaped() . "</p>
 			</div>
 			<label for='image' class='label_above'>"
@@ -248,7 +253,8 @@ class TemplateManageAchievements {
 			type='text'
 			value='" . htmlentities( $achievement->getImage(), ENT_QUOTES ) . "' />
 
-			" . ( isset( $errors['points'] ) ? '<span class="error">' . $errors['points'] . '</span>' : '' ) . "
+			" . ( isset( $errors['points'] ) ?
+				'<span class="error">' . htmlspecialchars( $errors['points'], ENT_QUOTES ) . '</span>' : '' ) . "
 			<label for='points' class='label_above'>" .
 				 wfMessage( 'achievement_points' )->escaped() .
 				 "<div class='helper_mark'><span>" . wfMessage( 'points_help' ) . "</span></div></label>
@@ -359,8 +365,9 @@ class TemplateManageAchievements {
 					 ) . ">True</option>
 				</select>
 
-				" . ( isset( $errors['date_range_start'] ) ? '<span class="error">' . $errors['date_range_start'] .
-															 '</span>' : '' ) . "
+				" . ( isset( $errors['date_range_start'] ) ?
+					'<span class="error">' . htmlspecialchars( $errors['date_range_start'], ENT_QUOTES ) .
+					'</span>' : '' ) . "
 				<label for='date_range_start' class='label_above'>" .
 					 wfMessage( 'criteria_not_before' )->escaped() . "</label>
 				<input id='date_range_start_datepicker' data-input='date_range_start' type='text' value='" .
@@ -379,7 +386,7 @@ class TemplateManageAchievements {
 
 				" . (
 					isset( $errors['date_range_end'] ) ?
-						'<span class="error">' . $errors['date_range_end'] . '</span>' :
+						'<span class="error">' . htmlspecialchars( $errors['date_range_end'], ENT_QUOTES ) . '</span>' :
 						'' ) . "
 				<label for='date_range_end' class='label_above'>" .
 					 wfMessage( 'criteria_not_after' )->escaped() .
@@ -516,13 +523,17 @@ class TemplateManageAchievements {
 			}
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
 				}
 			}
 		} elseif ( $form['success'] !== null ) {
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
 				}
 			} else {
 				$HTML .= "<div class='errorbox'>" .
@@ -537,7 +548,7 @@ class TemplateManageAchievements {
 								 'UTF-8'
 							 )
 						 )->escaped() . "
-					<br />" . $form['success']['message'] . "
+					<br />" . htmlspecialchars( $form['success']['message'], ENT_QUOTES ) . "
 					</div>";
 			}
 		}
@@ -549,7 +560,7 @@ class TemplateManageAchievements {
 				<legend>" . wfMessage( 'award_hint' )->escaped() . "</legend>";
 		if ( isset( $form['errors']['username'] ) ) {
 			foreach ( $form['errors']['username'] as $err ) {
-				$HTML .= '<span class="error">' . $err . '</span><br/>';
+				$HTML .= '<span class="error">' . htmlspecialchars( $err, ENT_QUOTES ) . '</span><br/>';
 			}
 		}
 				$HTML .= "<label for='offset'>" . wfMessage( 'local_username' )->escaped() . "</label>
@@ -557,12 +568,15 @@ class TemplateManageAchievements {
 					id='username_list'
 					name='username'
 					placeholder='Single username, or comma delimited list of usernames.'>" .
-						 ( isset( $form['save']['username'] ) ? $form['save']['username'] : '' ) . "</textarea>";
+						 ( isset( $form['save']['username'] ) ?
+						 	htmlspecialchars( $form['save']['username'], ENT_QUOTES ) : '' ) . "</textarea>";
 		if ( is_array( $achievements ) && count( $achievements ) ) {
 			$HTML .= "
 				" . (
 					isset( $form['errors']['achievement_id'] ) ?
-						'<span class="error">' . $form['errors']['achievement_id'] . '</span><br/>' : '' ) . "
+						'<span class="error">' .
+						htmlspecialchars( $form['errors']['achievement_id'], ENT_QUOTES ) .
+						'</span><br/>' : '' ) . "
 				<select id='achievement_id' name='achievement_id'>\n";
 			foreach ( $achievements as $key => $achievement ) {
 				$achievementId = $achievement->getId();
