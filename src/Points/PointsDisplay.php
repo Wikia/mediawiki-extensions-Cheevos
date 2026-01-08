@@ -243,20 +243,20 @@ class PointsDisplay {
 						"<a href='" . htmlspecialchars( $userPointsRow->adminUrl, ENT_QUOTES ) . "'>" .
 						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) . "</a>" :
 						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) );
-			if ( $markup == 'badged' ) {
-				$html .= ' ' . Html::element(
-					'img',
-					[
-						'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
-						'alt' => 'GP',
-						'class' => 'GP-brand',
-						'title' => wfMessage( 'pointsicon-tooltip' )->text()
-					]
-				);
+				if ( $markup == 'badged' ) {
+					$html .= ' ' . Html::element(
+						'img',
+						[
+							'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
+							'alt' => 'GP',
+							'class' => 'GP-brand',
+							'title' => wfMessage( 'pointsicon-tooltip' )->text()
+						]
+						);
+				}
+				break;
 			}
 			break;
-		}
-		break;
 			case 'table':
 			default:
 				$pagination = '';
