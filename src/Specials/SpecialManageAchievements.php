@@ -216,14 +216,14 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$name = $request->getText( 'name' );
 		if ( !$name || strlen( $name ) > 50 ) {
-			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->escaped();
+			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->text();
 		} else {
 			$achievement->setName( $name );
 		}
 
 		$description = $request->getText( 'description' );
 		if ( !$description || strlen( $description ) > 150 ) {
-			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->escaped();
+			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->text();
 		} else {
 			$achievement->setDescription( $description );
 		}
@@ -269,7 +269,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		if ( $category === false ) {
-			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->escaped();
+			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->text();
 		}
 
 		$achievement->setSecret( $request->getBool( 'secret' ) );
@@ -445,7 +445,7 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( empty( $username ) ) {
 			$errors[] = [
 				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_user' )->escaped()
+				'message' => $this->msg( 'error_award_bad_user' )->text()
 			];
 		}
 
@@ -454,7 +454,7 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( $achievement === false ) {
 			$errors[] = [
 				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
+				'message' => $this->msg( 'error_award_bad_achievement' )->text()
 			];
 		}
 
@@ -469,7 +469,7 @@ class SpecialManageAchievements extends SpecialPage {
 			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 				$errors[] = [
 					'username' => $getUser,
-					'message' => $this->msg( 'error_award_bad_user' )->escaped()
+					'message' => $this->msg( 'error_award_bad_user' )->text()
 				];
 				continue;
 			}

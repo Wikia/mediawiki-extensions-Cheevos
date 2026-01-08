@@ -92,7 +92,7 @@ class TemplatePointsComp {
 							'comp_report_link',
 							$report->getReportId(),
 							gmdate( 'Y-m-d', $report->getRunTime() )
-						)->escaped()
+						)->text()
 					) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>

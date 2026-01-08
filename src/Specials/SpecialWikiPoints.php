@@ -53,7 +53,7 @@ class SpecialWikiPoints extends SpecialPage {
 			if ( $userIdentity && $userIdentity->isRegistered() ) {
 				$globalId = $userIdentity->getId();
 			} else {
-				$error = $this->msg( 'error_wikipoints_user_not_found' )->escaped();
+				$error = $this->msg( 'error_wikipoints_user_not_found' )->text();
 			}
 		}
 
