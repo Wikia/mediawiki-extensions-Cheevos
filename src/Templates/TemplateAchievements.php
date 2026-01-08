@@ -46,7 +46,7 @@ class TemplateAchievements {
 				<div class='button_bar'>
 					<div class='button_break'></div>
 					<div class='buttons_right'>
-						<a href='$manageAchievementsURL' class='mw-ui-button'>
+						<a href='" . htmlspecialchars( $manageAchievementsURL, ENT_QUOTES ) . "' class='mw-ui-button'>
 						" . wfMessage( 'manageachievements' ) . "
 						</a>
 					</div>
@@ -265,20 +265,26 @@ class TemplateAchievements {
 					$HTML .= "
 					<div class='p-achievement-admin'>
 						" . ( $showRevert ? "<span class='p-achievement-revert'>
-							<a href='{$manageAchievementsURL}/revert?aid={$achievement->getId()}'
-							 class='mw-ui-button'>" .
+							<a href='" . htmlspecialchars(
+								$manageAchievementsURL . '/revert?aid=' . $achievement->getId(),
+								ENT_QUOTES
+							) . "' class='mw-ui-button'>" .
 											wfMessage( 'revert_custom_achievement' )->escaped() .
 							"</a></span>" : '' ) . "
 						<span class='p-achievement-delete'>
 						<a
-							href='{$manageAchievementsURL}/delete?aid={$achievement->getId()}'
-							class='mw-ui-button mw-ui-destructive'>"
+							href='" . htmlspecialchars(
+								$manageAchievementsURL . '/delete?aid=' . $achievement->getId(),
+								ENT_QUOTES
+							) . "' class='mw-ui-button mw-ui-destructive'>"
 								. wfMessage( 'delete_achievement' )->escaped() . "
 							</a>
 						</span>
 						<span class='p-achievement-edit'>
-							<a href='{$manageAchievementsURL}/edit?aid={$achievement->getId()}'
-							   class='mw-ui-button mw-ui-constructive'>
+							<a href='" . htmlspecialchars(
+								$manageAchievementsURL . '/edit?aid=' . $achievement->getId(),
+								ENT_QUOTES
+							) . "' class='mw-ui-button mw-ui-constructive'>
 							   " . wfMessage( 'edit_achievement' )->escaped()
 							 . "</a>
 						</span>
@@ -287,8 +293,10 @@ class TemplateAchievements {
 					$HTML .= "
 					<div class='p-achievement-admin'>
 						<span class='p-achievement-restore'>
-						<a href='{$manageAchievementsURL}/restore?aid={$achievement->getId()}'
-						 class='mw-ui-button'>" . wfMessage( 'restore_achievement' )->escaped() . "</a></span>
+						<a href='" . htmlspecialchars(
+							$manageAchievementsURL . '/restore?aid=' . $achievement->getId(),
+							ENT_QUOTES
+						) . "' class='mw-ui-button'>" . wfMessage( 'restore_achievement' )->escaped() . "</a></span>
 					</div>";
 				}
 

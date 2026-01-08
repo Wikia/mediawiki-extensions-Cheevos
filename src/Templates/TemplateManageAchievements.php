@@ -63,15 +63,18 @@ class TemplateManageAchievements {
 			<div class='button_break'></div>
 			<div class='buttons_right'>
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>" .
+					"<a href='" . htmlspecialchars( $achievementsURL . '/invalidatecache', ENT_QUOTES ) .
+					"' class='mw-ui-button mw-ui-destructive'>" .
 					wfMessage( 'invalidatecache_achievement' ) .
 					"</a>" : null ) . "
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='{$achievementsURL}/award' class='mw-ui-button'>" .
+					"<a href='" . htmlspecialchars( $achievementsURL . '/award', ENT_QUOTES ) .
+					"' class='mw-ui-button'>" .
 					wfMessage( 'award_achievement' ) .
 					"</a>" : null ) . "
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>" .
+					"<a href='" . htmlspecialchars( $achievementsURL . '/add', ENT_QUOTES ) .
+					"' class='mw-ui-button mw-ui-progressive'>" .
 					wfMessage( 'add_achievement' ) .
 					"</a>" : null ) . "
 			</div>
@@ -172,7 +175,7 @@ class TemplateManageAchievements {
 				id='achievement_form'
 				class=\"pure-form pure-form-stacked\"
 				method='post'
-				action='{$achievementsURL}/admin?do=save'>
+				action='" . htmlspecialchars( $achievementsURL . '/admin?do=save', ENT_QUOTES ) . "'>
 				<fieldset>
 					" . ( isset( $errors['name'] ) ? '<span class="error">' . $errors['name'] . '</span>' : '' ) . "
 					<label for='name' class='label_above'>" .
@@ -476,7 +479,7 @@ class TemplateManageAchievements {
 		$targetUrl = SpecialPage::getSafeTitleFor( 'ManageAchievements', $action )->getFullURL();
 
 		return "
-		<form method='post' action='$targetUrl'>
+		<form method='post' action='" . htmlspecialchars( $targetUrl, ENT_QUOTES ) . "'>
 			" . wfMessage( $action . '_achievement_confirm' )->escaped() . "<br/>
 			<input type='hidden' name='confirm' value='true'/>
 			<input type='hidden' name='aid' value='{$achievement->getId()}'/>
@@ -540,7 +543,8 @@ class TemplateManageAchievements {
 		}
 
 		$HTML .= "
-		<form action='$awardUrl' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>
+		<form action='" . htmlspecialchars( $awardUrl, ENT_QUOTES ) .
+		"' id='mw-awardachievement-form' method='post' name='mw-awardachievement-form'>
 			<fieldset>
 				<legend>" . wfMessage( 'award_hint' )->escaped() . "</legend>";
 		if ( isset( $form['errors']['username'] ) ) {

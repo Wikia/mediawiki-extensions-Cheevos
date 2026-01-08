@@ -31,7 +31,8 @@ class TemplateWikiPointsAdmin {
 			$html .= "<div class='errorbox'>$error</div>";
 		}
 		return $html . "
-		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='" . $title->getFullURL() . "'>
+		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='" .
+		htmlspecialchars( $title->getFullURL(), ENT_QUOTES ) . "'>
 			<div class='mw-ui-vform-field'>
 				<input type='text'
 				 name='user'
@@ -69,7 +70,7 @@ class TemplateWikiPointsAdmin {
 		if ( $currentUser->isAllowed( 'wpa_adjust_points' ) ) {
 			$html .= "
 		<div id='wpa_user_controls'>
-			<form method='post' action='" . $wpaPage->getFullURL() . "'>
+			<form method='post' action='" . htmlspecialchars( $wpaPage->getFullURL(), ENT_QUOTES ) . "'>
 				<fieldset>
 					<input type='hidden' name='action' value='adjust'>
 					<input type='hidden' name='user' value='$escapedUserName'>

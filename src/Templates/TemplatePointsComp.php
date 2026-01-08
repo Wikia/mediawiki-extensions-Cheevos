@@ -44,7 +44,7 @@ class TemplatePointsComp {
 				 "</dd>
 			</dl>
 		</div>
-		<form method='post' action='$pointsCompURL'>
+		<form method='post' action='" . htmlspecialchars( $pointsCompURL, ENT_QUOTES ) . "'>
 			<fieldset>
 				<legend>" . wfMessage( 'run_new_report' )->escaped() . "</legend>
 				<label for='start_time'>" . wfMessage( 'start_time' )->escaped() . "</label>
@@ -142,7 +142,10 @@ class TemplatePointsComp {
 		$html .= "
 		<div class='button_bar'>
 			<div class='buttons_left'>
-				<a href='{$pointsCompPage->getFullURL(['csv' => 1])}' class='mw-ui-button'>" .
+				<a href='" . htmlspecialchars(
+					$pointsCompPage->getFullURL( [ 'csv' => 1 ] ),
+					ENT_QUOTES
+				) . "' class='mw-ui-button'>" .
 				 wfMessage( 'download_report_csv' ) .
 				 "</a>
 			</div>
