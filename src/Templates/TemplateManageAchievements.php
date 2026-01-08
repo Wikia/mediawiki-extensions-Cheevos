@@ -569,7 +569,7 @@ class TemplateManageAchievements {
 					name='username'
 					placeholder='Single username, or comma delimited list of usernames.'>" .
 						 ( isset( $form['save']['username'] ) ?
-						 	htmlspecialchars( $form['save']['username'], ENT_QUOTES ) : '' ) . "</textarea>";
+							htmlspecialchars( $form['save']['username'], ENT_QUOTES ) : '' ) . "</textarea>";
 		if ( is_array( $achievements ) && count( $achievements ) ) {
 			$HTML .= "
 				" . (
