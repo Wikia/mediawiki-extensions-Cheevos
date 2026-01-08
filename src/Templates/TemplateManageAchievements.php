@@ -563,13 +563,13 @@ class TemplateManageAchievements {
 				$HTML .= '<span class="error">' . htmlspecialchars( $err, ENT_QUOTES ) . '</span><br/>';
 			}
 		}
-				$HTML .= "<label for='offset'>" . wfMessage( 'local_username' )->escaped() . "</label>
+		$HTML .= "<label for='offset'>" . wfMessage( 'local_username' )->escaped() . "</label>
 				<textarea
 					id='username_list'
 					name='username'
 					placeholder='Single username, or comma delimited list of usernames.'>" .
 						 ( isset( $form['save']['username'] ) ?
-						 	htmlspecialchars( $form['save']['username'], ENT_QUOTES ) : '' ) . "</textarea>";
+							htmlspecialchars( $form['save']['username'], ENT_QUOTES ) : '' ) . "</textarea>";
 		if ( is_array( $achievements ) && count( $achievements ) ) {
 			$HTML .= "
 				" . (
