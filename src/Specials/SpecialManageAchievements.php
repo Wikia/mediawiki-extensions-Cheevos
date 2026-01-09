@@ -472,22 +472,22 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$errors = [];
-		$username = $request->getVal( 'username' );
-		if ( empty( $username ) ) {
-			$errors[] = [
-				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_user' )->escaped()
-			];
-		}
+	$username = $request->getVal( 'username' );
+	if ( empty( $username ) ) {
+		$errors[] = [
+			'username' => $username,
+			'message' => $this->msg( 'error_award_bad_user' )->text()
+		];
+	}
 
-		$achievementId = $request->getInt( 'achievement_id' );
-		$achievement = $this->achievementService->getAchievement( $achievementId );
-		if ( !$achievement ) {
-			$errors[] = [
-				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
-			];
-		}
+	$achievementId = $request->getInt( 'achievement_id' );
+	$achievement = $this->achievementService->getAchievement( $achievementId );
+	if ( !$achievement ) {
+		$errors[] = [
+			'username' => $username,
+			'message' => $this->msg( 'error_award_bad_achievement' )->text()
+		];
+	}
 
 		$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
 		if ( count( $errors ) ) {
@@ -495,15 +495,15 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		$awarded = [];
-		foreach ( explode( ',', $username ) as $getUser ) {
-			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( trim( $getUser ) );
-			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
-				$errors[] = [
-					'username' => $getUser,
-					'message' => $this->msg( 'error_award_bad_user' )->escaped()
-				];
-				continue;
-			}
+	foreach ( explode( ',', $username ) as $getUser ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByName( trim( $getUser ) );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
+			$errors[] = [
+				'username' => $getUser,
+				'message' => $this->msg( 'error_award_bad_user' )->text()
+			];
+			continue;
+		}
 
 			$globalId = $userIdentity->getId();
 			$award = [];
@@ -561,7 +561,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$award['username'] = $userIdentity->getName();
 			$awarded[] = $award;
-		}
+	}
 
 		return [ 'save' => $save, 'errors' => $errors, 'success' => $awarded ];
 	}
