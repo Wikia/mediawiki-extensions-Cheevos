@@ -4,7 +4,6 @@
 * **Bugs:** [Hydra GitLab Project](https://gitlab.com/hydrawiki/extensions/cheevos/issues)
 * **Licensing:** Cheevos is released under the [GNU GPLv2](https://gitlab.com/hydrawiki/extensions/cheevos/blob/develop/LICENSE).
 
-
 # Installation
 
 Download and place the file(s) in a directory called Achievements in your extensions/ folder.
@@ -18,7 +17,6 @@ For Mediawiki 1.25 and higher installations use the wfLoadExtensions() function 
 `wfLoadExtensions(['Achievements']);`
 
 Done! Navigate to "Special:Version" on the wiki to verify that the extension is successfully installed.
-
 
 # Configuration
 
