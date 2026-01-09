@@ -256,7 +256,7 @@ class PointsDisplay {
 				}
 				break;
 			}
-		break;
+				break;
 			case 'table':
 			default:
 				$pagination = '';
