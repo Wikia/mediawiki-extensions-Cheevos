@@ -57,26 +57,26 @@ class SpecialWikiPoints extends SpecialPage {
 			}
 		}
 
-		$subPage = $subPage ?? '';
-		$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
-		$isMonthly = in_array( 'monthly', $modifiers );
-		$isGlobal = in_array( 'global', $modifiers );
+	$subPage ??= '';
+	$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
+	// @phan-suppress-next-line PhanDeprecatedFunction
+	$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
+	$isMonthly = in_array( 'monthly', $modifiers );
+	$isGlobal = in_array( 'global', $modifiers );
 
-		$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subPage );
-		$output->setPageTitle(
-			$this->msg(
-				'top_wiki_editors' .
-				( $isGlobal ? '_global' : '' ) .
-				( $isSitesMode ? '_sites' : '' ) .
-				( $isMonthly ? '_monthly' : '' )
-			) );
+	$thisPage = SpecialPage::getTitleFor( 'WikiPoints', $subPage );
+	$output->setPageTitle(
+		$this->msg(
+			'top_wiki_editors' .
+			( $isGlobal ? '_global' : '' ) .
+			( $isSitesMode ? '_sites' : '' ) .
+			( $isMonthly ? '_monthly' : '' )
+		) );
 
-		$html = TemplateWikiPoints::getWikiPointsLinks();
-		if ( !$isMonthly ) {
-			$html .= TemplateWikiPointsAdmin::userSearch( $thisPage, $error, $username ) . "<hr/>";
-		}
+	$html = TemplateWikiPoints::getWikiPointsLinks();
+	if ( !$isMonthly ) {
+		$html .= TemplateWikiPointsAdmin::userSearch( $thisPage, $error, $username ?? '' ) . "<hr/>";
+	}
 		$html .= PointsDisplay::pointsBlockHtml(
 			$isSitesMode || $isGlobal ? null : CheevosHelper::getSiteKey(),
 			$globalId,

@@ -30,31 +30,35 @@ class CheevosClient {
 		return $this->sendRequest( 'DELETE', $path, $data );
 	}
 
-	private function sendRequest( string $type, string $path, array $data ): array {
-		$type = strtoupper( $type );
-		$uri = "$this->serviceUrl/$path";
-		$options = [
-			RequestOptions::HEADERS => $this->headers,
-			RequestOptions::TIMEOUT => 10,
-		];
+private function sendRequest( string $type, string $path, array $data ): array {
+	$type = strtoupper( $type );
+	$uri = "$this->serviceUrl/$path";
+	// @phan-suppress-next-line PhanUndeclaredClassConstant
+	$options = [
+		RequestOptions::HEADERS => $this->headers,
+		// @phan-suppress-next-line PhanUndeclaredClassConstant
+		RequestOptions::TIMEOUT => 10,
+	];
 
-		if ( in_array( $type, [ 'DELETE', 'GET' ] ) && !empty( $data ) ) {
-			$uri .= '/?' . http_build_query( $data );
-		} else {
-			$options[ RequestOptions::BODY ] = json_encode( $data );
-		}
+	if ( in_array( $type, [ 'DELETE', 'GET' ] ) && !empty( $data ) ) {
+		$uri .= '/?' . http_build_query( $data );
+	} else {
+		// @phan-suppress-next-line PhanUndeclaredClassConstant
+		$options[ RequestOptions::BODY ] = json_encode( $data );
+	}
 
-		try {
-			$response = $this->httpClient->request( $type, $uri, $options );
-		} catch ( GuzzleException $e ) {
+	try {
+		$response = $this->httpClient->request( $type, $uri, $options );
+		// @phan-suppress-next-line PhanUndeclaredClassCatch
+	} catch ( GuzzleException $e ) {
 			if ( $e->getCode() === 503 || $e->getCode() === 0 ) {
 				throw new CheevosException( 'Cheevos Service Unavailable', $e->getCode() );
 			}
 			throw new CheevosException( $e->getMessage(), $e->getCode() );
-		}
+	}
 
 		return json_decode( $response->getBody(), true );
-	}
+}
 
 	/**
 	 * @param array $data - provided data

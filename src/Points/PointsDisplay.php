@@ -73,27 +73,27 @@ class PointsDisplay {
 
 		$globalId = null;
 		if ( !empty( $user ) ) {
-			$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
-				->getUserIdentityByName( $user );
-			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
-				return [
-					wfMessage( 'user_not_found' )->escaped(),
-					'isHTML' => true,
-				];
-			}
-
-			$globalId = $userIdentity->getId();
+		$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
+			->getUserIdentityByName( $user );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
+			return [
+				0 => wfMessage( 'user_not_found' )->escaped(),
+				'isHTML' => true,
+			];
 		}
 
-		$siteKey = $wikis !== 'all' && $wikis !== 'global' ? $dsSiteKey : null;
-		$isSitesMode = false;
+		$globalId = $userIdentity->getId();
+		}
 
-		$html = self::pointsBlockHtml( $siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup );
+	$siteKey = $wikis !== 'all' && $wikis !== 'global' ? $dsSiteKey : null;
+	$isSitesMode = false;
 
-		return [
-			$html,
-			'isHTML' => true,
-		];
+	$html = self::pointsBlockHtml( $siteKey, $globalId, $limit, 0, $isSitesMode, false, $markup );
+
+	return [
+		0 => $html,
+		'isHTML' => true,
+	];
 	}
 
 	/**
@@ -196,19 +196,23 @@ class PointsDisplay {
 
 			$localDomain = trim( $wgServer, '/' );
 			foreach ( $userPoints as $key => $userPointsRow ) {
-				if (
-					$userPointsRow->siteKey != $dsSiteKey &&
-					 !empty( $userPointsRow->userLink ) &&
-					 isset( $wikis[$userPointsRow->siteKey] )
-				) {
-					$domain = parse_url( $wikis[$userPointsRow->siteKey]->getWikiUrl() )['host'];
-					$userPoints[$key]->userToolsLinks = str_replace(
-						$localDomain,
-						$domain,
-						$userPoints[$key]->userToolsLinks
-					);
-					$userPoints[$key]->userLink = str_replace(
-						$localDomain,
+			if (
+				$userPointsRow->siteKey != $dsSiteKey &&
+				 !empty( $userPointsRow->userLink ) &&
+				 isset( $wikis[$userPointsRow->siteKey] )
+			) {
+				$parsedUrl = parse_url( $wikis[$userPointsRow->siteKey]->getWikiUrl() );
+				if ( $parsedUrl === false || !isset( $parsedUrl['host'] ) ) {
+					continue;
+				}
+				$domain = $parsedUrl['host'];
+				$userPoints[$key]->userToolsLinks = str_replace(
+					$localDomain,
+					$domain,
+					$userPoints[$key]->userToolsLinks
+				);
+				$userPoints[$key]->userLink = str_replace(
+					$localDomain,
 						"https://" . $domain,
 						$userPoints[$key]->userLink
 					);
@@ -222,7 +226,7 @@ class PointsDisplay {
 						'href="https://' . $domain . '/',
 						$userPoints[$key]->userLink
 					);
-				}
+			}
 			}
 		}
 

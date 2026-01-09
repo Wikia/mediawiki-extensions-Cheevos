@@ -61,93 +61,95 @@ class SpecialAchievements extends SpecialPage {
 		// Just a helper to fix cases of missed achievements.
 		$this->sendUnnotifiedAchievements( $targetUser );
 
-		$output->addHTML( $this->achievementsList( $targetUser ) );
-		$output->setPageTitle( $this->msg( 'achievements-title-for', $targetUser->getName() )->escaped() );
+	$output->addHTML( $this->achievementsList( $targetUser ) );
+	$output->setPageTitle( $this->msg( 'achievements-title-for', $targetUser->getName() )->escaped() );
 	}
 
-	private function achievementsList( UserIdentity $targetUser ): string {
-		$userId = $targetUser->getId();
+private function achievementsList( UserIdentity $targetUser ): string {
+	$userId = $targetUser->getId();
+	$siteKey = $this->siteKey ?? '';
 
-		try {
-			$_statuses = $this->achievementService->getAchievementStatus( $userId, $this->siteKey );
-			$achievements = $this->achievementService->getAchievements( $this->siteKey );
-		} catch ( CheevosException $e ) {
-			throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
-		}
-
-		$categories = [];
-		if ( !empty( $achievements ) ) {
-			foreach ( $achievements as $achievement ) {
-				if ( !array_key_exists( $achievement->getCategory()->getId(), $categories ) ) {
-					$categories[$achievement->getCategory()->getId()] = $achievement->getCategory();
-				}
-			}
-		}
-
-		// Fix requires achievement child IDs for display purposes.
-		$achievements = CheevosAchievement::correctCriteriaChildAchievements( $achievements );
-		// Remove achievements that should not be shown in this context.
-		[ $achievements, $_statuses ] = CheevosAchievement::pruneAchievements( [ $achievements, $_statuses ] );
-
-		// @TODO: This fuckery of the $statuses array is backwards compatibility for the template.
-		//  If we fix the template to be able to handle more than one wiki at a time
-		// this piece of code needs to be removed.
-		$statuses = [];
-		if ( !empty( $_statuses ) ) {
-			foreach ( $_statuses as $_status ) {
-				$statuses[$_status->getAchievement_Id()] = $_status;
-			}
-		}
-
-		return ( new TemplateAchievements() )->achievementsList(
-			$this->getUser(),
-			$achievements,
-			$categories,
-			$statuses
-		);
+	try {
+		$_statuses = $this->achievementService->getAchievementStatus( $userId, $siteKey );
+		$achievements = $this->achievementService->getAchievements( $siteKey );
+	} catch ( CheevosException $e ) {
+		throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
 	}
 
-	private function sendUnnotifiedAchievements( UserIdentity $userIdentity ): void {
-		$userId = $userIdentity->getId();
-		try {
-			$check = $this->achievementService->checkUnnotified( $userId, $this->siteKey, true );
-			if ( isset( $check['earned'] ) ) {
-				foreach ( $check['earned'] as $earned ) {
-					$earnedAchievement = new CheevosAchievement( $earned );
-					$this->achievementService->broadcastAchievement( $earnedAchievement, $this->siteKey, $userId );
-				}
+	$categories = [];
+	if ( !empty( $achievements ) ) {
+		foreach ( $achievements as $achievement ) {
+			if ( !array_key_exists( $achievement->getCategory()->getId(), $categories ) ) {
+				$categories[$achievement->getCategory()->getId()] = $achievement->getCategory();
 			}
-		} catch ( CheevosException $e ) {
-			throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
 		}
 	}
 
-	private function getTargetUser( ?string $subPage ): UserIdentity {
-		if ( !empty( $subPage ) && !is_numeric( $subPage ) ) {
-			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $subPage );
-			if ( $userIdentity && $userIdentity->isRegistered() ) {
-				return $userIdentity;
-			}
-			throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
-		}
+	// Fix requires achievement child IDs for display purposes.
+	$achievements = CheevosAchievement::correctCriteriaChildAchievements( $achievements );
+	// Remove achievements that should not be shown in this context.
+	[ $achievements, $_statuses ] = CheevosAchievement::pruneAchievements( [ $achievements, $_statuses ] );
 
-		if ( (int)$subPage > 0 ) {
-			$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( (int)$subPage );
-			if ( $userIdentity && $userIdentity->isRegistered() ) {
-				return $userIdentity;
-			}
-			throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
+	// @TODO: This fuckery of the $statuses array is backwards compatibility for the template.
+	//  If we fix the template to be able to handle more than one wiki at a time
+	// this piece of code needs to be removed.
+	$statuses = [];
+	if ( !empty( $_statuses ) ) {
+		foreach ( $_statuses as $_status ) {
+			$statuses[$_status->getAchievement_Id()] = $_status;
 		}
-
-		if ( $this->getUser()->isRegistered() ) {
-			return $this->getUser();
-		}
-
-		throw new UserNotLoggedIn( 'login_to_display_achievements', 'achievements' );
 	}
 
-	/** @inheritDoc */
-	protected function getGroupName() {
-		return 'users';
+	return ( new TemplateAchievements() )->achievementsList(
+		$this->getUser(),
+		$achievements,
+		$categories,
+		$statuses
+	);
+}
+
+private function sendUnnotifiedAchievements( UserIdentity $userIdentity ): void {
+	$userId = $userIdentity->getId();
+	$siteKey = $this->siteKey ?? '';
+	try {
+		$check = $this->achievementService->checkUnnotified( $userId, $siteKey, true );
+		if ( isset( $check['earned'] ) ) {
+			foreach ( $check['earned'] as $earned ) {
+				$earnedAchievement = new CheevosAchievement( $earned );
+				$this->achievementService->broadcastAchievement( $earnedAchievement, $siteKey, $userId );
+			}
+		}
+	} catch ( CheevosException $e ) {
+		throw new ErrorPageError( 'achievements', 'error_cheevos_service', [ $e->getMessage() ] );
 	}
+}
+
+private function getTargetUser( ?string $subPage ): UserIdentity {
+	if ( !empty( $subPage ) && !is_numeric( $subPage ) ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $subPage );
+		if ( $userIdentity && $userIdentity->isRegistered() ) {
+			return $userIdentity;
+		}
+		throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
+	}
+
+	if ( (int)$subPage > 0 ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( (int)$subPage );
+		if ( $userIdentity && $userIdentity->isRegistered() ) {
+			return $userIdentity;
+		}
+		throw new ErrorPageError( 'achievements', 'no_user_to_display_achievements' );
+	}
+
+	if ( $this->getUser()->isRegistered() ) {
+		return $this->getUser();
+	}
+
+	throw new UserNotLoggedIn( 'login_to_display_achievements', 'achievements' );
+}
+
+/** @inheritDoc */
+protected function getGroupName() {
+	return 'users';
+}
 }

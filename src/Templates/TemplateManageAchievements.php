@@ -234,16 +234,16 @@ class TemplateManageAchievements {
 
 		}
 
-		$HTML .= ( isset( $errors['image'] ) ?
-			'<span class="error">' . htmlspecialchars( $errors['image'], ENT_QUOTES ) . '</span>' : '' ) . "
-			<div id='image_upload'>
-				<img id='image_loading' src='" . htmlspecialchars(
-					MediaWikiServices::getInstance()->getUrlUtils()->expand(
-						$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
-					),
-					ENT_QUOTES
-				) . "'/>
-				<p class='image_hint'>" . wfMessage( 'image_hint' )->escaped() . "</p>
+	$HTML .= ( isset( $errors['image'] ) ?
+		'<span class="error">' . htmlspecialchars( $errors['image'], ENT_QUOTES ) . '</span>' : '' ) . "
+		<div id='image_upload'>
+			<img id='image_loading' src='" . htmlspecialchars(
+				MediaWikiServices::getInstance()->getUrlUtils()->expand(
+					$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
+				) ?? '',
+				ENT_QUOTES
+			) . "'/>
+			<p class='image_hint'>" . wfMessage( 'image_hint' )->escaped() . "</p>
 			</div>
 			<label for='image' class='label_above'>"
 				 . wfMessage( 'achievement_image' )->escaped() .
@@ -378,17 +378,17 @@ class TemplateManageAchievements {
 							 htmlentities(
 								 gmdate( 'Y-m-d', $criteria['date_range_start'] ),
 								 ENT_QUOTES
-							 ) : '' ) . "'/>
-				<input
-					id='date_range_start'
-					name='date_range_start'
-					type='hidden'
-					value='" . htmlentities( $criteria['date_range_start'], ENT_QUOTES ) . "'/>
+						 ) : '' ) . "'/>
+			<input
+				id='date_range_start'
+				name='date_range_start'
+				type='hidden'
+				value='" . htmlentities( $criteria['date_range_start'] ?? '', ENT_QUOTES ) . "'/>
 
-				" . (
-					isset( $errors['date_range_end'] ) ?
-						'<span class="error">' . htmlspecialchars( $errors['date_range_end'], ENT_QUOTES ) . '</span>' :
-						'' ) . "
+			" . (
+				isset( $errors['date_range_end'] ) ?
+					'<span class="error">' . htmlspecialchars( $errors['date_range_end'], ENT_QUOTES ) . '</span>' :
+					'' ) . "
 				<label for='date_range_end' class='label_above'>" .
 					 wfMessage( 'criteria_not_after' )->escaped() .
 					 "</label>
@@ -403,11 +403,11 @@ class TemplateManageAchievements {
 							ENT_QUOTES ) : ''
 						) . "'/>
 				<input
-					id='date_range_end'
-					name='date_range_end'
-					type='hidden'
-					value='" . htmlentities( $criteria['date_range_end'], ENT_QUOTES ) . "'/>
-				";
+				id='date_range_end'
+				name='date_range_end'
+				type='hidden'
+				value='" . htmlentities( $criteria['date_range_end'] ?? '', ENT_QUOTES ) . "'/>
+			";
 
 			if ( $dsSiteKey === 'master' ) {
 				$HTML .= "

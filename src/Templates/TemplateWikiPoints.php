@@ -75,15 +75,15 @@ class TemplateWikiPoints {
 				</tr>";
 			}
 		} else {
-			$html .= "
-				<tr>
-					<td colspan='" . ( 3 + $isSitesMode + $isMonthly ) . "'>" .
-					 wfMessage( 'no_points_results_found' )->escaped() .
-					 "</td>
-				</tr>
-			";
-		}
 		$html .= "
+			<tr>
+				<td colspan='" . ( 3 + (int)$isSitesMode + (int)$isMonthly ) . "'>" .
+				 wfMessage( 'no_points_results_found' )->escaped() .
+				 "</td>
+			</tr>
+		";
+		}
+	$html .= "
 			</tbody>
 		</table>
 		<div>$pagination</div>";

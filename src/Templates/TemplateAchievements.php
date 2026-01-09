@@ -258,17 +258,20 @@ class TemplateAchievements {
 		$HTML .= "
 					</div>";
 		if ( $showControls ) {
-			$manageAchievementsPage = Title::newFromText( 'Special:ManageAchievements' );
-			$manageAchievementsURL = $manageAchievementsPage->getFullURL();
-			if ( $user->isAllowed( 'achievement_admin' ) &&
-				(
-					CheevosHelper::isCentralWiki() ||
-					( !CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal() )
-				)
-			) {
-				if ( !$achievement->isDeleted() ) {
-					$HTML .= "
-					<div class='p-achievement-admin'>
+		$manageAchievementsPage = Title::newFromText( 'Special:ManageAchievements' );
+		$manageAchievementsURL = $manageAchievementsPage->getFullURL();
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		if ( $user->isAllowed( 'achievement_admin' ) &&
+			(
+				// @phan-suppress-next-line PhanDeprecatedFunction
+				CheevosHelper::isCentralWiki() ||
+				// @phan-suppress-next-line PhanDeprecatedFunction
+				( !CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal() )
+			)
+		) {
+			if ( !$achievement->isDeleted() ) {
+				$HTML .= "
+				<div class='p-achievement-admin'>
 						" . ( $showRevert ? "<span class='p-achievement-revert'>
 							<a href='" . htmlspecialchars(
 								$manageAchievementsURL . '/revert?aid=' . $achievement->getId(),
@@ -294,29 +297,30 @@ class TemplateAchievements {
 							 . "</a>
 						</span>
 					</div>";
-				} elseif ( $achievement->isDeleted() && $user->isAllowed( 'restore_achievements' ) ) {
+			} elseif ( $achievement->isDeleted() && $user->isAllowed( 'restore_achievements' ) ) {
 					$HTML .= "
 					<div class='p-achievement-admin'>
 						<span class='p-achievement-restore'>
 						<a href='" . htmlspecialchars(
 							$manageAchievementsURL . '/restore?aid=' . $achievement->getId(),
-							ENT_QUOTES
-						) . "' class='mw-ui-button'>" . wfMessage( 'restore_achievement' )->escaped() . "</a></span>
-					</div>";
-				}
-
+					ENT_QUOTES
+				) . "' class='mw-ui-button'>" . wfMessage( 'restore_achievement' )->escaped() . "</a></span>
+				</div>";
 			}
 
-			if ( !CheevosHelper::isCentralWiki() && ( $achievement->isProtected() || $achievement->isGlobal() ) ) {
-				$HTML .= "<div class='p-achievement-admin'>";
-				if ( $achievement->isProtected() ) {
-					$HTML .= "<p>" . wfMessage( 'edit_disabled_protected' )->escaped() . "</p>";
-				}
+		}
+
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		if ( !CheevosHelper::isCentralWiki() && ( $achievement->isProtected() || $achievement->isGlobal() ) ) {
+			$HTML .= "<div class='p-achievement-admin'>";
+			if ( $achievement->isProtected() ) {
+				$HTML .= "<p>" . wfMessage( 'edit_disabled_protected' )->escaped() . "</p>";
+			}
 				if ( $achievement->isGlobal() ) {
 					$HTML .= "<p>" . wfMessage( 'edit_disabled_global' )->escaped() . "</p>";
 				}
 				$HTML .= "</div>";
-			}
+		}
 		}
 
 		if ( $status !== false && $status->getTotal() > 0 && !$status->isEarned() ) {
@@ -328,16 +332,17 @@ class TemplateAchievements {
 					<div class='p-achievement-progress'>
 						<div class='progress-background'>
 						<div class='progress-bar' style='width: {$width}%;'></div>
-						</div><span>" . $status->getProgress() . "/{$status->getTotal()}</span>
-					</div>";
+				</div><span>" . $status->getProgress() . "/{$status->getTotal()}</span>
+			</div>";
 		}
-		if ( $status !== false && $status->isEarned() ) {
-			$timestamp = new MWTimestamp( $status->getEarned_At() );
-			$HTML .= "
-					<div class='p-achievement-earned'>
-						" . $timestamp->getTimestamp( TS_DB ) . "
-					</div>";
-		}
+	if ( $status !== false && $status->isEarned() ) {
+		// @phan-suppress-next-line PhanParamTooMany
+		$timestamp = new MWTimestamp( $status->getEarned_At() );
+		$HTML .= "
+				<div class='p-achievement-earned'>
+					" . $timestamp->getTimestamp( TS_DB ) . "
+				</div>";
+	}
 		$HTML .= "
 				</div>
 				<span class='p-achievement-points'>

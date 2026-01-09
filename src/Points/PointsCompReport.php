@@ -656,15 +656,15 @@ class PointsCompReport {
 
 		$maxPointThreshold = $this->getMaxPointThreshold();
 		if ( $maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold ) {
-			return;
+		return;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $monthly->getUser_Id() );
-		if ( !$user || $user->getId() < 1 ) {
-			return;
-		}
+	$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $monthly->getUser_Id() );
+	if ( $user === null || $user->getId() < 1 ) {
+		return;
+	}
 
-		$success = false;
+	$success = false;
 
 		$subscription = $this->getSubscription( $user, $gamepediaPro );
 		if ( $subscription['paid'] ) {
@@ -856,9 +856,7 @@ class PointsCompReport {
 			"current_comp_expires > " . time() . " OR new_comp_expires > " . time()
 		],
 		__METHOD__,
-		[
-			'GROUP BY'	=> 'user_id'
-		]
-		);
+		[ 'GROUP BY' => 'user_id' ]
+	);
 	}
 }
