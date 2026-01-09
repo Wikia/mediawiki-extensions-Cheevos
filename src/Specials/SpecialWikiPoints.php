@@ -57,7 +57,9 @@ class SpecialWikiPoints extends SpecialPage {
 			}
 		}
 
+		$subPage = $subPage ?? '';
 		$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
+		// @phan-suppress-next-line PhanDeprecatedFunction
 		$isSitesMode = in_array( 'sites', $modifiers ) && CheevosHelper::isCentralWiki();
 		$isMonthly = in_array( 'monthly', $modifiers );
 		$isGlobal = in_array( 'global', $modifiers );

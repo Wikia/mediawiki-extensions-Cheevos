@@ -465,10 +465,10 @@ class AchievementService {
 			$filters['user_id'] = $userIdentity->getId();
 		}
 
-		if ( $defaultLimit !== null ) {
-			$filters['limit'] = $filters['limit'] ?? $defaultLimit;
-		}
-		return $filters;
+	if ( $defaultLimit !== null ) {
+		$filters['limit'] ??= $defaultLimit;
+	}
+	return $filters;
 	}
 
 	private function makeRedisKey( ...$parts ): string {

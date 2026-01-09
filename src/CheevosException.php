@@ -18,7 +18,7 @@ class CheevosException extends \MWException {
 	 *
 	 * @param string $message
 	 * @param int $code
-	 * @param object    Exception|null $previous
+	 * @param \Exception|null $previous
 	 */
 	public function __construct( $message, $code = 0, \Exception $previous = null ) {
 		parent::__construct( $message, $code, $previous );

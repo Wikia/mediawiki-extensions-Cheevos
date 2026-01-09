@@ -23,8 +23,8 @@ use Title;
  */
 
 class TemplateWikiPointsAdmin {
-	public static function userSearch( Title $title, ?string $error = null, ?string $username ): string {
-		$username = htmlspecialchars( $username );
+	public static function userSearch( Title $title, ?string $error = null, string $username = '' ): string {
+		$username = htmlspecialchars( $username, ENT_QUOTES );
 
 		$html = '';
 		if ( !empty( $error ) ) {

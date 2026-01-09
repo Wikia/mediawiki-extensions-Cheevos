@@ -208,12 +208,13 @@ class PointsCompReport {
 					$stat => 1,
 					'report_id' => $this->reportData['report_id']
 				],
-				__METHOD__
-			);
-			$total = $result->fetchRow();
-			$data[$stat] = (int)$total[ 'total' ];
+			__METHOD__
+		);
+		$total = $result->fetchRow();
+		$data = [];
+		$data[$stat] = (int)$total[ 'total' ];
 		}
-		$db->update(
+	$db->update(
 			'points_comp_report',
 			$data,
 			[ 'report_id' => $this->reportData['report_id'] ],
@@ -468,7 +469,7 @@ class PointsCompReport {
 	 *
 	 * @return bool Report Finished
 	 */
-	public function isFinished(): int {
+	public function isFinished(): bool {
 		return (bool)$this->reportData[ 'finished' ];
 	}
 
@@ -723,13 +724,13 @@ class PointsCompReport {
 	 * @return array Array of boolean status flags.
 	 */
 	public function getSubscription( UserIdentity $userIdentity, SubscriptionProvider $provider ): array {
-		$subscription = $provider->getSubscription( $userIdentity->getId() );
-		if ( !is_array( $subscription ) ) {
-			return [ 'hasSubscription' => false, 'paid' => false, 'expires' => null ];
-		}
+	$subscription = $provider->getSubscription( $userIdentity->getId() );
+	if ( !is_array( $subscription ) ) {
+		return [ 'hasSubscription' => false, 'paid' => false, 'expires' => null ];
+	}
 
-		$expires = $subscription['expires'] !== false ? (int)$subscription['expires']->getTimestamp( TS_UNIX ) : 0;
-		return [
+	$expires = $subscription['expires'] !== false ? (int)$subscription['expires']->getTimestamp() : 0;
+	return [
 			'hasSubscription' => true,
 			'paid' => $subscription['plan_id'] !== 'complimentary',
 			'expires' => $expires
@@ -815,16 +816,13 @@ class PointsCompReport {
 	 * @return bool Success
 	 */
 	public function sendUserEmail( User $user ): bool {
-		$success = false;
+	$success = false;
 
-		$body = [
-			'text' => wfMessage( 'automatic_comp_email_body_text', $user->getName() )->text(),
-			'html' => wfMessage( 'automatic_comp_email_body', $user->getName() )->text()
-		];
-		$status = $user->sendMail( wfMessage( 'automatic_comp_email_subject' )->parse(), $body );
-		if ( $status->isGood() ) {
-			$success = true;
-		}
+	$bodyText = wfMessage( 'automatic_comp_email_body_text', $user->getName() )->text();
+	$status = $user->sendMail( wfMessage( 'automatic_comp_email_subject' )->parse(), $bodyText );
+	if ( $status->isGood() ) {
+		$success = true;
+	}
 
 		if ( $success ) {
 			$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
@@ -850,17 +848,17 @@ class PointsCompReport {
 	 */
 	public static function getNumberOfActiveSubscriptions(): int {
 		$db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
-		return $db->selectRowCount(
-			[ 'points_comp_report_user' ],
-			[ 'user_id' ],
-			[
-				'comp_performed' => 1,
-				"current_comp_expires > " . time() . " OR new_comp_expires > " . time()
-			],
-			__METHOD__,
-			[
-				'GROUP BY'	=> 'user_id'
-			]
+	return $db->selectRowCount(
+		[ 'points_comp_report_user' ],
+		'*',
+		[
+			'comp_performed' => 1,
+			"current_comp_expires > " . time() . " OR new_comp_expires > " . time()
+		],
+		__METHOD__,
+		[
+			'GROUP BY'	=> 'user_id'
+		]
 		);
 	}
 }

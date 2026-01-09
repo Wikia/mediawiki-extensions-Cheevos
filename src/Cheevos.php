@@ -313,7 +313,7 @@ class Cheevos {
 	 *                           - ];
 	 * @param UserIdentity|null $user Filter by user.  Overwrites 'user_id' in $filters if provided.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public static function getAchievementProgress( array $filters = [], ?UserIdentity $user = null ): array {
 		return MediaWikiServices::getInstance()->getService( AchievementService::class )

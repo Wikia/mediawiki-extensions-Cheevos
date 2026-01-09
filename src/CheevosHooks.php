@@ -108,11 +108,11 @@ class CheevosHooks implements
 		string $reason,
 		int $pageID,
 		RevisionRecord $deletedRev,
-		ManualLogEntry $logEntry,
-		int $archivedRevisionCount
-	) {
-		$user = $this->userFactory->newFromAuthority( $deleter );
-		$this->cheevosHelper->increment( 'article_delete', 1, $user );
+	ManualLogEntry $logEntry,
+	int $archivedRevisionCount
+) {
+	$user = $this->userFactory->newFromId( $deleter->getUser()->getId() );
+	$this->cheevosHelper->increment( 'article_delete', 1, $user );
 	}
 
 	/**
@@ -183,12 +183,17 @@ class CheevosHooks implements
 			return;
 		}
 		$siteKey = CheevosHelper::getSiteKey();
-		if ( !$siteKey ) {
-			return;
-		}
+	if ( !$siteKey ) {
+		return;
+	}
 
-		$revertedRev = $this->revisionStore->getRevisionById( $editResult->getNewestRevertedRevisionId() );
-		$oldestRevId = $editResult->getOldestRevertedRevisionId();
+	$newestRevertedRevisionId = $editResult->getNewestRevertedRevisionId();
+	if ( $newestRevertedRevisionId === null ) {
+		return;
+	}
+
+	$revertedRev = $this->revisionStore->getRevisionById( $newestRevertedRevisionId );
+	$oldestRevId = $editResult->getOldestRevertedRevisionId();
 		$editsToRevoke = [];
 		// Revoke every edit that was reverted as a result of this rollback
 		while ( $revertedRev ) {
@@ -323,7 +328,7 @@ class CheevosHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ) {
+	public function onBeforeInitialize( $title, $article, $output, $user, $request, $mediaWiki ) {
 		// Do not track anonymous users for visits. The Cheevos database can not handle it.
 		if ( PHP_SAPI !== 'cli' && !defined( 'MW_API' ) && $user->isRegistered() ) {
 			$this->cheevosHelper->increment( 'visit', 1, $user );

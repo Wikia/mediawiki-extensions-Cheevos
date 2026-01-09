@@ -68,13 +68,14 @@ class TemplateAchievements {
 			return $HTML;
 		}
 
-		$HTML .= "
-			<ul id='achievement_categories'>";
-		$firstCategory = true;
-		foreach ( $categories as $category ) {
-			$categoryId = $category->getId();
-			$categoryHTML[$categoryId] = '';
-			foreach ( $achievements as $achievement ) {
+	$HTML .= "
+		<ul id='achievement_categories'>";
+	$firstCategory = true;
+	$categoryHTML = [];
+	foreach ( $categories as $category ) {
+		$categoryId = $category->getId();
+		$categoryHTML[$categoryId] = '';
+		foreach ( $achievements as $achievement ) {
 				if ( $achievement->getCategoryId() != $categoryId ) {
 					continue;
 				}
@@ -98,7 +99,7 @@ class TemplateAchievements {
 					$statuses,
 					$achievements
 				);
-			}
+		}
 			if ( !empty( $categoryHTML[$categoryId] ) ) {
 				$HTML .= "<li
 					class='achievement_category_select" . ( $firstCategory ? ' begin' : '' ) . "'
@@ -107,7 +108,7 @@ class TemplateAchievements {
 					</li>";
 				$firstCategory = false;
 			}
-		}
+	}
 
 		$HTML .= "
 			</ul>";
@@ -176,10 +177,10 @@ class TemplateAchievements {
 	): string {
 		global $wgAchPointAbbreviation, $wgExtensionAssetsPath;
 
-		$user = RequestContext::getMain()->getUser();
-		$status = ( isset( $statuses[$achievement->getId()] ) ? $statuses[$achievement->getId()] : false );
+	$user = RequestContext::getMain()->getUser();
+	$status = $statuses[$achievement->getId()] ?? false;
 
-		$image = $achievement->getImage();
+	$image = $achievement->getImage();
 		$imageUrl = $achievement->getImageUrl();
 
 		$HTML = "
@@ -206,12 +207,13 @@ class TemplateAchievements {
 						  !empty( $status->getSite_Key() ) ? $status->getSite_Key() : null )
 					), ENT_QUOTES ) . "</span>
 					<span class='p-achievement-description'>" .
-				htmlentities( $achievement->getDescription(), ENT_QUOTES ) .
-				"</span>
-					<div class='p-achievement-requirements'>";
-		if ( count( $achievement->getRequiredBy() ) ) {
-			$_rbInnerHtml = '';
-			foreach ( $achievement->getRequiredBy() as $requiredByAid ) {
+		htmlentities( $achievement->getDescription(), ENT_QUOTES ) .
+		"</span>
+			<div class='p-achievement-requirements'>";
+	$requiredBy = $achievement->getRequiredBy();
+	if ( $requiredBy !== null && count( $requiredBy ) ) {
+		$_rbInnerHtml = '';
+		foreach ( $requiredBy as $requiredByAid ) {
 				if ( !isset( $achievements[$requiredByAid] ) ) {
 					continue;
 				}
@@ -226,14 +228,14 @@ class TemplateAchievements {
 									$achievements[$requiredByAid]->getName() :
 									"FATAL ERROR LOADING REQUIRED BY ACHIEVEMENT '{$requiredByAid}'" ) .
 								 "</span>";
-			}
+		}
 			if ( !empty( $_rbInnerHtml ) ) {
 				$HTML .= "
 						<div class='p-achievement-required_by'>
 						" . wfMessage( 'required_by' )->escaped() . "{$_rbInnerHtml}
 						</div>";
 			}
-		}
+	}
 		if ( count( $achievement->getCriteria()->getAchievement_Ids() ) ) {
 			$HTML .= "
 						<div class='p-achievement-requires'>

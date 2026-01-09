@@ -83,17 +83,17 @@ class TemplatePointsComp {
 
 		if ( count( $reports ) ) {
 			$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
-			foreach ( $reports as $report ) {
-				$html .= "
-				<tr>
-					<td>" . $linkRenderer->makeKnownLink(
-						SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() ),
-						wfMessage(
-							'comp_report_link',
-							$report->getReportId(),
-							gmdate( 'Y-m-d', $report->getRunTime() )
-						)->text()
-					) . "</td>
+		foreach ( $reports as $report ) {
+			$html .= "
+			<tr>
+				<td>" . $linkRenderer->makeKnownLink(
+					SpecialPage::getTitleFor( 'PointsComp', (string)$report->getReportId() ),
+					wfMessage(
+						'comp_report_link',
+						$report->getReportId(),
+						gmdate( 'Y-m-d', $report->getRunTime() )
+					)->text()
+				) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>
 					<td>" . gmdate( 'Y-m-d', $report->getStartTime() ) . "</td>
@@ -107,7 +107,7 @@ class TemplatePointsComp {
 					<td>{$report->getTotalEmailed()}</td>
 					<td>" . ( $report->isFinished() ? '✓' : '&nbsp;' ) . "</td>
 				</tr>";
-			}
+		}
 		}
 		$html .= "
 			</tbody>
@@ -117,9 +117,9 @@ class TemplatePointsComp {
 		return $html;
 	}
 
-	public static function pointsCompReportDetail( PointsCompReport $report, $userComped, $emailSent ): string {
-		$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() );
-		$pointsCompURL	= $pointsCompPage->getFullURL();
+public static function pointsCompReportDetail( PointsCompReport $report, $userComped, $emailSent ): string {
+	$pointsCompPage	= SpecialPage::getTitleFor( 'PointsComp', (string)$report->getReportId() );
+	$pointsCompURL	= $pointsCompPage->getFullURL();
 
 		$html = '';
 
@@ -203,12 +203,12 @@ class TemplatePointsComp {
 				</thead>
 				<tbody>";
 		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-		while ( ( $reportRow = $report->getNextRow() ) !== false ) {
-			$user = $userFactory->newFromId( $reportRow['user_id'] );
-			$html .= "
-					<tr>
-						<td>" . ( $user ? $user->getName() : 'User ID: ' . $user->getId() ) . "</td>
-						<td>{$reportRow['points']}</td>
+	while ( ( $reportRow = $report->getNextRow() ) !== false ) {
+		$user = $userFactory->newFromId( $reportRow['user_id'] );
+		$html .= "
+				<tr>
+					<td>" . ( $user && $user->getId() ? $user->getName() : 'User ID: ' . $reportRow['user_id'] ) . "</td>
+					<td>{$reportRow['points']}</td>
 						<td>{$reportRow['comp_new']}</td>
 						<td>{$reportRow['comp_extended']}</td>
 						<td>{$reportRow['comp_failed']}</td>
@@ -226,14 +226,14 @@ class TemplatePointsComp {
 							"<button name='emailUser' type='submit' value='{$user->getId()}'/>" .
 							wfMessage( 'send_comp_email' )->escaped() . "</button>" ) . "</td>
 					</tr>";
-		}
+	}
 		$html .= "
 				</tbody>
 			</table>
 		</form>";
 
 		return $html;
-	}
+}
 
 	public static function pointsCompReportCSV( PointsCompReport $report ) {
 		$headers = wfMessage( 'wpa_user' )->escaped() . "," .
@@ -250,12 +250,12 @@ class TemplatePointsComp {
 		$rows = [];
 		$userIdentityLookup = MediaWikiServices::getInstance()->getUserIdentityLookup();
 		while ( ( $reportRow = $report->getNextRow() ) !== false ) {
-			$user = $userIdentityLookup->getUserIdentityByUserId( (int)$reportRow['user_id'] );
-			$rows[] = implode(
-				',',
-				[
-					$user ? $user->getName() : 'User ID: ' . $user->getId(),
-					$reportRow['points'],
+		$user = $userIdentityLookup->getUserIdentityByUserId( (int)$reportRow['user_id'] );
+		$rows[] = implode(
+			',',
+			[
+				$user && $user->getId() ? $user->getName() : 'User ID: ' . $reportRow['user_id'],
+				$reportRow['points'],
 					$reportRow['comp_new'],
 					$reportRow['comp_extended'],
 					$reportRow['comp_failed'],

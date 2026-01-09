@@ -233,16 +233,16 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$categoryId = $request->getInt( 'category_id' );
 		$categoryName = trim( $request->getText( 'category' ) );
-		$category = $this->achievementService->getCategory( $categoryId );
-		$categories = $this->achievementService->getCategories( true );
-		if (
-			$category !== false &&
-			$categoryId > 0 &&
-			$categoryId == $category->getId() &&
-			$categoryName == $category->getName()
-		) {
-			$achievement->setCategory( $category );
-		} elseif ( !empty( $categoryName ) ) {
+	$category = $this->achievementService->getCategory( $categoryId );
+	$categories = $this->achievementService->getCategories( true );
+	if (
+		$category !== null &&
+		$categoryId > 0 &&
+		$categoryId == $category->getId() &&
+		$categoryName == $category->getName()
+	) {
+		$achievement->setCategory( $category );
+	} elseif ( !empty( $categoryName ) ) {
 			$found = false;
 			foreach ( $categories as $_category ) {
 				if ( $categoryName == $_category->getName() ) {
@@ -264,9 +264,9 @@ class SpecialManageAchievements extends SpecialPage {
 					$category = false;
 				}
 			}
-		} else {
+	} else {
 			$category = false;
-		}
+	}
 
 		if ( $category === false ) {
 			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->text();
@@ -294,30 +294,36 @@ class SpecialManageAchievements extends SpecialPage {
 	public function achievementsRevert( OutputPage $output, WebRequest $request ): void {
 		$achievementId = $request->getInt( 'aid' );
 
-		if ( $achievementId ) {
-			$achievement = $this->achievementService->getAchievement( $achievementId );
+	$achievement = null;
+	if ( $achievementId ) {
+		$achievement = $this->achievementService->getAchievement( $achievementId );
 
-			if ( $achievement === false || $achievementId != $achievement->getId() ) {
-				$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
-				return;
-			}
+		if ( $achievement === null || $achievementId != $achievement->getId() ) {
+			$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
+			return;
 		}
+	}
 
-		if ( $achievement->isDeleted() && !$this->getUser()->isAllowed( 'restore_achievements' ) ) {
-			throw new PermissionsError( 'restore_achievements' );
-		}
+	if ( $achievement === null ) {
+		$output->showErrorPage( 'achievements_error', 'error_bad_achievement_id' );
+		return;
+	}
 
-		if ( !$achievement->getParent_Id() ) {
+	if ( $achievement->isDeleted() && !$this->getUser()->isAllowed( 'restore_achievements' ) ) {
+		throw new PermissionsError( 'restore_achievements' );
+	}
+
+	if ( !$achievement->getParent_Id() ) {
 			$output->showErrorPage( 'achievements_error', 'error_achievement_unrevertable' );
 			return;
-		}
+	}
 
-		$parentAch = $this->achievementService->getAchievement( $achievement->getParent_Id() );
+	$parentAch = $this->achievementService->getAchievement( $achievement->getParent_Id() );
 
-		if ( $parentAch === false || $achievement->getParent_Id() != $parentAch->getId() ) {
-			$output->showErrorPage( 'achievements_error', 'error_bad_achievement_parent_id' );
-			return;
-		}
+	if ( $parentAch === null || $achievement->getParent_Id() != $parentAch->getId() ) {
+		$output->showErrorPage( 'achievements_error', 'error_bad_achievement_parent_id' );
+		return;
+	}
 
 		if ( $request->getVal( 'confirm' ) == 'true' && $request->wasPosted() ) {
 			if ( $this->getUser()->isAnon() ) {
@@ -449,22 +455,26 @@ class SpecialManageAchievements extends SpecialPage {
 			];
 		}
 
-		$achievementId = $request->getInt( 'achievement_id' );
-		$achievement = $this->achievementService->getAchievement( $achievementId );
-		if ( $achievement === false ) {
-			$errors[] = [
+	$achievementId = $request->getInt( 'achievement_id' );
+	$achievement = $this->achievementService->getAchievement( $achievementId );
+	if ( $achievement === null ) {
+		$errors[] = [
 				'username' => $username,
 				'message' => $this->msg( 'error_award_bad_achievement' )->text()
 			];
-		}
+	}
 
-		$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
-		if ( count( $errors ) ) {
-			return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
-		}
+	$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
+	if ( count( $errors ) ) {
+		return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
+	}
 
-		$awarded = [];
-		foreach ( explode( ',', $username ) as $getUser ) {
+	if ( $username === null || $achievement === null ) {
+		return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
+	}
+
+	$awarded = [];
+	foreach ( explode( ',', $username ) as $getUser ) {
 			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( trim( $getUser ) );
 			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 				$errors[] = [
@@ -526,7 +536,7 @@ class SpecialManageAchievements extends SpecialPage {
 
 			$award['username'] = $userIdentity->getName();
 			$awarded[] = $award;
-		}
+	}
 
 		return [ 'save' => $save, 'errors' => $errors, 'success' => $awarded ];
 	}

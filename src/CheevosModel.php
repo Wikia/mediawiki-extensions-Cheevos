@@ -118,19 +118,18 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Magic setter for container properties.
-	 * Will only set the property if it was created during the child classes constructor setup.
+	 * /**
+	 * Magic property setter.
 	 *
-	 * @param string $property Property
-	 * @param mixed $value Value to set.
+	 * @param string $property Property name.
+	 * @param mixed $value Property value.
 	 *
-	 * @return object This object.
+	 * @return void
 	 */
-	public function __set( string $property, mixed $value ) {
+	public function __set( string $property, mixed $value ): void {
 		if ( isset( $this->container[$property] ) ) {
 			$this->container[$property] = $value;
 		}
-		return $this;
 	}
 
 	/**
@@ -172,13 +171,13 @@ class CheevosModel implements ArrayAccess {
 	}
 
 	/**
-	 * Returns the value at the specified index
+	 * Offset to retrieve
 	 *
-	 * @param int $offset
+	 * @param mixed $offset Offset
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	public function offsetGet( $offset ) {
+	public function offsetGet( $offset ): mixed {
 		return $this->container[$offset] ?? null;
 	}
 

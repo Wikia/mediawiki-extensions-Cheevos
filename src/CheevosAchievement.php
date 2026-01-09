@@ -229,7 +229,7 @@ class CheevosAchievement extends CheevosModel {
 	 * Returns the image article name.
 	 * "File:ExampleAchievement.png"
 	 *
-	 * @return string Image Article Name - If available
+	 * @return string|null Image Article Name - If available
 	 */
 	public function getImage() {
 		$image = $this->container['image'];
@@ -356,12 +356,13 @@ class CheevosAchievement extends CheevosModel {
 						continue;
 					}
 					if ( $removeDeleted && $achievement->getDeleted_At() > 0 ) {
-						unset( $statuses[$statusId] );
-						unset( $_achievements[$achievement->getId()] );
-						continue;
+				unset( $statuses[$statusId] );
+				unset( $_achievements[$achievement->getId()] );
+				continue;
 					}
-					$fixChildrenStatus[$status->getAchievement_Id()][$status->getSite_Key()][$status->getUser_Id()] =
-						$statusId;
+			$fixChildrenStatus = [];
+			$fixChildrenStatus[$status->getAchievement_Id()][$status->getSite_Key()][$status->getUser_Id()] =
+				$statusId;
 				}
 				foreach ( $statuses as $statusId => $status ) {
 					if ( isset( $_achievements[$status->getAchievement_Id()] ) ) {

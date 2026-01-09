@@ -83,13 +83,14 @@ class TemplateManageAchievements {
 		$HTML .= "
 		<div id='p-achievement-list'>";
 		if ( count( $achievements ) ) {
-			$HTML .= "
-			<ul id='achievement_categories'>";
-			$firstCategory = true;
-			foreach ( $categories as $categoryIndex => $category ) {
-				$categoryId = $category->getId();
-				$categoryHTML[$categoryId] = '';
-				foreach ( $achievements as $achievementId => $achievement ) {
+		$HTML .= "
+		<ul id='achievement_categories'>";
+		$firstCategory = true;
+		$categoryHTML = [];
+		foreach ( $categories as $categoryIndex => $category ) {
+			$categoryId = $category->getId();
+			$categoryHTML[$categoryId] = '';
+			foreach ( $achievements as $achievementId => $achievement ) {
 					if ( $achievement->getCategoryId() != $categoryId ) {
 						continue;
 					}
@@ -101,7 +102,7 @@ class TemplateManageAchievements {
 						false,
 						isset( $revertHints[$achievementId] )
 					);
-				}
+			}
 				if ( !empty( $categoryHTML[$categoryId] ) ) {
 					$HTML .= "<li
 					class='achievement_category_select" . ( $firstCategory ? ' begin' : '' ) .
@@ -109,7 +110,7 @@ class TemplateManageAchievements {
 					</li>";
 					$firstCategory = false;
 				}
-			}
+		}
 			$HTML .= "
 			</ul>";
 			foreach ( $categories as $category ) {
@@ -445,15 +446,15 @@ class TemplateManageAchievements {
 					 wfMessage( 'criteria_achievement_ids' )->escaped() .
 					 "<div class='helper_mark'><span>" .
 					 wfMessage( 'criteria_achievement_ids_help' ) . "</span></label>
-			</div>
-			<div class='criteria_container'>";
-			if ( count( $allAchievements ) ) {
-				$seenIds = [];
-				foreach ( $allAchievements as $aid => $info ) {
-					$id = ( $info->getParent_Id() ? $info->getParent_Id() : $info->getId() );
-					if ( $info->getId() == $achievement->getId() || isset( $seenIds[$id] ) ) {
-						continue;
-					}
+		</div>
+		<div class='criteria_container'>";
+		if ( count( $allAchievements ) ) {
+			$seenIds = [];
+			foreach ( $allAchievements as $aid => $info ) {
+				$id = $info->getParent_Id() ?: $info->getId();
+				if ( $info->getId() == $achievement->getId() || isset( $seenIds[$id] ) ) {
+					continue;
+				}
 					$HTML .= "<label><input
 						type='checkbox'
 						name='criteria_achievement_ids[]'
@@ -463,8 +464,8 @@ class TemplateManageAchievements {
 								$info->getParent_Id(), $criteria['achievement_ids'] ) ? " checked='checked'" : null
 						) . "/>" . htmlentities( $info->getName(), ENT_QUOTES ) . "</label>";
 					$seenIds[$id] = true;
-				}
 			}
+		}
 			$HTML .= "</div>";
 		}
 

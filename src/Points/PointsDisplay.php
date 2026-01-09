@@ -241,8 +241,8 @@ class PointsDisplay {
 					isset( $userPointsRow->adminUrl ) &&
 					$user->isAllowed( 'wiki_points_admin' ) ?
 						"<a href='" . htmlspecialchars( $userPointsRow->adminUrl, ENT_QUOTES ) . "'>" .
-						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) . "</a>" :
-						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) );
+						htmlspecialchars( (string)$userPointsRow->score, ENT_QUOTES ) . "</a>" :
+						htmlspecialchars( (string)$userPointsRow->score, ENT_QUOTES ) );
 				if ( $markup == 'badged' ) {
 					$html .= ' ' . Html::element(
 						'img',
@@ -388,11 +388,11 @@ class PointsDisplay {
 		}
 
 		$filters = [
-			'stat'		=> 'wiki_points',
-			'site_key'	=> $siteKey,
-			'user_id'	=> $globalId,
-			'global'	=> ( $siteKey === null ? true : false )
-		];
+		'stat'		=> 'wiki_points',
+		'site_key'	=> $siteKey,
+		'user_id'	=> $globalId,
+		'global'	=> ( $siteKey === null )
+	];
 
 		$monthsAgo = (int)$monthsAgo;
 		if ( $monthsAgo > 0 ) {
