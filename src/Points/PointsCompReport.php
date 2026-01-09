@@ -654,13 +654,13 @@ class PointsCompReport {
 			return;
 		}
 
-		$maxPointThreshold = $this->getMaxPointThreshold();
-		if ( $maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold ) {
+	$maxPointThreshold = $this->getMaxPointThreshold();
+	if ( $maxPointThreshold !== null && $monthly->getCount() > $maxPointThreshold ) {
 		return;
-		}
+	}
 
 	$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $monthly->getUser_Id() );
-	if ( $user === null || $user->getId() < 1 ) {
+	if ( $user->getId() < 1 ) {
 		return;
 	}
 

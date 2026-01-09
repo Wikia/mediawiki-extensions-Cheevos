@@ -258,17 +258,16 @@ class TemplateAchievements {
 		$HTML .= "
 					</div>";
 		if ( $showControls ) {
-		$manageAchievementsPage = Title::newFromText( 'Special:ManageAchievements' );
-		$manageAchievementsURL = $manageAchievementsPage->getFullURL();
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		if ( $user->isAllowed( 'achievement_admin' ) &&
-			(
-				// @phan-suppress-next-line PhanDeprecatedFunction
-				CheevosHelper::isCentralWiki() ||
-				// @phan-suppress-next-line PhanDeprecatedFunction
-				( !CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal() )
-			)
-		) {
+	$manageAchievementsPage = Title::newFromText( 'Special:ManageAchievements' );
+	$manageAchievementsURL = $manageAchievementsPage->getFullURL();
+	if ( $user->isAllowed( 'achievement_admin' ) &&
+		(
+			// @phan-suppress-next-line PhanDeprecatedFunction
+			CheevosHelper::isCentralWiki() ||
+			// @phan-suppress-next-line PhanDeprecatedFunction
+			( !CheevosHelper::isCentralWiki() && !$achievement->isProtected() && !$achievement->isGlobal() )
+		)
+	) {
 			if ( !$achievement->isDeleted() ) {
 				$HTML .= "
 				<div class='p-achievement-admin'>
@@ -334,22 +333,22 @@ class TemplateAchievements {
 						<div class='progress-bar' style='width: {$width}%;'></div>
 				</div><span>" . $status->getProgress() . "/{$status->getTotal()}</span>
 			</div>";
-		}
+	}
 	if ( $status !== false && $status->isEarned() ) {
 		// @phan-suppress-next-line PhanParamTooMany
 		$timestamp = new MWTimestamp( $status->getEarned_At() );
 		$HTML .= "
 				<div class='p-achievement-earned'>
-					" . $timestamp->getTimestamp( TS_DB ) . "
+					" . $timestamp->format( 'Y-m-d H:i:s' ) . "
 				</div>";
 	}
-		$HTML .= "
-				</div>
-				<span class='p-achievement-points'>
-					" . (int)$achievement->getPoints() .
-				 "<img src=\"" . htmlspecialchars( $wgExtensionAssetsPath . $wgAchPointAbbreviation, ENT_QUOTES ) .
-				 "\" /></span>
-			</div>";
+	$HTML .= "
+			</div>
+			<span class='p-achievement-points'>
+				" . (int)$achievement->getPoints() .
+			 "<img src=\"" . htmlspecialchars( $wgExtensionAssetsPath . $wgAchPointAbbreviation, ENT_QUOTES ) .
+			 "\" /></span>
+		</div>";
 
 		return $HTML;
 	}

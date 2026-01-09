@@ -33,8 +33,8 @@ class CheevosClient {
 private function sendRequest( string $type, string $path, array $data ): array {
 	$type = strtoupper( $type );
 	$uri = "$this->serviceUrl/$path";
-	// @phan-suppress-next-line PhanUndeclaredClassConstant
 	$options = [
+		// @phan-suppress-next-line PhanUndeclaredClassConstant
 		RequestOptions::HEADERS => $this->headers,
 		// @phan-suppress-next-line PhanUndeclaredClassConstant
 		RequestOptions::TIMEOUT => 10,

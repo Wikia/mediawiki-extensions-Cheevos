@@ -39,16 +39,16 @@ class SpecialWikiPoints extends SpecialPage {
 			'mediawiki.ui.button'
 		] );
 
-		$this->setHeaders();
+	$this->setHeaders();
 
-		$this->wikiPoints( $subPage, $output, $this->getRequest() );
-	}
+	$this->wikiPoints( $output, $this->getRequest(), $subPage );
+}
 
-	public function wikiPoints( ?string $subPage = null, OutputPage $output, WebRequest $request ): void {
-		$username = $request->getVal( 'user' );
-		$error = null;
-		$globalId = null;
-		if ( !empty( $username ) ) {
+public function wikiPoints( OutputPage $output, WebRequest $request, ?string $subPage = null ): void {
+	$username = $request->getVal( 'user' );
+	$error = null;
+	$globalId = null;
+	if ( !empty( $username ) ) {
 			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $username );
 			if ( $userIdentity && $userIdentity->isRegistered() ) {
 				$globalId = $userIdentity->getId();
