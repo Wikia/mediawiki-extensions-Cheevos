@@ -307,7 +307,7 @@ class TemplateAchievements {
 				</div>";
 			}
 
-		}
+	}
 
 		// @phan-suppress-next-line PhanDeprecatedFunction
 		if ( !CheevosHelper::isCentralWiki() && ( $achievement->isProtected() || $achievement->isGlobal() ) ) {
@@ -333,7 +333,7 @@ class TemplateAchievements {
 						<div class='progress-bar' style='width: {$width}%;'></div>
 				</div><span>" . $status->getProgress() . "/{$status->getTotal()}</span>
 			</div>";
-	}
+		}
 	if ( $status !== false && $status->isEarned() ) {
 		// @phan-suppress-next-line PhanParamTooMany
 		$timestamp = new MWTimestamp( $status->getEarned_At() );

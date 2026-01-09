@@ -42,7 +42,7 @@ class SpecialWikiPoints extends SpecialPage {
 	$this->setHeaders();
 
 	$this->wikiPoints( $output, $this->getRequest(), $subPage );
-}
+	}
 
 public function wikiPoints( OutputPage $output, WebRequest $request, ?string $subPage = null ): void {
 	$username = $request->getVal( 'user' );
@@ -55,7 +55,7 @@ public function wikiPoints( OutputPage $output, WebRequest $request, ?string $su
 			} else {
 				$error = $this->msg( 'error_wikipoints_user_not_found' )->text();
 			}
-		}
+	}
 
 	$subPage ??= '';
 	$modifiers = explode( '/', trim( trim( $subPage ), '/' ) );
@@ -88,7 +88,7 @@ public function wikiPoints( OutputPage $output, WebRequest $request, ?string $su
 			$thisPage
 		);
 		$output->addHTML( $html );
-	}
+}
 
 	/** @inheritDoc */
 	protected function getGroupName() {
