@@ -535,15 +535,15 @@ class TemplateManageAchievements {
 						 wfMessage(
 							 'achievement_award_failed',
 							 mb_strtolower(
-								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' ),
+								 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text(),
 								 'UTF-8'
 							 ),
 							 mb_strtolower(
-								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' ),
+								 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text(),
 								 'UTF-8'
 							 )
-						 )->escaped() . "
-					<br />" . $form['success']['message'] . "
+						 )->text() . "
+					<br />" . htmlspecialchars( $form['success']['message'], ENT_QUOTES ) . "
 					</div>";
 		}
 	}
