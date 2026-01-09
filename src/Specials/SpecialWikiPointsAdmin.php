@@ -75,7 +75,7 @@ class SpecialWikiPointsAdmin extends SpecialPage {
 			$output->addHTML( TemplateWikiPointsAdmin::lookup(
 				$user,
 				[],
-				$this->msg( 'error_wikipoints_user_not_found' )->escaped(),
+				$this->msg( 'error_wikipoints_user_not_found' )->text(),
 				$usernameParam
 			) );
 		}

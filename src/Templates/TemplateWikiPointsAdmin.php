@@ -28,7 +28,7 @@ class TemplateWikiPointsAdmin {
 
 		$html = '';
 		if ( !empty( $error ) ) {
-			$html .= "<div class='errorbox'>$error</div>";
+			$html .= "<div class='errorbox'>" . htmlspecialchars( $error, ENT_QUOTES ) . "</div>";
 		}
 		return $html . "
 		<form id='wikipoints_lookup_form' class='mw-ui-vform' method='get' action='" . $title->getFullURL() . "'>

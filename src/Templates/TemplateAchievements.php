@@ -149,7 +149,8 @@ class TemplateAchievements {
 				</div>
 				<div class='reverb-npn-ach-points'>" .
 			   $achievement->getPoints() .
-			   "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></div>
+			   "<img src=\"" . htmlspecialchars( $wgExtensionAssetsPath . $wgAchPointAbbreviation, ENT_QUOTES ) .
+			   "\" /></div>
 			</div>";
 	}
 
@@ -189,7 +190,9 @@ class TemplateAchievements {
 				"' data-id='{$achievement->getId()}'>
 				<div class='p-achievement-icon" .
 				( ( $showControls && !empty( $imageUrl ) ) ? " edit-on-hover" : null ) . "'>
-					" . ( !empty( $imageUrl ) ? "<img src='{$imageUrl}' data-img='{$image}'>" : "" ) . "
+					" . ( !empty( $imageUrl ) ?
+						"<img src='" . htmlspecialchars( $imageUrl, ENT_QUOTES ) .
+						"' data-img='" . htmlspecialchars( $image, ENT_QUOTES ) . "'>" : "" ) . "
 					" . ( ( $showControls && !empty( $imageUrl ) ) ?
 				"<span class=\"image-edit-box\" style=\"display: none;\">" .
 				wfMessage( 'click_to_upload_new_image' )->escaped() .
@@ -329,7 +332,8 @@ class TemplateAchievements {
 				</div>
 				<span class='p-achievement-points'>
 					" . (int)$achievement->getPoints() .
-				 "<img src=\"{$wgExtensionAssetsPath}{$wgAchPointAbbreviation}\" /></span>
+				 "<img src=\"" . htmlspecialchars( $wgExtensionAssetsPath . $wgAchPointAbbreviation, ENT_QUOTES ) .
+				 "\" /></span>
 			</div>";
 
 		return $HTML;

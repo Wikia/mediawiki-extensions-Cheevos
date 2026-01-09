@@ -384,7 +384,7 @@ class CheevosHooks implements
 
 		return $this->linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor( 'WikiPointsAdmin' ),
-			wfMessage( 'sp_contributions_wikipoints_admin' )->escaped(),
+			wfMessage( 'sp_contributions_wikipoints_admin' )->text(),
 			[ 'class' => 'mw-usertoollinks-wikipointsadmin' ],
 			[ 'action' => 'lookup', 'user' => $username ]
 		);

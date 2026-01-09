@@ -236,25 +236,26 @@ class PointsDisplay {
 					$userPointsRow->score = 0;
 					$userPoints[] = $userPointsRow;
 				}
-				foreach ( $userPoints as $userPointsRow ) {
-					$html = (
-						isset( $userPointsRow->adminUrl ) &&
-						$user->isAllowed( 'wiki_points_admin' ) ?
-							"<a href='{$userPointsRow->adminUrl}'>{$userPointsRow->score}</a>" :
-							$userPointsRow->score );
-					if ( $markup == 'badged' ) {
-						$html .= ' ' . Html::element(
-							'img',
-							[
-								'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
-								'alt' => 'GP',
-								'class' => 'GP-brand',
-								'title' => wfMessage( 'pointsicon-tooltip' )
-							]
+			foreach ( $userPoints as $userPointsRow ) {
+				$html = (
+					isset( $userPointsRow->adminUrl ) &&
+					$user->isAllowed( 'wiki_points_admin' ) ?
+						"<a href='" . htmlspecialchars( $userPointsRow->adminUrl, ENT_QUOTES ) . "'>" .
+						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) . "</a>" :
+						htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) );
+				if ( $markup == 'badged' ) {
+					$html .= ' ' . Html::element(
+						'img',
+						[
+							'src' => "$wgExtensionAssetsPath/Cheevos/images/gp30.png",
+							'alt' => 'GP',
+							'class' => 'GP-brand',
+							'title' => wfMessage( 'pointsicon-tooltip' )->text()
+						]
 						);
-					}
-					break;
 				}
+				break;
+			}
 				break;
 			case 'table':
 			default:

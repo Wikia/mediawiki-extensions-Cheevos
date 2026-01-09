@@ -56,9 +56,12 @@ class TemplateWikiPoints {
 		if ( !empty( $userPoints ) ) {
 			$i = $start;
 			foreach ( $userPoints as $userPointsRow ) {
-				$wikiName = $userPointsRow->siteKey;
+				$wikiName = htmlspecialchars( $userPointsRow->siteKey, ENT_QUOTES );
 				if ( $isSitesMode && isset( $wikis[$userPointsRow->siteKey] ) ) {
-					$wikiName = $cheevosHelper->getSiteName( $userPointsRow->siteKey, $wikis[$userPointsRow->siteKey] );
+					$wikiName = htmlspecialchars(
+						$cheevosHelper->getSiteName( $userPointsRow->siteKey, $wikis[$userPointsRow->siteKey] ),
+						ENT_QUOTES
+					);
 				}
 				$i++;
 				$html .= "
@@ -66,8 +69,9 @@ class TemplateWikiPoints {
 					<td>$i</td>
 					<td>{$userPointsRow->userLink}{$userPointsRow->userToolsLinks}</td>" .
 					( $isSitesMode ? "<td>$wikiName</td>" : "\n" )
-					. "<td class='score'>{$userPointsRow->score}</td>"
-					. ( $isMonthly ? "<td class='monthly'>" . $userPointsRow->yyyymm . "</td>" : '' ) . "
+					. "<td class='score'>" . htmlspecialchars( $userPointsRow->score, ENT_QUOTES ) . "</td>"
+					. ( $isMonthly ? "<td class='monthly'>" .
+						htmlspecialchars( $userPointsRow->yyyymm, ENT_QUOTES ) . "</td>" : '' ) . "
 				</tr>";
 			}
 		} else {
@@ -97,25 +101,26 @@ class TemplateWikiPoints {
 		$links = [
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints' ),
-				wfMessage( 'top_wiki_editors' )->escaped()
+				wfMessage( 'top_wiki_editors' )->text()
 			),
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'monthly' ),
-				wfMessage( 'top_wiki_editors_monthly' )->escaped()
+				wfMessage( 'top_wiki_editors_monthly' )->text()
 			),
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'global' ),
-				wfMessage( 'top_wiki_editors_global' )->escaped()
+				wfMessage( 'top_wiki_editors_global' )->text()
 			)
 		];
+		// @phan-suppress-next-line PhanDeprecatedFunction
 		if ( CheevosHelper::isCentralWiki() ) {
 			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'sites' ),
-				wfMessage( 'top_wiki_editors_sites' )->escaped()
+				wfMessage( 'top_wiki_editors_sites' )->text()
 			);
 			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'sites/monthly' ),
-				wfMessage( 'top_wiki_editors_sites_monthly' )->escaped()
+				wfMessage( 'top_wiki_editors_sites_monthly' )->text()
 			);
 		}
 
@@ -134,8 +139,10 @@ class TemplateWikiPoints {
 	public static function getSimplePagination( Title $title, int $itemsPerPage, int $start ): string {
 		$previous = max( 0, $start - $itemsPerPage );
 		$next = $start + $itemsPerPage;
-		$previous = "<a href='{$title->getFullUrl(['st' => $previous])}' class='mw-ui-button'>&lt;</a>";
-		$next = "<a href='{$title->getFullUrl(['st' => $next])}' class='mw-ui-button'>&gt;</a>";
+		$previous = "<a href='" . htmlspecialchars( $title->getFullUrl( [ 'st' => $previous ] ), ENT_QUOTES ) .
+			"' class='mw-ui-button'>&lt;</a>";
+		$next = "<a href='" . htmlspecialchars( $title->getFullUrl( [ 'st' => $next ] ), ENT_QUOTES ) .
+			"' class='mw-ui-button'>&gt;</a>";
 		return $previous . ' ' . $next;
 	}
 }
