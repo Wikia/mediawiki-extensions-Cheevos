@@ -188,7 +188,6 @@ class CheevosHelper {
 	 * @param string $siteKey
 	 *
 	 * @return WikiConfigData|null
-	 * @phan-suppress-current-line PhanUndeclaredTypeReturnType
 	 */
 	public static function getWikiInformation( string $siteKey ): ?WikiConfigData {
 		$services = MediaWikiServices::getInstance();
