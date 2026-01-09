@@ -207,7 +207,9 @@ public static function pointsCompReportDetail( PointsCompReport $report, $userCo
 		$user = $userFactory->newFromId( $reportRow['user_id'] );
 		$html .= "
 				<tr>
-					<td>" . ( $user && $user->getId() ? $user->getName() : 'User ID: ' . $reportRow['user_id'] ) . "</td>
+					<td>" . ( $user && $user->getId() ?
+						$user->getName() :
+						'User ID: ' . $reportRow['user_id'] ) . "</td>
 					<td>{$reportRow['points']}</td>
 						<td>{$reportRow['comp_new']}</td>
 						<td>{$reportRow['comp_extended']}</td>
