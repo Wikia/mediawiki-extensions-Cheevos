@@ -500,20 +500,20 @@ class TemplateManageAchievements {
 	if ( isset( $form['success'] ) && is_array( $form['success'] ) ) {
 		foreach ( $form['success'] as $s ) {
 			if ( $s['message'] == "success" ) {
+				// Manually build message with escaped username to avoid taint propagation
+				$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
 				$HTML .= "<div class='successbox'>" .
-						 wfMessage(
-							 'achievement_awarded_to',
-							 htmlspecialchars( $s['username'], ENT_QUOTES ),
-							 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text()
-						 )->text() . "</div><br />";
+						 htmlspecialchars( $s['username'], ENT_QUOTES ) . " " .
+						 wfMessage( 'achievement_awarded_to_suffix', wfMessage( $msgKey )->text() )->parse() .
+						 "</div><br />";
 			}
 			if ( $s['message'] == "nochange" ) {
+				// Manually build message with escaped username to avoid taint propagation
+				$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
 				$HTML .= "<div class='successbox'>" .
-						 wfMessage(
-							 'achievement_nochange_to',
-							 htmlspecialchars( $s['username'], ENT_QUOTES ),
-							 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text()
-						 )->text() . "</div><br />";
+						 htmlspecialchars( $s['username'], ENT_QUOTES ) . " " .
+						 wfMessage( 'achievement_nochange_to_suffix', wfMessage( $msgKey )->text() )->parse() .
+						 "</div><br />";
 			}
 		}
 		if ( isset( $form['errors'] ) ) {
@@ -531,20 +531,15 @@ class TemplateManageAchievements {
 					htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
 			}
 		} else {
-				$HTML .= "<div class='errorbox'>" .
-						 wfMessage(
-							 'achievement_award_failed',
-							 mb_strtolower(
-								 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text(),
-								 'UTF-8'
-							 ),
-							 mb_strtolower(
-								 $wasAwarded ? wfMessage( 'awarded' )->text() : wfMessage( 'unawarded' )->text(),
-								 'UTF-8'
-							 )
-						 )->text() . "
-					<br />" . htmlspecialchars( $form['success']['message'], ENT_QUOTES ) . "
-					</div>";
+			$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
+			$HTML .= "<div class='errorbox'>" .
+					 wfMessage(
+						 'achievement_award_failed',
+						 mb_strtolower( wfMessage( $msgKey )->text(), 'UTF-8' ),
+						 mb_strtolower( wfMessage( $msgKey )->text(), 'UTF-8' )
+					 )->parse() . "
+				<br />" . htmlspecialchars( $form['success']['message'], ENT_QUOTES ) . "
+				</div>";
 		}
 	}
 

@@ -93,34 +93,34 @@ class TemplateWikiPoints {
 	 * @return string Anchor links.
 	 */
 	public static function getWikiPointsLinks(): string {
-		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
-		$cheevosHelper = MediaWikiServices::getInstance()->getService( CheevosHelper::class );
-		$links = [
-			$linkRenderer->makeKnownLink(
-				SpecialPage::getTitleFor( 'WikiPoints' ),
-				wfMessage( 'top_wiki_editors' )->escaped()
-			),
-			$linkRenderer->makeKnownLink(
-				SpecialPage::getTitleFor( 'WikiPoints', 'monthly' ),
-				wfMessage( 'top_wiki_editors_monthly' )->escaped()
-			),
-			$linkRenderer->makeKnownLink(
-				SpecialPage::getTitleFor( 'WikiPoints', 'global' ),
-				wfMessage( 'top_wiki_editors_global' )->escaped()
-			)
-		];
-		if ( $cheevosHelper->isCheevosCentralWiki() ) {
-			$links[] = $linkRenderer->makeKnownLink(
-				SpecialPage::getTitleFor( 'WikiPoints', 'sites' ),
-				wfMessage( 'top_wiki_editors_sites' )->escaped()
-			);
-			$links[] = $linkRenderer->makeKnownLink(
-				SpecialPage::getTitleFor( 'WikiPoints', 'sites/monthly' ),
-				wfMessage( 'top_wiki_editors_sites_monthly' )->escaped()
-			);
-		}
+	$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+	$cheevosHelper = MediaWikiServices::getInstance()->getService( CheevosHelper::class );
+	$links = [
+		$linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPoints' ),
+			wfMessage( 'top_wiki_editors' )->text()
+		),
+		$linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPoints', 'monthly' ),
+			wfMessage( 'top_wiki_editors_monthly' )->text()
+		),
+		$linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPoints', 'global' ),
+			wfMessage( 'top_wiki_editors_global' )->text()
+		)
+	];
+	if ( $cheevosHelper->isCheevosCentralWiki() ) {
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPoints', 'sites' ),
+			wfMessage( 'top_wiki_editors_sites' )->text()
+		);
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'WikiPoints', 'sites/monthly' ),
+			wfMessage( 'top_wiki_editors_sites_monthly' )->text()
+		);
+	}
 
-		return implode( ' | ', $links ) . "<hr>";
+	return implode( ' | ', $links ) . "<hr>";
 	}
 
 	/**

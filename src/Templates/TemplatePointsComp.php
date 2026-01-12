@@ -83,17 +83,17 @@ class TemplatePointsComp {
 
 		if ( count( $reports ) ) {
 			$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
-			foreach ( $reports as $report ) {
-				$html .= "
-				<tr>
-					<td>" . $linkRenderer->makeKnownLink(
-						SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() ),
-						wfMessage(
-							'comp_report_link',
-							$report->getReportId(),
-							gmdate( 'Y-m-d', $report->getRunTime() )
-						)->escaped()
-					) . "</td>
+		foreach ( $reports as $report ) {
+			$html .= "
+			<tr>
+				<td>" . $linkRenderer->makeKnownLink(
+					SpecialPage::getTitleFor( 'PointsComp', (string)$report->getReportId() ),
+					wfMessage(
+						'comp_report_link',
+						$report->getReportId(),
+						gmdate( 'Y-m-d', $report->getRunTime() )
+					)->text()
+				) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>
 					<td>" . gmdate( 'Y-m-d', $report->getStartTime() ) . "</td>
@@ -107,7 +107,7 @@ class TemplatePointsComp {
 					<td>{$report->getTotalEmailed()}</td>
 					<td>" . ( $report->isFinished() ? '✓' : '&nbsp;' ) . "</td>
 				</tr>";
-			}
+		}
 		}
 		$html .= "
 			</tbody>
