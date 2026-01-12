@@ -518,21 +518,21 @@ class TemplateManageAchievements {
 						 "</div><br />";
 			}
 		}
-	if ( isset( $form['errors'] ) ) {
-		foreach ( $form['errors'] as $e ) {
-			$HTML .= "<div class='errorbox'>" .
-				htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
-				$e['message'] . "</div><br />";
+		if ( isset( $form['errors'] ) ) {
+			foreach ( $form['errors'] as $e ) {
+				$HTML .= "<div class='errorbox'>" .
+					htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
+					htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
+			}
 		}
-	}
 	} elseif ( $form['success'] !== null ) {
-	if ( isset( $form['errors'] ) ) {
-		foreach ( $form['errors'] as $e ) {
-			$HTML .= "<div class='errorbox'>" .
-				htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
-				$e['message'] . "</div><br />";
-		}
-	} else {
+		if ( isset( $form['errors'] ) ) {
+			foreach ( $form['errors'] as $e ) {
+				$HTML .= "<div class='errorbox'>" .
+					htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
+					htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
+			}
+		} else {
 			$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
 			$statusMsg = wfMessage( $msgKey )->escaped();
 			$HTML .= "<div class='errorbox'>" .
