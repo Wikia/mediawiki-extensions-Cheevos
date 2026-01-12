@@ -520,17 +520,25 @@ class TemplateManageAchievements {
 		}
 		if ( isset( $form['errors'] ) ) {
 			foreach ( $form['errors'] as $e ) {
+				// Look up message from key to avoid taint propagation
+				$messageText = isset( $e['message_key'] ) ?
+					wfMessage( $e['message_key'] )->escaped() :
+					htmlspecialchars( $e['message'] ?? '', ENT_QUOTES );
 				$HTML .= "<div class='errorbox'>" .
 					htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
-					htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
+					$messageText . "</div><br />";
 			}
 		}
 	} elseif ( $form['success'] !== null ) {
 		if ( isset( $form['errors'] ) ) {
 			foreach ( $form['errors'] as $e ) {
+				// Look up message from key to avoid taint propagation
+				$messageText = isset( $e['message_key'] ) ?
+					wfMessage( $e['message_key'] )->escaped() :
+					htmlspecialchars( $e['message'] ?? '', ENT_QUOTES );
 				$HTML .= "<div class='errorbox'>" .
 					htmlspecialchars( $e['username'], ENT_QUOTES ) . ": " .
-					htmlspecialchars( $e['message'], ENT_QUOTES ) . "</div><br />";
+					$messageText . "</div><br />";
 			}
 		} else {
 			$msgKey = $wasAwarded ? 'awarded' : 'unawarded';

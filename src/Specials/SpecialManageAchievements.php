@@ -476,7 +476,7 @@ class SpecialManageAchievements extends SpecialPage {
 	if ( empty( $username ) ) {
 		$errors[] = [
 			'username' => $username,
-			'message' => $this->msg( 'error_award_bad_user' )->plain()
+			'message_key' => 'error_award_bad_user'
 		];
 	}
 
@@ -485,7 +485,7 @@ class SpecialManageAchievements extends SpecialPage {
 	if ( !$achievement ) {
 		$errors[] = [
 			'username' => $username,
-			'message' => $this->msg( 'error_award_bad_achievement' )->plain()
+			'message_key' => 'error_award_bad_achievement'
 		];
 	}
 
@@ -500,7 +500,7 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 			$errors[] = [
 				'username' => $getUser,
-				'message' => $this->msg( 'error_award_bad_user' )->plain()
+				'message_key' => 'error_award_bad_user'
 			];
 			continue;
 		}
