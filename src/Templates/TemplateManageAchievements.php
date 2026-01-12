@@ -500,19 +500,21 @@ class TemplateManageAchievements {
 	if ( isset( $form['success'] ) && is_array( $form['success'] ) ) {
 		foreach ( $form['success'] as $s ) {
 			if ( $s['message'] == "success" ) {
-				// Manually build message with escaped username to avoid taint propagation
+				// Build message without user data to avoid taint propagation
 				$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
+				$statusMsg = wfMessage( $msgKey )->escaped();
 				$HTML .= "<div class='successbox'>" .
 						 htmlspecialchars( $s['username'], ENT_QUOTES ) . " " .
-						 wfMessage( 'achievement_awarded_to_suffix', wfMessage( $msgKey )->text() )->parse() .
+						 wfMessage( 'achievement_awarded_to_suffix', $statusMsg )->escaped() .
 						 "</div><br />";
 			}
 			if ( $s['message'] == "nochange" ) {
-				// Manually build message with escaped username to avoid taint propagation
+				// Build message without user data to avoid taint propagation
 				$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
+				$statusMsg = wfMessage( $msgKey )->escaped();
 				$HTML .= "<div class='successbox'>" .
 						 htmlspecialchars( $s['username'], ENT_QUOTES ) . " " .
-						 wfMessage( 'achievement_nochange_to_suffix', wfMessage( $msgKey )->text() )->parse() .
+						 wfMessage( 'achievement_nochange_to_suffix', $statusMsg )->escaped() .
 						 "</div><br />";
 			}
 		}
@@ -532,13 +534,14 @@ class TemplateManageAchievements {
 			}
 		} else {
 			$msgKey = $wasAwarded ? 'awarded' : 'unawarded';
+			$statusMsg = wfMessage( $msgKey )->escaped();
 			$HTML .= "<div class='errorbox'>" .
 					 wfMessage(
 						 'achievement_award_failed',
-						 mb_strtolower( wfMessage( $msgKey )->text(), 'UTF-8' ),
-						 mb_strtolower( wfMessage( $msgKey )->text(), 'UTF-8' )
-					 )->parse() . "
-				<br />" . htmlspecialchars( $form['success']['message'], ENT_QUOTES ) . "
+						 mb_strtolower( $statusMsg, 'UTF-8' ),
+						 mb_strtolower( $statusMsg, 'UTF-8' )
+					 )->escaped() . "
+				<br />" . htmlspecialchars( $form['success']['message'] ?? '', ENT_QUOTES ) . "
 				</div>";
 		}
 	}
