@@ -476,7 +476,7 @@ class SpecialManageAchievements extends SpecialPage {
 	if ( empty( $username ) ) {
 		$errors[] = [
 			'username' => $username,
-			'message' => $this->msg( 'error_award_bad_user' )->text()
+			'message' => $this->msg( 'error_award_bad_user' )->escaped()
 		];
 	}
 
@@ -485,22 +485,22 @@ class SpecialManageAchievements extends SpecialPage {
 	if ( !$achievement ) {
 		$errors[] = [
 			'username' => $username,
-			'message' => $this->msg( 'error_award_bad_achievement' )->text()
+			'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
 		];
 	}
 
-		$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
-		if ( count( $errors ) ) {
-			return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
-		}
+	$save = [ 'username' => $username, 'achievement_id' => $achievementId ];
+	if ( count( $errors ) ) {
+		return [ 'save' => $save, 'errors' => $errors, 'success' => false ];
+	}
 
-		$awarded = [];
+	$awarded = [];
 	foreach ( explode( ',', $username ) as $getUser ) {
 		$userIdentity = $this->userIdentityLookup->getUserIdentityByName( trim( $getUser ) );
 		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 			$errors[] = [
 				'username' => $getUser,
-				'message' => $this->msg( 'error_award_bad_user' )->text()
+				'message' => $this->msg( 'error_award_bad_user' )->escaped()
 			];
 			continue;
 		}
