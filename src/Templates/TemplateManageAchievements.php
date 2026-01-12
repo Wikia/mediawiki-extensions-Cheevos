@@ -543,7 +543,7 @@ class TemplateManageAchievements {
 					 )->escaped() . "
 				<br />" . htmlspecialchars( $form['success']['message'] ?? '', ENT_QUOTES ) . "
 				</div>";
-	}
+		}
 	}
 
 		$HTML .= "
