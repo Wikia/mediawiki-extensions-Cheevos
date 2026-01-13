@@ -456,8 +456,8 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
 		// Phan can't track escaping through complex array structures passed to templates.
-		//// The template properly escapes all user input with htmlspecialchars().
-		/// // @phan-suppress-next-line SecurityCheck-XSS
+		// The template properly escapes all user input with htmlspecialchars().
+		// @phan-suppress-next-line SecurityCheck-XSS, SecurityCheck-DoubleEscaped
 		$output->addHTML( $this->template->awardForm( $return, $allAchievements ) );
 	}
 
@@ -479,7 +479,7 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( empty( $username ) ) {
 			$errors[] = [
 				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_user' )->escaped()
+				'message' => $this->msg( 'error_award_bad_user' )->text()
 			];
 		}
 
@@ -488,7 +488,7 @@ class SpecialManageAchievements extends SpecialPage {
 		if ( !$achievement ) {
 			$errors[] = [
 				'username' => $username,
-				'message' => $this->msg( 'error_award_bad_achievement' )->escaped()
+				'message' => $this->msg( 'error_award_bad_achievement' )->text()
 			];
 		}
 
@@ -503,7 +503,7 @@ class SpecialManageAchievements extends SpecialPage {
 			if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 				$errors[] = [
 					'username' => $getUser,
-					'message' => $this->msg( 'error_award_bad_user' )->escaped()
+					'message' => $this->msg( 'error_award_bad_user' )->text()
 				];
 				continue;
 			}
