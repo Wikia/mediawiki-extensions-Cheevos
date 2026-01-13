@@ -498,7 +498,7 @@ class TemplateManageAchievements {
 					$HTML .= "<div class='successbox'>" .
 							 wfMessage(
 								 'achievement_awarded_to',
-								 $s['username'],
+								 htmlspecialchars( $s['username'], ENT_QUOTES ),
 								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
@@ -506,20 +506,24 @@ class TemplateManageAchievements {
 					$HTML .= "<div class='successbox'>" .
 							 wfMessage(
 								 'achievement_nochange_to',
-								 $s['username'],
+								 htmlspecialchars( $s['username'], ENT_QUOTES ),
 								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
 			}
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'] ?? '', ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'] ?? '', ENT_QUOTES ) . "</div><br />";
 				}
 			}
 		} elseif ( $form['success'] !== null ) {
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'] ?? '', ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'] ?? '', ENT_QUOTES ) . "</div><br />";
 				}
 			} else {
 				$HTML .= "<div class='errorbox'>" .
@@ -534,7 +538,7 @@ class TemplateManageAchievements {
 								 'UTF-8'
 							 )
 						 )->escaped() . "
-					<br />" . $form['success']['message'] . "
+					<br />" . htmlspecialchars( $form['success']['message'] ?? '', ENT_QUOTES ) . "
 					</div>";
 			}
 		}
@@ -545,7 +549,7 @@ class TemplateManageAchievements {
 				<legend>" . wfMessage( 'award_hint' )->escaped() . "</legend>";
 		if ( isset( $form['errors']['username'] ) ) {
 			foreach ( $form['errors']['username'] as $err ) {
-				$HTML .= '<span class="error">' . $err . '</span><br/>';
+				$HTML .= '<span class="error">' . htmlspecialchars( $err, ENT_QUOTES ) . '</span><br/>';
 			}
 		}
 				$HTML .= "<label for='offset'>" . wfMessage( 'local_username' )->escaped() . "</label>
@@ -553,7 +557,7 @@ class TemplateManageAchievements {
 					id='username_list'
 					name='username'
 					placeholder='Single username, or comma delimited list of usernames.'>" .
-						 ( isset( $form['save']['username'] ) ? $form['save']['username'] : '' ) . "</textarea>";
+					htmlspecialchars( $form['save']['username'] ?? '', ENT_QUOTES ) . "</textarea>";
 		if ( is_array( $achievements ) && count( $achievements ) ) {
 			$HTML .= "
 				" . (
