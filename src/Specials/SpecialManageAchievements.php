@@ -457,7 +457,7 @@ class SpecialManageAchievements extends SpecialPage {
 		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
 		// Phan can't track escaping through complex array structures passed to templates.
 		// The template properly escapes all user input with htmlspecialchars().
-		// @phan-suppress-next-line SecurityCheck-XSS, SecurityCheck-DoubleEscaped
+		// @phan-suppress-next-line SecurityCheck-XSS
 		$output->addHTML( $this->template->awardForm( $return, $allAchievements ) );
 	}
 
