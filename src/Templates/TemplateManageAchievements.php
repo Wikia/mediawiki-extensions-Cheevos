@@ -16,7 +16,7 @@ use Cheevos\CheevosAchievement;
 use Cheevos\CheevosHelper;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Context\RequestContext;
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 
 class TemplateManageAchievements {
 	/**
