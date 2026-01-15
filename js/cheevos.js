@@ -61,11 +61,11 @@ $(function() {
 	/* Preview Updating          */
 	/*****************************/
 	$("input[name='name']").keyup(function() {
-	$('.p-achievement-name').text($(this).val());
+		$('.p-achievement-name').text($(this).val());
 	}).keyup();
 
 	$("input[name='description']").keyup(function() {
-	$('.p-achievement-description').text($(this).val());
+		$('.p-achievement-description').text($(this).val());
 	}).keyup();
 
 	$("input[name='image_url']").keyup(function() {

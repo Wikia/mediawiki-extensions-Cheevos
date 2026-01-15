@@ -205,8 +205,8 @@ class TemplateManageAchievements {
 						value='" . htmlentities( $achievement->getDescription(), ENT_QUOTES ) . "' />
 
 					" . ( isset( $errors['category'] ) ?
-						'<span class="error">' . htmlspecialchars( $errors['category'], ENT_QUOTES ) . '</span>' :
-						'' ) . "
+				'<span class="error">' . htmlspecialchars( $errors['category'], ENT_QUOTES ) . '</span>' :
+				'' ) . "
 					<label for='category' class='label_above'>" .
 						 wfMessage( 'achievement_category' )->escaped() .
 					 "</label>
@@ -241,17 +241,17 @@ class TemplateManageAchievements {
 			<div id='image_upload'>
 				<img id='image_loading' src='" . MediaWikiServices::getInstance()->getUrlUtils()->expand(
 					$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
-				) . "'/>
+			) . "'/>
 				<p class='image_hint'>" . wfMessage( 'image_hint' )->escaped() . "</p>
 			</div>
 			<label for='image' class='label_above'>"
 				. wfMessage( 'achievement_image' )->escaped() .
 				"<div class='helper_mark'><span>" . wfMessage( 'image_upload_help' ) . "</span></div></label>
 			<input
-				id='image'
-				name='image'
-				type='text'
-				value='" . htmlentities( $achievement->getImage(), ENT_QUOTES ) . "' />
+			id='image'
+			name='image'
+			type='text'
+			value='" . htmlentities( $achievement->getImage(), ENT_QUOTES ) . "' />
 
 			" . (
 				isset( $errors['points'] ) ?
