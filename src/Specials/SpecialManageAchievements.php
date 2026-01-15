@@ -234,14 +234,14 @@ class SpecialManageAchievements extends SpecialPage {
 
 		$name = $request->getText( 'name' );
 		if ( !$name || strlen( $name ) > 50 ) {
-			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->escaped();
+			$errors['name'] = $this->msg( 'error_invalid_achievement_name' )->text();
 		} else {
 			$achievement->setName( $name );
 		}
 
 		$description = $request->getText( 'description' );
 		if ( !$description || strlen( $description ) > 150 ) {
-			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->escaped();
+			$errors['description'] = $this->msg( 'error_invalid_achievement_description' )->text();
 		} else {
 			$achievement->setDescription( $description );
 		}
@@ -287,7 +287,7 @@ class SpecialManageAchievements extends SpecialPage {
 		}
 
 		if ( $category === false ) {
-			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->escaped();
+			$errors['category'] = $this->msg( 'error_invalid_achievement_category' )->text();
 		}
 
 		$achievement->setSecret( $request->getBool( 'secret' ) );
@@ -455,9 +455,6 @@ class SpecialManageAchievements extends SpecialPage {
 		);
 
 		$output->setPageTitle( $this->msg( 'awardachievement' )->escaped() );
-		// Phan can't track escaping through complex array structures passed to templates.
-		// The template properly escapes all user input with htmlspecialchars().
-		// @phan-suppress-next-line SecurityCheck-XSS
 		$output->addHTML( $this->template->awardForm( $return, $allAchievements ) );
 	}
 
