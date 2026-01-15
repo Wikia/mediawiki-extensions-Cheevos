@@ -15,7 +15,7 @@ namespace Cheevos\Templates;
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosHelper;
 use MediaWiki\MediaWikiServices;
-use RequestContext;
+use MediaWiki\Context\RequestContext;
 use SpecialPage;
 
 class TemplateManageAchievements {
