@@ -61,11 +61,11 @@ $(function() {
 	/* Preview Updating          */
 	/*****************************/
 	$("input[name='name']").keyup(function() {
-		$('.p-achievement-name').html($(this).val());
+		$('.p-achievement-name').text($(this).val());
 	}).keyup();
 
 	$("input[name='description']").keyup(function() {
-		$('.p-achievement-description').html($(this).val());
+		$('.p-achievement-description').text($(this).val());
 	}).keyup();
 
 	$("input[name='image_url']").keyup(function() {
@@ -75,9 +75,9 @@ $(function() {
 	$("input[name='points']").keyup(function() {
 		var points = $(this).val();
 		if (points > 0) {
-			$('.p-achievement-points').html($(this).val());
+			$('.p-achievement-points').text($(this).val());
 		} else {
-			$('.p-achievement-points').html('');
+			$('.p-achievement-points').text('');
 		}
 	}).keyup();
 
@@ -85,7 +85,7 @@ $(function() {
 		var increment = $(this).val();
 		if (increment > 0) {
 			var progressDiv = $('<div>').addClass('p-achievement-progress');
-			var spanNumbers = $('<span>').append('0/' + increment);
+			var spanNumbers = $('<span>').text('0/' + increment);
 			var bar = $('<div>').addClass('progress-background').append($('<div>').addClass('progress-bar').attr('style', 'width: 0%;'));
 			if ($('.p-achievement-progress').length > 0) {
 				$('.p-achievement-progress').replaceWith(progressDiv.append(spanNumbers).append(bar));
@@ -340,7 +340,7 @@ $(function() {
 							if ($.inArray(result.achievements[achievementId].unique_hash, window.megaAchievementRequires) !== -1) {
 								$(input).attr('checked', true);
 							}
-							var achievementRow = $('<label>').append(input).append(result.achievements[achievementId].name);
+							var achievementRow = $('<label>').append(input).append(document.createTextNode(result.achievements[achievementId].name));
 							$('#achievements_container').append(achievementRow);
 						}
 					}
