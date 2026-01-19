@@ -98,25 +98,25 @@ class TemplateWikiPoints {
 		$links = [
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints' ),
-				wfMessage( 'top_wiki_editors' )->escaped()
+				wfMessage( 'top_wiki_editors' )->text()
 			),
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'monthly' ),
-				wfMessage( 'top_wiki_editors_monthly' )->escaped()
+				wfMessage( 'top_wiki_editors_monthly' )->text()
 			),
 			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'global' ),
-				wfMessage( 'top_wiki_editors_global' )->escaped()
+				wfMessage( 'top_wiki_editors_global' )->text()
 			)
 		];
 		if ( $cheevosHelper->isCheevosCentralWiki() ) {
 			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'sites' ),
-				wfMessage( 'top_wiki_editors_sites' )->escaped()
+				wfMessage( 'top_wiki_editors_sites' )->text()
 			);
 			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'WikiPoints', 'sites/monthly' ),
-				wfMessage( 'top_wiki_editors_sites_monthly' )->escaped()
+				wfMessage( 'top_wiki_editors_sites_monthly' )->text()
 			);
 		}
 

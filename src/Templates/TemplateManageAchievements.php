@@ -14,12 +14,10 @@ namespace Cheevos\Templates;
 
 use Cheevos\CheevosAchievement;
 use Cheevos\CheevosHelper;
-use Exception;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 
-// phpcs:disable Generic.Files.LineLength.TooLong
 class TemplateManageAchievements {
 	/**
 	 * Achievement List
@@ -27,11 +25,10 @@ class TemplateManageAchievements {
 	 * @param array $achievements Array of Achievement Object
 	 * @param array $categories Array of Category Information
 	 * @param array $revertHints Array of achievements that can be reverted.
-	 *        All child achievements can be reverted, but this hides the button if the child achievement
-	 *        is effectively the same as the parent.
+	 * 		All child achievements can be reverted, but this hides the button if the child achievement
+	 * 		is effectively the same as the parent.
 	 *
 	 * @return string Built HTML
-	 * @throws Exception
 	 */
 	public function achievementsList( array $achievements, array $categories, array $revertHints ): string {
 		$context = RequestContext::getMain();
@@ -66,15 +63,15 @@ class TemplateManageAchievements {
 			<div class='button_break'></div>
 			<div class='buttons_right'>
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='$achievementsURL/invalidatecache' class='mw-ui-button mw-ui-destructive'>" .
+					"<a href='{$achievementsURL}/invalidatecache' class='mw-ui-button mw-ui-destructive'>" .
 					wfMessage( 'invalidatecache_achievement' ) .
 					"</a>" : null ) . "
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='$achievementsURL/award' class='mw-ui-button'>" .
+					"<a href='{$achievementsURL}/award' class='mw-ui-button'>" .
 					wfMessage( 'award_achievement' ) .
 					"</a>" : null ) . "
 				" . ( $user->isAllowed( 'achievement_admin' ) ?
-					"<a href='$achievementsURL/add' class='mw-ui-button mw-ui-progressive'>" .
+					"<a href='{$achievementsURL}/add' class='mw-ui-button mw-ui-progressive'>" .
 					wfMessage( 'add_achievement' ) .
 					"</a>" : null ) . "
 			</div>
@@ -86,7 +83,7 @@ class TemplateManageAchievements {
 			$HTML .= "
 			<ul id='achievement_categories'>";
 			$firstCategory = true;
-			foreach ( $categories as $category ) {
+			foreach ( $categories as $categoryIndex => $category ) {
 				$categoryId = $category->getId();
 				$categoryHTML[$categoryId] = '';
 				foreach ( $achievements as $achievementId => $achievement ) {
@@ -120,7 +117,7 @@ class TemplateManageAchievements {
 				<h4 class='achievement_category_title'>" .
 							 htmlentities( $category->getName(), ENT_QUOTES ) .
 				"</h4>
-				$categoryHTML[$categoryId]
+				{$categoryHTML[$categoryId]}
 			</div>";
 				}
 			}
@@ -144,9 +141,7 @@ class TemplateManageAchievements {
 	 * @param array $categories Achievement Categories
 	 * @param array $allAchievements All Achievements
 	 * @param array $errors Key name => Error of errors
-	 *
 	 * @return string Built HTML
-	 * @throws Exception
 	 */
 	public function achievementsForm(
 		CheevosAchievement $achievement,
@@ -177,7 +172,7 @@ class TemplateManageAchievements {
 				id='achievement_form'
 				class=\"pure-form pure-form-stacked\"
 				method='post'
-				action='$achievementsURL/admin?do=save'>
+				action='{$achievementsURL}/admin?do=save'>
 				<fieldset>
 					" . ( isset( $errors['name'] ) ? '<span class="error">' . $errors['name'] . '</span>' : '' ) . "
 					<label for='name' class='label_above'>" .
@@ -223,10 +218,10 @@ class TemplateManageAchievements {
 		if ( count( $categories ) ) {
 			$HTML .= "<select id='achievement_category_select'>
 									<option value='0'></option>\n";
-			foreach ( $categories as $category ) {
+			foreach ( $categories as $gid => $category ) {
 				$acid = $category->getId();
 				$HTML .= "<option
-				value='$acid'" . ( $achievement->getCategoryId() == $acid ? " selected='selected'" : null ) . ">"
+				value='{$acid}'" . ( $achievement->getCategoryId() == $acid ? " selected='selected'" : null ) . ">"
 						 . htmlentities( $category->getTitle(), ENT_QUOTES ) .
 						 "</option>\n";
 			}
@@ -236,7 +231,7 @@ class TemplateManageAchievements {
 
 		$HTML .= ( isset( $errors['image'] ) ? '<span class="error">' . $errors['image'] . '</span>' : '' ) . "
 			<div id='image_upload'>
-				<img id='image_loading' alt='Loading image' src='" . MediaWikiServices::getInstance()->getUrlUtils()->expand(
+				<img id='image_loading' src='" . MediaWikiServices::getInstance()->getUrlUtils()->expand(
 					$wgExtensionAssetsPath . "/Cheevos/images/loading.gif"
 			) . "'/>
 				<p class='image_hint'>" . wfMessage( 'image_hint' )->escaped() . "</p>
@@ -317,8 +312,8 @@ class TemplateManageAchievements {
 			<span>" . wfMessage( 'criteria_stats_help' ) . "</span></div></label>
 			<div class='criteria_container'>";
 			foreach ( $wgCheevosStats as $stat ) {
-				$HTML .= "<label><input type='checkbox' name='criteria_stats[]' value='$stat'" .
-					( in_array( $stat, $stats ) ? " checked='checked'" : null ) . "/>$stat</label>";
+				$HTML .= "<label><input type='checkbox' name='criteria_stats[]' value='{$stat}'" .
+						 ( in_array( $stat, $stats ) ? " checked='checked'" : null ) . "/>{$stat}</label>";
 			}
 			$HTML .= "</div>
 
@@ -332,7 +327,7 @@ class TemplateManageAchievements {
 					 "</span></div></label>
 				<select name='criteria_streak'>";
 			foreach ( $streakEnum as $streak ) {
-				$HTML .= "<option value='$streak' " .
+				$HTML .= "<option value='{$streak}' " .
 						 ( ( isset( $criteria['streak'] ) && $criteria['streak'] == $streak ) ? 'selected' : '' ) .
 						 ">" . ucfirst( $streak ) . "</option>";
 			}
@@ -429,10 +424,10 @@ class TemplateManageAchievements {
 					<option value='0'>(0) None</option>";
 			foreach ( $categories as $category ) {
 				$acid = $category->getId();
-				$HTML .= "<option value='$acid'" . (
+				$HTML .= "<option value='{$acid}'" . (
 					( isset( $criteria['category_id'] ) &&
 					  $criteria['category_id'] == $acid ) ? " selected='selected'" : null
-					) . ">($acid) " . htmlentities( $category->getTitle(), ENT_QUOTES ) . "</option>\n";
+					) . ">({$acid}) " . htmlentities( $category->getTitle(), ENT_QUOTES ) . "</option>\n";
 			}
 			$HTML .= "</select>
 
@@ -444,7 +439,7 @@ class TemplateManageAchievements {
 			<div class='criteria_container'>";
 			if ( count( $allAchievements ) ) {
 				$seenIds = [];
-				foreach ( $allAchievements as $info ) {
+				foreach ( $allAchievements as $aid => $info ) {
 					$id = ( $info->getParent_Id() ? $info->getParent_Id() : $info->getId() );
 					if ( $info->getId() == $achievement->getId() || isset( $seenIds[$id] ) ) {
 						continue;
@@ -452,7 +447,7 @@ class TemplateManageAchievements {
 					$HTML .= "<label><input
 						type='checkbox'
 						name='criteria_achievement_ids[]'
-						value='$id'" . (
+						value='{$id}'" . (
 							in_array( $info->getId(), $criteria['achievement_ids'] ) ||
 							in_array(
 								$info->getParent_Id(), $criteria['achievement_ids'] ) ? " checked='checked'" : null
@@ -503,7 +498,7 @@ class TemplateManageAchievements {
 					$HTML .= "<div class='successbox'>" .
 							 wfMessage(
 								 'achievement_awarded_to',
-								 $s['username'],
+								 htmlspecialchars( $s['username'], ENT_QUOTES ),
 								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
@@ -511,20 +506,24 @@ class TemplateManageAchievements {
 					$HTML .= "<div class='successbox'>" .
 							 wfMessage(
 								 'achievement_nochange_to',
-								 $s['username'],
+								 htmlspecialchars( $s['username'], ENT_QUOTES ),
 								 $wasAwarded ? wfMessage( 'awarded' ) : wfMessage( 'unawarded' )
 							 )->escaped() . "</div><br />";
 				}
 			}
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'] ?? '', ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'] ?? '', ENT_QUOTES ) . "</div><br />";
 				}
 			}
 		} elseif ( $form['success'] !== null ) {
 			if ( isset( $form['errors'] ) ) {
 				foreach ( $form['errors'] as $e ) {
-					$HTML .= "<div class='errorbox'>" . $e['username'] . ": " . $e['message'] . "</div><br />";
+					$HTML .= "<div class='errorbox'>" .
+						htmlspecialchars( $e['username'] ?? '', ENT_QUOTES ) . ": " .
+						htmlspecialchars( $e['message'] ?? '', ENT_QUOTES ) . "</div><br />";
 				}
 			} else {
 				$HTML .= "<div class='errorbox'>" .
@@ -539,7 +538,7 @@ class TemplateManageAchievements {
 								 'UTF-8'
 							 )
 						 )->escaped() . "
-					<br />" . $form['success']['message'] . "
+					<br />" . htmlspecialchars( $form['success']['message'] ?? '', ENT_QUOTES ) . "
 					</div>";
 			}
 		}
@@ -550,7 +549,7 @@ class TemplateManageAchievements {
 				<legend>" . wfMessage( 'award_hint' )->escaped() . "</legend>";
 		if ( isset( $form['errors']['username'] ) ) {
 			foreach ( $form['errors']['username'] as $err ) {
-				$HTML .= '<span class="error">' . $err . '</span><br/>';
+				$HTML .= '<span class="error">' . htmlspecialchars( $err, ENT_QUOTES ) . '</span><br/>';
 			}
 		}
 				$HTML .= "<label for='offset'>" . wfMessage( 'local_username' )->escaped() . "</label>
@@ -558,17 +557,17 @@ class TemplateManageAchievements {
 					id='username_list'
 					name='username'
 					placeholder='Single username, or comma delimited list of usernames.'>" .
-					( isset( $form['save']['username'] ) ?? '' ) . "</textarea>";
+					htmlspecialchars( $form['save']['username'] ?? '', ENT_QUOTES ) . "</textarea>";
 		if ( is_array( $achievements ) && count( $achievements ) ) {
 			$HTML .= "
 				" . (
 					isset( $form['errors']['achievement_id'] ) ?
 						'<span class="error">' . $form['errors']['achievement_id'] . '</span><br/>' : '' ) . "
 				<select id='achievement_id' name='achievement_id'>\n";
-			foreach ( $achievements as $achievement ) {
+			foreach ( $achievements as $key => $achievement ) {
 				$achievementId = $achievement->getId();
 				$HTML .= "
-					<option value='$achievementId'" .
+					<option value='{$achievementId}'" .
 						 ( isset( $form['save']['achievement_id'] ) &&
 						   $form['save']['achievement_id'] == $achievementId ? " selected='selected'" : null ) .
 						 ">" . htmlentities( $achievement->getName(), ENT_QUOTES ) . "</option>\n";
@@ -588,4 +587,3 @@ class TemplateManageAchievements {
 		return $HTML;
 	}
 }
-// phpcs:enable

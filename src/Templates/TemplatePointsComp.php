@@ -87,12 +87,12 @@ class TemplatePointsComp {
 				$html .= "
 				<tr>
 					<td>" . $linkRenderer->makeKnownLink(
-						SpecialPage::getTitleFor( 'PointsComp', $report->getReportId() ),
+						SpecialPage::getTitleFor( 'PointsComp', (string)$report->getReportId() ),
 						wfMessage(
 							'comp_report_link',
 							$report->getReportId(),
 							gmdate( 'Y-m-d', $report->getRunTime() )
-						)->escaped()
+						)->text()
 					) . "</td>
 					<td>{$report->getMinPointThreshold()}</td>
 					<td>{$report->getMaxPointThreshold()}</td>
